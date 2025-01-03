@@ -1,0 +1,12 @@
+[
+    { "id": 1, "pricebook": "Acme Poultry PriceBook" },
+    { "id": 2, "pricebook": "Alaska Sea Pack PriceBook" },
+    { "id": 3, "pricebook": "Asian Pacific Market PriceBook" },
+    { "id": 4, "pricebook": "Azteca PriceBook" },
+    { "id": 5, "pricebook": "Aloha Produce PriceBook" },
+    { "id": 6, "pricebook": "B&D Foods PriceBook" },
+    { "id": 7, "pricebook": "Coro Foods PriceBook" },
+    { "id": 8, "pricebook": "Green Valley Farms PriceBook" },
+    { "id": 9, "pricebook": "Blue Wave Seafoods PriceBook" },
+    { "id": 10, "pricebook": "Sunrise Distributors PriceBook" }
+  ]
