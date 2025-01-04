@@ -4,21 +4,10 @@ import {
   TextField,
   Typography,
   useMediaQuery,
-  Checkbox,
-  FormGroup,
-  FormControlLabel,
-  Fab,
   Button,
   IconButton,
   Tooltip,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
 } from "@mui/material";
 import { Box, styled } from "@mui/material";
 import { Breadcrumb, SimpleCard } from "app/components";
@@ -39,23 +28,18 @@ import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
 // CUSTOM UTILS LIBRARY FUNCTIONS
 import { convertHexToRGB } from "app/utils/utils";
 import { useDropzone } from "react-dropzone";
-import useSettings from "app/hooks/useSettings";
-import { themeColors } from "app/components/baseTheme/themeColors";
-import { DataGrid } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
-import { getLocalListview } from "app/redux/slice/listviewSlice";
 import useAuth from "app/hooks/useAuth";
 import { values } from "lodash";
 import { useNavigate } from "react-router-dom";
-import { fetchGetImage } from "app/redux/slice/getSlice";
+import { fetchGetImage,  } from "app/redux/slice/getSlice";
 import toast from "react-hot-toast";
 import {
   RunGroupAutocompleteWithDefault,
-  SingleAutocomplete,
   SingleAutocompleteWithDefault,
 } from "app/components/AutoComplete";
-import { updatesettingData, postImage } from "app/redux/slice/postSlice";
-import JwtLogin from "../sessions/JwtLogin";
+import { updatesettingData,postImage } from "app/redux/slice/postSlice";
+import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
 // import Cover from "../../../assets/meat1.jpg";
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -97,13 +81,9 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   borderRadius: "4px",
   marginBottom: "16px",
   transition: "all 350ms ease-in-out",
-  border: `2px dashed rgba(${convertHexToRGB(
-    theme.palette.text.primary
-  )}, 0.3)`,
+  border: `2px dashed rgba(${convertHexToRGB(theme.palette.text.primary)}, 0.3)`,
   "&:hover": {
-    background: `rgb(${convertHexToRGB(
-      theme.palette.text.primary
-    )}, 0.2) !important`,
+    background: `rgb(${convertHexToRGB(theme.palette.text.primary)}, 0.2) !important`,
   },
   background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
 }));
@@ -159,35 +139,7 @@ const Settings = () => {
   useEffect(() => {
     updateCompany();
   }, []);
-  const [plyLogo, setPlyLogo] = useState();
-  const [nickyLogo, setNickyLogo] = useState();
-  const [sjLogo, setSjLogo] = useState();
 
-  const handleLogoSelection = (e) => {
-    const selectedLogo =
-      e.target.value === "5"
-        ? plyMouth.logo
-        : e.target.value === "7"
-        ? nicky.logo
-        : sjfood.logo;
-
-    // Update the appropriate state
-    if (e.target.value === "5") {
-      setPlyLogo(selectedLogo);
-    } else if (e.target.value === "7") {
-      setNickyLogo(selectedLogo);
-    } else {
-      setSjLogo(selectedLogo);
-    }
-  };
-
-  //==============================IMAGEUPLOAD================================//
-  // const [imageList1, setImageList1] = useState([]);
-  // const [previewImages1, setPreviewImages1] = useState([]);
-  // const [imageList2, setImageList2] = useState([]);
-  // const [previewImages2, setPreviewImages2] = useState([]);
-  // const [imageList3, setImageList3] = useState([]);
-  // const [previewImages3, setPreviewImages3] = useState([]);
   const [imageList1, setImageList1] = useState([]);
   const [previewImages1, setPreviewImages1] = useState([
     { preview: plyMouth.logo },
@@ -231,6 +183,7 @@ const Settings = () => {
   };
 
   const CompanyID = user.companyID;
+  console.log("🚀 ~ Settings ~ CompanyID:", CompanyID)
 
   const dispatch = useDispatch();
   const dropzoneProps1 = useDropzone({
@@ -257,7 +210,6 @@ const Settings = () => {
     accept: "image/*",
     onDrop: handleDrop(setImageList6, setPreviewImages6),
   });
-  const [errorMessage, setErrorMessage] = useState("");
 
   const SettingsLogo = ({ previewImages, imageSrc }) => {
     const displayImage =
@@ -274,7 +226,7 @@ const Settings = () => {
       try {
         const response1 = await dispatch(
           fetchGetImage({
-            filter: `CompanyID=${CompanyID}&TableID=CO&ImageID=PM`,
+            filter: `CompanyID=5&TableID=CO&ImageID=PM`,
           })
         );
         setPreviewImages1([
@@ -283,7 +235,7 @@ const Settings = () => {
 
         const response2 = await dispatch(
           fetchGetImage({
-            filter: `CompanyID=${CompanyID}&TableID=CO&ImageID=SJ`,
+            filter: `CompanyID=6&TableID=CO&ImageID=SJ`,
           })
         );
         setPreviewImages2([
@@ -292,7 +244,7 @@ const Settings = () => {
 
         const response3 = await dispatch(
           fetchGetImage({
-            filter: `CompanyID=${CompanyID}&TableID=CO&ImageID=NU`,
+            filter: `CompanyID=7&TableID=CO&ImageID=NU`,
           })
         );
         setPreviewImages3([
@@ -301,7 +253,7 @@ const Settings = () => {
 
         const response4 = await dispatch(
           fetchGetImage({
-            filter: `CompanyID=${CompanyID}&TableID=CO&ImageID=PMH`,
+            filter: `CompanyID=5&TableID=CO&ImageID=PMH`,
           })
         );
         setPreviewImages4([
@@ -309,7 +261,7 @@ const Settings = () => {
         ]);
         const response5 = await dispatch(
           fetchGetImage({
-            filter: `CompanyID=${CompanyID}&TableID=CO&ImageID=SJH`,
+            filter: `CompanyID=6&TableID=CO&ImageID=SJH`,
           })
         );
         setPreviewImages5([
@@ -317,7 +269,7 @@ const Settings = () => {
         ]);
         const response6 = await dispatch(
           fetchGetImage({
-            filter: `CompanyID=${CompanyID}&TableID=CO&ImageID=NUH`,
+            filter: `CompanyID=7&TableID=CO&ImageID=NUH`,
           })
         );
         setPreviewImages6([
@@ -332,14 +284,12 @@ const Settings = () => {
   }, [CompanyID]);
 
   const fnpostImage = async () => {
-    let isImageUpdated = false;
-
     if (imgstatus1 === "Y") {
       const image = previewImages1[0]["preview"];
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID:5,
         TabelID: "CO",
         ImageID: "PM",
         Description: "PlyLogo",
@@ -359,7 +309,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: 6,
         TabelID: "CO",
         ImageID: "SJ",
         Description: "S and J",
@@ -379,7 +329,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: 7,
         TabelID: "CO",
         ImageID: "NU",
         Description: "Nicky",
@@ -399,7 +349,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID:5,
         TabelID: "CO",
         ImageID: "PMH",
         Description: "Plymouth Home",
@@ -419,7 +369,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: 6,
         TabelID: "CO",
         ImageID: "SJH",
         Description: "S and J Home",
@@ -439,7 +389,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: 7,
         TabelID: "CO",
         ImageID: "NUH",
         Description: "Nicky Home",
@@ -541,50 +491,20 @@ const Settings = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [openRunDialog, setOpenRunDialog] = useState(false);
 
-  // Close the dialog without deleting
   const handleClose = () => {
     setOpenDialog(false);
-    // setOpenRunDialog(false);
   };
   const handleRunClose = () => {
     setOpenRunDialog(false);
     setSelectedRungroupOptions(null);
   };
-  // const userUpdate = async (newValue) => {
-  //   const data = {
-  //       "UserRecID": user.id,
-  //       "CompanyCode": selectedCompanyOptions.Code,
-  //       "RungroupName": selectedRungroupOptions.Name
-  //   };
-  //   const response = await dispatch(updatesettingData({ data }));
 
-  //   if (response.payload.Status == "Y") {
-  //       toast.success("User updated Successfully");
-  //       updateCompany();
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
 
-  //       const company = companyList.find(value => value.companyCode === selectedCompanyCode);
-  //       console.log("🚀 ~ userUpdate ~ company:", company)
-  //    const defaultRunGroup = user.defaultRunGroup === selectedRungroupOptions.Name
-  //     ? user.defaultRunGroup
-  //     : null;
-
-  // console.log(defaultRunGroup);
-  //       if (company) {
-  //           updateUser({
-  //               ...user,
-  //               ...company,
-
-  //           });
-  //       } else {
-  //           console.error("Company not found for RecordID:", newValue.RecordID);
-  //           toast.error("Company not found for the selected record.");
-  //           toast.error("please choose the relevant Rungroup");
-  //       }
-  //   }
-  // };
   const userUpdate = async (newValue) => {
     if (!selectedCompanyOptions?.Code) {
-      alert("Company  is missing. Please select a company.");
+      // alert("Company  is missing. Please select a company.");
       return;
     }
 
@@ -601,7 +521,7 @@ const Settings = () => {
     const response = await dispatch(updatesettingData({ data }));
 
     if (response.payload.Status === "Y") {
-      toast.success("User updated Successfully");
+      // toast.success("User updated Successfully");
       updateCompany();
 
       const company = companyList.find(
@@ -618,10 +538,6 @@ const Settings = () => {
           ...user,
           defaultRunGroup: selectedRungroupOptions.Name,
         });
-        console.log(
-          "🚀 ~ userUpdate ~ Updated defaultRunGroup:",
-          selectedRungroupOptions.Name
-        );
       }
 
       if (company) {
@@ -633,10 +549,15 @@ const Settings = () => {
             : user.defaultRunGroup,
         });
       } else {
-        console.error("Company not found for RecordID:", newValue.RecordID);
-        toast.error("Company not found for the selected record.");
-        toast.error("Please choose the relevant Rungroup.");
+        // console.error("Company not found for RecordID:", newValue.RecordID);
+        // toast.error("Company not found for the selected record.");
+        // toast.error("Please choose the relevant Rungroup.");
       }
+
+      setOpenAlert(true);
+    } else {
+      setOpenAlert(true);
+      setPostError(true);
     }
   };
 
@@ -709,7 +630,7 @@ const Settings = () => {
             >
               <Typography variant="h5">Plymouth Logo</Typography>
               <SettingsLogo previewImages={previewImages1} />
-              {user.role === "ADMIN" && (
+              {/* {user.role === "ADMIN" && ( */}
                 <DropZone {...dropzoneProps1.getRootProps()}>
                   <input
                     {...dropzoneProps1.getInputProps({
@@ -728,7 +649,7 @@ const Settings = () => {
                     )}
                   </FlexBox>
                 </DropZone>
-              )}
+              {/* // )} */}
             </Box>
 
             {/* Second Grid - Logo section */}
@@ -741,7 +662,7 @@ const Settings = () => {
             >
               <Typography variant="h5">S and J Logo</Typography>
               <SettingsLogo previewImages={previewImages2} />
-              {user.role === "ADMIN" && (
+              {/* {user.role === "ADMIN" && ( */}
                 <DropZone {...dropzoneProps2.getRootProps()}>
                   <input
                     {...dropzoneProps2.getInputProps({
@@ -760,7 +681,7 @@ const Settings = () => {
                     )}
                   </FlexBox>
                 </DropZone>
-              )}
+              {/* // )} */}
             </Box>
 
             {/* Third Grid - Logo section */}
@@ -773,7 +694,7 @@ const Settings = () => {
             >
               <Typography variant="h5">Nicky Logo</Typography>
               <SettingsLogo previewImages={previewImages3} />
-              {user.role === "ADMIN" && (
+              {/* {user.role === "ADMIN" && ( */}
                 <DropZone {...dropzoneProps3.getRootProps()}>
                   <input
                     {...dropzoneProps3.getInputProps({
@@ -792,7 +713,7 @@ const Settings = () => {
                     )}
                   </FlexBox>
                 </DropZone>
-              )}
+              {/* )} */}
             </Box>
           </Box>
           <Box
@@ -903,7 +824,7 @@ const Settings = () => {
             </Box> */}
           </Box>
           {/* Buttons at the bottom */}
-          {user.role === "ADMIN" && (
+          {/* {user.role === "ADMIN" && ( */}
             <Box display="flex" justifyContent="flex-end" gap="10px" margin={3}>
               <Button
                 variant="contained"
@@ -938,109 +859,104 @@ const Settings = () => {
                 Save
               </Button>
             </Box>
-          )}
+          {/* )} */}
         </SimpleCard>
-
-        <Dialog open={openDialog} onClose={handleClose}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              alignItems: "center",
-              maxWidth: 400,
-              minHeight: 400,
-            }}
-          >
-            <img
-              src={`data:image/png;base64,${user.homePagelogo}`}
-              width="150px"
-              height="150px"
-              alt=""
-            />
-            <DialogTitle>RunGroup</DialogTitle>
-            <DialogContent>{`Please Choose the Rungroup`}</DialogContent>
-
-            {/* This Box wraps the buttons and ensures they stay at the bottom */}
+        <PriceGroupAlertApiDialog
+          open={openDialog}
+          error={true}
+          message={`Please Choose the Rungroup`}
+          Actions={
             <Box
               sx={{
-                width: "100%",
                 display: "flex",
                 justifyContent: "flex-end",
-                paddingTop: "auto", // Pushes the buttons to the bottom
+                width: "100%",
+                // height: 25,
               }}
             >
-              <DialogActions sx={{ width: "100%" }}>
-                <Button
-                  variant="contained"
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: theme.palette.secondary.light, // Custom hover color
-                    },
-                    color: theme.palette.secondary.contrastText,
-                    bgcolor: theme.palette.secondary.light,
-                    fontWeight: "bold",
-                  }}
-                  type="submit"
-                  onClick={handleClose}
-                >
-                  Ok
-                </Button>
-              </DialogActions>
+              <Button
+                variant="contained"
+                sx={{
+                  "&:hover": {
+                    backgroundColor: theme.palette.secondary.light, // Custom hover color
+                  },
+                  color: theme.palette.secondary.contrastText,
+                  bgcolor: theme.palette.secondary.light,
+                  height: 25,
+                }}
+                onClick={handleClose}
+              >
+                Ok
+              </Button>
             </Box>
-          </Box>
-        </Dialog>
-        <Dialog open={openRunDialog} onClose={handleClose}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              alignItems: "center",
-              maxWidth: 400,
-              minHeight: 400,
-            }}
-          >
-            <img
-              src={`data:image/png;base64,${user.homePagelogo}`}
-              width="150px"
-              height="150px"
-              alt=""
-            />
-            <DialogTitle>RunGroup</DialogTitle>
-            <DialogContent>
-              {`Please Choose the Default Company Rungroup`}
-            </DialogContent>
+          }
+        />
 
-            {/* This Box wraps the buttons and ensures they stay at the bottom */}
+        <PriceGroupAlertApiDialog
+          open={openDialog}
+          error={true}
+          message={`Please Choose the Rungroup`}
+          Actions={
             <Box
               sx={{
-                width: "100%",
                 display: "flex",
                 justifyContent: "flex-end",
-                paddingTop: "auto", // Pushes the buttons to the bottom
+                width: "100%",
+                // height: 25,
               }}
             >
-              <DialogActions sx={{ width: "100%" }}>
-                <Button
-                  variant="contained"
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: theme.palette.secondary.light, // Custom hover color
-                    },
-                    color: theme.palette.secondary.contrastText,
-                    bgcolor: theme.palette.secondary.light,
-                    fontWeight: "bold",
-                  }}
-                  type="submit"
-                  onClick={handleRunClose}
-                >
-                  Ok
-                </Button>
-              </DialogActions>
+              <Button
+                variant="contained"
+                sx={{
+                  "&:hover": {
+                    backgroundColor: theme.palette.secondary.light, // Custom hover color
+                  },
+                  color: theme.palette.secondary.contrastText,
+                  bgcolor: theme.palette.secondary.light,
+                  height: 25,
+                }}
+                onClick={handleClose}
+              >
+                Ok
+              </Button>
             </Box>
-          </Box>
-        </Dialog>
+          }
+        />
+
+        <PriceGroupAlertApiDialog
+          open={openAlert}
+          error={postError}
+          message={
+            postError ? "Something Went Wrong" : "Setting Updated Successfully"
+          }
+          Actions={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+              {" "}
+              <Button
+                variant="contained"
+                sx={{
+                  "&:hover": {
+                    backgroundColor: theme.palette.secondary.light, // Custom hover color
+                  },
+                  color: theme.palette.secondary.contrastText,
+                  bgcolor: theme.palette.secondary.light,
+                  height: 25,
+                }}
+                onClick={() => {
+                  setOpenAlert(false);
+                }}
+              >
+                Ok
+              </Button>
+            </Box>
+          }
+        />
       </Box>
     </Container>
   );

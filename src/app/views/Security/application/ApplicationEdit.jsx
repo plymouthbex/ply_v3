@@ -137,8 +137,8 @@ const ApplicationEdit = () => {
                 <Breadcrumb
                   routeSegments={[
                     { name: "Security" },
-                    { name: "Interface", path: "/pages/application" },
-                    { name: `${params.mode} Interface Detail` },
+                    { name: "Menu", path: "/pages/application" },
+                    { name: `${params.mode} Menu Detail` },
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
@@ -209,7 +209,7 @@ const ApplicationEdit = () => {
                     type="text"
                     id="name"
                     name="name"
-                    label="Screen Name"
+                    label="Menu Name"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
@@ -347,7 +347,7 @@ const ApplicationEdit = () => {
                 size="small"
                 onClick={() => navigate("/pages/security/application")}
               >
-                Back to Application
+                Back to Menu
               </Button>
               <Button
                 variant="contained"
@@ -359,7 +359,7 @@ const ApplicationEdit = () => {
                 }}
                 autoFocus
               >
-                Add New Application
+                Add New Menu
               </Button>
             </DialogActions>
           ) : (
@@ -370,7 +370,7 @@ const ApplicationEdit = () => {
                 size="small"
                 onClick={() => navigate("/pages/security/application")}
               >
-                Back to Application
+                Back to Menu
               </Button>
             </DialogActions>
           )

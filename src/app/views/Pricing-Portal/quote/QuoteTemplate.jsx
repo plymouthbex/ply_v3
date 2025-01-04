@@ -5,11 +5,6 @@ import {
   styled,
   Stack,
   Tooltip,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Button,
 } from "@mui/material";
 import { Breadcrumb, SimpleCard } from "app/components";
@@ -17,17 +12,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import { useNavigate } from "react-router-dom";
 import { fetchListviewPriveTemplate } from "app/redux/slice/listviewSlice";
-import DeleteIcon from "@mui/icons-material/Delete";
 import useAuth from "app/hooks/useAuth";
 import { deleteQuotePriceData } from "app/redux/slice/postSlice";
-import toast from "react-hot-toast";
 import {
   DataGrid,
   GridToolbarContainer,
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 import { useTheme } from "@emotion/react";
-import { PriceGroupAlertApiDialog, QuoteTempAlertApiDialog } from "app/components/LoadindgDialog";
+import {
+  PriceGroupAlertApiDialog,
+  QuoteTempAlertApiDialog,
+} from "app/components/LoadindgDialog";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -59,7 +55,7 @@ export default function QuoteTemplate() {
   }, [dispatch, user.id]);
 
   const isLoading = useSelector((state) => state.listview.priceTemploading);
-  const status = useSelector((state) => state.listview.priceTempstatus);
+  // const status = useSelector((state) => state.listview.priceTempstatus);
   const rows = useSelector((state) => state.listview.priceTemplistRowData);
   function CustomToolbar() {
     return (
@@ -93,7 +89,7 @@ export default function QuoteTemplate() {
               fontWeight: "bold",
             }}
             onClick={() =>
-              navigate("/pages/pricing-portal/quote", {
+              navigate("/pages/quote", {
                 state: {
                   templateID: 0,
                   templateName: "",
@@ -131,7 +127,7 @@ export default function QuoteTemplate() {
         return (
           <Button
             onClick={() =>
-              navigate("/pages/pricing-portal/quote-form", {
+              navigate("/pages/quote-form", {
                 state: {
                   templateID: params.row.Recid,
                   templateName: params.row.TemplateName,
@@ -209,8 +205,8 @@ export default function QuoteTemplate() {
     },
   ];
 
-    const [openAlert, setOpenAlert] = useState(false);
-    const [postError, setPostError] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
   const handleDelete = async () => {
     if (selectedTemplateId) {
       const res = await dispatch(
@@ -218,7 +214,7 @@ export default function QuoteTemplate() {
       );
       if (res.payload.Status === "Y") {
         setOpenDialog(false); // Close the dialog
-      setSelectedTemplateId(null);
+        setSelectedTemplateId(null);
         dispatch(
           fetchListviewPriveTemplate({
             userID: `Quote/GetQuoteTemplatesList?UserId=${user.id}`,
@@ -232,7 +228,7 @@ export default function QuoteTemplate() {
         setPostError(true);
         // toast.error("Something went wrong");
       }
-       // Clear the selected template ID
+      // Clear the selected template ID
     }
   };
 
@@ -306,6 +302,7 @@ export default function QuoteTemplate() {
       </Stack>
 
       <QuoteTempAlertApiDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={openDialog}
         error={true}
         message={`Are you sure you want to delete this Quote template-${selectedTemplateName}?`}
@@ -318,75 +315,70 @@ export default function QuoteTemplate() {
             }}
           >
             <Button
-                onClick={handleCancel}
-                variant="contained"
-                sx={{
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-                  color: theme.palette.secondary.contrastText,
-                  bgcolor: theme.palette.secondary.light,
-                  height: 25 ,
-                  marginRight: 2
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-                  color: theme.palette.secondary.contrastText,
-                  bgcolor: theme.palette.secondary.light,
-                  height: 25 
-                }}
-                type="submit"
-                onClick={handleDelete}
-              >
-                Confirm
-              </Button>
-           
+              onClick={handleCancel}
+              variant="contained"
+              sx={{
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
+                color: theme.palette.secondary.contrastText,
+                bgcolor: theme.palette.secondary.light,
+                height: 25,
+                marginRight: 2,
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
+                color: theme.palette.secondary.contrastText,
+                bgcolor: theme.palette.secondary.light,
+                height: 25,
+              }}
+              type="submit"
+              onClick={handleDelete}
+            >
+              Confirm
+            </Button>
           </Box>
         }
       />
 
-  <PriceGroupAlertApiDialog
-            open={openAlert}
-            error={postError}
-            message={ postError
-                  ? "Something Went Wrong"
-                  : "Deleted Successfully"
-            }
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert(false);
-                    setTimeout(() => {
-                      setPostError(false);
-                    }, 1000);
-                    // setPostError(false)
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-      
-     
+      <PriceGroupAlertApiDialog
+       logo={`data:image/png;base64,${user.logo}`}
+        open={openAlert}
+        error={postError}
+        message={postError ? "Something Went Wrong" : "Deleted Successfully"}
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
+                setTimeout(() => {
+                  setPostError(false);
+                }, 1000);
+                // setPostError(false)
+              }}
+              sx={{ height: 25 }}
+            >
+              Close
+            </Button>
+          </Box>
+        }
+      />
     </Container>
   );
 }

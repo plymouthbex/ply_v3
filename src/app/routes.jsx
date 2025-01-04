@@ -26,8 +26,8 @@ const routes = [
         </AuthGuard>
       ),
       children: [
-         { path: '/control-panel/home', element:<HomePage/> },
-         { path: '/pricing-portel/home', element:<HomePagePricing/> },
+        //  { path: '/control-panel/home', element:<HomePage/> },
+         { path: '/home', element:<HomePagePricing/> },
         //  { path: '/PDF8', element:<PDF8/> },
          { path: '/favorite/pricing-portal/home', element:<HomePage/> },
         ...priceBookRoutes,

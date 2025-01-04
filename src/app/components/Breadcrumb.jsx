@@ -50,7 +50,7 @@ const Breadcrumb = ({ routeSegments }) => {
         separator={<Icon sx={{ color: hint }}>navigate_next</Icon>}
         sx={{ display: "flex", alignItems: "center", position: "relative" }}
       >
-        <NavLink to="/control-panel/home">
+        <NavLink to="/home">
           <StyledIcon sx={{color: "#174c4f",}}>home</StyledIcon>
         </NavLink>
         {routeSegments

@@ -236,7 +236,7 @@ const ViewPriceBook = () => {
           if (priceListOutType === "EXCEL") {
             exportToExcelFullPriceBookV1({
               excelData: response.payload,
-              fileName: `${
+              fileName: `${user.company}_${
                 selectedCustomerOptions
                   ? selectedCustomerOptions.Name
                   : "Customer"
@@ -318,7 +318,7 @@ const ViewPriceBook = () => {
             if (priceListOutType === "PDF") {
               const link = document.createElement("a");
               link.href = url;
-              link.download = `${
+              link.download = `${user.company}_${
                 selectedCustomerOptions
                   ? selectedCustomerOptions.Name
                   : "Customer"
@@ -427,7 +427,7 @@ const ViewPriceBook = () => {
           if (priceListOutType === "EXCEL") {
             exportToExcelCustomPriceBook({
               excelData: response.payload,
-              fileName: `${
+              fileName: `${user.company}_${
                 selectedCustomerOptions
                   ? selectedCustomerOptions.Name
                   : "Customer"
@@ -508,7 +508,7 @@ const ViewPriceBook = () => {
             if (priceListOutType === "PDF") {
               const link = document.createElement("a");
               link.href = url;
-              link.download = `${
+              link.download = `${user.company}_${
                 selectedCustomerOptions
                   ? selectedCustomerOptions.Name
                   : "Customer"
@@ -525,7 +525,7 @@ const ViewPriceBook = () => {
             if (priceListOutType === "PRINT") {
               window.open(
                 url,
-                `${
+                `${user.company}_${
                   selectedCustomerOptions
                     ? selectedCustomerOptions.Name
                     : "Customer"

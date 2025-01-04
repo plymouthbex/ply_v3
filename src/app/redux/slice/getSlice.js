@@ -399,6 +399,25 @@ export const getPriceListItemGet = createAsyncThunk(
     }
   }
 );
+
+export const getConfigPriceBookCompany = createAsyncThunk(
+  "page/getConfigPriceBookCompany",
+  async ({ CompanyCode }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetCompanyConfigurePriceBook?CompanyCode=${CompanyCode}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -549,7 +568,24 @@ const getSlice = createSlice({
     //===PP
     addQuoteItemData: (state, action) => {
       state.getQuoteFilterItemData.push(action.payload);
-    }
+    },
+    quoteClearState2: (state, action) => {
+      state.getQuoteFilterItemData = [];
+      state.getQuoteFilterItemLoading = false;
+      state.getQuoteFilterItemStatus = "idle";
+      state.getQuoteFilterItemError = null;
+    },
+    QuoteItemDeletedItem: (state, action) => {
+      let id = action.payload;
+      console.log(id);
+
+      const rowIndex1 = state.getQuoteFilterItemData.findIndex(
+        (row) => row.Item_Number === id
+      );
+      if (rowIndex1 !== -1) {
+        state.getQuoteFilterItemData.splice(rowIndex1, 1);
+      }
+    },
 
   },
   extraReducers: (builder) => {
@@ -828,6 +864,6 @@ export const {
 
 
   //============pp
-addQuoteItemData
+  addQuoteItemData, quoteClearState2, QuoteItemDeletedItem 
 } = getSlice.actions;
 export default getSlice.reducer;

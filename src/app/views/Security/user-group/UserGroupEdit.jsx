@@ -165,7 +165,7 @@ const UserGroupEdit = () => {
       hide: true,
     },
     {
-      headerName: "Screen Name",
+      headerName: "Menu Name",
       field: "Name",
       width: "200",
       align: "left",

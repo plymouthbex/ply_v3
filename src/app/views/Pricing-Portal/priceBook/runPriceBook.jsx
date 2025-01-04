@@ -398,7 +398,7 @@ export default function RunPriceBook() {
                       ...value,
                       blobfp: blob,
                       excelBlobfp,
-                      fileName: `${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
+                      fileName: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
                     }));
                 } else {
                   return {
@@ -491,7 +491,7 @@ export default function RunPriceBook() {
                       ...value,
                       blobcp: blob,
                       excelBlobcp,
-                      fileName: `${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
+                      fileName: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
                     }));
                 } else {
                   return {

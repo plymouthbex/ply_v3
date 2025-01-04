@@ -142,7 +142,7 @@ const Layout1Topbar = () => {
     // Create an anchor element and trigger the download
     const link = document.createElement("a");
     link.href = filePath;
-    link.download = "menul.pdf"; // Optional: Specify the downloaded file name
+    link.download = "menual.pdf"; // Optional: Specify the downloaded file name
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -177,7 +177,7 @@ const Layout1Topbar = () => {
             }
           >
             <StyledItem>
-              <Link to="/control-panel/home">
+              <Link to="/home">
                 <Icon> home </Icon>
                 <Span> Home </Span>
               </Link>
@@ -190,7 +190,7 @@ const Layout1Topbar = () => {
               </Link>
             </StyledItem> */}
 
-            {user.role == 'ADMIN'&&<StyledItem
+            {user.role != 'USER'&&<StyledItem
               onClick={() => {
                 navigate("/profile/setting");
 

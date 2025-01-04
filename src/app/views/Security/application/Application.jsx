@@ -51,7 +51,7 @@ const dispatch=useDispatch();
       hide: true,
     },
     {
-      headerName: "Screen Name",
+      headerName: "Menu Name",
       field: "ApplicationName",
       width: "200",
       align: "left",
@@ -142,7 +142,7 @@ useEffect(() => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Security" }, { name: "Interface" }]}
+          routeSegments={[{ name: "Security" }, { name: "Menu" }]}
         />
       </div>
 

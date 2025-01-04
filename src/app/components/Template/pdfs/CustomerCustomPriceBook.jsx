@@ -432,6 +432,33 @@ const PriceListPage = ({
       }}
     >
       <Text
+        style={{ textAlign: "center", fontSize: 10, color: "#555", }}
+      >LWP - Last Week Price</Text>
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 10,
+          color: "#555",
+        }}
+      >
+        TWP - This Week Price
+      </Text>
+      <Text style={{ textAlign: "center", fontSize: 10, color: "#555" }}>
+       Diff -  Change vs. Last Week
+      </Text>
+    </View>
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
+        justifyContent: "space-between",
+        height: 20,
+        padding: 3,
+        alignItems: "center",
+      }}
+    >
+      <Text
         style={{ textAlign: "center", fontSize: 10, color: "#555", width: 30 }}
       ></Text>
       <Text

@@ -17,7 +17,7 @@ import * as Yup from "yup";
 import useAuth from "app/hooks/useAuth";
 import useSettings from "app/hooks/useSettings";
 import toast from "react-hot-toast";
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 // STYLED COMPONENTS
 const FlexBox = styled(Box)(() => ({
@@ -88,17 +88,17 @@ export default function JwtLogin() {
     setLoading(true);
     try {
       await login(values.email, values.password);
-      navigate("/control-panel/home", {
+      navigate("/home", {
         state: {
           name: "home",
-          path: "/control-panel/home",
+          path: "/home",
           accessID: "PPB001",
           fav: false,
           RecordID: 0,
         },
       });
     } catch (e) {
-      toast.error('Incorrect user or password')
+      toast.error("Incorrect user or password");
       setLoading(false);
     }
   };
@@ -127,7 +127,7 @@ export default function JwtLogin() {
                   marginTop: 3,
                 }}
               >
-                Control Panel
+                Price Book Printing Portal
               </Typography>
             </div>
           </Grid>
@@ -163,11 +163,11 @@ export default function JwtLogin() {
                       sx={{ mb: 3 }}
                     />
 
-<TextField
+                    <TextField
                       fullWidth
                       size="small"
                       name="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       label="Password"
                       variant="outlined"
                       onBlur={handleBlur}
@@ -184,14 +184,16 @@ export default function JwtLogin() {
                               onClick={handleClickShowPassword}
                               edge="end"
                             >
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
                       }}
                     />
-
-                    
 
                     <LoadingButton
                       type="submit"
@@ -199,38 +201,56 @@ export default function JwtLogin() {
                         // backgroundColor: "#164D50",
                         // color: "white",
                         "&:hover": {
-                          backgroundColor:theme.palette.secondary.light, // Custom hover color
+                          backgroundColor: theme.palette.secondary.light, // Custom hover color
                         },
-                      color:theme.palette.secondary.contrastText,
-                      bgcolor: theme.palette.secondary.light,
+                        color: theme.palette.secondary.contrastText,
+                        bgcolor: theme.palette.secondary.light,
 
-                      fontWeight:"bold",
+                        fontWeight: "bold",
                         my: 2,
-                        width: '100%'
+                        width: "100%",
                       }}
                       loading={loading}
                       variant="contained"
                     >
                       Login
                     </LoadingButton>
-                    <Box sx={{ display: "flex", flexDirection: "column", rowGap: "10px" }}>
-  <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-end" }}>
-    <NavLink
-      to="/session/forgot-password"
-      style={{ color: theme.palette.primary.main }}
-    >
-      Forgot password?
-    </NavLink>
-  </Box>
-  <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-end" }}>
-    <NavLink
-      to="/session/unlock-password"
-      style={{ color: theme.palette.primary.main }}
-    >
-      Unlock password?
-    </NavLink>
-  </Box>
-</Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        rowGap: "10px",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "flex-end",
+                        }}
+                      >
+                        <NavLink
+                          to="/session/forgot-password"
+                          style={{ color: theme.palette.primary.main }}
+                        >
+                          Forgot password?
+                        </NavLink>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "flex-end",
+                        }}
+                      >
+                        <NavLink
+                          to="/session/unlock-password"
+                          style={{ color: theme.palette.primary.main }}
+                        >
+                          Unlock password?
+                        </NavLink>
+                      </Box>
+                    </Box>
                     {/* <Paragraph>
                           Don't have an account?
                           <NavLink

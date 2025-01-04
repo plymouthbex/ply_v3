@@ -917,6 +917,51 @@ export const DeleteAdHocItem = createAsyncThunk(
   }
 );
 
+export const quoteAddHocItem = createAsyncThunk(
+  "post/quoteAddHocItem", // Action type string
+  async ({ data },{rejectWithValue}) => {
+    try {
+        const URL = `${process.env.REACT_APP_BASE_URL}PriceList/PostAdHocItem`
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization:process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const QuoteUpdateDate = createAsyncThunk(
+  "data/QuoteUpdateDate", // Action type string
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      // Set your API URL
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/UpdateDataQuotation`;
+
+      // Make the POST request with Axios, adding Authorization header
+      const response = await axios.put(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 
 export const priceListClearFilter = createAsyncThunk(
   "priceListClearFilter/DELETE",

@@ -223,7 +223,7 @@ const HomePage = () => {
             if (priceListOutType === "PDF") {
               const link = document.createElement("a");
               link.href = url;
-              link.download = `${user.companyName}_Full Price Book_${sunday} TO ${saturday}.pdf`;
+              link.download = `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`;
               document.body.appendChild(link);
 
               link.click();
@@ -232,7 +232,7 @@ const HomePage = () => {
             }
 
             if (priceListOutType === "PRINT") {
-              window.open(url, `${user.companyName}_Full Price Book_${sunday} TO ${saturday}.pdf`);
+              window.open(url, `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`);
               setTimeout(() => {
                 URL.revokeObjectURL(url);
               }, 100);
