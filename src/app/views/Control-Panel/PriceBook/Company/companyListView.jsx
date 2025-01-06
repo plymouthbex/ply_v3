@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { getCompanyListView, getConfigureCompanyListView } from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { clearConfigurePriceList } from "app/redux/slice/getSlice";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -47,6 +48,7 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
   //***************************API-CALL************************************ */
   useEffect(()=>{
     dispatch(getConfigureCompanyListView());
+    dispatch(clearConfigurePriceList());
   },[dispatch])
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
@@ -105,6 +107,7 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
               size="small"
               onClick={() => {
                 navigate("/pages/control-panel/configure-price-book/configure-company-edit/edit",{state:{
+                  RecordID:params.row.RecordID,
                   Code:params.row.CompanyCode,
                   Name:params.row.CompanyName
             }});

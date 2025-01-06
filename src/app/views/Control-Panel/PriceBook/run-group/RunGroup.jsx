@@ -46,13 +46,14 @@ const RunGroup = () => {
   const navigate = useNavigate();
   const location=useLocation();
   const state=location.state;
+  console.log("🚀 ~ RunGroup ~ state:", state)
   const {user}=useAuth();
   // ********************** LOCAL STATE ********************** //
 
   // ********************** REDUX STATE ********************** //
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getRunGroupListView({ID:state.ID}));
+    dispatch(getRunGroupListView({ID:state.companyID}));
     dispatch(clearRunGroupState());
   }, [dispatch]);
   const loading = useSelector((state) => state.listview.rungroupTemploading);
@@ -107,7 +108,9 @@ const RunGroup = () => {
               size="small"
               onClick={() => {
                 navigate("/pages/control-panel/run-group/run-group-getail/edit", {
-                  state: { ID: params.row.RecordID },
+                  state: { ID: params.row.RecordID,
+                    companyID:state.companyID,
+                   },
                 });
               }}
               startIcon={<ModeEditOutlineIcon size="small" />}

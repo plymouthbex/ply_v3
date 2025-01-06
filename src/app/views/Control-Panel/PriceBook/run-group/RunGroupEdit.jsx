@@ -66,6 +66,7 @@ const RunGroupEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state;
+  console.log("🚀 ~ RunGroupEdit ~ state:", state)
   const dispatch = useDispatch();
   const {user}=useAuth();
  
@@ -306,8 +307,8 @@ const RunGroupEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "Price Book" },
-                    { name: "Run Group", path: "/pages/run-group" },
+                    { name: "CP-Price Book" },
+                    { name: "Run Group", path: "/pages/control-panel/run-group" },
                     { name: `${params.mode} Run Group` },
                   ]}
                 />
@@ -582,7 +583,14 @@ const RunGroupEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/run-group");
+                  navigate("/pages/control-panel/run-group"
+                    ,
+                    {
+                      state:{
+                    ID:state.companyID
+                  }
+                }
+              );
                   // dispatch(clearPrintListState())
                 }}
               >
@@ -607,7 +615,12 @@ const RunGroupEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/control-panel/run-group")}
+                onClick={() => navigate("/pages/control-panel/run-group",
+                  {
+                    state:{
+                      companyID:state.companyID
+                }
+              })}
               >
                 Back to Run Group
               </Button>

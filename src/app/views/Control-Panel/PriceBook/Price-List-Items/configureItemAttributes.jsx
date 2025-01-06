@@ -45,7 +45,7 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ********************** ITEM ATTRIBUTES EDIT SCREEN  ********************** //
-const ItemAttributesEdit = () => {
+const ConfigureItemAttributesEdit = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -78,7 +78,7 @@ const ItemAttributesEdit = () => {
   const [openAlert1, setOpenAlert1] = useState(false);
   const [postError1, setPostError1] = useState(false);
   const itemSaveFn = async (values) => {
-    const data = {
+    const idata = {
       priceListID: state.priceListID,
       quotationRecordID: "0",
       filterType: "PL",
@@ -88,7 +88,7 @@ const ItemAttributesEdit = () => {
       comment: values.comments,
     };
 
-    const response = await dispatch(PutAdHocItem({ data }));
+    const response = await dispatch(PutAdHocItem({ idata }));
     if (response.payload.status === "Y") {
       setOpenAlert1(true);
     } else {
@@ -160,12 +160,10 @@ const ItemAttributesEdit = () => {
             <div className="breadcrumb">
               <Breadcrumb
                 routeSegments={[
-                  { name: "CP-Price Book" },
-                  { name: "Price List", path: "/pages/control-panel/price-list" },
+                  { name: "Configure Price Book" },
                   {
-                    name: `${params.mode} Price List Detail`,
-                    path: -1,
-                    state: { itemNumber },
+                    name: "Company",
+                    path: "/pages/control-panel/configure-price-book/company",
                   },
                   { name: `${params.itemMode} Item Attributes` },
                 ]}
@@ -523,4 +521,4 @@ const ItemAttributesEdit = () => {
   );
 };
 
-export default ItemAttributesEdit;
+export default ConfigureItemAttributesEdit;

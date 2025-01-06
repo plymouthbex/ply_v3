@@ -91,6 +91,8 @@ const ItemList = () => {
   const handleSelectionAddPriceListData = (newValue) => {
     console.log("🚀 ~ handleSelectionAddPriceListData ~ newValue:", newValue)
     setAddPriceListData(newValue);
+  
+  
   };
 
   const [openAlert1, setOpenAlert1] = useState(false);
@@ -254,7 +256,11 @@ const ItemList = () => {
       </GridToolbarContainer>
     );
   }
-
+  const handleOpen = () => {
+    if (!companyID) {
+      toast.error("Please Select the company");
+    }
+  };
   // ********************** FUNCTIONS AND LOGICS ********************** //
   const handleRowClick = async (params) => {
     const response = await dispatch(
@@ -277,7 +283,7 @@ const ItemList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Price Book" }, { name: "Items" }]}
+          routeSegments={[{ name: "CP-Price Book" }, { name: "Items" }]}
         />
       </div>
 
@@ -397,15 +403,17 @@ const ItemList = () => {
                 url={`${process.env.REACT_APP_BASE_URL}Company`}
               />
               <PriceListOptimizedAutocomplete
-                sx={{ maxWidth: 400 }}
-                fullWidth
-                name="priceList"
-                id="priceList"
-                value={addPriceListData}
-                onChange={handleSelectionAddPriceListData}
-                label="Price List"
-                url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${companyID}`}
-              />
+        sx={{ maxWidth: 400 }}
+        fullWidth
+        name="priceList"
+        id="priceList"
+        value={addPriceListData}
+        onChange={handleSelectionAddPriceListData}
+        label="Price List"
+        companyID={companyID} // Pass companyID to the component
+        url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${companyID}`}
+        onOpen={handleOpen} // Trigger handleOpen when autocomplete opens
+      />
               <Button
                 variant="contained"
                 color="info"

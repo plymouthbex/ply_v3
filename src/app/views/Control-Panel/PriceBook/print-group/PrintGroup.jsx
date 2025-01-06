@@ -186,7 +186,7 @@ const PrintGroup = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Price Book" }, { name: "Price Book Categories" }]}
+          routeSegments={[{ name: "CP-Price Book" }, { name: "Price Book Categories" }]}
         />
       </div>
 

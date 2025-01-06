@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Paper,
   Button,
@@ -14,6 +14,7 @@ import {
   Stack,
   LinearProgress,
   Input,
+  DialogActions,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import {
@@ -21,7 +22,7 @@ import {
   GridToolbarQuickFilter,
   GridToolbarContainer,
 } from "@mui/x-data-grid";
-import { dataGridHeight,dataGridHeightC, dataGridRowHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridHeightC, dataGridRowHeight } from "app/utils/constant";
 
 
 // ******************** ICONS ******************** //
@@ -38,7 +39,12 @@ import Cover from "../../../../../assets/plylogo.png";
 import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
 import { convertHexToRGB } from "app/utils/constant";
 import { PGOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
-
+import { useDispatch, useSelector } from "react-redux";
+import { configureAddedPriceList, configurePriceListDeleted, getConfigPriceBook } from "app/redux/slice/getSlice";
+import lodash from "lodash";
+import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import { ConfigurepriceListClear, postConfigureCompany, PostConfigurePriceListID } from "app/redux/slice/postSlice";
+import toast from "react-hot-toast";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -76,8 +82,8 @@ const validationSchema = Yup.object({
 const ImageWrapper = styled("div")(({ previewImage }) => ({
   width: "100%",
   height: 100, // Reduced height
-    minHeight: '50px', // Adjust minimum height as needed
-    maxHeight: '200px', // Adjust maximum height as needed
+  minHeight: '50px', // Adjust minimum height as needed
+  maxHeight: '200px', // Adjust maximum height as needed
   backgroundImage: `url(${previewImage || Cover})`,
   backgroundSize: "contain", // Ensures the full image is visible
   backgroundRepeat: "no-repeat", // Prevents tiling
@@ -104,80 +110,44 @@ const ConfigureCompanyEdit = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const params = useParams();
   const navigate = useNavigate();
-const location=useLocation();
-const State=location.state;
-console.log("🚀 ~ ConfigureCompanyEdit ~ State:", State)
+  const location = useLocation();
+  const State = location.state;
 
+  const dispatch = useDispatch();
+  // ******************** REDUX_STATE ******************** //
+  const data = useSelector((state) => state.getSlice.getconfigureData);
+  console.log("🚀 ~ ConfigureCompanyEdit ~ data:", data)
+  const getRows = useSelector((state) => state.getSlice.configurePriceListGetData);
+  console.log("🚀 ~ ConfigureCompanyEdit ~ getRows:", getRows)
 
+ 
+  const getRowsSet = new Set(getRows.map((item) => item.PRICELISTID));
+  const filteredSelectedItems = getRows.filter(
+    (selectedItem) => !getRowsSet.has(selectedItem.PRICELISTID)
+  );
+  console.log("🚀 ~ ConfigureCompanyEdit ~ filteredSelectedItems:", filteredSelectedItems)
 
+const loading=useSelector((state) => state.getSlice.getconfigureLoading);
+const status=useSelector((state) => state.getSlice.getconfigureStatus);
+const error=useSelector((state) => state.getSlice.getconfigureError);
 
-   // ******************** USE-State ******************** //
+  useEffect(() => {
+    dispatch(getConfigPriceBook({ ID: State.RecordID }));
+  }, [dispatch]);
+  // ******************** USE-State ******************** //
   const [addPriceListData, setAddPriceListData] = useState(null);
-
-
-
-
-
   const handleSelectionAddPriceListData = (newValue) => {
     setAddPriceListData(newValue);
   };
-  const [imagePreview, setImagePreview] = useState(null);
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const [imageList3, setImageList3] = useState([]);
-  const [imgstatus3, setImgStatus3] = useState("N");
-  const [successMessage3, setSuccessMessage3] = useState("");
-  const [previewImages3, setPreviewImages3] = useState([]);
-  const handleDrop = (setImageList, setPreviewImages) => (acceptedFiles) => {
-    const previews = [];
-    acceptedFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        previews.push({
-          name: file.name,
-          preview: reader.result,
-        });
-        if (previews.length === acceptedFiles.length) {
-          setPreviewImages(previews);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-    setImageList(acceptedFiles);
-  };
-  const dropzoneProps3 = useDropzone({
-    accept: "image/*",
-    onDrop: handleDrop(setImageList3, setPreviewImages3),
-  });
-  const handleImageUpload3 = (files) => {
-    if (files.length > 0) {
-      setImgStatus3("Y");
-      setSuccessMessage3("Nicky Logo updated successfully!");
-    } else {
-      setImgStatus3("N");
-    }
-  };
-
-  const SettingsLogo = ({ previewImages, imageSrc }) => {
-    const displayImage =
-      previewImages.length > 0 ? previewImages[0]["preview"] : "";
-    return (
-      <Box sx={{ width: "100%", padding: "8px" }}>
-        <ImageWrapper previewImage={displayImage} />
-      </Box>
-    );
-  };
- // ********************** COLUMN ********************** //
+  const [isPriceListExists, setIsPriceListExists] = useState(false);
+  const [isPriceListExistsError, setIsPriceListExistsError] = useState(false);
+  const [isRemovePriceList, setIsRemovePriceList] = useState(false);
+  const [removePriceListdDesc, setremovePriceListDesc] = useState("");
+    const [postError, setPostError] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [removePriceListID, setremovePriceListID] = useState(0);
+  // ********************** COLUMN ********************** //
   const columns = [
     {
       headerName: "Price List Name",
@@ -195,14 +165,6 @@ console.log("🚀 ~ ConfigureCompanyEdit ~ State:", State)
       headerAlign: "left",
       hide: false,
     },
-    // {
-    //   headerName: "Print Group",
-    //   field: "GroupCode",
-    //   width: "100",
-    //   align: "right",
-    //   headerAlign: "center",
-    //   hide: false,
-    // },
     {
       field: "Action",
       headerName: "Action",
@@ -217,38 +179,47 @@ console.log("🚀 ~ ConfigureCompanyEdit ~ State:", State)
 
       renderCell: (param) => {
         return (
-          <Box>
-             <Button
-  sx={{ height: 25 }}
-  variant="contained"
-  color="secondary"
-  size="small"
-  // disabled={true} // Permanently disable the button
-  onClick={() => {
-    navigate("/pages/control-panel/configure-price-book/price-list-items/company");
-  }}
->
-  View Items
-</Button>
-          </Box>
+          <div>
+            <Box gap={1}>
+              <Button
+                sx={{ height: 25 }}
+                variant="contained"
+                color="secondary"
+                size="small"
+                // disabled={true} // Permanently disable the button
+                onClick={() => {
+                  navigate("/pages/control-panel/configure-price-book/price-list-items/company", {
+                    state: {
+                      id: param.row.PRICELISTID,
+                    }
+                  });
+                }}
+                
+              >
+                View Items
+              </Button>
+              <Button
+                sx={{ height: 25 }}
+                variant="contained"
+                color="secondary"
+                size="small"
+                // disabled={true} // Permanently disable the button
+                onClick={() => {
+                  setremovePriceListID(param.row.PRICELISTID);
+                  setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
+                  setIsRemovePriceList(true);
+                }}
+                startIcon={<DeleteIcon size="small" />}
+              >
+                Remove Items
+              </Button>
+            </Box>
+          </div>
         );
       },
     },
   ];
-const rows=[
-    {
-        PRICELISTID:"GOATS",
-        PRICELISTDESCRIPTION:"Goats"
-    },
-    {
-        PRICELISTID:"Hemple",
-        PRICELISTDESCRIPTION:"Hemple"
-    },
-    {
-        PRICELISTID:"MDA",
-        PRICELISTDESCRIPTION:"Smart Chicken"
-    }
-]
+ 
   function CustomToolbar() {
     return (
       <GridToolbarContainer
@@ -272,8 +243,8 @@ const rows=[
         >
           <GridToolbarQuickFilter />
           <PGOptimizedAutocomplete
-            // errors={isPriceListExistsError}
-            // helper={isPriceListExistsError && "Please select price list!"}
+            errors={isPriceListExistsError}
+            helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
             name="addPriceList"
             id="addPriceList"
@@ -289,28 +260,84 @@ const rows=[
             color="info"
             size="small"
             startIcon={<Add />}
-            
+            onClick={() => {
+              if (addPriceListData) {
+                const isItem = [...getRows, ...filteredSelectedItems].some(
+                  (item) =>
+                    lodash.isEqual(item.PRICELISTID, addPriceListData.PRICELISTID)
+                ); if (isItem) {
+                  setIsPriceListExists(true);
+                  setTimeout(() => {
+                    setIsPriceListExists(false);
+                    setAddPriceListData(null);
+                  }, 5000);
+                  return;
+                }
+                dispatch(configureAddedPriceList(addPriceListData));
+                setAddPriceListData(null);
+              } else {
+                setIsPriceListExistsError(true);
+                setTimeout(() => {
+                  setIsPriceListExistsError(false);
+                }, 2000);
+              }
+const pricedata={
+  "recordID": data.RecordID,
+  "priceListID": addPriceListData.PRICELISTID,
+}
+              const response= dispatch(PostConfigurePriceListID({
+                pricedata
+              }));
+
+            }}
           >
             Add
           </Button>
         </Box>
       </GridToolbarContainer>
     );
+           
+  }
+
+
+  const handleSave=async(values)=>{
+    const Cdata={
+  recordID: data.RecordID,
+  classification: data.Classification,
+  companyID: data.CompanyID,
+  companyCode: data.CompanyCode,
+  fullPriceBookPdf: values.pdf ? "1" :"0",
+  fullPriceBookExcel: values.excel ? "1" :"0",
+  disable: values.disable ? "1" :"0",
+  fullPriceBookTitle: values.name,
+  priceLevel:values.priceBookLevels,
+}
+    console.log("🚀 ~ handleSave ~ Cdata:", Cdata);
+    const response=await dispatch(postConfigureCompany({Cdata}));
+    if(response.payload.status ==="Y"){  
+       setOpenAlert(true);
+    } else {
+      setOpenAlert(true);
+      setPostError(true);
+      // toast.error("Error occurred while saving data");
+    }
   }
   return (
     <Container>
+       {status === "fulfilled" && !error ? (
       <Formik
         initialValues={{
-          recID: "",
-          code: "",
-          sortOrder: "",
-          name: "",
-          isActive: false,
-          includePDF: false,
+          recID: data.RecordID,
+          name: data.FullPriceBookTitle,
+          excel: data.FullPriceBookExcel === "1" ? true : false,
+          pdf: data.FullPriceBookPdf === "1" ? true : false,
+          priceBookLevels: data.PriceLevel,
+          disable: data.Disable === "1" ? true : false
         }}
         validationSchema={validationSchema}
         onSubmit={(values) => {
           console.log(values);
+          handleSave(values);
         }}
       >
         {({
@@ -379,11 +406,11 @@ const rows=[
               >
                 <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
 
-            
 
-                <Typography fontSize={"16px"}>
-  <Typography component="span" fontWeight="bold">Company:</Typography> {State.Code} || {State.Name}
-</Typography>
+
+                  <Typography fontSize={"16px"}>
+                    <Typography component="span" fontWeight="bold">Company:</Typography> {State.Code} || {State.Name}
+                  </Typography>
 
 
                   {/* <TextField
@@ -407,7 +434,7 @@ const rows=[
                     fullWidth
                     variant="outlined"
                     type="text"
-                    id="pricebook"
+                    id="name"
                     name="name"
                     label="Price Book Title"
                     size="small"
@@ -421,16 +448,25 @@ const rows=[
                   />
                   <Autocomplete
                     fullWidth
-                    id="type"
-                    name="type"
-                    options={type}
+                    id="priceBookLevels"
+                    name="priceBookLevels"
+                    // Map through priceBookLevels to get the 'level' values for the options list
+                    options={priceBookLevels.map((levelObj) => levelObj.level)}
                     disabled={params?.mode === "delete"}
-                    value={values.type}
-                    onChange={(event, newValue) =>
+
+                    // Set the value by finding the corresponding 'level' based on the id stored in Formik's values
+                    value={priceBookLevels.find((levelObj) => levelObj.id === values.priceBookLevels)?.level || ""}
+
+                    onChange={(event, newValue) => {
+                      // Find the corresponding 'id' based on the selected 'level' value
+                      const selectedLevel = priceBookLevels.find((levelObj) => levelObj.level === newValue);
+
+
                       handleChange({
-                        target: { name: "type", value: newValue },
-                      })
-                    }
+                        target: { name: "priceBookLevels", value: selectedLevel?.id || null }, // If no match, set to null
+                      });
+                    }}
+
                     onBlur={handleBlur}
                     disableClearable
                     renderInput={(params) => (
@@ -438,18 +474,16 @@ const rows=[
                         {...params}
                         label="Price Book Level"
                         size="small"
-                        error={touched.type && Boolean(errors.type)}
-                        helperText={touched.type && errors.type}
                         sx={{ gridColumn: "span 2" }}
                       />
                     )}
                   />
-                   <Stack
+                  <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="row"
                     gap={2}
                   >
-                    
+
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -466,7 +500,7 @@ const rows=[
                       }
                       label="PDF"
                     />
-                    
+
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -483,22 +517,22 @@ const rows=[
                       }
                       label="EXCEL"
                     />
-                    </Stack>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          size="small"
-                          id="disable"
-                          name="disable"
-                          checked={values.disable}
-                         
-                          onChange={handleChange}
-                          sx={{ height: "10px" }}
-                          
-                        />
-                      }
-                      label="Disable"
-                    />
+                  </Stack>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="disable"
+                        name="disable"
+                        checked={values.disable}
+
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+
+                      />
+                    }
+                    label="Disable"
+                  />
                 </Stack>
                 {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
                   <Box
@@ -532,99 +566,224 @@ const rows=[
                 </Stack> */}
               </Box>
               <Box
-                               sx={{
-                                 height: 400,
-                                 gridColumn: "span 4",
-                                 "& .MuiDataGrid-root": {
-                                   border: "none",
-                                 },
-                                 "& .MuiDataGrid-cell": {
-                                   borderBottom: "none",
-                                 },
-                                 "& .name-column--cell": {
-                                   color: theme.palette.info.contrastText,
-                                 },
-                                 "& .MuiDataGrid-columnHeaders": {
-                                   backgroundColor: theme.palette.info.main,
-                                   color: theme.palette.info.contrastText,
-                                   fontWeight: "bold",
-                                   fontSize: theme.typography.subtitle2.fontSize,
-                                 },
-                                 "& .MuiDataGrid-virtualScroller": {
-                                   backgroundColor: theme.palette.info.light,
-                                 },
-                                 "& .MuiDataGrid-footerContainer": {
-                                   borderTop: "none",
-                                   backgroundColor: theme.palette.info.main,
-                                   color: theme.palette.info.contrastText,
-                                 },
-                                 "& .MuiCheckbox-root": {
-                                   color: "black !important", // Set checkbox color to black
-                                 },
-             
-                                 "& .MuiCheckbox-root.Mui-checked": {
-                                   color: "black !important", // Set checkbox color to black when checked
-                                 },
-                                 "& .MuiDataGrid-row:nth-of-type(even)": {
-                                   backgroundColor: theme.palette.action.hover,
-                                 },
-                                 "& .MuiDataGrid-row:nth-of-type(odd)": {
-                                   backgroundColor: theme.palette.background.default, // Color for odd rows
-                                 },
-             
-                                 "& .MuiDataGrid-row.Mui-selected:hover": {
-                                   backgroundColor: `${theme.palette.action.selected} !important`,
-                                 },
-                               }}
-                             >
-                               <DataGrid
-                                 slots={{
-                                   loadingOverlay: LinearProgress,
-                                   toolbar: CustomToolbar,
-                                 }}
-                                 rowHeight={dataGridRowHeight}
-                                 rows={rows}
-                                 columns={columns}
-                                 disableSelectionOnClick
-                                 disableRowSelectionOnClick
-                                 getRowId={(row) => row.PRICELISTID}
-                                 initialState={{
-                                     pagination: { paginationModel: { pageSize: 20 } },
-                                   }}
-                                   pageSizeOptions={[5, 10, 20, 25]}
-                                 columnVisibilityModel={{
-                                   item_key: false,
-                                 }}
-                                 disableColumnFilter
-                                 disableColumnSelector
-                                 disableDensitySelector
-                                 slotProps={{
-                                   toolbar: {
-                                     showQuickFilter: true,
-                                   },
-                                 }}
-                               />
-                             </Box>
+                sx={{
+                  height: 400,
+                  gridColumn: "span 4",
+                  "& .MuiDataGrid-root": {
+                    border: "none",
+                  },
+                  "& .MuiDataGrid-cell": {
+                    borderBottom: "none",
+                  },
+                  "& .name-column--cell": {
+                    color: theme.palette.info.contrastText,
+                  },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: theme.palette.info.main,
+                    color: theme.palette.info.contrastText,
+                    fontWeight: "bold",
+                    fontSize: theme.typography.subtitle2.fontSize,
+                  },
+                  "& .MuiDataGrid-virtualScroller": {
+                    backgroundColor: theme.palette.info.light,
+                  },
+                  "& .MuiDataGrid-footerContainer": {
+                    borderTop: "none",
+                    backgroundColor: theme.palette.info.main,
+                    color: theme.palette.info.contrastText,
+                  },
+                  "& .MuiCheckbox-root": {
+                    color: "black !important", // Set checkbox color to black
+                  },
+
+                  "& .MuiCheckbox-root.Mui-checked": {
+                    color: "black !important", // Set checkbox color to black when checked
+                  },
+                  "& .MuiDataGrid-row:nth-of-type(even)": {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                  "& .MuiDataGrid-row:nth-of-type(odd)": {
+                    backgroundColor: theme.palette.background.default, // Color for odd rows
+                  },
+
+                  "& .MuiDataGrid-row.Mui-selected:hover": {
+                    backgroundColor: `${theme.palette.action.selected} !important`,
+                  },
+                }}
+              >
+                <DataGrid
+                  slots={{
+                    loadingOverlay: LinearProgress,
+                    toolbar: CustomToolbar,
+                  }}
+                  rowHeight={dataGridRowHeight}
+                  rows={[...getRows, ...filteredSelectedItems]}
+                  columns={columns}
+                  disableSelectionOnClick
+                  disableRowSelectionOnClick
+                  getRowId={(row) => row.PRICELISTID}
+                  initialState={{
+                    pagination: { paginationModel: { pageSize: 20 } },
+                  }}
+                  pageSizeOptions={[5, 10, 20, 25]}
+                  columnVisibilityModel={{
+                    item_key: false,
+                  }}
+                  disableColumnFilter
+                  disableColumnSelector
+                  disableDensitySelector
+                  slotProps={{
+                    toolbar: {
+                      showQuickFilter: true,
+                    },
+                  }}
+                />
+              </Box>
             </Paper>
+            <MessageAlertDialog
+              open={isRemovePriceList}
+              tittle={removePriceListdDesc}
+              message={`Are you sure you want to remove Price List ?`}
+              Actions={
+                <DialogActions>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={async () => {
+                      const Pdata={
+                        PriceListID:removePriceListID,
+                        PriceBookRecordID:data.RecordID,
+                      }
+                      const response= await dispatch(
+                        ConfigurepriceListClear({
+                        Pdata
+                        })
+                      );
+                      if(response.payload.status ==="Y"){
+                        // dispatch(configureAddedPriceList);
+                        dispatch(getConfigPriceBook({ID:State.RecordID}))
+                      }
+                      setIsRemovePriceList(false);
+                      setremovePriceListID(0);
+                      setremovePriceListDesc("");
+                    }}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={() => {
+                      setIsRemovePriceList(false);
+                      setremovePriceListID(0);
+                      setremovePriceListDesc("");
+                    }}
+                  >
+                    No
+                  </Button>
+                </DialogActions>
+              }
+            />
+           <MessageAlertDialog
+                  open={isPriceListExists}
+                  tittle={
+                    addPriceListData
+                      ? addPriceListData.PRICELISTDESCRIPTION
+                      : "Please select price list!"
+                  }
+                  message={"Oops! This price list is already exists in print group."}
+                  Actions={
+                    <DialogActions>
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsPriceListExists(false);
+                          setAddPriceListData(null);
+                        }}
+                      >
+                        Close
+                      </Button>
+                    </DialogActions>
+                  }
+                />
           </form>
         )}
+
+
+      
+      
+      
+      
       </Formik>
+      ) : (
+        false
+      )}
+      <AlertDialog
+        open={openAlert}
+        error={postError}
+        message={
+          params.mode === "add"
+            ? "Configure Company added successfully"
+            : params.mode === "delete"
+              ? "Configure Company Deleted Successfully"
+              : "Configure Company updated successfully"
+        }
+        Actions={
+          params.mode === "add" ? (
+            <DialogActions>
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => navigate("/pages/control-panel/configure-price-book/company")}
+              >
+                Back to Configure Company
+              </Button>
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  dispatch(getConfigPriceBook({ ID: 0 }));
+                  setOpenAlert(false);
+                }}
+                autoFocus
+              >
+                Add New Configure Company
+              </Button>
+            </DialogActions>
+          ) : (
+            <DialogActions>
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => navigate("/pages/control-panel/configure-price-book/company")}
+              >
+                Back to Configure Company
+              </Button>
+            </DialogActions>
+          )
+        }
+      />
     </Container>
   );
 };
 
 export default ConfigureCompanyEdit;
-const type = [
-  "Price Book Level 1",
-  "Price Book Level 2",
-  "Price Book Level 3",
-  "Price Book Level 4",
-  "Price Book Level 5",
-  "Price Book Level 6",
-  "Price Book Level 7",
-  "Price Book Level 8",
-  "Price Book Level 9",
-  "Price Book Level 10",
-   
-
-  ];
+const priceBookLevels = [
+  { id: 1, level: "Price Book Level 1" },
+  { id: 2, level: "Price Book Level 2" },
+  { id: 3, level: "Price Book Level 3" },
+  { id: 4, level: "Price Book Level 4" },
+  { id: 5, level: "Price Book Level 5" },
+  { id: 6, level: "Price Book Level 6" },
+  { id: 7, level: "Price Book Level 7" },
+  { id: 8, level: "Price Book Level 8" },
+  { id: 9, level: "Price Book Level 9" },
+  { id: 10, level: "Price Book Level 10" },
+];

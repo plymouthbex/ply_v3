@@ -98,30 +98,15 @@ const initialState = {
   //USERGROUPADDED
   companyAddedData: [],
 
-  //IMAGE
-  getContactData: {},
+    //CONFIGUREPRICE
+    getconfigureData:{},
+    getconfigureLoading: false,
+    getconfigureStatus:"idle",
+    getconfigureError:null,
 
-  //PP
-  getQuoteFilterItemData: [],
-  getQuoteFilterItemLoading: false,
-  getQuoteFilterItemStatus: "idle",
-  getQuoteFilterItemError: null,
-
-  getQuoteData: {},
-  getQuoteLoading: false,
-  getQuoteStatus: "idle",
-  getQuoteError: null,
-
-  getQuoteProspectData: [],
-  getQuoteProspectLoading: false,
-  getQuoteProspectStatus: "idle",
-  getQuoteProspectError: null,
-
-  getQuoteProspectInfoData: {},
-  getQuoteProspectInfoLoading: false,
-  getQuoteProspectInfoStatus: "idle",
-  getQuoteProspectInfoError: null,
-
+    configurePriceListAddedData:[],
+    configurePriceListGetData:[],
+    configurePriceListSelectData:[],
 
   getQuoteProspectDataItems: [],
   getQuoteProspectLoadingItems: false,
@@ -485,7 +470,24 @@ export const getProspectContractItems = createAsyncThunk(
   }
 );
 
-
+export const getConfigPriceBook = createAsyncThunk(
+  "page/getConfigPriceBook",
+  async ({ ID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPricebookConfiguration?RecordID=${ID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -654,6 +656,35 @@ const getSlice = createSlice({
         state.getQuoteFilterItemData.splice(rowIndex1, 1);
       }
     },
+    configureSelectedPriceList: (state, action) => {
+      state.configurePriceListGetData=action.payload;
+    },
+    configureAddedPriceList: (state, action) => {
+      state.configurePriceListGetData.push(action.payload);
+    },
+    configurePriceListDeleted: (state, action) => {
+      let id = action.payload.id;
+      let configurePriceListSelectData = action.payload.configurePriceListAddedData;
+      state.configurePriceListAddedData = configurePriceListSelectData.filter(
+        (row) => row.RecordID != id
+      );
+      const rowIndex1 = state.configurePriceListGetData.findIndex(
+        (row) => row.RecordID === id
+      );
+      if (rowIndex1 !== -1) {
+        state.configurePriceListGetData.splice(rowIndex1, 1);
+      }
+    },
+    clearConfigurePriceList: (state, action) => {
+      state.getconfigureData={};
+      state.getconfigureLoading= false;
+      state.getconfigureStatus="idle";
+      state.getconfigureError=null;
+      state.configurePriceListAddedData=[];
+      state.configurePriceListGetData=[];
+  
+    }
+
   },
   extraReducers: (builder) => {
     builder
@@ -943,6 +974,25 @@ const getSlice = createSlice({
         state.getQuoteProspectLoadingItems = false;
         state.getQuoteProspectErrorItems = action.error.message;
       })
+
+      //==================================CONFIGURE PRICE BOOK===========================//
+.addCase(getConfigPriceBook.pending, (state) => {
+  state.getconfigureStatus = "pending";
+  state.getconfigureLoading = true;
+})
+.addCase(getConfigPriceBook.fulfilled, (state, action) => {
+  state.getconfigureStatus = "fulfilled";
+  state.getconfigureLoading = false;
+  state.getconfigureData = action.payload.data;
+  state.configurePriceListGetData=action.payload.data.PriceList;
+  
+})
+.addCase(getConfigPriceBook.rejected, (state, action) => {
+  state.getconfigureStatus = "rejected";
+  state.getconfigureLoading = false;
+  state.userError = true;
+})
+
   },
 });
 
@@ -976,8 +1026,12 @@ export const {
   applicationAdded,
 
   //============pp
-  addQuoteItemData,
-  quoteClearState2,
-  QuoteItemDeletedItem,
+  addQuoteItemData, quoteClearState2, QuoteItemDeletedItem ,
+
+  //======CONFi
+  configureSelectedPriceList,
+  configureAddedPriceList,
+  configurePriceListDeleted,
+  clearConfigurePriceList
 } = getSlice.actions;
 export default getSlice.reducer;
