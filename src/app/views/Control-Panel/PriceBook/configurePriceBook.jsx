@@ -81,14 +81,17 @@ const ConfigurePriceBook = () => {
                 color="secondary"
                 size="small"
                 onClick={() => {
-                    navigate("/pages/control-panel/configure-price-book/company")
-                  console.log("Company List button clicked for:", params.row.description);
+                  navigate("/pages/control-panel/configure-price-book/company");
+                  console.log(
+                    "Company List button clicked for:",
+                    params.row.description
+                  );
                 }}
               >
                 Company List
               </Button>
             )}
-  
+
             {params.row.type === "CU" && (
               <Button
                 sx={{ height: 25 }}
@@ -96,21 +99,24 @@ const ConfigurePriceBook = () => {
                 color="secondary"
                 size="small"
                 onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer")
-                  console.log("Customer List button clicked for:", params.row.description);
+                  navigate(
+                    "/pages/control-panel/configure-price-book/customer"
+                  );
+                  console.log(
+                    "Customer List button clicked for:",
+                    params.row.description
+                  );
                 }}
               >
                 Customer List
               </Button>
             )}
-  
-           
           </div>
         );
       },
     },
   ];
-  
+
   const rows = [
     {
       type: "CO",
@@ -121,7 +127,6 @@ const ConfigurePriceBook = () => {
       description: "Customer",
     },
   ];
-  
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -166,86 +171,69 @@ const ConfigurePriceBook = () => {
   return (
     <Container>
       <div className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Configure Price Book " }, { name: "Configure Price Book Type" }]} />
+        <Breadcrumb
+          routeSegments={[
+            { name: "Configure Price Book " },
+            { name: "Configure Price Book Type" },
+          ]}
+        />
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
-         sx={{ 
+          sx={{
+            height: dataGridHeight,
 
-          height: dataGridHeight, 
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
 
-          "& .MuiDataGrid-root": { 
+            "& .name-column--cell": {
+              color: theme.palette.info.contrastText,
+            },
 
-            border: "none", 
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: theme.palette.info.main,
 
-          }, 
+              color: theme.palette.info.contrastText,
 
-          "& .name-column--cell": { 
+              fontWeight: "bold",
 
-            color: theme.palette.info.contrastText, 
+              fontSize: theme.typography.subtitle2.fontSize,
+            },
 
-          }, 
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: theme.palette.info.light,
+            },
 
-          "& .MuiDataGrid-columnHeaders": { 
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
 
-            backgroundColor: theme.palette.info.main, 
+              backgroundColor: theme.palette.info.main,
 
-            color: theme.palette.info.contrastText, 
+              color: theme.palette.info.contrastText,
+            },
 
-            fontWeight: "bold", 
+            "& .MuiCheckbox-root": {
+              color: "black !important",
+            },
 
-            fontSize: theme.typography.subtitle2.fontSize, 
+            "& .MuiCheckbox-root.Mui-checked": {
+              color: "black !important",
+            },
 
-          }, 
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: theme.palette.action.hover,
+            },
 
-          "& .MuiDataGrid-virtualScroller": { 
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
+            },
 
-            backgroundColor: theme.palette.info.light, 
-
-          }, 
-
-          "& .MuiDataGrid-footerContainer": { 
-
-            borderTop: "none", 
-
-            backgroundColor: theme.palette.info.main, 
-
-            color: theme.palette.info.contrastText, 
-
-          }, 
-
-          "& .MuiCheckbox-root": { 
-
-            color: "black !important", 
-
-          }, 
-
-          "& .MuiCheckbox-root.Mui-checked": { 
-
-            color: "black !important", 
-
-          }, 
-
-          "& .MuiDataGrid-row:nth-of-type(even)": { 
-
-            backgroundColor: theme.palette.action.hover, 
-
-          }, 
-
-          "& .MuiDataGrid-row:nth-of-type(odd)": { 
-
-            backgroundColor: theme.palette.background.default, 
-
-          }, 
-
-          "& .MuiDataGrid-row.Mui-selected:hover": { 
-
-            backgroundColor: `${theme.palette.action.selected} !important`, 
-
-          }, 
-
-        }} 
+            "& .MuiDataGrid-row.Mui-selected:hover": {
+              backgroundColor: `${theme.palette.action.selected} !important`,
+            },
+          }}
         >
           <DataGrid
             slots={{

@@ -372,6 +372,7 @@ const ItemList = () => {
                   },
                 }}
                 onRowSelectionModelChange={(newRowSelectionModel) => {
+                  console.log("🚀 ~ ItemList ~ newRowSelectionModel:", newRowSelectionModel)
                   const filterArray = rows.filter((v) =>
                     newRowSelectionModel.includes(v.item_key)
                   );

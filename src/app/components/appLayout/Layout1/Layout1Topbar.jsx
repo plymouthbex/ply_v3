@@ -172,7 +172,7 @@ const Layout1Topbar = () => {
                     Hi <strong>{user.name}</strong>-{user.company}
                   </Span>
                 </Hidden>
-                <Avatar src={user.avatar} sx={{ cursor: "pointer" }} />
+                <Avatar src={`data:image/png;base64,${user.avatar}`} sx={{ cursor: "pointer" }} />
               </UserMenu>
             }
           >
@@ -183,12 +183,12 @@ const Layout1Topbar = () => {
               </Link>
             </StyledItem>
 
-            {/* <StyledItem>
+            <StyledItem>
               <Link to="/user-profile">
                 <Icon> person </Icon>
                 <Span> Profile </Span>
               </Link>
-            </StyledItem> */}
+            </StyledItem>
 
             {user.role != 'USER'&&<StyledItem
               onClick={() => {

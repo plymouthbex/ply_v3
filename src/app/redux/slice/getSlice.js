@@ -66,66 +66,78 @@ const initialState = {
   runGroupAddedData: [],
 
   //Company
-companyStatus:"idle",
-companyMessage:"Initiating",
-companyLoading: false,
-companyError: false,
-companyFormData: {},
-
+  companyStatus: "idle",
+  companyMessage: "Initiating",
+  companyLoading: false,
+  companyError: false,
+  companyFormData: {},
 
   //Application
-  applicationStatus:"idle",
-  applicationMessage:"Initiating",
+  applicationStatus: "idle",
+  applicationMessage: "Initiating",
   applicationLoading: false,
   applicationError: false,
   applicationFormData: {},
 
-   //USER
-   userStatus:"idle",
-   userMessage:"Initiating",
-   userLoading: false,
-   userError: false,
-   userFormData: {},
+  //USER
+  userStatus: "idle",
+  userMessage: "Initiating",
+  userLoading: false,
+  userError: false,
+  userFormData: {},
 
-    //USERGROUP
-    userGroupStatus:"idle",
-    userGroupMessage:"Initiating",
-    userGroupLoading: false,
-    userGroupError: false,
-    userGroupFormData: {},
-    userGroupAppRow:[],
-    userGroupComRow:[],
+  //USERGROUP
+  userGroupStatus: "idle",
+  userGroupMessage: "Initiating",
+  userGroupLoading: false,
+  userGroupError: false,
+  userGroupFormData: {},
+  userGroupAppRow: [],
+  userGroupComRow: [],
 
-    //USERGROUPADDED
-    companyAddedData:[],
+  //USERGROUPADDED
+  companyAddedData: [],
 
-    //IMAGE
-    getContactData:{},
-
-
-    //PP
-    getQuoteFilterItemData:[],
-    getQuoteFilterItemLoading: false,
-    getQuoteFilterItemStatus:"idle",
-    getQuoteFilterItemError:null,
-
-
-
-    getQuoteData:{},
-    getQuoteLoading: false,
-    getQuoteStatus:"idle",
-    getQuoteError:null,
-
+<<<<<<< HEAD
     //CONFIGUREPRICE
     getconfigureData:{},
     getconfigureLoading: false,
     getconfigureStatus:"idle",
     getconfigureError:null,
+=======
+  //IMAGE
+  getContactData: {},
+
+  //PP
+  getQuoteFilterItemData: [],
+  getQuoteFilterItemLoading: false,
+  getQuoteFilterItemStatus: "idle",
+  getQuoteFilterItemError: null,
+
+  getQuoteData: {},
+  getQuoteLoading: false,
+  getQuoteStatus: "idle",
+  getQuoteError: null,
+
+  getQuoteProspectData: [],
+  getQuoteProspectLoading: false,
+  getQuoteProspectStatus: "idle",
+  getQuoteProspectError: null,
+
+  getQuoteProspectInfoData: {},
+  getQuoteProspectInfoLoading: false,
+  getQuoteProspectInfoStatus: "idle",
+  getQuoteProspectInfoError: null,
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
 
     configurePriceListAddedData:[],
     configurePriceListGetData:[],
     configurePriceListSelectData:[],
 
+  getQuoteProspectDataItems: [],
+  getQuoteProspectLoadingItems: false,
+  getQuoteProspectStatusItems: "idle",
+  getQuoteProspectErrorItems: null,
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -324,14 +336,11 @@ export const getUserGroupData = createAsyncThunk(
   }
 );
 
-
-
-
 export const fetchGetImage = createAsyncThunk(
   "page/getListView",
   async ({ filter }) => {
-      try {
-        const URL = `${process.env.REACT_APP_BASE_URL}Image/GetPriceBookImage?${filter}`
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Image/GetPriceBookImage?${filter}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization:
@@ -343,13 +352,11 @@ export const fetchGetImage = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-    //  throw()
+      //  throw()
     }
   }
 );
 
-
-//=====================================pRICING-PORTAL==============================
 export const getQuoteFilterData = createAsyncThunk(
   "getQuoteFilterData/POST",
   async (data, { rejectWithValue }) => {
@@ -370,28 +377,28 @@ export const getQuoteFilterData = createAsyncThunk(
   }
 );
 
-
 export const getQuoteBookData = createAsyncThunk(
-  'get/getQuoteBook', // action type
-  async ({userID,templateID}, { rejectWithValue }) => {
+  "get/getQuoteBook", // action type
+  async ({ userID, templateID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}Quote/GetQuoteTemplates?UserId=${userID}&TemplateId=${templateID}`
+      const URL = `${process.env.REACT_APP_BASE_URL}Quote/GetQuoteTemplates?UserId=${userID}&TemplateId=${templateID}`;
       const response = await axios.get(URL, {
         headers: {
-          'Authorization': process.env.REACT_APP_API_TOKEN, 
-        }
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
       });
-      return response.data; // return the response data
+      return response.data;
     } catch (error) {
-      // If the request fails, return a custom error message
-      return rejectWithValue(error.response ? error.response.data : error.message);
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
     }
   }
 );
 
 export const getPriceListItemGet = createAsyncThunk(
   "page/getPriceListItemGet",
-  async ({ id, itemNumber}, { rejectWithValue }) => {
+  async ({ id, itemNumber }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceListItemByNumber?ItemNumber=${itemNumber}&PriceListID=${id}&Type=PL`;
       const response = await axios.get(URL, {
@@ -427,15 +434,27 @@ export const getConfigPriceBookCompany = createAsyncThunk(
   }
 );
 
+<<<<<<< HEAD
 export const getConfigPriceBook = createAsyncThunk(
   "page/getConfigPriceBook",
   async ({ ID }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPricebookConfiguration?RecordID=${ID}`;
+=======
+export const getProspectListData = createAsyncThunk(
+  "get/getProspectListData", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetQuotationList`;
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
+<<<<<<< HEAD
+=======
+        params:data
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
       });
       return response.data;
     } catch (error) {
@@ -446,6 +465,52 @@ export const getConfigPriceBook = createAsyncThunk(
   }
 );
 
+<<<<<<< HEAD
+=======
+
+export const getProspectInfoData = createAsyncThunk(
+  "get/getProspectInfoData", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetQuotation`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params:data
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const getProspectContractItems = createAsyncThunk(
+  "get/getProspectContractItems", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetContractItems`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params:data
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -483,7 +548,7 @@ const getSlice = createSlice({
       state.priceListSelectedData = [];
     },
 
-    clreatFilterAndItems:(state, action) => {
+    clreatFilterAndItems: (state, action) => {
       state.priceListItemsData = [];
       state.priceListAddedData = [];
       state.priceListSelectedData = [];
@@ -586,13 +651,13 @@ const getSlice = createSlice({
     },
 
     //UserGroup Company
-    companyAdded : (state , action)=>{
-      state.userGroupComRow= action.payload;
+    companyAdded: (state, action) => {
+      state.userGroupComRow = action.payload;
     },
-    applicationAdded : (state , action)=>{
-      state.userGroupAppRow= action.payload;
-    }, 
-    
+    applicationAdded: (state, action) => {
+      state.userGroupAppRow = action.payload;
+    },
+
     //===PP
     addQuoteItemData: (state, action) => {
       state.getQuoteFilterItemData.push(action.payload);
@@ -614,6 +679,7 @@ const getSlice = createSlice({
         state.getQuoteFilterItemData.splice(rowIndex1, 1);
       }
     },
+<<<<<<< HEAD
     configureSelectedPriceList: (state, action) => {
       state.configurePriceListGetData=action.payload;
     },
@@ -643,6 +709,8 @@ const getSlice = createSlice({
   
     }
 
+=======
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
   },
   extraReducers: (builder) => {
     builder
@@ -722,7 +790,6 @@ const getSlice = createSlice({
         state.priceListLoading = false;
         state.priceListError = true;
       })
-      
 
       // PRINT GROUP
       .addCase(getprintGroupData.pending, (state) => {
@@ -784,7 +851,6 @@ const getSlice = createSlice({
         state.companyStatus = "fulfilled";
         state.companyLoading = false;
         state.companyFormData = action.payload.data;
-        
       })
       .addCase(getCompanyData.rejected, (state, action) => {
         state.companyStatus = "rejected";
@@ -800,7 +866,6 @@ const getSlice = createSlice({
         state.applicationStatus = "fulfilled";
         state.applicationLoading = false;
         state.applicationFormData = action.payload.data;
-        
       })
       .addCase(getApplicationData.rejected, (state, action) => {
         state.applicationStatus = "rejected";
@@ -816,25 +881,27 @@ const getSlice = createSlice({
         state.userStatus = "fulfilled";
         state.userLoading = false;
         state.userFormData = action.payload.data;
-        
       })
       .addCase(getUserData.rejected, (state, action) => {
         state.userStatus = "rejected";
         state.userLoading = false;
         state.userError = true;
       })
-       //User
-       .addCase(getUserGroupData.pending, (state) => {
+      //User
+      .addCase(getUserGroupData.pending, (state) => {
         state.userGroupStatus = "pending";
         state.userGroupLoading = true;
       })
       .addCase(getUserGroupData.fulfilled, (state, action) => {
         state.userGroupLoading = false;
         state.userGroupFormData = action.payload.data;
-        state.userGroupAppRow = action.payload.data.ApplicationAccess.filter(item => item.IsSelected === "Y").map(item => item.RecordID);
-        state.userGroupComRow = action.payload.data.CompanyAccess.filter(item => item.IsSelected === "Y").map(item => item.RecordID);
+        state.userGroupAppRow = action.payload.data.ApplicationAccess.filter(
+          (item) => item.IsSelected === "Y"
+        ).map((item) => item.RecordID);
+        state.userGroupComRow = action.payload.data.CompanyAccess.filter(
+          (item) => item.IsSelected === "Y"
+        ).map((item) => item.RecordID);
         state.userGroupStatus = "fulfilled";
-        
       })
       .addCase(getUserGroupData.rejected, (state, action) => {
         state.userGroupStatus = "rejected";
@@ -856,6 +923,7 @@ const getSlice = createSlice({
         state.error = action.error.message;
         state.getContactData = {};
       })
+<<<<<<< HEAD
 //==================================================p-p=========================//
 .addCase(getQuoteFilterData.pending, (state) => {
   state.getQuoteFilterItemStatus = "pending";
@@ -902,6 +970,85 @@ const getSlice = createSlice({
   state.getconfigureLoading = false;
   state.userError = true;
 })
+=======
+      //==================================================p-p=========================//
+      .addCase(getQuoteFilterData.pending, (state) => {
+        state.getQuoteFilterItemStatus = "pending";
+        state.getQuoteFilterItemLoading = true;
+        state.getQuoteFilterItemData = [];
+      })
+      .addCase(getQuoteFilterData.fulfilled, (state, action) => {
+        state.getQuoteFilterItemStatus = "fulfilled";
+        state.getQuoteFilterItemLoading = false;
+        state.getQuoteFilterItemData = action.payload.data;
+      })
+      .addCase(getQuoteFilterData.rejected, (state, action) => {
+        state.getQuoteFilterItemStatus = "rejected";
+        state.getQuoteFilterItemLoading = false;
+        state.getQuoteFilterItemError = action.error.message;
+      })
+      .addCase(getQuoteBookData.pending, (state) => {
+        state.getQuoteStatus = "loading";
+        state.getQuoteLoading = true;
+      })
+      .addCase(getQuoteBookData.fulfilled, (state, action) => {
+        state.getQuoteStatus = "fulfilled";
+        state.getQuoteLoading = false;
+      })
+      .addCase(getQuoteBookData.rejected, (state, action) => {
+        state.getQuoteStatus = "failed";
+        state.getQuoteLoading = false;
+        state.getQuoteError = action.error.message;
+      })
+
+      .addCase(getProspectListData.pending, (state) => {
+        state.getQuoteProspectStatus = "loading";
+        state.getQuoteProspectLoading = true;
+        state.getQuoteProspectData = [];
+      })
+      .addCase(getProspectListData.fulfilled, (state, action) => {
+        state.getQuoteProspectStatus = "fulfilled";
+        state.getQuoteProspectLoading = false;
+        state.getQuoteProspectData = action.payload.data;
+      })
+      .addCase(getProspectListData.rejected, (state, action) => {
+        state.getQuoteProspectStatus = "rejected";
+        state.getQuoteProspectLoading = false;
+        state.getQuoteProspectError = action.error.message;
+      })
+
+      .addCase(getProspectInfoData.pending, (state) => {
+        state.getQuoteProspectInfoStatus = "loading";
+        state.getQuoteProspectInfoLoading = true;
+        state.getQuoteProspectInfoError = null;
+      })
+      .addCase(getProspectInfoData.fulfilled, (state, action) => {
+        state.getQuoteProspectInfoStatus = "fulfilled";
+        state.getQuoteProspectInfoLoading = false;
+        state.getQuoteProspectInfoData = action.payload.data;
+      })
+      .addCase(getProspectInfoData.rejected, (state, action) => {
+        state.getQuoteProspectInfoStatus = "rejected";
+        state.getQuoteProspectInfoLoading = false;
+        state.getQuoteProspectInfoError = action.error.message;
+      })
+
+      .addCase(getProspectContractItems.pending, (state) => {
+        state.getQuoteProspectStatusItems = "loading";
+        state.getQuoteProspectLoadingItems = true;
+        state.getQuoteProspectErrorItems = null;
+      })
+      .addCase(getProspectContractItems.fulfilled, (state, action) => {
+        state.getQuoteProspectStatusItems = "fulfilled";
+        state.getQuoteProspectLoadingItems = false;
+        state.getQuoteProspectDataItems = action.payload.data;
+      })
+      .addCase(getProspectContractItems.rejected, (state, action) => {
+        state.getQuoteProspectStatusItems = "rejected";
+        state.getQuoteProspectLoadingItems = false;
+        state.getQuoteProspectErrorItems = action.error.message;
+      })
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
   },
 });
 
@@ -934,9 +1081,8 @@ export const {
   companyAdded,
   applicationAdded,
 
-
-
   //============pp
+<<<<<<< HEAD
   addQuoteItemData, quoteClearState2, QuoteItemDeletedItem ,
 
   //======CONFi
@@ -944,5 +1090,10 @@ export const {
   configureAddedPriceList,
   configurePriceListDeleted,
   clearConfigurePriceList
+=======
+  addQuoteItemData,
+  quoteClearState2,
+  QuoteItemDeletedItem,
+>>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
 } = getSlice.actions;
 export default getSlice.reducer;

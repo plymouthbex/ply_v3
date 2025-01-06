@@ -58,14 +58,14 @@ const {user}=useAuth();
   },[dispatch])
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    {
-      headerName: "User Code",
-      field: "UserCode",
-      width: "100",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    // {
+    //   headerName: "User Code",
+    //   field: "UserCode",
+    //   width: "100",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
       headerName: "User Name",
       field: "Name",

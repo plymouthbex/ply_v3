@@ -137,18 +137,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({
       type: "LOGIN",
       payload: {
-        user: {
-          ...user,
-          avatar:
-            user.name === "Safin"
-              ? "/assets/images/user.jpg"
-              : user.name === "Ram"
-                ? "/assets/images/user2.JPEG"
-                : user.name === "Neelakrishnan"
-                  ? "/assets/images/user3.jpg"
-                  : "/assets/images/user4.PNG",
-
-        },
+        user:user,
       },
     });
   };

@@ -254,7 +254,7 @@ export default function EditRunPriceBook() {
             <Tooltip title="PDF" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
-                download={params.row.fileName}
+                download={params.row.fileName1}
                 component="a"
                 aria-label="pdf"
                 href={URL.createObjectURL(params.row.blobfp)}
@@ -270,7 +270,7 @@ export default function EditRunPriceBook() {
             <Tooltip title="Excel" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.success.main}
-                download={`${params.row.fileName}.xlsx`}
+                download={`${params.row.fileName1}.xlsx`}
                 component="a"
                 aria-label="excel"
                 href={URL.createObjectURL(params.row.excelBlobfp)}
@@ -329,7 +329,7 @@ export default function EditRunPriceBook() {
             <Tooltip title="PDF" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
-                download={params.row.fileName}
+                download={params.row.fileName2}
                 component="a"
                 aria-label="pdf"
                 href={URL.createObjectURL(params.row.blobcp)}
@@ -345,7 +345,7 @@ export default function EditRunPriceBook() {
             <Tooltip title="Excel" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.success.main}
-                download={`${params.row.fileName}.xlsx`}
+                download={`${params.row.fileName2}.xlsx`}
                 component="a"
                 aria-label="excel"
                 href={URL.createObjectURL(params.row.excelBlobcp)}

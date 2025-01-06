@@ -62,15 +62,15 @@ const StyledRoot = styled("div")(() => ({
 }));
 
 // initial login credentials
-// const initialValues = {
-//   email: " ",
-//   password: "",
-//   remember: true,
-// };
+const initialValues = {
+  email: "",
+  password: "",
+  remember: true,
+};
 
 // form field validation schema
 const validationSchema = Yup.object().shape({
-  email: Yup.string().required("username is required!"),
+  email: Yup.string().email().required("username is required!"),
   password: Yup.string()
     .min(6, "Password must be 6 character length")
     .required("Password is required!"),
@@ -147,11 +147,11 @@ export default function JwtLogin() {
                   handleBlur,
                   handleSubmit,
                 }) => (
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} autoComplete="off">
                     <TextField
                       fullWidth
                       size="small"
-                      type="text"
+                      type="email"
                       name="email"
                       label="User"
                       variant="outlined"
@@ -161,9 +161,11 @@ export default function JwtLogin() {
                       helperText={touched.email && errors.email}
                       error={Boolean(errors.email && touched.email)}
                       sx={{ mb: 3 }}
+                      autoComplete="new-email"
                     />
 
                     <TextField
+                    autoComplete="new-password"
                       fullWidth
                       size="small"
                       name="password"

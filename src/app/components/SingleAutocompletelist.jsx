@@ -9,6 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { VariableSizeList } from "react-window";
+import { Select, MenuItem,   FormControl, InputLabel,  } from '@mui/material';
 
 // Context for custom listbox
 const LISTBOX_PADDING = 8; // Padding around the listbox
@@ -121,6 +122,138 @@ export const FormikOptimizedAutocomplete = ({
       loading={loading}
       value={value}
       isOptionEqualToValue={(option, value) => option.Name === value.Name}
+      onChange={onChange}
+      getOptionLabel={(option) => option.Name}
+      ListboxComponent={ListboxComponent} // Custom listbox component
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select Options"}
+          error={!!error}
+          helperText={error}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
+
+
+export const FormikCustomSelectCompany = ({
+  value = null,
+  onChange = () => {},
+  url,
+  height = 20,
+  label = 'Select Company',
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <FormControl {...props} fullWidth error={!!error} size="small">
+      <InputLabel>{label}</InputLabel>
+      <Select
+        value={value || ''}
+        onChange={onChange}
+        label={label}
+        displayEmpty
+        {...props}
+      >
+        {loading ? (
+          <MenuItem disabled>
+            <CircularProgress size={24} />
+          </MenuItem>
+        ) : (
+          options.map((option) => (
+            <MenuItem key={option.RecordID} value={option.RecordID}>
+              {option.Name}
+            </MenuItem>
+          ))
+        )}
+      </Select>
+      {error && <TextField helperText={error} />}
+    </FormControl>
+  );
+};
+
+export const FormikCustomAutocompleteCustomer = ({
+  value = null,
+  onChange = () =>{},
+  url,
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.Data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+
+      size="small"
+      limitTags={1}
+      fullWidth
+      options={options}
+      loading={loading}
+      value={value}
+      isOptionEqualToValue={(option, value) => option.Code === value.Code}
       onChange={onChange}
       getOptionLabel={(option) => option.Name}
       ListboxComponent={ListboxComponent} // Custom listbox component

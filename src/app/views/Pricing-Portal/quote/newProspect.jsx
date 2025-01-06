@@ -14,19 +14,21 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight,  dataGridPageSize,
-  dataGridpageSizeOptions,dataGridRowHeight } from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+} from "app/utils/constant";
 
 // ********************** ICONS ********************** //
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserListView } from "app/redux/slice/listviewSlice";
 import { themeColors } from "app/components/baseTheme/themeColors";
+import { getProspectListData } from "app/redux/slice/getSlice";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -43,27 +45,31 @@ const NewProspect = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-const {user}=useAuth();
-  console.log("🚀 ~ User ~ user:", user);
-  const dispatch=useDispatch();
+  const { user } = useAuth();
+  const dispatch = useDispatch();
   const colors = themeColors;
-    const location = useLocation();
-    const state = location.state ? location.state : {};
+  const location = useLocation();
+  const state = location.state ? location.state : {};
+
+  const rowProspect = useSelector((state) => state.getSlice.getQuoteProspectData)
+  const statusProspect = useSelector((state) => state.getSlice.getQuoteProspectStatus)
+  const loadingProspect = useSelector((state) => state.getSlice.getQuoteProspectLoading)
+  const errorProspect = useSelector((state) => state.getSlice.getQuoteProspectError)
+
+  useEffect(()=>{
+    dispatch(getProspectListData({data:{Type:"Prospect",UserID:user.id,}}))
+  },[])
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
 
-  
-
-
-
   //=======================API_CALL===================================//
-  
+
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
       headerName: "Date",
-      field: "date",
+      field: "FromDate",
       width: "100",
       align: "left",
       headerAlign: "left",
@@ -79,7 +85,7 @@ const {user}=useAuth();
     },
     {
       headerName: "Description",
-      field: "description",
+      field: "Description",
       width: "300",
       align: "left",
       headerAlign: "left",
@@ -99,56 +105,43 @@ const {user}=useAuth();
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            
             <Button
-              sx={{ height: 25,
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-                "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-               }}
+              sx={{
+                height: 25,
+              }}
               variant="contained"
-              color="secondary"
+              color="info"
               size="small"
-            //   startIcon={<DeleteIcon color="error" size="small" />}
-            onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/editprospect",{
-                  state:{
-                    Name:params.row.Name,
-                    Description:params.row.description,
+              onClick={() => {
+                navigate("/pages/pricing-portal/quote-form/editprospect", {
+                  state: {
+                    prospectID: params.row.RecordID,
                     templateID: state.templateID ? state.templateID : 0,
-                            templateName: state.templateName ? state.templateName : "",
-                  }
+                    templateName: state.templateName ? state.templateName : "",
+                  },
                 });
-            }}
+              }}
             >
               Copy Quote
             </Button>
             <Button
-              sx={{ height: 25,
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-                "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-               }}
+              sx={{
+                height: 25,
+              }}
               variant="contained"
-              color="secondary"
+              color="info"
               size="small"
-            //   startIcon={<DeleteIcon color="error" size="small" />}
-            onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/print",{
-                  state:{
-                    Name:params.row.Name,
-                    Description:params.row.description,
+              onClick={() => {
+                navigate("/pages/pricing-portal/quote-form/print", {
+                  state: {
+                    prospectID: params.row.RecordID,
                     templateID: state.templateID ? state.templateID : 0,
-                            templateName: state.templateName ? state.templateName : "",
-                  }
+                    templateName: state.templateName ? state.templateName : "",
+                  },
                 });
-            }}
+              }}
             >
-             Print Quote
+              Print Quote
             </Button>
           </div>
         );
@@ -156,34 +149,8 @@ const {user}=useAuth();
     },
   ];
 
-  const rows = [
-    {
-      date: "2025-01-01",
-      Name: "John Doe",
-      description: "Lorem ipsum dolor sit amet.",
-    },
-    {
-      date: "2025-01-02",
-      Name: "Jane Smith",
-      description: "Consectetur adipiscing elit.",
-    },
-    {
-      date: "2025-01-03",
-      Name: "Alice Johnson",
-      description: "Sed do eiusmod tempor incididunt ut labore.",
-    },
-    {
-      date: "2025-01-04",
-      Name: "Bob Brown",
-      description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-    },
-    {
-      date: "2025-01-05",
-      Name: "Charlie Lee",
-      description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
-    },
-  ];
-  
+
+
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
     return (
@@ -214,10 +181,13 @@ const {user}=useAuth();
             size="small"
             startIcon={<Add />}
             onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/newprospect",{state:{
-                templateID: state.templateID ? state.templateID : 0,
-                            templateName: state.templateName ? state.templateName : "",
-              }});
+              navigate("/pages/pricing-portal/quote-form/newprospect", {
+                state: {
+                  prospectID: 0,
+                  templateID: state.templateID ? state.templateID : 0,
+                  templateName: state.templateName ? state.templateName : "",
+                },
+              });
             }}
           >
             NEW
@@ -227,27 +197,40 @@ const {user}=useAuth();
     );
   }
 
+
   return (
     <Container>
-      <div className="breadcrumb" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-  <Breadcrumb routeSegments={[{ name: "Quote", path: "/pages/pricing-portal/quote-list" }, { name: "New Prospect" }]} />
-  <Stack direction={"row"} gap={1}>
-    <Button
-      variant="contained"
-      color="info"
-      size="small"
-      startIcon={<ArrowBackIcon size="small" />}
-      onClick={() => navigate(-1)}
-    >
-      Back
-    </Button>
-  </Stack>
-</div>
+      <div
+        className="breadcrumb"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Breadcrumb
+          routeSegments={[
+            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
+            { name: "New Prospect" },
+          ]}
+        />
+        <Stack direction={"row"} gap={1}>
+          <Button
+            variant="contained"
+            color="info"
+            size="small"
+            startIcon={<ArrowBackIcon size="small" />}
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </Button>
+        </Stack>
+      </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
-           sx={{
-            height:"400px",
+          sx={{
+            height: "400px",
             "& .MuiDataGrid-root": {
               border: "none",
             },
@@ -270,11 +253,11 @@ const {user}=useAuth();
               color: colors.blue.palette.info.contrastText,
             },
             "& .MuiCheckbox-root": {
-              color: "#174c4f !important", 
+              color: "#174c4f !important",
             },
-           
+
             "& .MuiCheckbox-root.Mui-checked": {
-              color: "#174c4f !important", 
+              color: "#174c4f !important",
             },
           }}
         >
@@ -283,18 +266,17 @@ const {user}=useAuth();
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
             }}
-          
-            rows={rows}
+            rows={rowProspect}
+            loading={loadingProspect}
             columns={columns}
-            // checkboxSelection
             disableSelectionOnClick
             disableRowSelectionOnClick
-            getRowId={(row) => row.Name}
+            getRowId={(row) => row.RecordID}
             initialState={{
-                pagination: { paginationModel: { pageSize: 20 } },
-              }}
-              rowHeight={30}
-              pageSizeOptions={[20, 50, 100]}
+              pagination: { paginationModel: { pageSize: 20 } },
+            }}
+            rowHeight={30}
+            pageSizeOptions={[20, 50, 100]}
             columnVisibilityModel={{
               RecordID: true,
             }}
