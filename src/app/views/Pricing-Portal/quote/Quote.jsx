@@ -906,7 +906,9 @@ export default function BuildCustomPriceBook() {
             color="info"
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              navigate(-1, { state: { prospectID: state.headerID } })
+            }
           >
             Back
           </Button>
@@ -917,8 +919,7 @@ export default function BuildCustomPriceBook() {
             onClick={() => {
               navigate("/pages/pricing-portal/quote-form/print", {
                 state: {
-                  Name: "",
-                  Description: "",
+                  prospectID: state.headerID,
                   templateID: state.templateID ? state.templateID : 0,
                   templateName: state.templateName ? state.templateName : "",
                 },

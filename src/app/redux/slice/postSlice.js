@@ -982,6 +982,27 @@ export const priceListClearFilter = createAsyncThunk(
     }
   }
 );
+
+export const postContractItems = createAsyncThunk(
+  "post/postContractItems", // Action type string
+  async ({ data,params },{rejectWithValue}) => {
+    try {
+        const URL = `${process.env.REACT_APP_BASE_URL}Quotation/PostContractItem`
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization:process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+        params,
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,
