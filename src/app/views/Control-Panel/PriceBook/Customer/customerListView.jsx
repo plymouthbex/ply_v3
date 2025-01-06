@@ -92,6 +92,7 @@ const State=location.state;
               size="small"
               onClick={() => {
                 navigate("/pages/control-panel/configure-price-book/customer/address",{state:{
+                  RecordID:params.row.RecordID,
                   Code:params.row.CustomerNumber,
                   Name:params.row.CustomerName,
                   company:State,
@@ -108,6 +109,7 @@ const State=location.state;
               startIcon={<ModeEditOutlineIcon size="small" />}
               onClick={() => {
                 navigate("/pages/control-panel/configure-price-book/customer/editCustomer/configureEdit",{state:{
+                  RecordID:params.row.RecordID,
                   Code:params.row.CustomerNumber,
                   Name:params.row.CustomerName,
                   company:State,

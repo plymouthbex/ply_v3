@@ -97,6 +97,7 @@ const dispatch=useDispatch();
               size="small"
               onClick={() => {
                 navigate("/pages/control-panel/configure-price-book/customer/contact",{state:{
+                  RecordID:params.row.RecordID,
                   Code:params.row.AddressCode,
                   Name:params.row.Address,
                   address:State
@@ -113,6 +114,7 @@ const dispatch=useDispatch();
               startIcon={<ModeEditOutlineIcon size="small" />}
               onClick={() => {
                 navigate("/pages/control-panel/configure-price-book/customer/editAddress/configureEdit",{state:{
+                  RecordID:params.row.RecordID,
                   Code:params.row.AddressCode,
                   Name:params.row.Address,
                   address:State

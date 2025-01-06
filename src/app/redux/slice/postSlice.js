@@ -982,6 +982,71 @@ export const priceListClearFilter = createAsyncThunk(
     }
   }
 );
+
+//==============================+CONFIGURE-POST========================//
+
+export const postConfigureCompany = createAsyncThunk(
+  "post/postConfigureCompany", // Action type string
+  async ({ Cdata },{rejectWithValue}) => {
+    try {
+        const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/PostPricebookConfiguration`
+      const response = await axios.post(URL, Cdata, {
+        headers: {
+          Authorization:process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+
+export const PostConfigurePriceListID = createAsyncThunk(
+  "post/PostConfigurePriceListID", // Action type string
+  async ({ pricedata },{rejectWithValue}) => {
+    try {
+        const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/PostConfigurePriceListID`
+      const response = await axios.post(URL, pricedata, {
+        headers: {
+          Authorization:process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+// PriceBookConfiguration/DeleteConfigurePriceListID'
+
+export const ConfigurepriceListClear = createAsyncThunk(
+  "ConfigurepriceListClear/DELETE",
+  async ({Pdata }, { rejectWithValue }) => {
+    try {
+      const URL =`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/DeleteConfigurePriceListID`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: Pdata,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,

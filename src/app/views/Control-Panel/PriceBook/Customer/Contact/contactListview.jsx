@@ -61,7 +61,7 @@ const dispatch=useDispatch();
    const columns = [
       {
         headerName: "Email",
-        field: "email",
+        field: "EmailId",
         width: "150",
         align: "left",
         headerAlign: "left",
@@ -69,7 +69,7 @@ const dispatch=useDispatch();
       },
       {
         headerName: "Phone",
-        field: "phone",
+        field: "Phone",
         width: "170",
         align: "left",
         headerAlign: "left",
@@ -106,6 +106,7 @@ const dispatch=useDispatch();
                 startIcon={<ModeEditOutlineIcon size="small" />}
                 onClick={() => {
                     navigate("/pages/control-panel/configure-price-book/customer/editContact/configureEdit",{state:{
+                      RecordID:params.row.RecordID,
                       Configure:State
                     }});
                   }}
@@ -202,6 +203,7 @@ const dispatch=useDispatch();
             startIcon={<Add fontSize="small" />}
             onClick={() => {
               navigate("/pages/control-panel/configure-price-book/customer/addContact/configureEdit",{state:{
+                RecordID:0,
                 Configure:State
               }});
             }}
