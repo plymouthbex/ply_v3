@@ -62,11 +62,11 @@ const StyledRoot = styled("div")(() => ({
 }));
 
 // initial login credentials
-const initialValues = {
-  email: "safin@plymouthinc.com ",
-  password: "dummyPass",
-  remember: true,
-};
+// const initialValues = {
+//   email: " ",
+//   password: "",
+//   remember: true,
+// };
 
 // form field validation schema
 const validationSchema = Yup.object().shape({
