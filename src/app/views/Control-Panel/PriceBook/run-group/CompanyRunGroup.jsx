@@ -98,7 +98,7 @@ const loading = useSelector((state) => state.listview.loading);
               size="small"
               onClick={() => {
                 navigate("/pages/control-panel/run-group", {
-                  state: { ID: params.row.RecordID },
+                  state: { companyID: params.row.RecordID },
                 });
               }}
               startIcon={<ModeEditOutlineIcon size="small" />}
@@ -162,7 +162,7 @@ const loading = useSelector((state) => state.listview.loading);
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Price Book" }, { name: "Company" }]}
+          routeSegments={[{ name: "CP-Price Book" }, { name: "Company" }]}
         />
       </div>
 

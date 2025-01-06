@@ -800,7 +800,7 @@ const PriceListEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "Price Book" },
+                    { name: "CP-Price Book" },
                     { name: "Price List", path: "/pages/price-list" },
                     { name: `${params.mode} Price List` },
                   ]}
@@ -1627,7 +1627,7 @@ const PriceListEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/price-list", {
+                  navigate("/pages/control-panel/price-list", {
                     state: { ID: state.company.ID },
                   });
                   dispatch(clearPriceListState());
@@ -1657,7 +1657,7 @@ const PriceListEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/price-list", {
+                  navigate("/pages/control-panel/price-list", {
                     state: { ID: state.company.ID },
                   });
                   dispatch(clearPriceListState());

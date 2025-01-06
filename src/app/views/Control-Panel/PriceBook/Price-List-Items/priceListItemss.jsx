@@ -518,7 +518,7 @@ const PriceListEdit = () => {
     // }
     if (params.mode === "edit" || params.mode === "view") {
       setShowGridData(0);
-    } else setShowGridData(3);
+    } else setShowGridData(0);
   }, [state.id]);
 
   const [openAlert1, setOpenAlert1] = useState(false);
@@ -561,7 +561,7 @@ const PriceListEdit = () => {
             <MenuItem value={3}>Ad Hoc</MenuItem>
           </TextField>
         </Box>
-        {showGridData === 3  && (
+        {/* {showGridData === 3  && (
           <Box
             sx={{
               display: "flex",
@@ -668,7 +668,7 @@ const PriceListEdit = () => {
               Ad Hoc Item
             </Button>}
           </Box>
-        )}
+        )} */}
       </GridToolbarContainer>
     );
   }
@@ -800,9 +800,12 @@ const PriceListEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "Price Book" },
-                    { name: "Price List", path: "/pages/price-list" },
-                    { name: `${params.mode} Price List` },
+                    { name: "Configure Price Book" },
+                    {
+                      name: "Company",
+                      path: "/pages/control-panel/configure-price-book/company",
+                    },
+                    { name: `${params.mode} Configure Price Book` },
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>

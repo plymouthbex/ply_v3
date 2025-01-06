@@ -160,12 +160,10 @@ const ConfigureItemAttributesEdit = () => {
             <div className="breadcrumb">
               <Breadcrumb
                 routeSegments={[
-                  { name: "Price Book" },
-                  { name: "Price List", path: "/pages/price-list" },
+                  { name: "Configure Price Book" },
                   {
-                    name: `${params.mode} Price List Detail`,
-                    path: -1,
-                    state: { itemNumber },
+                    name: "Company",
+                    path: "/pages/control-panel/configure-price-book/company",
                   },
                   { name: `${params.itemMode} Item Attributes` },
                 ]}

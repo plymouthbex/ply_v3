@@ -293,18 +293,95 @@ export const OptimizedAutocomplete = ({
 
 
 // Combined Component
+// export const PriceListOptimizedAutocomplete = ({
+//   value = null,
+//   onChange,
+//   url,
+//   height = 20,
+//   ...props
+// }) => {
+//   const [options, setOptions] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await axios.get(url, {
+//           headers: {
+//             Authorization: process.env.REACT_APP_API_TOKEN,
+//           },
+//         });
+//         setOptions(response.data.data || []); // Assuming API response has `Data` array
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//         setOptions([]);
+//         setError("Failed to load. Please try again.");
+       
+//       } finally {
+//         setLoading(false);
+//         setError();
+//       }
+//     };
+
+//     fetchData();
+//   }, [url]);
+
+//   return (
+//     <Autocomplete
+//       size="small"
+//       limitTags={1}
+//       options={options}
+//       loading={loading}
+//       value={value}
+//       isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+//       onChange={(event, newValue) => onChange(newValue)}
+//       getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+//       ListboxComponent={ListboxComponent} // Custom listbox component
+//       renderInput={(params) => (
+//         <TextField
+//           {...params}
+//           label={props.label || "Select Options"}
+//           error={!!error}
+//           helperText={error}
+//           InputProps={{
+//             ...params.InputProps,
+//             endAdornment: (
+//               <>
+//                 {loading ? (
+//                   <CircularProgress color="inherit" size={20} />
+//                 ) : null}
+//                 {params.InputProps.endAdornment}
+//               </>
+//             ),
+//           }}
+//         />
+//       )}
+//       {...props}
+//     />
+//   );
+// };
 export const PriceListOptimizedAutocomplete = ({
   value = null,
   onChange,
   url,
   height = 20,
+  label = "Price List",
+  companyID, // Pass companyID as a prop
   ...props
 }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Fetch data when component mounts or URL/CompanyID changes
   useEffect(() => {
+    if (!companyID) {
+      setOptions([]); // Clear options if no companyID
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -318,31 +395,33 @@ export const PriceListOptimizedAutocomplete = ({
         console.error("Error fetching data:", error);
         setOptions([]);
         setError("Failed to load. Please try again.");
-       
       } finally {
         setLoading(false);
-        setError();
       }
     };
 
     fetchData();
-  }, [url]);
+  }, [url, companyID]);
+
+  // Handle the opening of the Autocomplete dropdown
+  
 
   return (
     <Autocomplete
+      sx={{ maxWidth: 400 }} // Add maxWidth to match your styling
+      fullWidth
       size="small"
       limitTags={1}
       options={options}
       loading={loading}
       value={value}
       isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
-      onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
-      ListboxComponent={ListboxComponent} // Custom listbox component
+      onChange={(event, newValue) => onChange(newValue)} // Handle the value change
+      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`} // Customize label format
       renderInput={(params) => (
         <TextField
           {...params}
-          label={props.label || "Select Options"}
+          label={label} // Use the label prop
           error={!!error}
           helperText={error}
           InputProps={{
@@ -358,6 +437,7 @@ export const PriceListOptimizedAutocomplete = ({
           }}
         />
       )}
+    // Trigger handleOpen when autocomplete opens
       {...props}
     />
   );

@@ -105,7 +105,7 @@ const dispatch=useDispatch();
                 size="small"
                 startIcon={<ModeEditOutlineIcon size="small" />}
                 onClick={() => {
-                    navigate("/pages/control-panel/configure-price-book/customer/editContact/configureEdit",{state:{
+                    navigate("/pages/control-panel/configure-price-book/customer/edit-Contact/configureEdit",{state:{
                       RecordID:params.row.RecordID,
                       Configure:State
                     }});
@@ -202,7 +202,7 @@ const dispatch=useDispatch();
             size="small"
             startIcon={<Add fontSize="small" />}
             onClick={() => {
-              navigate("/pages/control-panel/configure-price-book/customer/addContact/configureEdit",{state:{
+              navigate("/pages/control-panel/configure-price-book/customer/add-Contact/configureEdit",{state:{
                 RecordID:0,
                 Configure:State
               }});

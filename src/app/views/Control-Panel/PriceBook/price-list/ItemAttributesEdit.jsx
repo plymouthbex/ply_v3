@@ -160,8 +160,8 @@ const ItemAttributesEdit = () => {
             <div className="breadcrumb">
               <Breadcrumb
                 routeSegments={[
-                  { name: "Price Book" },
-                  { name: "Price List", path: "/pages/price-list" },
+                  { name: "CP-Price Book" },
+                  { name: "Price List", path: "/pages/control-panel/price-list" },
                   {
                     name: `${params.mode} Price List Detail`,
                     path: -1,

@@ -83,21 +83,11 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
-  code: Yup.string()
-    .min(3, "Code must be at least 3 characters")
-    .max(15, "Code must be at most 15 characters"),
-  email: Yup.string()
-    .email("Invalid email format")
-    .max(30, "Email must be at most 30 characters"),
-  sequence: Yup.string()
-    .min(1, "Sequence must be at least 1 character")
-    .max(15, "Sequence must be at most 15 characters"),
+  
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .max(60, "Name must be at most 60 characters"),
-  address: Yup.string()
-    .min(3, "Address must be at least 3 characters")
-    .max(50, "Address must be at most 50 characters"),
+ 
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -441,7 +431,7 @@ const ConfigureEdit = () => {
             pmc: data.PreferedDeliveryEmail === "1" ? true : false,
             pec: data.PreferedDeliveryMobile === "1" ? true : false,
           }}
-          // validationSchema={validationSchema}
+          validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, { resetForm }) => {
             console.log("Form submitted with values:", values);
@@ -510,7 +500,7 @@ const ConfigureEdit = () => {
                     padding: "10px",
                   }}
                 >
-                  {params.mode === "editCustomer" && (
+                  {params.mode === "edit-Customer" && (
                     <Stack sx={{ gridColumn: "span 4" }} direction="row" gap={1}>
 
 
@@ -524,7 +514,7 @@ const ConfigureEdit = () => {
 
                     </Stack>
                   )}
-                  {params.mode === "editAddress" && (
+                  {params.mode === "edit-Address" && (
                     <Stack sx={{ gridColumn: "span 4" }} direction="row" gap={1}>
 
 
@@ -544,7 +534,7 @@ const ConfigureEdit = () => {
                     </Stack>
                   )}
 
-                  {(params.mode === "editContact" || params.mode === "addContact") && (
+                  {(params.mode === "edit-Contact" || params.mode === "add-Contact") && (
                     <Stack sx={{ gridColumn: "span 4" }} direction="row" gap={1}>
 
 
@@ -588,13 +578,15 @@ const ConfigureEdit = () => {
                     label="Contact Name"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
-                    // required
+                    required
                     value={values.name}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={!!touched.code && !!errors.code}
                     helperText={touched.name && errors.name}
-
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                   />
                   <FormikOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
@@ -732,7 +724,7 @@ const ConfigureEdit = () => {
                     label="Disable"
                   />
                 </Box>
-                {params.mode === 'editCustomer' && (
+                {params.mode === 'edit-Customer' && (
                   <Box
                     display="grid"
                     gap="20px"
@@ -864,7 +856,7 @@ const ConfigureEdit = () => {
                     </Stack>
                   </Box>
                 )}
-                {params.mode === 'editCustomer' && (
+                {params.mode === 'edit-Customer' && (
                   <Box
                     sx={{
                       height: 400,
@@ -1072,7 +1064,7 @@ const ConfigureEdit = () => {
 export default ConfigureEdit;
 
 
-{/* {params.mode === 'editCustomer' && (
+{/* {params.mode === 'edit-Customer' && (
  <Box display="flex" flexDirection="column" gap="20px"  justifyContent="center"
             alignItems="center">
       <Typography variant="h5">Price Book Cover Image</Typography>

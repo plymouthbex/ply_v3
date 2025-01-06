@@ -27,6 +27,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import {
+  clearPrintGroupState,
   getprintGroupData,
   printGroupAddedItem,
   printGroupDeletedItem,
@@ -333,7 +334,7 @@ const PrintGroupEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "Price Book" },
+                    { name: "CP-Price Book" },
                     { name: "Price Book Category", path: "/pages/control-panel/price-lists-group" },
                     {
                       name: `${params.mode} Price Book Category`,
@@ -639,10 +640,10 @@ const PrintGroupEdit = () => {
         error={postError}
         message={
           params.mode === "add"
-            ? "Print Group added successfully"
+            ? "Price Book Categories added successfully"
             : params.mode === "delete"
-              ? "Print Group Releived Successfully"
-              : "Print Group updated successfully"
+              ? "Price Book Categories Releived Successfully"
+              : "Price Book Categories updated successfully"
         }
         Actions={
           params.mode === "add" ? (
@@ -655,7 +656,7 @@ const PrintGroupEdit = () => {
                   navigate("/pages/control-panel/print-group");
                 }}
               >
-                Back to Print Group
+                Back to Price Book Categories
               </Button>
               <Button
                 variant="contained"
@@ -663,11 +664,12 @@ const PrintGroupEdit = () => {
                 size="small"
                 onClick={() => {
                   dispatch(getprintGroupData({ id: 0 }));
+                  dispatch(clearPrintGroupState());
                   setOpenAlert(false);
                 }}
                 autoFocus
               >
-                Add New Print Group
+                Add New Price Book Categories
               </Button>
             </DialogActions>
           ) : (
@@ -678,7 +680,7 @@ const PrintGroupEdit = () => {
                 size="small"
                 onClick={() => navigate("/pages/control-panel/print-group")}
               >
-                Back to Print Group
+                Back to Price Book Categories
               </Button>
             </DialogActions>
           )

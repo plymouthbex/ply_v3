@@ -113,7 +113,7 @@ const dispatch=useDispatch();
               size="small"
               startIcon={<ModeEditOutlineIcon size="small" />}
               onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer/editAddress/configureEdit",{state:{
+                navigate("/pages/control-panel/configure-price-book/customer/edit-Address/configureEdit",{state:{
                   RecordID:params.row.RecordID,
                   Code:params.row.AddressCode,
                   Name:params.row.Address,
