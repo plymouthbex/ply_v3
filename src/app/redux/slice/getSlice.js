@@ -98,37 +98,11 @@ const initialState = {
   //USERGROUPADDED
   companyAddedData: [],
 
-<<<<<<< HEAD
     //CONFIGUREPRICE
     getconfigureData:{},
     getconfigureLoading: false,
     getconfigureStatus:"idle",
     getconfigureError:null,
-=======
-  //IMAGE
-  getContactData: {},
-
-  //PP
-  getQuoteFilterItemData: [],
-  getQuoteFilterItemLoading: false,
-  getQuoteFilterItemStatus: "idle",
-  getQuoteFilterItemError: null,
-
-  getQuoteData: {},
-  getQuoteLoading: false,
-  getQuoteStatus: "idle",
-  getQuoteError: null,
-
-  getQuoteProspectData: [],
-  getQuoteProspectLoading: false,
-  getQuoteProspectStatus: "idle",
-  getQuoteProspectError: null,
-
-  getQuoteProspectInfoData: {},
-  getQuoteProspectInfoLoading: false,
-  getQuoteProspectInfoStatus: "idle",
-  getQuoteProspectInfoError: null,
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
 
     configurePriceListAddedData:[],
     configurePriceListGetData:[],
@@ -434,27 +408,16 @@ export const getConfigPriceBookCompany = createAsyncThunk(
   }
 );
 
-<<<<<<< HEAD
-export const getConfigPriceBook = createAsyncThunk(
-  "page/getConfigPriceBook",
-  async ({ ID }, { rejectWithValue }) => {
-    try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPricebookConfiguration?RecordID=${ID}`;
-=======
 export const getProspectListData = createAsyncThunk(
   "get/getProspectListData", // action type
   async ({ data }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetQuotationList`;
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
-<<<<<<< HEAD
-=======
         params:data
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
       });
       return response.data;
     } catch (error) {
@@ -465,8 +428,6 @@ export const getProspectListData = createAsyncThunk(
   }
 );
 
-<<<<<<< HEAD
-=======
 
 export const getProspectInfoData = createAsyncThunk(
   "get/getProspectInfoData", // action type
@@ -509,8 +470,24 @@ export const getProspectContractItems = createAsyncThunk(
   }
 );
 
-
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
+export const getConfigPriceBook = createAsyncThunk(
+  "page/getConfigPriceBook",
+  async ({ ID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPricebookConfiguration?RecordID=${ID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -679,7 +656,6 @@ const getSlice = createSlice({
         state.getQuoteFilterItemData.splice(rowIndex1, 1);
       }
     },
-<<<<<<< HEAD
     configureSelectedPriceList: (state, action) => {
       state.configurePriceListGetData=action.payload;
     },
@@ -709,8 +685,6 @@ const getSlice = createSlice({
   
     }
 
-=======
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
   },
   extraReducers: (builder) => {
     builder
@@ -923,54 +897,6 @@ const getSlice = createSlice({
         state.error = action.error.message;
         state.getContactData = {};
       })
-<<<<<<< HEAD
-//==================================================p-p=========================//
-.addCase(getQuoteFilterData.pending, (state) => {
-  state.getQuoteFilterItemStatus = "pending";
-  state.getQuoteFilterItemLoading = true;
-  state.getQuoteFilterItemData = [];
-})
-.addCase(getQuoteFilterData.fulfilled, (state, action) => {
-  state.getQuoteFilterItemStatus = "fulfilled";
-  state.getQuoteFilterItemLoading = false;
-  state.getQuoteFilterItemData = action.payload.data;
-})
-.addCase(getQuoteFilterData.rejected, (state, action) => {
-  state.getQuoteFilterItemStatus = "rejected";
-  state.getQuoteFilterItemLoading = false;
-  state.getQuoteFilterItemError = action.error.message;
-})
-.addCase(getQuoteBookData.pending, (state) => {
-  state.getQuoteStatus = "loading";
-  state.getQuoteLoading = true;
-})
-.addCase(getQuoteBookData.fulfilled, (state, action) => {
-  state.getQuoteStatus = "fulfilled";
-  state.getQuoteLoading = false;
-})
-.addCase(getQuoteBookData.rejected, (state, action) => {
-  state.getQuoteStatus = "failed";
-  state.getQuoteLoading = false;
-  state.getQuoteError = action.error.message;
-})
-//==================================CONFIGURE PRICE BOOK===========================//
-.addCase(getConfigPriceBook.pending, (state) => {
-  state.getconfigureStatus = "pending";
-  state.getconfigureLoading = true;
-})
-.addCase(getConfigPriceBook.fulfilled, (state, action) => {
-  state.getconfigureStatus = "fulfilled";
-  state.getconfigureLoading = false;
-  state.getconfigureData = action.payload.data;
-  state.configurePriceListGetData=action.payload.data.PriceList;
-  
-})
-.addCase(getConfigPriceBook.rejected, (state, action) => {
-  state.getconfigureStatus = "rejected";
-  state.getconfigureLoading = false;
-  state.userError = true;
-})
-=======
       //==================================================p-p=========================//
       .addCase(getQuoteFilterData.pending, (state) => {
         state.getQuoteFilterItemStatus = "pending";
@@ -1048,7 +974,25 @@ const getSlice = createSlice({
         state.getQuoteProspectLoadingItems = false;
         state.getQuoteProspectErrorItems = action.error.message;
       })
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
+
+      //==================================CONFIGURE PRICE BOOK===========================//
+.addCase(getConfigPriceBook.pending, (state) => {
+  state.getconfigureStatus = "pending";
+  state.getconfigureLoading = true;
+})
+.addCase(getConfigPriceBook.fulfilled, (state, action) => {
+  state.getconfigureStatus = "fulfilled";
+  state.getconfigureLoading = false;
+  state.getconfigureData = action.payload.data;
+  state.configurePriceListGetData=action.payload.data.PriceList;
+  
+})
+.addCase(getConfigPriceBook.rejected, (state, action) => {
+  state.getconfigureStatus = "rejected";
+  state.getconfigureLoading = false;
+  state.userError = true;
+})
+
   },
 });
 
@@ -1082,7 +1026,6 @@ export const {
   applicationAdded,
 
   //============pp
-<<<<<<< HEAD
   addQuoteItemData, quoteClearState2, QuoteItemDeletedItem ,
 
   //======CONFi
@@ -1090,10 +1033,5 @@ export const {
   configureAddedPriceList,
   configurePriceListDeleted,
   clearConfigurePriceList
-=======
-  addQuoteItemData,
-  quoteClearState2,
-  QuoteItemDeletedItem,
->>>>>>> 0c5677b9dc353d27fedceb39c1c869a01111cc8d
 } = getSlice.actions;
 export default getSlice.reducer;

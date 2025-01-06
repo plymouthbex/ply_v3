@@ -764,7 +764,7 @@ const pricedata={
                 size="small"
                 onClick={() => navigate("/pages/control-panel/configure-price-book/company")}
               >
-                Back to User
+                Back to Configure Company
               </Button>
             </DialogActions>
           )
