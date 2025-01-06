@@ -32,14 +32,14 @@ export const navigations = [
         iconText: "V",
         fav : false,
       },
-      {
-        name: "Templates",
-        icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/quote-template",
-        accessID: "PPB004",
-        iconText: "QT",
-        fav : false,
-      },
+      // {
+      //   name: "Templates",
+      //   icon: <DescriptionIcon fontSize="small" />,
+      //   path: "/pages/pricing-portal/quote-template",
+      //   accessID: "PPB004",
+      //   iconText: "QT",
+      //   fav : false,
+      // },
     ],
   },
   // {

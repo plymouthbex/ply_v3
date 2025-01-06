@@ -98,7 +98,12 @@ export default function RunPriceBook() {
   const [isNextWeek, setIsNextWeek] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup }));
+    dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup })).then((res) => {
+      console.log("🚀 ~ dispatch ~ res:", res)
+
+    	 const allRowIds = res.payload.rows.map((row) => row.id);
+        setRowSelectionModel(allRowIds);
+    })
     const today = new Date();
     setCurrentDate(today);
   }, []);
@@ -277,7 +282,12 @@ export default function RunPriceBook() {
   const handleSelectionRunGrpChange = (newValue) => {
     setSelectedRunGrpOptions(newValue);
     if (newValue) {
-      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name }));
+      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then((res) => {
+        // console.log("🚀 ~ dispatch ~ res:", res)
+  
+         const allRowIds = res.payload.rows.map((row) => row.id);
+          setRowSelectionModel(allRowIds);
+      });
     }
   };
 
@@ -329,7 +339,16 @@ export default function RunPriceBook() {
   const [showPrice, setShowprice] = useState(true);
 
   const fnProcess = () => {
-    if (rowSelectionModel.length == 0) {
+    if (rowSelectionModel.length == 0 ) {
+      setProcessFunLoading(false);
+      setProcessLoading(true);
+      setProcessError(true);
+      dispatch(runGrpMsgUpdate("Please Select Customer"));
+      setTimeout(() => {
+        setProcessLoading(false);
+        dispatch(runGrpMsgUpdate(""));
+        setProcessError(false);
+      }, 2000);
       return;
     }
     setProcessLoading(true);
@@ -398,7 +417,7 @@ export default function RunPriceBook() {
                       ...value,
                       blobfp: blob,
                       excelBlobfp,
-                      fileName: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
+                      fileName1: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
                     }));
                 } else {
                   return {
@@ -491,7 +510,7 @@ export default function RunPriceBook() {
                       ...value,
                       blobcp: blob,
                       excelBlobcp,
-                      fileName: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
+                      fileName2: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_CPB_${sunday} TO ${saturday}`,
                     }));
                 } else {
                   return {
@@ -651,7 +670,7 @@ export default function RunPriceBook() {
               id="rungroup"
               value={selectedRunGrpOptions}
               onChange={handleSelectionRunGrpChange}
-              label="Run Group"
+              label="Price Book"
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             />
           </Box>
@@ -803,6 +822,7 @@ export default function RunPriceBook() {
           />
           <Button
             variant="contained"
+            disabled={rowSelectionModel.length > 10}
             sx={{
               "&:hover": {
                 backgroundColor: theme.palette.secondary.light, // Custom hover color
@@ -813,7 +833,7 @@ export default function RunPriceBook() {
             }}
             onClick={fnProcess}
           >
-            Process Price Book(s)
+           View Price Book 
           </Button>
         </Stack>
       </SimpleCard>

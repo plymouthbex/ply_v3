@@ -165,7 +165,7 @@ useEffect(()=>{
             size="small"
             startIcon={<Add />}
             onClick={() => {
-              navigate("/pages/user-group/user-edit-Group-detail/add",{state:{ID:0}});
+              navigate("/pages/security/user-group/user-edit-Group-detail/add",{state:{ID:0}});
             }}
           >
             Add

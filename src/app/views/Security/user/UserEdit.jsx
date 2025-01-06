@@ -19,7 +19,12 @@ import {
   Typography,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
-import logo from "../../../../assets/plylogo.png";
+import Avatar from "@mui/material/Avatar";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Divider from "@mui/material/Divider";
+import CardHeader from "@mui/material/CardHeader";
 
 // ******************** ICONS ******************** //
 import SaveIcon from "@mui/icons-material/Save";
@@ -31,19 +36,17 @@ import * as Yup from "yup";
 import { getUserData } from "app/redux/slice/getSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  CompanyFormikCompanyOptimizedAutocomplete,
   FormikCompanyOptimizedAutocomplete,
-  FormikOptimizedAutocomplete,
   FormikRungroupOptimizedAutocomplete,
   FormikUserGroupOptimizedAutocomplete,
-  PGOptimizedAutocomplete,
-  UserGroupOptimizedAutocomplete,
-  UserOptimizedAutocomplete,
 } from "app/components/SingleAutocompletelist";
 import useAuth from "app/hooks/useAuth";
 import { deleteUserData, userPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
-
+import { convertHexToRGB } from "app/utils/constant";
+import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
+import { Publish } from "@mui/icons-material";
+import { useDropzone } from "react-dropzone";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -55,6 +58,24 @@ const Container = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
     flexDirection: "row",
   },
+}));
+
+const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
+  height: 70,
+  width: "100%",
+  cursor: "pointer",
+  borderRadius: "4px",
+  marginBottom: "16px",
+  transition: "all 350ms ease-in-out",
+  border: `2px dashed rgba(${convertHexToRGB(
+    theme.palette.text.primary
+  )}, 0.3)`,
+  "&:hover": {
+    background: `rgb(${convertHexToRGB(
+      theme.palette.text.primary
+    )}, 0.2) !important`,
+  },
+  background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
 }));
 
 // ******************** Validation Schema ******************** //
@@ -99,8 +120,8 @@ const UserEdit = () => {
   const { user } = useAuth();
   // ******************** LOCAL STATE ******************** //
 
-  const [postError, setPostError] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [UserID, setSelectUserID] = useState(null);
@@ -118,11 +139,42 @@ const UserEdit = () => {
     dispatch(getUserData({ ID: state.ID }));
   }, []);
 
+  const [imageList1, setImageList1] = useState([]);
+  const [previewImages1, setPreviewImages1] = useState([]);
+
+  const handleDrop = (setImageList, setPreviewImages) => (acceptedFiles) => {
+    const previews = [];
+    acceptedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push({
+          name: file.name,
+          preview: reader.result,
+        });
+        if (previews.length === acceptedFiles.length) {
+          setPreviewImages(previews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    setImageList(acceptedFiles);
+  };
+
+  const dropzoneProps1 = useDropzone({
+    accept: "image/*",
+    onDrop: handleDrop(setImageList1, setPreviewImages1),
+  });
   //=======================================SAVE================================//
 
   const HandleSave = async (values) => {
     if (params.mode === "delete") {
       setOpenDialog(true);
+    }
+
+let images
+    if(previewImages1.length > 0){
+      const image = previewImages1[0]["preview"];
+     images = image.split(",");
     }
     const userData = {
       recordID: data.RecordID,
@@ -137,17 +189,14 @@ const UserEdit = () => {
       userGroup: JSON.stringify(values.userGroup),
       rungroup: JSON.stringify(values.runGroup),
       company: JSON.stringify(values.defaultCompany),
+      UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
     };
-    console.log("🚀 ~ HandleSave ~ userData:", userData);
-    //  return;
     const response = await dispatch(userPost({ userData }));
-    console.log("🚀 ~ HandleSave ~ response:", response);
     if (response.payload.status === "Y") {
       setOpenAlert(true);
     } else {
       setOpenAlert(true);
       setPostError(true);
-      // toast.error("Error occurred while saving data");
     }
   };
 
@@ -174,14 +223,14 @@ const UserEdit = () => {
       {status === "fulfilled" && !error ? (
         <Formik
           initialValues={{
-            code: data.UserCode,
+            code: "",
             password: data.Password,
             confirmpassword: data.Password,
             firstname: data.Firstname,
             lastname: data.Lastname,
             email: data.Email,
-            mobilenumber: data.Phone,
-            sequence: data.SortOrder,
+            mobilenumber: "",
+            sequence: "",
             disable: data.Disable === "Y" ? true : false,
             defaultCompany: JSON.parse(data.Company),
             runGroup: JSON.parse(data.Rungroup),
@@ -259,101 +308,104 @@ const UserEdit = () => {
                     padding: "10px",
                   }}
                 >
-                  {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}> */}
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="code"
-                    name="code"
-                    label="Code"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-                    required
-                    value={values.code}
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.code && Boolean(errors.code)}
-                    helperText={touched.code && errors.code}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="firstname"
-                    name="firstname"
-                    label="First Name"
-                    required
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-                    value={values.firstname}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.firstname && Boolean(errors.firstname)}
-                    helperText={touched.firstname && errors.firstname}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="lastname"
-                    name="lastname"
-                    label="Last Name"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-                    value={values.lastname}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.lastname && Boolean(errors.lastname)}
-                    helperText={touched.lastname && errors.lastname}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="mobilenumber"
-                    name="mobilenumber"
-                    label="Mobile"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-                    value={values.mobilenumber}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.mobilenumber && Boolean(errors.mobilenumber)}
-                    helperText={touched.mobilenumber && errors.mobilenumber}
-                  />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="email"
-                    id="email"
-                    name="email"
-                    label="Email"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    required
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                    value={values.email}
-                    disabled={params?.mode === "delete"}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.email && Boolean(errors.email)}
-                    helperText={touched.email && errors.email}
-                  />
-
-                  <TextField
+                  <Card sx={{ gridColumn: "span 2" }}>
+                    <CardContent>
+                      <Stack spacing={2} sx={{ alignItems: "center" }}>
+                        <div>
+                          <Avatar
+                            src={
+                              previewImages1.length > 0
+                                ? previewImages1[0]["preview"]
+                                : `data:image/png;base64,${data.UserProfileImage}`
+                            }
+                            sx={{ height: "80px", width: "80px" }}
+                          />
+                        </div>
+                        <Stack spacing={1} sx={{ textAlign: "center" }}>
+                          <Typography variant="h5">
+                            {values.firstname}
+                            {values.lastname}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    </CardContent>
+                    <Divider />
+                    <CardActions>
+                      <DropZone {...dropzoneProps1.getRootProps()}>
+                        <input {...dropzoneProps1.getInputProps()} />
+                        <FlexBox alignItems="center" flexDirection="column">
+                          <Publish
+                            sx={{ color: "text.secondary", fontSize: "48px" }}
+                          />
+                          {imageList1.length ? (
+                            <span>
+                              {imageList1.length} images were selected
+                            </span>
+                          ) : (
+                            <span>Upload image</span>
+                          )}
+                        </FlexBox>
+                      </DropZone>
+                    </CardActions>
+                  </Card>
+                  <Stack sx={{ gridColumn: "span 2" }} gap={"20px"} direction={"column"}>
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="email"
+                      id="email"
+                      name="email"
+                      label="Login (Valid EmailID)"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      required
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
+                      value={values.email}
+                      disabled={params?.mode === "delete"}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={touched.email && errors.email}
+                    />
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="firstname"
+                      name="firstname"
+                      label="First Name"
+                      required
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={params?.mode === "delete"}
+                      value={values.firstname}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.firstname && Boolean(errors.firstname)}
+                      helperText={touched.firstname && errors.firstname}
+                    />
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="lastname"
+                      name="lastname"
+                      label="Last Name"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={params?.mode === "delete"}
+                      value={values.lastname}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.lastname && Boolean(errors.lastname)}
+                      helperText={touched.lastname && errors.lastname}
+                    />
+                                      <TextField
                     fullWidth
                     variant="outlined"
                     type="password"
@@ -373,6 +425,7 @@ const UserEdit = () => {
                     error={touched.password && Boolean(errors.password)}
                     helperText={touched.password && errors.password}
                   />
+
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -397,7 +450,68 @@ const UserEdit = () => {
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
                   />
-                  <TextField
+                  </Stack>
+
+                  {/* <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="code"
+                    name="code"
+                    label="Code"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    disabled={params?.mode === "delete"}
+                    required
+                    value={values.code}
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.code && Boolean(errors.code)}
+                    helperText={touched.code && errors.code}
+                  /> */}
+
+                  {/* <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="mobilenumber"
+                    name="mobilenumber"
+                    label="Mobile"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    disabled={params?.mode === "delete"}
+                    value={values.mobilenumber}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.mobilenumber && Boolean(errors.mobilenumber)}
+                    helperText={touched.mobilenumber && errors.mobilenumber}
+                  /> */}
+                  {/* <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="email"
+                    id="email"
+                    name="email"
+                    label="Login (Valid EmailID)"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
+                    value={values.email}
+                    disabled={params?.mode === "delete"}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
+                  /> */}
+
+
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -412,7 +526,7 @@ const UserEdit = () => {
                     onBlur={handleBlur}
                     error={touched.sequence && Boolean(errors.sequence)}
                     helperText={touched.sequence && errors.sequence}
-                  />
+                  /> */}
                   <FormikUserGroupOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
                     disabled={
@@ -548,8 +662,8 @@ const UserEdit = () => {
           params.mode === "add"
             ? "User added successfully"
             : params.mode === "delete"
-              ? "User Deleted Successfully"
-              : "User updated successfully"
+            ? "User Deleted Successfully"
+            : "User updated successfully"
         }
         Actions={
           params.mode === "add" ? (

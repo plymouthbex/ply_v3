@@ -8,6 +8,7 @@ const Settings = Loadable(lazy(() => import('./setting')));
 
 const profileRoutes = [
   { path: '/profile/setting', element: <Settings /> },
+  { path: '/user-profile', element: <Profile /> },
  
 ];
 

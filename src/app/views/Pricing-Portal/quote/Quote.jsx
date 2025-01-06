@@ -138,7 +138,7 @@ export default function BuildCustomPriceBook() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const params=useParams();
+  const params = useParams();
   const colors = themeColors;
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const quotePriceListData = useSelector(
@@ -260,7 +260,9 @@ export default function BuildCustomPriceBook() {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN)${formatDateLong(sunday)} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week (SUN)${formatDateLong(
+        sunday
+      )} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -276,14 +278,14 @@ export default function BuildCustomPriceBook() {
     user.companyID == 5
       ? { RecordID: 5, Name: "Plymouth" }
       : user.companyID == 6
-        ? {
-            RecordID: 6,
-            Name: "S & J Food Distributors",
-          }
-        : {
-            RecordID: 7,
-            Name: "Nicky USA",
-          }
+      ? {
+          RecordID: 6,
+          Name: "S & J Food Distributors",
+        }
+      : {
+          RecordID: 7,
+          Name: "Nicky USA",
+        }
   );
 
   const handleSelectionCompanyChange = (newValue) => {
@@ -772,11 +774,15 @@ export default function BuildCustomPriceBook() {
       if (res.payload.status === "Y") {
         // const allRowIds = res.payload.data.map((row) => row.Item_Number);
         // setRowSelectionModel(allRowIds);
-        dispatch(QuoteUpdateDate({data:{
-          "recordId": location.state.headerID,
-          "fromData": sunday,
-          "toDate": saturday
-        }}))
+        dispatch(
+          QuoteUpdateDate({
+            data: {
+              recordId: location.state.headerID,
+              fromData: sunday,
+              toDate: saturday,
+            },
+          })
+        );
       }
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
@@ -895,33 +901,32 @@ export default function BuildCustomPriceBook() {
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
-        <Button
-      variant="contained"
-      color="info"
-      size="small"
-      startIcon={<ArrowBackIcon size="small" />}
-      onClick={() => navigate(-1)}
-    >
-      Back
-    </Button>
-    <Button
-      variant="contained"
-      color="info"
-      size="small"
-      startIcon={<ArrowBackIcon size="small" />}
-      onClick={() => {
-        navigate("/pages/pricing-portal/quote-form/print",{
-            state:{
-              Name:"",
-              Description:"",
-              templateID: state.templateID ? state.templateID : 0,
-                      templateName: state.templateName ? state.templateName : "",
-            }
-          });
-      }}
-    >
-      Print
-    </Button>
+          <Button
+            variant="contained"
+            color="info"
+            size="small"
+            startIcon={<ArrowBackIcon size="small" />}
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </Button>
+          <Button
+            variant="contained"
+            color="info"
+            size="small"
+            onClick={() => {
+              navigate("/pages/pricing-portal/quote-form/print", {
+                state: {
+                  Name: "",
+                  Description: "",
+                  templateID: state.templateID ? state.templateID : 0,
+                  templateName: state.templateName ? state.templateName : "",
+                },
+              });
+            }}
+          >
+            Print
+          </Button>
         </Box>
       </Box>
 
@@ -1252,7 +1257,7 @@ export default function BuildCustomPriceBook() {
             />
           </Box>
           <PriceGroupAlertApiDialog
-           logo={`data:image/png;base64,${user.logo}`}
+            logo={`data:image/png;base64,${user.logo}`}
             open={isItemExists}
             error={true}
             message={
@@ -1285,7 +1290,7 @@ export default function BuildCustomPriceBook() {
           />
 
           <PriceGroupAlertApiDialog
-           logo={`data:image/png;base64,${user.logo}`}
+            logo={`data:image/png;base64,${user.logo}`}
             open={isClear}
             error={false}
             message={`Are you sure you want to Clear filter and Item ?`}
@@ -1390,7 +1395,7 @@ export default function BuildCustomPriceBook() {
           </Dialog>
 
           <PriceGroupAlertApiDialog
-           logo={`data:image/png;base64,${user.logo}`}
+            logo={`data:image/png;base64,${user.logo}`}
             open={openAlert}
             error={postError}
             message={postError ? "Something Went Wrong" : "Saved Successfully"}
@@ -1422,7 +1427,7 @@ export default function BuildCustomPriceBook() {
           />
 
           <PriceGroupAlertApiDialog
-           logo={`data:image/png;base64,${user.logo}`}
+            logo={`data:image/png;base64,${user.logo}`}
             open={openAlert2}
             error={postError2}
             message={postError2 ? "Something Went Wrong" : "Saved Successfully"}
@@ -1454,7 +1459,7 @@ export default function BuildCustomPriceBook() {
           />
 
           <PriceGroupAlertApiDialog
-           logo={`data:image/png;base64,${user.logo}`}
+            logo={`data:image/png;base64,${user.logo}`}
             open={openAlert4}
             error={postError4}
             message={
@@ -1490,7 +1495,7 @@ export default function BuildCustomPriceBook() {
           />
 
           <PriceGroupAlertApiDialog
-           logo={`data:image/png;base64,${user.logo}`}
+            logo={`data:image/png;base64,${user.logo}`}
             open={openAlert3}
             error={postError3}
             message={
