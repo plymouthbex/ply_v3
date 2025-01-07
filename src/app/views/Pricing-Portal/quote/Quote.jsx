@@ -58,6 +58,7 @@ import {
   getBuildPriceBookData,
   getQuoteBookData,
   getQuoteFilterData,
+  getQuoteItemsAndFilters,
   quoteClearState2,
 } from "app/redux/slice/getSlice";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -174,6 +175,18 @@ export default function BuildCustomPriceBook() {
     (state) => state.getSlice.getQuoteFilterItemError
   );
 
+  const getQuteFiltStatus = useSelector(
+    (state) => state.getSlice.getQuteFiltStatus
+  );
+  const getQuteFiltLoading = useSelector(
+    (state) => state.getSlice.getQuteFiltLoading
+  );
+  const getQuteFiltError = useSelector(
+    (state) => state.getSlice.getQuteFiltError
+  );
+
+
+
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -212,6 +225,31 @@ export default function BuildCustomPriceBook() {
     }
   }
 
+  async function getQuoteData(id) {
+    const response = await dispatch(
+      getQuoteItemsAndFilters({
+        data:{RecordID:id}
+      })
+    );
+    console.log("🚀 ~ getQuoteData ~ response:", response)
+    if (response.payload.status === "Y") {
+      // setSelectedCustomerOptions(JSON.parse(response.payload.data.filterData.Customer));
+      setSelectedBrandOptions(JSON.parse(response.payload.data.filterData.Brand.Value));
+      setSelectedAltOptions(JSON.parse(response.payload.data.filterData.AltClass.Value));
+      setSelectedComOptions(JSON.parse(response.payload.data.filterData.Commodity.Value));
+      setSelectedSecondaryOptions(
+        JSON.parse(response.payload.data.filterData.SecondaryClass.Value)
+      );
+      // setSelectedItemNoOptions(JSON.parse(response.payload.data.filterData.Item));
+      setSelectedVendorOptions(JSON.parse(response.payload.data.filterData.Vendor.Value));
+      setSelectedFsFzOptions(JSON.parse(response.payload.data.filterData.Type.Value));
+      setSelectedClassIDOptions(JSON.parse(response.payload.data.filterData.Class.Value));
+      // setIsChecked(response.payload.data.ShowPrice === "Y" ? true : false);
+      // setHeaderName(response.payload.data.Header);
+      // setSalesRepName(response.payload.data.SalesRepresentativeName);
+    }
+  }
+
   //======================= ADD PRICE LIST ===================================//
   const [addPriceListData, setAddPriceListData] = useState();
   const handleSelectionAddPriceListData = (newValue) => {
@@ -239,9 +277,14 @@ export default function BuildCustomPriceBook() {
         TemplateName: location.state.templateName,
       });
     }
-    getBuildPriceTemData(
-      location.state.templateID ? location.state.templateID : "-1"
-    );
+    if(location.state.templateID ){
+      getBuildPriceTemData(
+        location.state.templateID ? location.state.templateID : "-1"
+      );
+    }else{
+      getQuoteData(location.state.headerID ? location.state.headerID : 0)
+    }
+  
     const today = new Date();
     setCurrentDate(today);
   }, [location.key]);
@@ -538,14 +581,16 @@ export default function BuildCustomPriceBook() {
                       filterType: "Q",
                       itemNo: addPriceListData.Item_Number,
                       itemDescription: addPriceListData.Item_Description,
+                      CONTARCTITEMS:"N"
                     },
                   })
                 );
                 if (res.payload.status === "Y") {
+                  getQuoteData(location.state.headerID ? location.state.headerID : 0)
                   // toast.success("Ad Hoc Item added successfully");
-                  dispatch(
-                    addQuoteItemData({ ...addPriceListData, AdHocItem: "Y" })
-                  );
+                  // dispatch(
+                  //   // addQuoteItemData({ ...addPriceListData, AdHocItem: "Y", CONTARCTITEMS:"N" })
+                  // );
                   setOpenAlert3(true);
                 } else {
                   setOpenAlert3(true);
@@ -568,50 +613,7 @@ export default function BuildCustomPriceBook() {
       </GridToolbarContainer>
     );
   }
-  // const fnQuotesave = async () => {
-  //   const data = {
-  //     recid: location.state.templateID,
-  //     UserId: user.id,
-  //     CompanyName: JSON.stringify(selectedCompanyOptions),
-  //     Customer: JSON.stringify(selectedCustomerOptions),
-  //     Brand: JSON.stringify(selectedBrandOptions),
-  //     Commodity: JSON.stringify(selectedComOptions),
-  //     Vendor: JSON.stringify(selectedVendorOptions),
-  //     Type: JSON.stringify(selectedFsFzOptions),
-  //     Class: JSON.stringify(selectedClassIDOptions),
-  //     AltClass: JSON.stringify(selectedAltOptions),
-  //     SecondaryClass: JSON.stringify(selectedSecondaryOptions),
-  //     Item: JSON.stringify(selectedItemNoOptions),
-  //     ShowPrice: isChecked ? "Y" : "N",
-  //     CustomName: CustomName,
-  //     SalesRepresentativeName: salesRepName,
-  //     Header: headerName,
-  //   };
-
-  //   if (location.state.templateID) {
-  //     const response = await dispatch(updateQuoteData({ data }));
-  //     if (response.payload.Status === "Y") {
-  //       toast.success("Template Updated successfully");
-  //       setOpen(false);
-  //       setCustomName("");
-  //     } else {
-  //       setOpen(false);
-  //       setCustomName("");
-  //       toast.error("Something went wrong");
-  //     }
-  //   } else {
-  //     const response = await dispatch(postQutoeData({ data }));
-  //     if (response.payload.Status === "Y") {
-  //       toast.success("Template added successfully");
-  //       setOpen(false);
-  //       setCustomName("");
-  //     } else {
-  //       setOpen(false);
-  //       setCustomName("");
-  //       toast.error("Something went wrong");
-  //     }
-  //   }
-  // };
+  
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -907,7 +909,7 @@ export default function BuildCustomPriceBook() {
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
             onClick={() =>
-              navigate(-1, { state: { prospectID: state.headerID } })
+              navigate("/pages/pricing-portal/quote-list", { state: { prospectID: state.headerID } })
             }
           >
             Back
@@ -1234,7 +1236,7 @@ export default function BuildCustomPriceBook() {
               // checkboxSelection
               disableSelectionOnClick
               disableRowSelectionOnClick
-              getRowId={(row) => row.Item_Number}
+              getRowId={(row) => row.RecordId}
               initialState={{
                 pagination: { paginationModel: { pageSize: 100 } },
               }}

@@ -37,6 +37,7 @@ import {
   ViewPriceSingleAutocomplete,
 } from "app/components/AutoComplete";
 import {
+  clearStateProspectInfoQuote,
   getConfigPriceBookCompany,
   getProspectContractItems,
   getProspectInfoData,
@@ -184,6 +185,8 @@ const QuoteEdit = () => {
   };
 
   useEffect(() => {
+
+    dispatch(clearStateProspectInfoQuote());
     dispatch(getProspectInfoData({ data: { RecordID: state.prospectID } }));
     dispatch(getPriceListView({ ID: user.companyID }));
     dispatch(quoteClearState2());
@@ -275,22 +278,37 @@ const QuoteEdit = () => {
       if (params.mode === "newprospect" || params.mode === "editprospect") {
         setShowDataGrid(true);
         setHeaderID(response.payload.RecordId);
+        setTimeout(() => {
+          setOpenAlert(false);
+          setSubmitting(false);
+          
+        }, 2000);
       } else {
-        dispatch(postContractItems({ data:rowSelectionModelRows,params:{ProspectID:state.prospectID ,HeaderID:response.payload.RecordId} }))
-        navigate("/pages/pricing-portal/quote", {
-          state: {
-            headerID: response.payload.RecordId,
-            templateID: state.templateID ? state.templateID : 0,
-            templateName: state.templateName ? state.templateName : "",
-            accessID: "PPB005",
-            name: "Quote",
-          },
-        });
+        dispatch(
+          postContractItems({
+            data: rowSelectionModelRows,
+            params: {
+              ProspectID: state.prospectID,
+              HeaderID: response.payload.RecordId,
+            },
+          })
+        );
+       
+        setTimeout(() => {
+          setOpenAlert(false);
+          setSubmitting(false);
+          navigate("/pages/pricing-portal/quote", {
+            state: {
+              headerID: response.payload.RecordId,
+              templateID: state.templateID ? state.templateID : 0,
+              templateName: state.templateName ? state.templateName : "",
+              accessID: "PPB005",
+              name: "Quote",
+            },
+          });
+        }, 2000);
       }
-      setTimeout(() => {
-        setOpenAlert(false);
-        setSubmitting(false);
-      }, 2000);
+    
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -350,60 +368,68 @@ const QuoteEdit = () => {
   // const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
   // console.log("🚀 ~ QuoteEdit ~ rowSelectionModelRows:", rowSelectionModelRows)
 
-
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  console.log("🚀 ~ QuoteEdit ~ rowSelectionModel:", rowSelectionModel);
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
-  console.log("🚀 ~ QuoteEdit ~ rowSelectionModelRows:", rowSelectionModelRows);
   const handleRowClick = (params) => {
     const ID = params.row.PRICELISTID;
 
-    dispatch(getProspectContractItems({data:{PricelistId:ID}})).then((res) => {
-    	 const allRowIds = res.payload.data.map((row) => !rowSelectionModel.includes(row.RECID) ? row.RECID: null).filter(Boolean);
-    	 const allRowIdsRows = res.payload.data.map((row) => !rowSelectionModelRows.includes(row.RECID) ? row: null).filter(Boolean);
-       ;
-       setRowSelectionModelRows((prevRows) => {
-        console.log("🚀 ~ setRowSelectionModelRows ~ prevRows:", prevRows)
-        // Merge previous rows and new rows, ensuring no duplicate RECIDs
-        const newRows = res.payload.data.filter(
-          (newRow) => !rowSelectionModelRows.some((row) => row.RECID === newRow.RECID) // Add new rows that aren't already selected
-        )
-        const updatedSelectionModelRows = [
-          ...rowSelectionModelRows, // Keep all previously selected rows
-         ...newRows,
-        ];
-        
-        console.log("Updated rowSelectionModelRows:", updatedSelectionModelRows);
-        return updatedSelectionModelRows;
-      });
-        setRowSelectionModel([...rowSelectionModel,...allRowIds]);
-    })
-  }
+    dispatch(getProspectContractItems({ data: { PricelistId: ID } })).then(
+      (res) => {
+        const allRowIds = res.payload.data
+          .map((row) =>
+            !rowSelectionModel.includes(row.RECID) ? row.RECID : null
+          )
+          .filter(Boolean);
+        const allRowIdsRows = res.payload.data
+          .map((row) =>
+            !rowSelectionModelRows.includes(row.RECID) ? row : null
+          )
+          .filter(Boolean);
+        setRowSelectionModelRows((prevRows) => {
+          console.log("🚀 ~ setRowSelectionModelRows ~ prevRows:", prevRows);
+          // Merge previous rows and new rows, ensuring no duplicate RECIDs
+          const newRows = res.payload.data.filter(
+            (newRow) =>
+              !rowSelectionModelRows.some((row) => row.RECID === newRow.RECID) // Add new rows that aren't already selected
+          );
+          const updatedSelectionModelRows = [
+            ...rowSelectionModelRows, // Keep all previously selected rows
+            ...newRows,
+          ];
+
+          console.log(
+            "Updated rowSelectionModelRows:",
+            updatedSelectionModelRows
+          );
+          return updatedSelectionModelRows;
+        });
+        setRowSelectionModel([...rowSelectionModel, ...allRowIds]);
+      }
+    );
+  };
   const handleSave2 = async (values, setSubmitting) => {
-
-
-    const response = await dispatch(postContractItems({ data:rowSelectionModelRows,params:{ProspectID:state.prospectID ,HeaderID:HeaderID} }));
-
+    const response = await dispatch(
+      postContractItems({
+        data: rowSelectionModelRows,
+        params: { ProspectID: state.prospectID, HeaderID: HeaderID },
+      })
+    );
 
     if (response.payload.status === "Y") {
       setOpenAlert(true);
-    
+
       setTimeout(() => {
         setOpenAlert(false);
         setSubmitting(false);
         navigate("/pages/pricing-portal/quote", {
           state: {
             headerID: HeaderID,
-            templateID: state.templateID
-              ? state.templateID
-              : 0,
-            templateName: state.templateName
-              ? state.templateName
-              : "",
+            templateID: state.templateID ? state.templateID : 0,
+            templateName: state.templateName ? state.templateName : "",
             accessID: "PPB005",
             name: "Quote",
           },
-        })
+        });
       }, 2000);
     } else {
       setOpenAlert(true);
@@ -437,11 +463,11 @@ const QuoteEdit = () => {
             mobile: getQuoteProspectInfoData.Mobile,
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
-            customer: {
+            customer:getQuoteProspectInfoData.CustomerNumber ? {
               Code: getQuoteProspectInfoData.CustomerNumber,
               Name: `${getQuoteProspectInfoData.CustomerNumber} || ${getQuoteProspectInfoData.CustomerName}`,
               CustomerName: getQuoteProspectInfoData.CustomerName,
-            },
+            }: null,
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
@@ -451,7 +477,9 @@ const QuoteEdit = () => {
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
-              showDataGrid ? handleSave2(values, setSubmitting) :handleSave(values, setSubmitting);
+              showDataGrid
+                ? handleSave2(values, setSubmitting)
+                : handleSave(values, setSubmitting);
             }, 400);
           }}
         >
@@ -476,6 +504,120 @@ const QuoteEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
+                {params.mode === "print" && (
+                  <Box
+                    display="grid"
+                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    alignItems={"center"}
+                  >
+                    <Stack direction={"row"} sx={{ gridColumn: "span 2" }}>
+                      <RadioGroup
+                        row
+                        name="week"
+                        value={isNextWeek}
+                        onChange={toggleWeek}
+                      >
+                        <FormControlLabel
+                          sx={{ height: 40 }}
+                          value={false}
+                          control={<Radio />}
+                          label="Current Week"
+                        />
+                        <FormControlLabel
+                          sx={{ height: 40 }}
+                          value={true}
+                          control={<Radio />}
+                          label="Next Week"
+                        />
+                      </RadioGroup>
+                      <Typography
+                        variant="caption"
+                        align="left"
+                        alignItems="center"
+                        alignSelf="center"
+                        ml={5}
+                      >
+                        {formatedDate}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction={"row"}
+                      alignItems={"center"}
+                      justifyContent={"flex-end"}
+                      gap={1}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={isChecked} // Controlled checkbox state
+                            onChange={handleCheckboxChange} // Update state on change
+                            sx={{
+                              color: "#174c4f",
+                              "&.Mui-checked": {
+                                color: "#174c4f",
+                              },
+                            }}
+                          />
+                        }
+                        label="Show Price"
+                      />
+                      <Stack direction="row" alignItems={"flex-end"}>
+                        <Tooltip title="PDF" placement="top">
+                          <CustomIconButton
+                            // disabled={true}
+                            sx={{
+                              bgcolor: theme.palette.primary.main, // Use sx for styling
+                              color: "white", // Ensure icon button text color is visible
+                              "&:hover": {
+                                bgcolor: theme.palette.primary.dark, // Darken color on hover
+                              },
+                            }}
+                            aria-label="pdf"
+                            onClick={() => toast.error("Under Construction")}
+                          >
+                            <FaFilePdf style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Excel" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.success.main}
+                            aria-label="excel"
+                            onClick={() => toast.error("Under Construction")}
+                          >
+                            <SiMicrosoftexcel style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Print" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.warning.main}
+                            onClick={() => toast.error("Under Construction")}
+                            component="a"
+                            aria-label="print"
+                            // href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <IoMdPrint style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Mail" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.error.main}
+                            aria-label="mail"
+                            // disabled={true}
+                            onClick={handleMailNavigate}
+                          >
+                            <IoIosMailOpen style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                )}
                 <Box
                   display="grid"
                   gap="20px"
@@ -489,8 +631,8 @@ const QuoteEdit = () => {
                 >
                   {!showDataGrid && (
                     <>
-                      {params.mode === "newexisting" ||
-                        (params.mode === "editexisting" && (
+                      {(params.mode == "newexisting" ||
+                        params.mode == "editexisting") && (
                           <>
                             <FormikCustomSelectCompany
                               name="company"
@@ -573,22 +715,25 @@ const QuoteEdit = () => {
                                 gridColumn: "span 4",
                               }}
                             >
-                             {(params.mode === "newexisting" ||
-                                params.mode === "editexisting" && params.mode !== "print" )? <Button
-                                variant="contained"
-                                color="info"
-                                size="small"
-                                endIcon={<ArrowForwardIcon />}
-                                sx={{ padding: "8px 16px" }}
-                                type="submit"
-                              >
-                                
-                                 Save & Go Non-contract Items
-                                
-                              </Button> : false}
+                              {params.mode === "newexisting" ||
+                              (params.mode === "editexisting" &&
+                                params.mode !== "print") ? (
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  size="small"
+                                  endIcon={<ArrowForwardIcon />}
+                                  sx={{ padding: "8px 16px" }}
+                                  type="submit"
+                                >
+                                  Save & Go Non-contract Items
+                                </Button>
+                              ) : (
+                                false
+                              )}
                             </Box>
                           </>
-                        ))}
+                        )}
 
                       {params.mode !== "newexisting" &&
                         params.mode !== "editexisting" && (
@@ -794,26 +939,28 @@ const QuoteEdit = () => {
                                 gridColumn: "span 4",
                               }}
                             >
-                              {(params.mode == "newprospect" ||
-                                params.mode == "editprospect" && params.mode !== "print" )
-                                  ?<Button
-                                variant="contained"
-                                color="info"
-                                size="small"
-                                endIcon={<ArrowForwardIcon />}
-                                sx={{ padding: "8px 16px" }}
-                                type="submit"
-                              >
-                                 Save & Go Contract Items
-                                
-                              </Button>  : false}
+                              {params.mode == "newprospect" ||
+                              (params.mode == "editprospect" &&
+                                params.mode !== "print") ? (
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  size="small"
+                                  endIcon={<ArrowForwardIcon />}
+                                  sx={{ padding: "8px 16px" }}
+                                  type="submit"
+                                >
+                                  Save & Go Contract Items
+                                </Button>
+                              ) : (
+                                false
+                              )}
                             </Box>
                           </>
                         )}
                     </>
                   )}
 
-                  {/* //================================================DATAGRID  PRICELIST and Items==============================================================// */}
                   {showDataGrid && (
                     <>
                       <Stack
@@ -996,7 +1143,6 @@ const QuoteEdit = () => {
                           endIcon={<ArrowForwardIcon />} // Icon added here
                           sx={{ padding: "8px 16px" }}
                           type="submit"
-                          
                         >
                           Add item's to Quote & Go Non-contract item's
                         </Button>
@@ -1018,7 +1164,8 @@ const QuoteEdit = () => {
         message={
           postError
             ? "Something Went Wrong"
-            :( showDataGrid && "Contract Items saved successfully" || "Prospect info saved successfully" )
+            : (showDataGrid && "Contract Items saved successfully") ||
+              "Prospect info saved successfully"
         }
         Actions={
           <Box
