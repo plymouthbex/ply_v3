@@ -29,7 +29,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { quoteInfoData } from "app/redux/slice/postSlice";
+import { postContractItems, quoteInfoData } from "app/redux/slice/postSlice";
 import useAuth from "app/hooks/useAuth";
 import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
 import {
@@ -37,6 +37,7 @@ import {
   ViewPriceSingleAutocomplete,
 } from "app/components/AutoComplete";
 import {
+  clearStateProspectInfoQuote,
   getConfigPriceBookCompany,
   getProspectContractItems,
   getProspectInfoData,
@@ -161,7 +162,6 @@ const QuoteEdit = () => {
     (state) => state.getSlice.getQuoteProspectErrorItems
   );
 
-
   // const getfn = async () => {
   //   const res = await dispatch(
   //     getConfigPriceBookCompany({ CompanyCode: user.companyCode })
@@ -185,6 +185,8 @@ const QuoteEdit = () => {
   };
 
   useEffect(() => {
+
+    dispatch(clearStateProspectInfoQuote());
     dispatch(getProspectInfoData({ data: { RecordID: state.prospectID } }));
     dispatch(getPriceListView({ ID: user.companyID }));
     dispatch(quoteClearState2());
@@ -240,7 +242,7 @@ const QuoteEdit = () => {
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-  const [HeaderID, setHeaderID] = useState();
+  const [HeaderID, setHeaderID] = useState(0);
   //=============+++++++SHOW FIELDS=====================================//
   const [showDataGrid, setShowDataGrid] = useState(false);
 
@@ -249,7 +251,7 @@ const QuoteEdit = () => {
   const handleSave = async (values, setSubmitting) => {
     const data = {
       RecordID: 0,
-      CompanyId: values.company ? values.company: "",
+      CompanyId: values.company ? values.company : "",
       UserID: user.id,
       FromDate: "",
       ToDate: "",
@@ -276,21 +278,37 @@ const QuoteEdit = () => {
       if (params.mode === "newprospect" || params.mode === "editprospect") {
         setShowDataGrid(true);
         setHeaderID(response.payload.RecordId);
+        setTimeout(() => {
+          setOpenAlert(false);
+          setSubmitting(false);
+          
+        }, 2000);
       } else {
-        navigate("/pages/pricing-portal/quote", {
-          state: {
-            headerID: response.payload.RecordId,
-            templateID: state.templateID ? state.templateID : 0,
-            templateName: state.templateName ? state.templateName : "",
-            accessID: "PPB005",
-            name: "Quote",
-          },
-        });
+        dispatch(
+          postContractItems({
+            data: rowSelectionModelRows,
+            params: {
+              ProspectID: state.prospectID,
+              HeaderID: response.payload.RecordId,
+            },
+          })
+        );
+       
+        setTimeout(() => {
+          setOpenAlert(false);
+          setSubmitting(false);
+          navigate("/pages/pricing-portal/quote", {
+            state: {
+              headerID: response.payload.RecordId,
+              templateID: state.templateID ? state.templateID : 0,
+              templateName: state.templateName ? state.templateName : "",
+              accessID: "PPB005",
+              name: "Quote",
+            },
+          });
+        }, 2000);
       }
-      setTimeout(() => {
-        setOpenAlert(false);
-        setSubmitting(false);
-      }, 2000);
+    
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -345,20 +363,85 @@ const QuoteEdit = () => {
   ];
 
   const priceBookLevel1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+  // console.log("🚀 ~ QuoteEdit ~ rowSelectionModel:", rowSelectionModel)
+  // const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
+  // console.log("🚀 ~ QuoteEdit ~ rowSelectionModelRows:", rowSelectionModelRows)
+
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  console.log("🚀 ~ QuoteEdit ~ rowSelectionModel:", rowSelectionModel)
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
-  console.log("🚀 ~ QuoteEdit ~ rowSelectionModelRows:", rowSelectionModelRows)
   const handleRowClick = (params) => {
     const ID = params.row.PRICELISTID;
 
-    dispatch(getProspectContractItems({data:{PricelistId:ID}})).then((res) => {
-    	 const allRowIds = res.payload.data.map((row) => !rowSelectionModel.includes(row.RECID) ? row.RECID: null).filter(Boolean);
-    	 const allRowIdsRows = res.payload.data.map((row) => !rowSelectionModelRows.includes(row.RECID) ? row: null).filter(Boolean);
-       setRowSelectionModelRows([...rowSelectionModelRows,...allRowIdsRows]);
-        setRowSelectionModel([...rowSelectionModel,...allRowIds]);
-    })
-  }
+    dispatch(getProspectContractItems({ data: { PricelistId: ID } })).then(
+      (res) => {
+        const allRowIds = res.payload.data
+          .map((row) =>
+            !rowSelectionModel.includes(row.RECID) ? row.RECID : null
+          )
+          .filter(Boolean);
+        const allRowIdsRows = res.payload.data
+          .map((row) =>
+            !rowSelectionModelRows.includes(row.RECID) ? row : null
+          )
+          .filter(Boolean);
+        setRowSelectionModelRows((prevRows) => {
+          console.log("🚀 ~ setRowSelectionModelRows ~ prevRows:", prevRows);
+          // Merge previous rows and new rows, ensuring no duplicate RECIDs
+          const newRows = res.payload.data.filter(
+            (newRow) =>
+              !rowSelectionModelRows.some((row) => row.RECID === newRow.RECID) // Add new rows that aren't already selected
+          );
+          const updatedSelectionModelRows = [
+            ...rowSelectionModelRows, // Keep all previously selected rows
+            ...newRows,
+          ];
+
+          console.log(
+            "Updated rowSelectionModelRows:",
+            updatedSelectionModelRows
+          );
+          return updatedSelectionModelRows;
+        });
+        setRowSelectionModel([...rowSelectionModel, ...allRowIds]);
+      }
+    );
+  };
+  const handleSave2 = async (values, setSubmitting) => {
+    const response = await dispatch(
+      postContractItems({
+        data: rowSelectionModelRows,
+        params: { ProspectID: state.prospectID, HeaderID: HeaderID },
+      })
+    );
+
+    if (response.payload.status === "Y") {
+      setOpenAlert(true);
+
+      setTimeout(() => {
+        setOpenAlert(false);
+        setSubmitting(false);
+        navigate("/pages/pricing-portal/quote", {
+          state: {
+            headerID: HeaderID,
+            templateID: state.templateID ? state.templateID : 0,
+            templateName: state.templateName ? state.templateName : "",
+            accessID: "PPB005",
+            name: "Quote",
+          },
+        });
+      }, 2000);
+    } else {
+      setOpenAlert(true);
+      setPostError(true);
+
+      setTimeout(() => {
+        setOpenAlert(false);
+        setPostError(false);
+        setSubmitting(false);
+      }, 2000);
+    }
+  };
 
   return (
     <Container>
@@ -366,7 +449,9 @@ const QuoteEdit = () => {
       !getQuoteProspectInfoLoading ? (
         <Formik
           initialValues={{
-            company: getQuoteProspectInfoData.CompanyCode ?getQuoteProspectInfoData.CompanyCode :user.companyCode,
+            company: getQuoteProspectInfoData.CompanyCode
+              ? getQuoteProspectInfoData.CompanyCode
+              : user.companyCode,
             name: getQuoteProspectInfoData.Name,
             description: getQuoteProspectInfoData.Description,
             address1: getQuoteProspectInfoData.Address1,
@@ -378,11 +463,11 @@ const QuoteEdit = () => {
             mobile: getQuoteProspectInfoData.Mobile,
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
-            customer: {
+            customer:getQuoteProspectInfoData.CustomerNumber ? {
               Code: getQuoteProspectInfoData.CustomerNumber,
               Name: `${getQuoteProspectInfoData.CustomerNumber} || ${getQuoteProspectInfoData.CustomerName}`,
               CustomerName: getQuoteProspectInfoData.CustomerName,
-            },
+            }: null,
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
@@ -392,7 +477,9 @@ const QuoteEdit = () => {
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
-              handleSave(values, setSubmitting);
+              showDataGrid
+                ? handleSave2(values, setSubmitting)
+                : handleSave(values, setSubmitting);
             }, 400);
           }}
         >
@@ -417,6 +504,120 @@ const QuoteEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
+                {params.mode === "print" && (
+                  <Box
+                    display="grid"
+                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    alignItems={"center"}
+                  >
+                    <Stack direction={"row"} sx={{ gridColumn: "span 2" }}>
+                      <RadioGroup
+                        row
+                        name="week"
+                        value={isNextWeek}
+                        onChange={toggleWeek}
+                      >
+                        <FormControlLabel
+                          sx={{ height: 40 }}
+                          value={false}
+                          control={<Radio />}
+                          label="Current Week"
+                        />
+                        <FormControlLabel
+                          sx={{ height: 40 }}
+                          value={true}
+                          control={<Radio />}
+                          label="Next Week"
+                        />
+                      </RadioGroup>
+                      <Typography
+                        variant="caption"
+                        align="left"
+                        alignItems="center"
+                        alignSelf="center"
+                        ml={5}
+                      >
+                        {formatedDate}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction={"row"}
+                      alignItems={"center"}
+                      justifyContent={"flex-end"}
+                      gap={1}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={isChecked} // Controlled checkbox state
+                            onChange={handleCheckboxChange} // Update state on change
+                            sx={{
+                              color: "#174c4f",
+                              "&.Mui-checked": {
+                                color: "#174c4f",
+                              },
+                            }}
+                          />
+                        }
+                        label="Show Price"
+                      />
+                      <Stack direction="row" alignItems={"flex-end"}>
+                        <Tooltip title="PDF" placement="top">
+                          <CustomIconButton
+                            // disabled={true}
+                            sx={{
+                              bgcolor: theme.palette.primary.main, // Use sx for styling
+                              color: "white", // Ensure icon button text color is visible
+                              "&:hover": {
+                                bgcolor: theme.palette.primary.dark, // Darken color on hover
+                              },
+                            }}
+                            aria-label="pdf"
+                            onClick={() => toast.error("Under Construction")}
+                          >
+                            <FaFilePdf style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Excel" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.success.main}
+                            aria-label="excel"
+                            onClick={() => toast.error("Under Construction")}
+                          >
+                            <SiMicrosoftexcel style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Print" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.warning.main}
+                            onClick={() => toast.error("Under Construction")}
+                            component="a"
+                            aria-label="print"
+                            // href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <IoMdPrint style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Mail" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.error.main}
+                            aria-label="mail"
+                            // disabled={true}
+                            onClick={handleMailNavigate}
+                          >
+                            <IoIosMailOpen style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                )}
                 <Box
                   display="grid"
                   gap="20px"
@@ -430,332 +631,336 @@ const QuoteEdit = () => {
                 >
                   {!showDataGrid && (
                     <>
-                      {params.mode === "newexisting" || params.mode === "editexisting" && (
-                        <>
-                          <FormikCustomSelectCompany
-                            name="company"
-                            id="company"
-                            sx={{ gridColumn: "span 2" }}
-                            multiple={false}
-                            disabled={user.role == "USER"}
-                            value={values.company}
-                            onChange={handleChange}
-                            label="Company"
-                            url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
-                          />
-                          <TextField
-                            variant="outlined"
-                            name="salesRepName"
-                            id="salesRepName"
-                            label="Sales Representative Name"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.salesRepName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <Stack
-                            sx={{ gridColumn: "span 2" }}
-                            direction="column"
-                            gap={2}
-                          >
-                            <Autocomplete
-                              fullWidth
-                              id="priceBookLevel"
-                              name="priceBookLevel"
-                              options={priceBookLevel1}
-                              value={values.priceBookLevel}
-                              getOptionLabel={(option) =>
-                                `Price Book Level ${option}`
-                              }
-                              onChange={(event, newValue) =>
-                                handleChange({
-                                  target: {
-                                    name: "priceBookLevel",
-                                    value: newValue,
-                                  },
-                                })
-                              }
-                              onBlur={handleBlur}
-                              disableClearable
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Price Book Level"
-                                  size="small"
-                                  sx={{ gridColumn: "span 2" }}
-                                />
-                              )}
+                      {(params.mode == "newexisting" ||
+                        params.mode == "editexisting") && (
+                          <>
+                            <FormikCustomSelectCompany
+                              name="company"
+                              id="company"
+                              sx={{ gridColumn: "span 2" }}
+                              multiple={false}
+                              disabled={user.role == "USER"}
+                              value={values.company}
+                              onChange={handleChange}
+                              label="Company"
+                              url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
                             />
-                          </Stack>
-
-                          <FormikCustomAutocompleteCustomer
-                            name="customer"
-                            id="customer"
-                            sx={{ gridColumn: "span 2" }}
-                            multiple={false}
-                            value={values.customer}
-                            onChange={(event, newValue) =>
-                              setFieldValue("customer", newValue)
-                            }
-                            label="Customer"
-                            url={`${
-                              process.env.REACT_APP_BASE_URL
-                            }Customer/GetCustomer?CompanyCode=${
-                              false
-                                ? values.company
-                                : user.companyCode
-                            }`}
-                          />
-                       
-
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "flex-end",
-                              gridColumn: "span 4",
-                            }}
-                          >
-                            <Button
-                              variant="contained"
-                              color="info"
+                            <TextField
+                              variant="outlined"
+                              name="salesRepName"
+                              id="salesRepName"
+                              label="Sales Representative Name"
                               size="small"
-                              endIcon={<ArrowForwardIcon />}
-                              sx={{ padding: "8px 16px" }}
-                              type="submit"
-                            >
-                              {params.mode === "newexisting" ||
-                              params.mode === "editexisting"
-                                ? "Save & Go Non-contract Items"
-                                : "Save & Go Contract Items"}
-                            </Button>
-                          </Box>
-                        </>
-                      )}
-
-                      {params.mode !== "newexisting" &&  params.mode !== "editexisting" && (
-                        <>
-                          {/* The fields for other modes go here */}
-                          <FormikCustomSelectCompany
-                            name="company"
-                            id="company"
-                            sx={{ gridColumn: "span 2" }}
-                            multiple={false}
-                            disabled={user.role == "USER"}
-                            value={values.company}
-                            onChange={handleChange}
-                            label="Company"
-                            url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
-                          />
-                          <TextField
-                            variant="outlined"
-                            name="salesRepName"
-                            id="salesRepName"
-                            label="Sales Representative Name"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.salesRepName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="name"
-                            name="name"
-                            label="Prospect Name"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            required
-                            InputLabelProps={{
-                              sx: {
-                                "& .MuiInputLabel-asterisk": { color: "red" },
-                              },
-                            }}
-                            value={values.name}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={!!touched.name && !!errors.name}
-                            helperText={touched.name && errors.name}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="description"
-                            name="description"
-                            label="Description"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.description}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="address1"
-                            name="address1"
-                            label="Address"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.address1}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="city"
-                            name="city"
-                            label="City"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.city}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="state"
-                            name="state"
-                            label="State"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.state}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="zip"
-                            name="zip"
-                            label="Zip"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.zip}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="email"
-                            id="email"
-                            name="email"
-                            label="Email"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.email}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={touched.email && Boolean(errors.email)}
-                            helperText={touched.email && errors.email}
-                          />
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="mobile"
-                            name="mobile"
-                            label="Mobile"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.mobile}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <FormControl
-                            sx={{ gridColumn: "span 2" }}
-                            fullWidth
-                            size="small"
-                          >
-                            <InputLabel id="demo-simple-select-label">
-                              Service Provider
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-label"
-                              value={values.serviceProvider}
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.salesRepName}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              id="serviceProvider"
-                              name="serviceProvider"
-                              label="Price Book Type"
-                            >
-                              <MenuItem value={"AT&T"}>AT&T</MenuItem>
-                              <MenuItem value={"V"}>Verizon</MenuItem>
-                              <MenuItem value={"TM"}>T-Mobile</MenuItem>
-                            </Select>
-                          </FormControl>
-                          <Stack
-                            sx={{ gridColumn: "span 2" }}
-                            direction="column"
-                            gap={2}
-                          >
-                            <Autocomplete
-                              fullWidth
-                              id="priceBookLevel"
-                              name="priceBookLevel"
-                              options={priceBookLevel1}
-                              getOptionLabel={(option) =>
-                                `Price Book Level ${option}`
-                              }
-                              value={values.priceBookLevel}
-                              onChange={(event, newValue) =>
-                                handleChange({
-                                  target: {
-                                    name: "priceBookLevel",
-                                    value: newValue,
-                                  },
-                                })
-                              }
-                              onBlur={handleBlur}
-                              disableClearable
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="PriceBook Level"
-                                  size="small"
-                                  sx={{ gridColumn: "span 2" }}
-                                />
-                              )}
                             />
-                          </Stack>
+                            <Stack
+                              sx={{ gridColumn: "span 2" }}
+                              direction="column"
+                              gap={2}
+                            >
+                              <Autocomplete
+                                fullWidth
+                                id="priceBookLevel"
+                                name="priceBookLevel"
+                                options={priceBookLevel1}
+                                value={values.priceBookLevel}
+                                getOptionLabel={(option) =>
+                                  `Price Book Level ${option}`
+                                }
+                                onChange={(event, newValue) =>
+                                  handleChange({
+                                    target: {
+                                      name: "priceBookLevel",
+                                      value: newValue,
+                                    },
+                                  })
+                                }
+                                onBlur={handleBlur}
+                                disableClearable
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Price Book Level"
+                                    size="small"
+                                    sx={{ gridColumn: "span 2" }}
+                                  />
+                                )}
+                              />
+                            </Stack>
 
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "flex-end",
-                              gridColumn: "span 4",
-                            }}
-                          >
-                            <Button
-                              variant="contained"
-                              color="info"
-                              size="small"
-                              endIcon={<ArrowForwardIcon />}
-                              sx={{ padding: "8px 16px" }}
-                              type="submit"
+                            <FormikCustomAutocompleteCustomer
+                              name="customer"
+                              id="customer"
+                              sx={{ gridColumn: "span 2" }}
+                              multiple={false}
+                              value={values.customer}
+                              onChange={(event, newValue) =>
+                                setFieldValue("customer", newValue)
+                              }
+                              label="Customer"
+                              url={`${
+                                process.env.REACT_APP_BASE_URL
+                              }Customer/GetCustomer?CompanyCode=${
+                                false ? values.company : user.companyCode
+                              }`}
+                            />
+
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                gridColumn: "span 4",
+                              }}
                             >
                               {params.mode === "newexisting" ||
-                              params.mode === "editexisting"
-                                ? "Save & Go Non-contract Items"
-                                : "Save & Go Contract Items"}
-                            </Button>
-                          </Box>
-                        </>
-                      )}
+                              (params.mode === "editexisting" &&
+                                params.mode !== "print") ? (
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  size="small"
+                                  endIcon={<ArrowForwardIcon />}
+                                  sx={{ padding: "8px 16px" }}
+                                  type="submit"
+                                >
+                                  Save & Go Non-contract Items
+                                </Button>
+                              ) : (
+                                false
+                              )}
+                            </Box>
+                          </>
+                        )}
+
+                      {params.mode !== "newexisting" &&
+                        params.mode !== "editexisting" && (
+                          <>
+                            {/* The fields for other modes go here */}
+                            <FormikCustomSelectCompany
+                              name="company"
+                              id="company"
+                              sx={{ gridColumn: "span 2" }}
+                              multiple={false}
+                              disabled={user.role == "USER"}
+                              value={values.company}
+                              onChange={handleChange}
+                              label="Company"
+                              url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
+                            />
+                            <TextField
+                              variant="outlined"
+                              name="salesRepName"
+                              id="salesRepName"
+                              label="Sales Representative Name"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.salesRepName}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="name"
+                              name="name"
+                              label="Prospect Name"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              required
+                              InputLabelProps={{
+                                sx: {
+                                  "& .MuiInputLabel-asterisk": { color: "red" },
+                                },
+                              }}
+                              value={values.name}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              error={!!touched.name && !!errors.name}
+                              helperText={touched.name && errors.name}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="description"
+                              name="description"
+                              label="Description"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.description}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="address1"
+                              name="address1"
+                              label="Address"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.address1}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="city"
+                              name="city"
+                              label="City"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.city}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="state"
+                              name="state"
+                              label="State"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.state}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="zip"
+                              name="zip"
+                              label="Zip"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.zip}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="email"
+                              id="email"
+                              name="email"
+                              label="Email"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.email}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              error={touched.email && Boolean(errors.email)}
+                              helperText={touched.email && errors.email}
+                            />
+                            <TextField
+                              fullWidth
+                              variant="outlined"
+                              type="text"
+                              id="mobile"
+                              name="mobile"
+                              label="Mobile"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.mobile}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            <FormControl
+                              sx={{ gridColumn: "span 2" }}
+                              fullWidth
+                              size="small"
+                            >
+                              <InputLabel id="demo-simple-select-label">
+                                Service Provider
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-label"
+                                value={values.serviceProvider}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                id="serviceProvider"
+                                name="serviceProvider"
+                                label="Price Book Type"
+                              >
+                                <MenuItem value={"AT&T"}>AT&T</MenuItem>
+                                <MenuItem value={"V"}>Verizon</MenuItem>
+                                <MenuItem value={"TM"}>T-Mobile</MenuItem>
+                              </Select>
+                            </FormControl>
+                            <Stack
+                              sx={{ gridColumn: "span 2" }}
+                              direction="column"
+                              gap={2}
+                            >
+                              <Autocomplete
+                                fullWidth
+                                id="priceBookLevel"
+                                name="priceBookLevel"
+                                options={priceBookLevel1}
+                                getOptionLabel={(option) =>
+                                  `Price Book Level ${option}`
+                                }
+                                value={values.priceBookLevel}
+                                onChange={(event, newValue) =>
+                                  handleChange({
+                                    target: {
+                                      name: "priceBookLevel",
+                                      value: newValue,
+                                    },
+                                  })
+                                }
+                                onBlur={handleBlur}
+                                disableClearable
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="PriceBook Level"
+                                    size="small"
+                                    sx={{ gridColumn: "span 2" }}
+                                  />
+                                )}
+                              />
+                            </Stack>
+
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                gridColumn: "span 4",
+                              }}
+                            >
+                              {params.mode == "newprospect" ||
+                              (params.mode == "editprospect" &&
+                                params.mode !== "print") ? (
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  size="small"
+                                  endIcon={<ArrowForwardIcon />}
+                                  sx={{ padding: "8px 16px" }}
+                                  type="submit"
+                                >
+                                  Save & Go Contract Items
+                                </Button>
+                              ) : (
+                                false
+                              )}
+                            </Box>
+                          </>
+                        )}
                     </>
                   )}
 
-                  {/* //================================================DATAGRID  PRICELIST and Items==============================================================// */}
                   {showDataGrid && (
                     <>
                       <Stack
@@ -869,11 +1074,36 @@ const QuoteEdit = () => {
                             slots={{
                               loadingOverlay: LinearProgress,
                             }}
-                            onRowSelectionModelChange={(newRowSelectionModel) => {
-                              const filterArray = rowSelectionModelRows.filter((v) =>
-                                newRowSelectionModel.includes(v.RECID) 
+                            onRowSelectionModelChange={(
+                              newRowSelectionModel
+                            ) => {
+                              // If rows are manually checked or unchecked, we need to update rowSelectionModelRows accordingly
+                              const deselectedRows = rowSelectionModel.filter(
+                                (recid) => !newRowSelectionModel.includes(recid)
                               );
-                              setRowSelectionModelRows(filterArray);
+
+                              const updatedRowSelectionModelRows =
+                                rowSelectionModelRows.filter(
+                                  (row) => !deselectedRows.includes(row.RECID)
+                                );
+
+                              // Add newly selected rows to rowSelectionModelRows (avoid duplicates)
+                              const newlySelectedRows =
+                                getQuoteProspectDataItems.filter(
+                                  (row) =>
+                                    newRowSelectionModel.includes(row.RECID) &&
+                                    !updatedRowSelectionModelRows.some(
+                                      (r) => r.RECID === row.RECID
+                                    )
+                                );
+
+                              // Update rowSelectionModelRows
+                              setRowSelectionModelRows([
+                                ...updatedRowSelectionModelRows,
+                                ...newlySelectedRows,
+                              ]);
+
+                              // Update rowSelectionModel (reflect current checkbox selection state)
                               setRowSelectionModel(newRowSelectionModel);
                             }}
                             rowSelectionModel={rowSelectionModel}
@@ -912,21 +1142,7 @@ const QuoteEdit = () => {
                           size="small"
                           endIcon={<ArrowForwardIcon />} // Icon added here
                           sx={{ padding: "8px 16px" }}
-                          onClick={() =>
-                            navigate("/pages/pricing-portal/quote", {
-                              state: {
-                                headerID: HeaderID,
-                                templateID: state.templateID
-                                  ? state.templateID
-                                  : 0,
-                                templateName: state.templateName
-                                  ? state.templateName
-                                  : "",
-                                accessID: "PPB005",
-                                name: "Quote",
-                              },
-                            })
-                          }
+                          type="submit"
                         >
                           Add item's to Quote & Go Non-contract item's
                         </Button>
@@ -948,7 +1164,8 @@ const QuoteEdit = () => {
         message={
           postError
             ? "Something Went Wrong"
-            : "Prospect info saved successfully"
+            : (showDataGrid && "Contract Items saved successfully") ||
+              "Prospect info saved successfully"
         }
         Actions={
           <Box

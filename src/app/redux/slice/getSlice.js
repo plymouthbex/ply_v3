@@ -98,20 +98,39 @@ const initialState = {
   //USERGROUPADDED
   companyAddedData: [],
 
-    //CONFIGUREPRICE
-    getconfigureData:{},
-    getconfigureLoading: false,
-    getconfigureStatus:"idle",
-    getconfigureError:null,
+  //CONFIGUREPRICE
+  getconfigureData: {},
+  getconfigureLoading: false,
+  getconfigureStatus: "idle",
+  getconfigureError: null,
 
-    configurePriceListAddedData:[],
-    configurePriceListGetData:[],
-    configurePriceListSelectData:[],
+  configurePriceListAddedData: [],
+  configurePriceListGetData: [],
+  configurePriceListSelectData: [],
+
+  getQuoteProspectData: [],
+  getQuoteProspectLoading: false,
+  getQuoteProspectStatus: "idle",
+  getQuoteProspectError: null,
+
+  getQuoteProspectInfoData: {},
+  getQuoteProspectInfoLoading: false,
+  getQuoteProspectInfoStatus: "idle",
+  getQuoteProspectInfoError: null,
 
   getQuoteProspectDataItems: [],
   getQuoteProspectLoadingItems: false,
   getQuoteProspectStatusItems: "idle",
   getQuoteProspectErrorItems: null,
+
+  getQuoteFilterItemStatus: "fulfilled",
+  getQuoteFilterItemLoading: false,
+  getQuoteFilterItemData: [],
+  getQuoteFilterItemError: null,
+  getQuteFiltData: {},
+  getQuteFiltStatus: "idle",
+  getQuteFiltLoading: false,
+  getQuteFiltError: null,
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -335,7 +354,7 @@ export const getQuoteFilterData = createAsyncThunk(
   "getQuoteFilterData/POST",
   async (data, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/QuoteFilterItem`;
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/QuoteFilterItem_V1`;
       const response = await axios.post(URL, data, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -372,9 +391,9 @@ export const getQuoteBookData = createAsyncThunk(
 
 export const getPriceListItemGet = createAsyncThunk(
   "page/getPriceListItemGet",
-  async ({ id, itemNumber }, { rejectWithValue }) => {
+  async ({ id, itemNumber, type = "PL" }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceListItemByNumber?ItemNumber=${itemNumber}&PriceListID=${id}&Type=PL`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceListItemByNumber?ItemNumber=${itemNumber}&PriceListID=${id}&Type=${type}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -417,7 +436,7 @@ export const getProspectListData = createAsyncThunk(
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
-        params:data
+        params: data,
       });
       return response.data;
     } catch (error) {
@@ -427,7 +446,6 @@ export const getProspectListData = createAsyncThunk(
     }
   }
 );
-
 
 export const getProspectInfoData = createAsyncThunk(
   "get/getProspectInfoData", // action type
@@ -438,7 +456,7 @@ export const getProspectInfoData = createAsyncThunk(
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
-        params:data
+        params: data,
       });
       return response.data;
     } catch (error) {
@@ -449,7 +467,6 @@ export const getProspectInfoData = createAsyncThunk(
   }
 );
 
-
 export const getProspectContractItems = createAsyncThunk(
   "get/getProspectContractItems", // action type
   async ({ data }, { rejectWithValue }) => {
@@ -459,7 +476,7 @@ export const getProspectContractItems = createAsyncThunk(
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
-        params:data
+        params: data,
       });
       return response.data;
     } catch (error) {
@@ -488,6 +505,27 @@ export const getConfigPriceBook = createAsyncThunk(
     }
   }
 );
+
+export const getQuoteItemsAndFilters = createAsyncThunk(
+  "get/getQuoteItemsAndFilters", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetQutationConditionItems`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -657,14 +695,15 @@ const getSlice = createSlice({
       }
     },
     configureSelectedPriceList: (state, action) => {
-      state.configurePriceListGetData=action.payload;
+      state.configurePriceListGetData = action.payload;
     },
     configureAddedPriceList: (state, action) => {
       state.configurePriceListGetData.push(action.payload);
     },
     configurePriceListDeleted: (state, action) => {
       let id = action.payload.id;
-      let configurePriceListSelectData = action.payload.configurePriceListAddedData;
+      let configurePriceListSelectData =
+        action.payload.configurePriceListAddedData;
       state.configurePriceListAddedData = configurePriceListSelectData.filter(
         (row) => row.RecordID != id
       );
@@ -676,15 +715,19 @@ const getSlice = createSlice({
       }
     },
     clearConfigurePriceList: (state, action) => {
-      state.getconfigureData={};
-      state.getconfigureLoading= false;
-      state.getconfigureStatus="idle";
-      state.getconfigureError=null;
-      state.configurePriceListAddedData=[];
-      state.configurePriceListGetData=[];
-  
-    }
-
+      state.getconfigureData = {};
+      state.getconfigureLoading = false;
+      state.getconfigureStatus = "idle";
+      state.getconfigureError = null;
+      state.configurePriceListAddedData = [];
+      state.configurePriceListGetData = [];
+    },
+    clearStateProspectInfoQuote: (state, action) => {
+      state.getQuoteProspectDataItems= [];
+      state.getQuoteProspectLoadingItems= false;
+      state.getQuoteProspectStatusItems= "idle";
+      state.getQuoteProspectErrorItems= null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -976,27 +1019,53 @@ const getSlice = createSlice({
       })
 
       //==================================CONFIGURE PRICE BOOK===========================//
-.addCase(getConfigPriceBook.pending, (state) => {
-  state.getconfigureStatus = "pending";
-  state.getconfigureLoading = true;
-})
-.addCase(getConfigPriceBook.fulfilled, (state, action) => {
-  state.getconfigureStatus = "fulfilled";
-  state.getconfigureLoading = false;
-  state.getconfigureData = action.payload.data;
-  state.configurePriceListGetData=action.payload.data.PriceList;
-  
-})
-.addCase(getConfigPriceBook.rejected, (state, action) => {
-  state.getconfigureStatus = "rejected";
-  state.getconfigureLoading = false;
-  state.userError = true;
-})
+      .addCase(getConfigPriceBook.pending, (state) => {
+        state.getconfigureStatus = "pending";
+        state.getconfigureLoading = true;
+      })
+      .addCase(getConfigPriceBook.fulfilled, (state, action) => {
+        state.getconfigureStatus = "fulfilled";
+        state.getconfigureLoading = false;
+        state.getconfigureData = action.payload.data;
+        state.configurePriceListGetData = action.payload.data.PriceList;
+      })
+      .addCase(getConfigPriceBook.rejected, (state, action) => {
+        state.getconfigureStatus = "rejected";
+        state.getconfigureLoading = false;
+        state.userError = true;
+      })
 
+      .addCase(getQuoteItemsAndFilters.pending, (state) => {
+        state.getQuoteFilterItemStatus = "pending";
+        state.getQuoteFilterItemLoading = true;
+        state.getQuoteFilterItemData = [];
+        state.getQuteFiltStatus = "pending";
+        state.getQuteFiltLoading = true;
+        state.getQuteFiltData = {};
+      })
+      .addCase(getQuoteItemsAndFilters.fulfilled, (state, action) => {
+        state.getQuteFiltData = action.payload.data.filterData;
+        state.getQuoteFilterItemData = action.payload.data.itemData;
+
+        state.getQuoteFilterItemStatus = "fulfilled";
+        state.getQuoteFilterItemLoading = false;
+        state.getQuteFiltStatus = "fulfilled";
+        state.getQuteFiltLoading = false;
+      })
+      .addCase(getQuoteItemsAndFilters.rejected, (state, action) => {
+        state.getQuoteFilterItemStatus = "rejected";
+        state.getQuoteFilterItemLoading = false;
+        state.getQuteFiltStatus = "rejected";
+        state.getQuteFiltLoading = false;
+
+        state.getQuoteFilterItemError = action.error.message;
+        state.getQuoteFilterItemError = action.error.message;
+      });
   },
 });
 
 export const {
+  clearStateProspectInfoQuote,
   // PRICELIST ACTION
   priceListSelectedItems,
   priceListAddedItems,
@@ -1026,12 +1095,14 @@ export const {
   applicationAdded,
 
   //============pp
-  addQuoteItemData, quoteClearState2, QuoteItemDeletedItem ,
+  addQuoteItemData,
+  quoteClearState2,
+  QuoteItemDeletedItem,
 
   //======CONFi
   configureSelectedPriceList,
   configureAddedPriceList,
   configurePriceListDeleted,
-  clearConfigurePriceList
+  clearConfigurePriceList,
 } = getSlice.actions;
 export default getSlice.reducer;

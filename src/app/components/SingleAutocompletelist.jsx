@@ -200,7 +200,7 @@ export const FormikCustomSelectCompany = ({
           </MenuItem>
         ) : (
           options.map((option) => (
-            <MenuItem key={option.RecordID} value={option.RecordID}>
+            <MenuItem key={option.Code} value={option.Code}>
               {option.Name}
             </MenuItem>
           ))

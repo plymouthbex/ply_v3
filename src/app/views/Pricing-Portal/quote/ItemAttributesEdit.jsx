@@ -76,15 +76,15 @@ const ItemAttributesEdit = () => {
 
   // ********************** REDUX STATE ********************** //
   const priceListAttStatus = useSelector(
-    (state) => state.getListView.priceListAttStatus
+    (state) => state.getSlice.priceListAttStatus
   );
   const priceListAttData = useSelector(
-    (state) => state.getListView.priceListAttData
+    (state) => state.getSlice.priceListAttData
   );
 
   // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
-    dispatch(getPriceListItemGet({ itemNumber: itemNumber, id: state.id }));
+    dispatch(getPriceListItemGet({ itemNumber: itemNumber, id: state.id,type:"Q" }));
   }, []);
 
   const [openAlert1, setOpenAlert1] = useState(false);
