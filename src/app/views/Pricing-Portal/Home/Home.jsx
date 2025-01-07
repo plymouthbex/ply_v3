@@ -132,7 +132,7 @@ const HomePage = () => {
 
   const { shortSunday, shortSaturday, sunday, saturday, formatedDate } =
     getWeekDates();
-  const blob = `data:image;base64,${user.homePagelogo}`;
+  const blob = `data:image;base64,${user.homePagelogo}` ;
 
   const [isGenerating, setIsGenerating] = useState(false);
   const getPriceBookFull = (priceListOutType) => {

@@ -526,8 +526,14 @@ export default function RunPriceBook() {
 
             if (promisesForRow.length > 0) {
               console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow)
-              return Promise.all(promisesForRow).then((results) =>
-                results.reduce((acc, result) => ({ ...acc, ...result }), {})
+              return Promise.all(promisesForRow).then((results) => {
+
+            
+                console.log("🚀 ~ returnPromise.all ~ results:", results)
+               return results.reduce((acc, result) => { 
+              
+                
+                return({ ...acc, ...result })}, {})  }
               );
             }
 
@@ -555,7 +561,7 @@ export default function RunPriceBook() {
         dispatch(runGrpProcessedDataUpdate(result));
         setTimeout(() => {
           setProcessLoading(false);
-          navigate("./send-run-price-book");
+          // navigate("./send-run-price-book");
           dispatch(runGrpMsgUpdate(""));
         }, 1500);
       })

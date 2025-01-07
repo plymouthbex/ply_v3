@@ -209,8 +209,7 @@ export const exportToExcelBuildCustomPriceBook = ({
 
 export const exportToExcelQuotePriceBook = ({
   excelData,
-  date,
-  customerName,
+  fileName,
   isPrice,
 }) => {
   const worksheetData = [];
@@ -287,7 +286,7 @@ export const exportToExcelQuotePriceBook = ({
   XLSX.utils.book_append_sheet(workbook, worksheet, `Custom Price List`);
 
   // Export the workbook
-  XLSX.writeFile(workbook, `${customerName}_QUOTE_${date}.xlsx`);
+  XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };
 
 

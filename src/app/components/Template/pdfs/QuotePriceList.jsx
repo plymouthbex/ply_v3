@@ -1,5 +1,13 @@
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, PDFViewer,Image } from "@react-pdf/renderer";
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  PDFViewer,
+  Image,
+} from "@react-pdf/renderer";
 import customData from "../../../../fake-db/db/JSON/custom-pricelist.json";
 import CoverPage, { CoverPageLandscape } from "./CoverPage";
 const styles = StyleSheet.create({
@@ -65,323 +73,336 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
 const PrimaryHeader = ({ headerData }) => (
-    <View
-      style={{
-        display: "flex",
-        textAlign: "center",
-        justifyContent: "space-between",
-        flexDirection: "row",
-        width: "100%",
-      }}
-    >
-      <Image src={`data:image;base64,${headerData.logo}`} style={{ height: 50 }} />
-      <View style={{ width: "100%" }}>
-        <Text
-          style={{
-            fontSize: 20,
-            marginBottom: 5,
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          {headerData.customerName}
-        </Text>
-        <Text style={{ fontSize: 12, marginBottom: 10, textAlign: "center" }}>
-          {headerData.effectiveDate}
-        </Text>
-      </View>
-      <View>
-        <Text
-          style={{
-            fontSize: 20,
-            marginBottom: 5,
-            textAlign: "center",
-            fontWeight: "bold",
-            width: 100,
-          }}
-        ></Text>
-      </View>
-    </View>
-  );
-
-const TableHeader = ({isPrice}) => (
-    <View
-      style={{
-        flexDirection: "row",
-        backgroundColor: "#164D50",
-        color: "#ffff",
-        fontWeight: "bold",
-        height: 30,
-        width: "100%",
-      }}
-    >
+  <View
+    style={{
+      display: "flex",
+      textAlign: "center",
+      justifyContent: "space-between",
+      flexDirection: "row",
+      width: "100%",
+    }}
+  >
+    <Image
+      src={`data:image;base64,${headerData.logo}`}
+      style={{ height: 50 }}
+    />
+    <View style={{ width: "100%" }}>
       <Text
         style={{
-          width: "7%",
-          fontSize: 10,
+          fontSize: 20,
+          marginBottom: 5,
           textAlign: "center",
-          alignSelf: "center",
+          fontWeight: "bold",
         }}
       >
-        Item #
+        {headerData.customerName}
       </Text>
-      <Text
-        style={{
-          width: "6%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-          // borderRight: "1px solid black",
-        }}
-      >
-        Pre Order
-      </Text>
-      <Text
-        style={{
-          width: "6%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-          // borderRight: "1px solid black",
-        }}
-      >
-        Fresh or Frz
-      </Text>
-      <Text
-        style={{
-          width: "25%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        Description
-      </Text>
-      <Text
-        style={{
-          width: "8%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        Pack Size
-      </Text>
-     <Text
-        style={{
-          width: "8%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        Brand
-      </Text>
-      {isPrice ? <><Text
-        style={{
-          width: "7%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        Last Week Price
-      </Text>
-      <Text
-        style={{
-          width: "7%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        This Week Price
-      </Text>
-      <Text
-        style={{
-          width: "7%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        Change vs. Last Week
-      </Text></> :false}
-      <Text
-        style={{
-          width: "4%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        UM
-      </Text>
-      <Text
-        style={{
-          width: isPrice ? "15%" : "36%",
-          fontSize: 10,
-          textAlign: "center",
-          alignSelf: "center",
-        }}
-      >
-        Comments
+      <Text style={{ fontSize: 12, marginBottom: 10, textAlign: "center" }}>
+        {headerData.effectiveDate}
       </Text>
     </View>
+    <View>
+      <Text
+        style={{
+          fontSize: 20,
+          marginBottom: 5,
+          textAlign: "center",
+          fontWeight: "bold",
+          width: 100,
+        }}
+      ></Text>
+    </View>
+  </View>
 );
-  
-const TableRows = ({ items ,isPrice}) =>
-    items.map((item, i) => (
-      <View
-        key={i}
+
+const TableHeader = ({ isPrice }) => (
+  <View
+    style={{
+      flexDirection: "row",
+      backgroundColor: "#164D50",
+      color: "#ffff",
+      fontWeight: "bold",
+      height: 30,
+      width: "100%",
+    }}
+  >
+    <Text
+      style={{
+        width: "7%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+      }}
+    >
+      Item #
+    </Text>
+    <Text
+      style={{
+        width: "6%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+        // borderRight: "1px solid black",
+      }}
+    >
+      Pre Order
+    </Text>
+    <Text
+      style={{
+        width: "6%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+        // borderRight: "1px solid black",
+      }}
+    >
+      Fresh or Frz
+    </Text>
+    <Text
+      style={{
+        width: "25%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+      }}
+    >
+      Description
+    </Text>
+    <Text
+      style={{
+        width: "8%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+      }}
+    >
+      Pack Size
+    </Text>
+    <Text
+      style={{
+        width: "8%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+      }}
+    >
+      Brand
+    </Text>
+    {isPrice ? (
+      <>
+        <Text
+          style={{
+            width: "7%",
+            fontSize: 10,
+            textAlign: "center",
+            alignSelf: "center",
+          }}
+        >
+          Last Week Price
+        </Text>
+        <Text
+          style={{
+            width: "7%",
+            fontSize: 10,
+            textAlign: "center",
+            alignSelf: "center",
+          }}
+        >
+          This Week Price
+        </Text>
+        <Text
+          style={{
+            width: "7%",
+            fontSize: 10,
+            textAlign: "center",
+            alignSelf: "center",
+          }}
+        >
+          Change vs. Last Week
+        </Text>
+      </>
+    ) : (
+      false
+    )}
+    <Text
+      style={{
+        width: "4%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+      }}
+    >
+      UM
+    </Text>
+    <Text
+      style={{
+        width: isPrice ? "15%" : "36%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+      }}
+    >
+      Comments
+    </Text>
+  </View>
+);
+
+const TableRows = ({ items, isPrice }) =>
+  items.map((item, i) => (
+    <View
+      key={i}
+      style={{
+        flexDirection: "row",
+
+        height: 20,
+        marginBottom: -1,
+        width: "100%",
+        borderBottom: "1px solid black",
+      }}
+    >
+      <Text
         style={{
-          flexDirection: "row",
-  
-          height: 20,
-          marginBottom: -1,
-          width: "100%",
-          borderBottom: "1px solid black",
+          fontSize: 9,
+          textAlign: "center",
+          paddingTop: 5,
+          width: "7%",
+          borderRight: "1px solid black",
+          borderLeft: "1px solid black",
         }}
       >
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "center",
-            paddingTop: 5,
-            width: "7%",
-            borderRight: "1px solid black",
-            borderLeft: "1px solid black",
-          }}
-        >
-          {item["Item #"]}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "center",
-            paddingTop: 5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            width: "6%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item["Pre Order"]}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "center",
-            paddingTop: 5,
-            width: "6%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item["Fresh or Frz"]}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "left",
-            paddingTop: 5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            width: "25%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item.Description}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "center",
-            paddingTop: 5,
-            width: "8%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item["Pack Size"]}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "center",
-            paddingTop: 5,
-            width: "8%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item.Brand}
-        </Text>
-        {isPrice ? <><Text
-          style={{
-            fontSize: 9,
-            textAlign: "right",
-            paddingTop: 5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            width: "7%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item["Last Week Price"]}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "right",
-            paddingTop: 5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            width: "7%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item["This Week Price"]}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "right",
-            paddingTop: 5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            width: "7%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item["Change vs. Last Week"]}
-        </Text></>:false}
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "center",
-            paddingTop: 5,
-            width: "4%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item.UM}
-        </Text>
-        <Text
-          style={{
-            fontSize: 9,
-            textAlign: "left",
-            paddingTop: 5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            width: isPrice ? "15%" : "36%",
-            borderRight: "1px solid black",
-          }}
-        >
-          {item.Comments}
-        </Text>
-      </View>
-));
+        {item["Item #"]}
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "center",
+          paddingTop: 5,
+          paddingLeft: 2,
+          paddingRight: 2,
+          width: "6%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item["Pre Order"]}
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "center",
+          paddingTop: 5,
+          width: "6%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item["Fresh or Frz"]}
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "left",
+          paddingTop: 5,
+          paddingLeft: 2,
+          paddingRight: 2,
+          width: "25%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item.Description}
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "center",
+          paddingTop: 5,
+          width: "8%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item["Pack Size"]}
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "center",
+          paddingTop: 5,
+          width: "8%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item.Brand}
+      </Text>
+      {isPrice ? (
+        <>
+          <Text
+            style={{
+              fontSize: 9,
+              textAlign: "right",
+              paddingTop: 5,
+              paddingLeft: 2,
+              paddingRight: 2,
+              width: "7%",
+              borderRight: "1px solid black",
+            }}
+          >
+            {item["Last Week Price"]}
+          </Text>
+          <Text
+            style={{
+              fontSize: 9,
+              textAlign: "right",
+              paddingTop: 5,
+              paddingLeft: 2,
+              paddingRight: 2,
+              width: "7%",
+              borderRight: "1px solid black",
+            }}
+          >
+            {item["This Week Price"]}
+          </Text>
+          <Text
+            style={{
+              fontSize: 9,
+              textAlign: "right",
+              paddingTop: 5,
+              paddingLeft: 2,
+              paddingRight: 2,
+              width: "7%",
+              borderRight: "1px solid black",
+            }}
+          >
+            {item["Change vs. Last Week"]}
+          </Text>
+        </>
+      ) : (
+        false
+      )}
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "center",
+          paddingTop: 5,
+          width: "4%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item.UM}
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "left",
+          paddingTop: 5,
+          paddingLeft: 2,
+          paddingRight: 2,
+          width: isPrice ? "15%" : "36%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item.Comments}
+      </Text>
+    </View>
+  ));
 
 const PriceListPage = ({
   pageIndex,
@@ -389,7 +410,7 @@ const PriceListPage = ({
   headerData,
   items,
   category,
-  isPrice
+  isPrice,
 }) => (
   <Page orientation="landscape" size="A4" style={{ padding: 20 }}>
     <PrimaryHeader headerData={headerData} category={category} />
@@ -431,16 +452,21 @@ const PriceListPage = ({
   </Page>
 );
 
-export const QuotePriceListDocument = ({ data, headerData,isPrice,coverPageData }) => {
-
-  
+export const QuotePriceListDocument = ({
+  data,
+  headerData,
+  isPrice,
+  coverPageData,
+  onRenderFinish,
+  onError,
+}) => {
   const pages = [];
   let currentPageItems = [];
   let currentPageCategory = null;
   let currentRowCount = 0;
   let currentPageIndex = 0;
   const rowsPerPage = 22;
-  
+
   data.forEach((categoryData) => {
     categoryData.Items.forEach((item) => {
       // Start a new page if the category changes or if the row limit is exceeded
@@ -487,9 +513,9 @@ export const QuotePriceListDocument = ({ data, headerData,isPrice,coverPageData 
   }
 
   return (
-    <Document>
-        <CoverPageLandscape coverPageData={coverPageData}  />
-        {pages.map((page, pageIndex) => (
+    <Document onRender={onRenderFinish} onError={onError}>
+      <CoverPageLandscape coverPageData={coverPageData} />
+      {pages.map((page, pageIndex) => (
         <PriceListPage
           isPrice={isPrice}
           key={pageIndex}
@@ -518,7 +544,6 @@ const invoiceData = {
 };
 
 export default function QuotePriceList() {
-
   return (
     <div>
       <h1>Price Book PDF</h1>

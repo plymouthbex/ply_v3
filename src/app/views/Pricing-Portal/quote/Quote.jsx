@@ -776,15 +776,15 @@ export default function BuildCustomPriceBook() {
       if (res.payload.status === "Y") {
         // const allRowIds = res.payload.data.map((row) => row.Item_Number);
         // setRowSelectionModel(allRowIds);
-        dispatch(
-          QuoteUpdateDate({
-            data: {
-              recordId: location.state.headerID,
-              fromData: sunday,
-              toDate: saturday,
-            },
-          })
-        );
+        // dispatch(
+        //   QuoteUpdateDate({
+        //     data: {
+        //       recordId: location.state.headerID,
+        //       fromData: sunday,
+        //       toDate: saturday,
+        //     },
+        //   })
+        // );
       }
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
