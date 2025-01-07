@@ -156,14 +156,14 @@ const UserGroupEdit = () => {
   ];
 
   const Appcolumns = [
-    {
-      headerName: "AccessID",
-      field: "Code",
-      width: "200",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    // {
+    //   headerName: "AccessID",
+    //   field: "Code",
+    //   width: "200",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
       headerName: "Menu Name",
       field: "Name",
@@ -390,7 +390,7 @@ const UserGroupEdit = () => {
                   }}
                 >
                   {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}> */}
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -409,8 +409,8 @@ const UserGroupEdit = () => {
                     onChange={handleChange}
                     error={!!touched.code && !!errors.code}
                     helperText={touched.code && errors.code}
-                    autoFocus
-                  />
+                    autoFocus 
+                  />*/}
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -429,7 +429,7 @@ const UserGroupEdit = () => {
                     }
                     helperText={touched.userGroupName && errors.userGroupName}
                   />
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -444,7 +444,7 @@ const UserGroupEdit = () => {
                     onBlur={handleBlur}
                     error={touched.sequence && Boolean(errors.sequence)}
                     helperText={touched.sequence && errors.sequence}
-                  />
+                  /> */}
 
                   {/* <FormControl sx={{ gridColumn: "span 2" }} fullWidth size="small">
                     <InputLabel >
@@ -487,7 +487,7 @@ const UserGroupEdit = () => {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Type"
+                          label="Role"
                           size="small"
                           error={touched.type && Boolean(errors.type)}
                           helperText={touched.type && errors.type}
