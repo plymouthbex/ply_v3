@@ -898,7 +898,7 @@ export default function BuildCustomPriceBook() {
               { name: "Quote" },
               { name: "Prospect Info" },
               { name: "Contract Items" },
-              { name: "Non - Contract Items" },
+              { name: "Non-Contract Items" },
             ]}
           />
         </Box>

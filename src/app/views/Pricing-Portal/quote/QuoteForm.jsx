@@ -656,6 +656,7 @@ const QuoteEdit = () => {
                               onChange={handleChange}
                               onBlur={handleBlur}
                             />
+                             {user.role === "USER" }
                             <Stack
                               sx={{ gridColumn: "span 2" }}
                               direction="column"
@@ -663,6 +664,7 @@ const QuoteEdit = () => {
                             >
                               <Autocomplete
                                 fullWidth
+                                disabled= {user.role === "USER"}
                                 id="priceBookLevel"
                                 name="priceBookLevel"
                                 options={priceBookLevel1}

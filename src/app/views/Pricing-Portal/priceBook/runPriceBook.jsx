@@ -763,6 +763,26 @@ export default function RunPriceBook() {
         </Box>
 
         <Stack direction="row" justifyContent="end" gap={2} mt={2}>
+
+
+        {rowSelectionModel.length > 10 && (
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      justifyContent: 'flex-start', 
+      alignItems: 'center', 
+      padding: 2, 
+      border: '1px solid red', 
+      borderRadius: 1, 
+      backgroundColor: '#ffe6e6' 
+    }}
+  >
+    <Typography color="error" align="center">
+      Note: Please select only 10 rows at a time
+    </Typography>
+  </Box>
+)}
+
           <Button
             variant="contained"
             sx={{
@@ -795,6 +815,8 @@ export default function RunPriceBook() {
                   width: "100%",
                 }}
               >
+
+
                 <Button
                   variant="contained"
                   color="info"
@@ -813,6 +835,7 @@ export default function RunPriceBook() {
               </Box>
             }
           />
+ 
           <LoadingApiDialog
           logo={`data:image/png;base64,${user.logo}`}
             open={processLoading}

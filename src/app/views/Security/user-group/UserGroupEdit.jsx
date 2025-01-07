@@ -73,9 +73,9 @@ const Container = styled("div")(({ theme }) => ({
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
-  code: Yup.string()
-    .min(1, "Code must be at least 1 characters")
-    .max(15, "Code must be at most 15 characters"),
+  // code: Yup.string()
+  //   .min(1, "Code must be at least 1 characters")
+  //   .max(15, "Code must be at most 15 characters"),
 
   userName: Yup.string()
     .min(3, "User Name must be at least 3 characters")
@@ -85,9 +85,9 @@ const validationSchema = Yup.object({
     .min(3, "User Group Name must be at least 3 characters")
     .max(50, "User Group Name must be at most 50 characters"),
 
-  sequence: Yup.string()
-    .min(1, "Sequence must be at least 1 character")
-    .max(15, "Sequence must be at most 15 characters"),
+  // sequence: Yup.string()
+  //   .min(1, "Sequence must be at least 1 character")
+  //   .max(15, "Sequence must be at most 15 characters"),
 });
 
 // ******************** Price List Edit SCREEN  ******************** //

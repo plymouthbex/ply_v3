@@ -584,7 +584,7 @@ const Settings = () => {
             }}
           >
             <FormControl fullWidth size="small" sx={{ gridColumn: "span 2" }}>
-              {/* <SingleAutocompleteWithDefault
+              <SingleAutocompleteWithDefault
                 required
                 name="companyID"
                 id="companyID"
@@ -593,11 +593,11 @@ const Settings = () => {
                 label="Company"
                 url={`${process.env.REACT_APP_BASE_URL}User/GetCompany`}
                 defaultValueId={user.companyID}
-              /> */}
+              />
             </FormControl>
 
             <FormControl fullWidth size="small" sx={{ gridColumn: "span 2" }}>
-              <RunGroupAutocompleteWithDefault
+              {/* <RunGroupAutocompleteWithDefault
                 required
                 name="runGroup"
                 id="runGroup"
@@ -606,7 +606,7 @@ const Settings = () => {
                 label="Rungroup"
                 url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${selectedCompanyCode}`}
                 defaultValueName={user.defaultRunGroup}
-              />
+              /> */}
             </FormControl>
           </Box>
           <Box
