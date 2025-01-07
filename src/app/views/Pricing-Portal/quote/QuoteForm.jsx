@@ -811,63 +811,65 @@ const QuoteEdit = () => {
                     <>
                       {(params.mode == "newexisting" ||
                         params.mode == "editexisting") && (
-                        <>
-                          <FormikCustomSelectCompany
-                            name="company"
-                            id="company"
-                            sx={{ gridColumn: "span 2" }}
-                            multiple={false}
-                            disabled={user.role == "USER"}
-                            value={values.company}
-                            onChange={handleChange}
-                            label="Company"
-                            url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
-                          />
-                          <TextField
-                            variant="outlined"
-                            name="salesRepName"
-                            id="salesRepName"
-                            label="Sales Representative Name"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                            value={values.salesRepName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          <Stack
-                            sx={{ gridColumn: "span 2" }}
-                            direction="column"
-                            gap={2}
-                          >
-                            <Autocomplete
-                              fullWidth
-                              id="priceBookLevel"
-                              name="priceBookLevel"
-                              options={priceBookLevel1}
-                              value={values.priceBookLevel}
-                              getOptionLabel={(option) =>
-                                `Price Book Level ${option}`
-                              }
-                              onChange={(event, newValue) =>
-                                handleChange({
-                                  target: {
-                                    name: "priceBookLevel",
-                                    value: newValue,
-                                  },
-                                })
-                              }
-                              onBlur={handleBlur}
-                              disableClearable
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Price Book Level"
-                                  size="small"
-                                  sx={{ gridColumn: "span 2" }}
-                                />
-                              )}
+                          <>
+                            <FormikCustomSelectCompany
+                              name="company"
+                              id="company"
+                              sx={{ gridColumn: "span 2" }}
+                              multiple={false}
+                              disabled={user.role == "USER"}
+                              value={values.company}
+                              onChange={handleChange}
+                              label="Company"
+                              url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
                             />
-                          </Stack>
+                            <TextField
+                              variant="outlined"
+                              name="salesRepName"
+                              id="salesRepName"
+                              label="Sales Representative Name"
+                              size="small"
+                              sx={{ gridColumn: "span 2" }}
+                              value={values.salesRepName}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                             {user.role === "USER" }
+                            <Stack
+                              sx={{ gridColumn: "span 2" }}
+                              direction="column"
+                              gap={2}
+                            >
+                              <Autocomplete
+                                fullWidth
+                                disabled= {user.role === "USER"}
+                                id="priceBookLevel"
+                                name="priceBookLevel"
+                                options={priceBookLevel1}
+                                value={values.priceBookLevel}
+                                getOptionLabel={(option) =>
+                                  `Price Book Level ${option}`
+                                }
+                                onChange={(event, newValue) =>
+                                  handleChange({
+                                    target: {
+                                      name: "priceBookLevel",
+                                      value: newValue,
+                                    },
+                                  })
+                                }
+                                onBlur={handleBlur}
+                                disableClearable
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Price Book Level"
+                                    size="small"
+                                    sx={{ gridColumn: "span 2" }}
+                                  />
+                                )}
+                              />
+                            </Stack>
 
                           <FormikCustomAutocompleteCustomer
                             name="customer"

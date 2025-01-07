@@ -160,121 +160,105 @@ export default function Page() {
             setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid lg={4} md={6} xs={12}>
-                  <Card sx={{height:"300px"}}>
-                    <CardContent>
-                      <Stack spacing={2} sx={{ alignItems: "center" }}>
-                        <div>
-                          <Avatar
-                            src={
-                              previewImages1.length > 0
-                                ? previewImages1[0]["preview"]
-                                : `data:image/png;base64,${user.avatar}`
-                            }
-                            sx={{ height: "80px", width: "80px" }}
-                          />
-                        </div>
-                        <Stack spacing={1} sx={{ textAlign: "center" }}>
-                          <Typography variant="h5">
-                            {values.firstname}
-                            {values.lastname}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                  
-                    <CardActions>
-                      <DropZone {...dropzoneProps1.getRootProps()}>
-                        <input {...dropzoneProps1.getInputProps()} />
-                        <FlexBox alignItems="center" flexDirection="column">
-                          <Publish
-                            sx={{ color: "text.secondary", fontSize: "48px" }}
-                          />
-                          {imageList1.length ? (
-                            <span>
-                              {imageList1.length} images were selected
-                            </span>
-                          ) : (
-                            <span>Upload image</span>
-                          )}
-                        </FlexBox>
-                      </DropZone>
-                    </CardActions>
-                  </Card>
-                </Grid>
-                <Grid lg={8} md={6} xs={12}>
-                  <Card  sx={{height:"300px"}}>
-                    <CardHeader
-                      // subheader="The information can be edited"
-                      title="Profile"
-                    />
-                    
-                    <CardContent>
-                      <Grid container spacing={3}>
-                        <Grid md={6} xs={12}>
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="firstname"
-                            name="firstname"
-                            label="First Name"
-                            size="small"
-                            disabled={true}
-                            value={values.firstname}
-                          />
-                        </Grid>
-                        <Grid md={6} xs={12}>
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            type="text"
-                            id="lastname"
-                            name="lastname"
-                            label="Last Name"
-                            size="small"
-                            disabled={true}
-                            value={values.lastname}
-                          />
-                        </Grid>
-                        <Grid md={6} xs={12}>
-                          {/* <TextField
-                              fullWidth
-                              variant="outlined"
-                              type="text"
-                              id="mobilenumber"
-                              name="mobilenumber"
-                              label="Mobile"
-                              size="small"
-                              disabled={true}
-                              value={values.mobilenumber}
-                            /> */}
-                        </Grid>
-                        <Grid md={6} xs={12}>
-                          {/* <TextField
-                              fullWidth
-                              variant="outlined"
-                              type="email"
-                              id="email"
-                              name="email"
-                              label="Email"
-                              size="small"
-                              value={values.email}
-                              disabled={true}
-                            /> */}
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                    
-                    <CardActions sx={{ justifyContent: "flex-end" }}>
-                      <Button color="info" type="submit" variant="contained">
-                        Save
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              </Grid>
+             <Card>
+  <CardContent>
+    <Box sx={{ display: "flex", gap: 3 }}>
+      {/* First Section */}
+      <Box sx={{ flex: 1 }}>
+        <Stack spacing={2} sx={{ alignItems: "center" }}>
+          <Avatar
+            src={
+              previewImages1.length > 0
+                ? previewImages1[0]["preview"]
+                : `data:image/png;base64,${user.avatar}`
+            }
+            sx={{ height: "80px", width: "80px" }}
+          />
+          <Stack spacing={1} sx={{ textAlign: "center" }}>
+            <Typography variant="h5">
+              {values.firstname} {values.lastname}
+            </Typography>
+          </Stack>
+        </Stack>
+        <Box sx={{ marginTop: 2 }}>
+          <DropZone {...dropzoneProps1.getRootProps()}>
+            <input {...dropzoneProps1.getInputProps()} />
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+              {imageList1.length ? (
+                <span>{imageList1.length} images were selected</span>
+              ) : (
+                <span>Upload image</span>
+              )}
+            </Box>
+          </DropZone>
+        </Box>
+      </Box>
+
+      {/* Second Section */}
+      <Box sx={{ flex: 2 }}>
+        <CardHeader title="Profile" />
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            type="text"
+            id="firstname"
+            name="firstname"
+            label="First Name"
+            size="small"
+            disabled
+            value={values.firstname}
+            sx={{ flex: "1 1 calc(50% - 12px)" }}
+          />
+          <TextField
+            fullWidth
+            variant="outlined"
+            type="text"
+            id="lastname"
+            name="lastname"
+            label="Last Name"
+            size="small"
+            disabled
+            value={values.lastname}
+            sx={{ flex: "1 1 calc(50% - 12px)" }}
+          />
+          {/* Uncomment these if needed */}
+          {/* <TextField
+              fullWidth
+              variant="outlined"
+              type="text"
+              id="mobilenumber"
+              name="mobilenumber"
+              label="Mobile"
+              size="small"
+              disabled
+              value={values.mobilenumber}
+              sx={{ flex: "1 1 calc(50% - 12px)" }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="email"
+              id="email"
+              name="email"
+              label="Email"
+              size="small"
+              value={values.email}
+              disabled
+              sx={{ flex: "1 1 calc(50% - 12px)" }}
+            /> */}
+        </Box>
+        <Box sx={{ marginTop: 3, display: "flex", justifyContent: "flex-end" }}>
+          <Button color="info" type="submit" variant="contained">
+            Save
+          </Button>
+        </Box>
+      </Box>
+    </Box>
+  </CardContent>
+</Card>
+
 
               <PriceGroupAlertApiDialog
                 logo={`data:image/png;base64,${user.logo}`}
