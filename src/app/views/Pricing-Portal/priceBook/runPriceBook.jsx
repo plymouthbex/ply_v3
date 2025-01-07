@@ -670,7 +670,7 @@ export default function RunPriceBook() {
               id="rungroup"
               value={selectedRunGrpOptions}
               onChange={handleSelectionRunGrpChange}
-              label="Price Book"
+              label="Price Book Group"
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             />
           </Box>

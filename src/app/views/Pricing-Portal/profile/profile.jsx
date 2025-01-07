@@ -162,7 +162,7 @@ export default function Page() {
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid lg={4} md={6} xs={12}>
-                  <Card>
+                  <Card sx={{height:"300px"}}>
                     <CardContent>
                       <Stack spacing={2} sx={{ alignItems: "center" }}>
                         <div>
@@ -183,7 +183,7 @@ export default function Page() {
                         </Stack>
                       </Stack>
                     </CardContent>
-                    <Divider />
+                  
                     <CardActions>
                       <DropZone {...dropzoneProps1.getRootProps()}>
                         <input {...dropzoneProps1.getInputProps()} />
@@ -204,12 +204,12 @@ export default function Page() {
                   </Card>
                 </Grid>
                 <Grid lg={8} md={6} xs={12}>
-                  <Card>
+                  <Card  sx={{height:"300px"}}>
                     <CardHeader
                       // subheader="The information can be edited"
                       title="Profile"
                     />
-                    <Divider />
+                    
                     <CardContent>
                       <Grid container spacing={3}>
                         <Grid md={6} xs={12}>
@@ -266,7 +266,7 @@ export default function Page() {
                         </Grid>
                       </Grid>
                     </CardContent>
-                    <Divider />
+                    
                     <CardActions sx={{ justifyContent: "flex-end" }}>
                       <Button color="info" type="submit" variant="contained">
                         Save

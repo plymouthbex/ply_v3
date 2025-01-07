@@ -508,14 +508,14 @@ const Settings = () => {
       return;
     }
 
-    if (!selectedRungroupOptions?.Name) {
-      setOpenDialog(true);
-      return;
-    }
+    // if (!selectedRungroupOptions?.Name) {
+    //   setOpenDialog(true);
+    //   return;
+    // }
     const data = {
       UserRecID: user.id,
       CompanyCode: selectedCompanyOptions.Code,
-      RungroupName: selectedRungroupOptions.Name,
+      // RungroupName: selectedRungroupOptions.Name,
     };
 
     const response = await dispatch(updatesettingData({ data }));
@@ -523,30 +523,27 @@ const Settings = () => {
     if (response.payload.Status === "Y") {
       // toast.success("User updated Successfully");
       updateCompany();
-
+setOpenAlert(true);
       const company = companyList.find(
         (value) => value.companyCode === selectedCompanyOptions.Code
       );
 
       // Check if the selected rungroup name is different from the user's defaultRunGroup
-      const isDefaultRunGroupUpdated =
-        user.defaultRunGroup !== selectedRungroupOptions.Name;
+      // const isDefaultRunGroupUpdated =
+      //   user.defaultRunGroup !== selectedRungroupOptions.Name;
 
-      if (isDefaultRunGroupUpdated) {
+      // if (isDefaultRunGroupUpdated) {
         // Update the user's defaultRunGroup globally
-        updateUser({
-          ...user,
-          defaultRunGroup: selectedRungroupOptions.Name,
-        });
-      }
+        // updateUser({
+        //   ...user,
+         
+        // });
+      // }
 
       if (company) {
         updateUser({
           ...user,
           ...company,
-          defaultRunGroup: isDefaultRunGroupUpdated
-            ? selectedRungroupOptions.Name
-            : user.defaultRunGroup,
         });
       } else {
         // console.error("Company not found for RecordID:", newValue.RecordID);
@@ -554,7 +551,7 @@ const Settings = () => {
         // toast.error("Please choose the relevant Rungroup.");
       }
 
-      setOpenAlert(true);
+      
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -597,7 +594,7 @@ const Settings = () => {
             </FormControl>
 
             <FormControl fullWidth size="small" sx={{ gridColumn: "span 2" }}>
-              <RunGroupAutocompleteWithDefault
+              {/* <RunGroupAutocompleteWithDefault
                 required
                 name="runGroup"
                 id="runGroup"
@@ -606,7 +603,7 @@ const Settings = () => {
                 label="Rungroup"
                 url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${selectedCompanyCode}`}
                 defaultValueName={user.defaultRunGroup}
-              />
+              /> */}
             </FormControl>
           </Box>
           <Box

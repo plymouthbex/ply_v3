@@ -919,6 +919,10 @@ export const FormikCompanyOptimizedAutocomplete = ({
           label={props.label || "Select Options"}
           error={!!error}
           helperText={error}
+          required
+          InputLabelProps={{
+            sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+          }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
@@ -982,7 +986,7 @@ export const FormikUserGroupOptimizedAutocomplete = ({
       isOptionEqualToValue={(option, value) => option.Name === value.Name}
       // onChange={(event, newValue) => onChange(newValue)}
       onChange={onChange}
-      getOptionLabel={(option) => `${option.Code} || ${option.Name}`}
+      getOptionLabel={(option) => `${option.Name}`}
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField

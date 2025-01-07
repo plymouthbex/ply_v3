@@ -29,7 +29,7 @@ import CardHeader from "@mui/material/CardHeader";
 // ******************** ICONS ******************** //
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as Yup from "yup";
@@ -86,7 +86,7 @@ const validationSchema = Yup.object({
 
   email: Yup.string()
     .email("Invalid email format")
-    .max(30, "Email must be at most 30 characters"),
+    .max(200, "Email must be at most 200 characters"),
 
   sequence: Yup.string()
     .min(1, "Sequence must be at least 1 character")
@@ -105,6 +105,11 @@ const validationSchema = Yup.object({
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Confirm Password is required"),
+    defaultCompany: Yup.object({
+      RecordID: Yup.string().required("RecordID is required"),
+      Code: Yup.string().required("Code is required"),
+      Name: Yup.string().required("Name is required"),
+    }).required("Default Company is required"),
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -171,10 +176,10 @@ const UserEdit = () => {
       setOpenDialog(true);
     }
 
-let images
-    if(previewImages1.length > 0){
+    let images
+    if (previewImages1.length > 0) {
       const image = previewImages1[0]["preview"];
-     images = image.split(",");
+      images = image.split(",");
     }
     const userData = {
       recordID: data.RecordID,
@@ -323,10 +328,10 @@ let images
                         </div>
                         <Stack spacing={1} sx={{ textAlign: "center" }}>
                           <Typography variant="h5">
-                            {values.firstname}
-                            {values.lastname}
+                            {values.firstname} {values.lastname}
                           </Typography>
                         </Stack>
+
                       </Stack>
                     </CardContent>
                     <Divider />
@@ -405,51 +410,51 @@ let images
                       error={touched.lastname && Boolean(errors.lastname)}
                       helperText={touched.lastname && errors.lastname}
                     />
-                                      <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="password"
-                    id="password"
-                    name="password"
-                    label="Password"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-                    required
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                    value={values.password}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.password && Boolean(errors.password)}
-                    helperText={touched.password && errors.password}
-                  />
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="password"
+                      id="password"
+                      name="password"
+                      label="Password"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={params?.mode === "delete"}
+                      required
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password}
+                    />
 
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="password"
-                    id="confirmpassword"
-                    name="confirmpassword"
-                    label="Confirm Password"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-                    required
-                    value={values.confirmpassword}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={
-                      touched.confirmpassword && Boolean(errors.confirmpassword)
-                    }
-                    helperText={
-                      touched.confirmpassword && errors.confirmpassword
-                    }
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                  />
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="password"
+                      id="confirmpassword"
+                      name="confirmpassword"
+                      label="Confirm Password"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={params?.mode === "delete"}
+                      required
+                      value={values.confirmpassword}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={
+                        touched.confirmpassword && Boolean(errors.confirmpassword)
+                      }
+                      helperText={
+                        touched.confirmpassword && errors.confirmpassword
+                      }
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
+                    />
                   </Stack>
 
                   {/* <TextField
@@ -571,18 +576,38 @@ let images
                     padding: "10px",
                   }}
                 >
-                  <FormControl
-                    sx={{
-                      gridColumn: isNonMobile ? "span 4" : "span 4",
-                      gap: "10px",
-                    }}
-                  >
-                    <Typography fontSize={"14px"} fontWeight={"bold"}>
-                      Settings
-                    </Typography>
-                  </FormControl>
 
-                  <FormikCompanyOptimizedAutocomplete
+<Stack
+  sx={{
+    gridColumn: "span 2", // Ensure the form takes up 2 columns
+    display: "grid", // Make Form respect the grid layout
+    gridTemplateColumns: "repeat(2, 1fr)", // Define 2 columns within the form
+    gap: 2,
+  }}
+>
+      <FormikCompanyOptimizedAutocomplete
+        sx={{ gridColumn: "span 2" }}
+        disabled={params.mode === "delete" || params.mode === "view"}
+       
+        name="defaultCompany"
+        id="defaultCompany"
+        value={values.defaultCompany}
+        onChange={(event, newValue) =>
+          setFieldValue("defaultCompany", newValue)
+        }
+        required
+        label="Default Company"
+        url={`${process.env.REACT_APP_BASE_URL}Company`}
+      />
+      {/* Display error message outside the component */}
+      {touched.defaultCompany && errors.defaultCompany && (
+        <div style={{ color: "red", marginTop: "0.5rem" }}>
+          {errors.defaultCompany}
+        </div>
+      )}
+     
+    </Stack>
+                  {/* <FormikCompanyOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
                     disabled={
                       params.mode === "delete" || params.mode === "view"
@@ -595,9 +620,15 @@ let images
                     onChange={(event, newValue) =>
                       setFieldValue("defaultCompany", newValue)
                     }
+                    required
                     label="Default Company"
                     url={`${process.env.REACT_APP_BASE_URL}Company`}
-                  />
+                    {touched.defaultCompany && errors.defaultCompany && (
+                      <div style={{ color: "red", marginTop: "0.5rem" }}>
+                        {errors.defaultCompany}
+                      </div>
+                    )}
+                  /> */}
 
                   <FormikRungroupOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
@@ -612,7 +643,7 @@ let images
                     onChange={(event, newValue) =>
                       setFieldValue("runGroup", newValue)
                     }
-                    label="Run Group"
+                    label="Default Price Book Group"
                     url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
                   />
                 </Box>
@@ -662,8 +693,8 @@ let images
           params.mode === "add"
             ? "User added successfully"
             : params.mode === "delete"
-            ? "User Deleted Successfully"
-            : "User updated successfully"
+              ? "User Deleted Successfully"
+              : "User updated successfully"
         }
         Actions={
           params.mode === "add" ? (

@@ -42,14 +42,14 @@ const dispatch=useDispatch();
   console.log("🚀 ~ Application ~ rows:", rows)
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    {
-      headerName: "AccessID",
-      field: "ApplicationCode",
-      width: "200",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    // {
+    //   headerName: "AccessID",
+    //   field: "ApplicationCode",
+    //   width: "200",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
       headerName: "Menu Name",
       field: "ApplicationName",
