@@ -528,6 +528,7 @@ const Settings = () => {
       const company = companyList.find(
         (value) => value.companyCode === selectedCompanyOptions.Code
       );
+      
       if (company) {
         updateUser({
           ...user,
@@ -537,17 +538,8 @@ const Settings = () => {
           //   : user.defaultRunGroup,
         });
       // Check if the selected rungroup name is different from the user's defaultRunGroup
-      // const isDefaultRunGroupUpdated =
-      //   user.defaultRunGroup !== selectedRungroupOptions.Name;
-
-      // if (isDefaultRunGroupUpdated) {
-      //   // Update the user's defaultRunGroup globally
-      //   updateUser({
-      //     ...user,
-      //     // defaultRunGroup: selectedRungroupOptions.Name,
-      //   });
-      // }
-
+      
+    
       
       } else {
         // console.error("Company not found for RecordID:", newValue.RecordID);
