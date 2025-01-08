@@ -187,6 +187,11 @@ const textLight = {
           light:'#EEEEEE',
           contrastText: "#ffffff",
         },
+        success: {
+          main: '#00695f',
+          light:'#EEEEEE',
+          contrastText: "#ffffff",
+        },
         error: errorColor,
         background: {
           paper: '#fff',

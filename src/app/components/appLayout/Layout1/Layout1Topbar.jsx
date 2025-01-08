@@ -142,7 +142,7 @@ const Layout1Topbar = () => {
     // Create an anchor element and trigger the download
     const link = document.createElement("a");
     link.href = filePath;
-    link.download = "menual.pdf"; // Optional: Specify the downloaded file name
+    link.download = "Manual.pdf"; // Optional: Specify the downloaded file name
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -17,7 +17,7 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight ,dataGridHeaderFooterHeight} from "app/utils/constant";
 
 // ********************** ICONS ********************** //
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -79,14 +79,14 @@ const RunGroup = () => {
       headerAlign: "left",
       hide: false,
     },
-    {
-      headerName: "Print Sequence",
-      field: "SortOrder",
-      width: "200",
-      align: "left",
-      headerAlign: "left",
-      hide: false,
-    },
+    // {
+    //   headerName: "Print Sequence",
+    //   field: "SortOrder",
+    //   width: "200",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: false,
+    // },
     {
       field: "Action",
       headerName: "Action",
@@ -295,6 +295,14 @@ const RunGroup = () => {
           }}
         >
           <DataGrid
+           columnHeaderHeight={dataGridHeaderFooterHeight}
+           sx={{
+             // This is to override the default height of the footer row
+             '& .MuiDataGrid-footerContainer': {
+                 height: dataGridHeaderFooterHeight,
+                 minHeight:dataGridHeaderFooterHeight,
+             },
+           }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

@@ -17,7 +17,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridRowHeight } from "app/utils/constant";
+import { dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
 import { Formik } from "formik";
 
 // ********************** ICONS ********************** //
@@ -660,6 +660,14 @@ const PriceListItems = () => {
                   }}
                 >
                   <DataGrid
+                   columnHeaderHeight={dataGridHeaderFooterHeight}
+                   sx={{
+                     // This is to override the default height of the footer row
+                     '& .MuiDataGrid-footerContainer': {
+                         height: dataGridHeaderFooterHeight,
+                         minHeight: dataGridHeaderFooterHeight,
+                     },
+                   }}
                     slots={{
                       loadingOverlay: LinearProgress,
                       toolbar: CustomToolbar,

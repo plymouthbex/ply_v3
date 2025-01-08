@@ -59,7 +59,7 @@ const AlertDialog = ({ open, onClose, message = "", error = false,Actions }) => 
           ></Typography>
         </JustifyBox>
         {error ? (
-          <Typography color="error">{`Error: Please Fill The Data`}</Typography>
+          <Typography color="error">{`Please Fill The Data`}</Typography>
         ) : (
           <Typography
             alignItems={"center"}

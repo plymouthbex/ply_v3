@@ -70,7 +70,7 @@ const initialValues = {
 
 // form field validation schema
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email().required("username is required!"),
+  email: Yup.string().email().required("Username is required!"),
   password: Yup.string()
     .min(6, "Password must be 6 character length")
     .required("Password is required!"),

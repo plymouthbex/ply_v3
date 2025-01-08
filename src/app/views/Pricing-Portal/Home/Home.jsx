@@ -164,7 +164,7 @@ const HomePage = () => {
               genricPriceBookPdfGenrationg({
                 Type: "SUCCESS",
                 loading: false,
-                message: "Full Price Book Succesfully Prepared",
+                message: "Full Price Book Succesfully Prepared-PDF",
               })
             );
             setIsGenerating(false);

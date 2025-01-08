@@ -83,6 +83,7 @@ import {
 import { themeColors } from "app/components/baseTheme/themeColors";
 import { OptimizedAutocomplete } from "app/components/SingleAutocompletelist";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -1225,6 +1226,14 @@ export default function BuildCustomPriceBook() {
             }}
           >
             <DataGrid
+             columnHeaderHeight={dataGridHeaderFooterHeight}
+             sx={{
+               // This is to override the default height of the footer row
+               '& .MuiDataGrid-footerContainer': {
+                   height:dataGridHeaderFooterHeight,
+                   minHeight:dataGridHeaderFooterHeight,
+               },
+             }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: CustomToolbar,

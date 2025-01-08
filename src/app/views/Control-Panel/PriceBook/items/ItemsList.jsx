@@ -31,6 +31,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight
 } from "app/utils/constant";
 import { RefreshOutlined } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -345,6 +346,14 @@ const ItemList = () => {
                   loadingOverlay: LinearProgress,
                   toolbar: CustomToolbar,
                 }}
+                columnHeaderHeight={dataGridHeaderFooterHeight}
+                sx={{
+                  // This is to override the default height of the footer row
+                  '& .MuiDataGrid-footerContainer': {
+                      height: dataGridHeaderFooterHeight,
+                      minHeight: dataGridHeaderFooterHeight,
+                  },
+                }}
                 rowHeight={dataGridRowHeight}
                 loading={loading}
                 rows={rows}
@@ -436,7 +445,7 @@ const ItemList = () => {
                   }
                 }}
               >
-                Add Items To Price List
+                Add Items to Price list
               </Button>
             </TableContainer>
           </Stack>
@@ -497,7 +506,7 @@ const ItemList = () => {
           key={23131}
           open={openAlert1}
           error={postError1}
-          message={"Item Saved Successfully!"}
+          message={"Item saved successfully!"}
           Actions={
             <DialogActions>
             

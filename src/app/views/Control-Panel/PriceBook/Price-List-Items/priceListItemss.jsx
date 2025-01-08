@@ -25,6 +25,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 import { Formik } from "formik";
 import lodash from "lodash";
@@ -172,7 +173,7 @@ const PriceListEdit = () => {
       hide: false,
     },
     {
-      headerName: "Add Hoc Item",
+      headerName: "Ad Hoc Item",
       field: "AdHocItem",
       minWidth: "100",
       align: "left",
@@ -880,6 +881,14 @@ const PriceListEdit = () => {
                     }}
                   >
                     <DataGrid
+                     columnHeaderHeight={dataGridHeaderFooterHeight}
+                     sx={{
+                       // This is to override the default height of the footer row
+                       '& .MuiDataGrid-footerContainer': {
+                           height: dataGridHeaderFooterHeight,
+                           minHeight: dataGridHeaderFooterHeight,
+                       },
+                     }}
                       key={showGridData}
                       slots={{
                         loadingOverlay: LinearProgress,

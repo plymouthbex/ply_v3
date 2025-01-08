@@ -179,7 +179,7 @@ const ViewPriceBook = () => {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN)${formatDateLong(sunday)} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week (SUN) ${formatDateLong(sunday)} TO (SAT) ${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -248,7 +248,7 @@ const ViewPriceBook = () => {
                 Type: "SUCCESS",
                 loading: false,
                 message:
-                  "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
+                  "Price book successfully created! Please wait while it is automatically downloaded",
               })
             );
             setIsGenerating(false);
@@ -260,7 +260,7 @@ const ViewPriceBook = () => {
                 data={response.payload}
                 coverPageData={{
                   logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  subtitle1: "Price List for",
+                  subtitle1: "Price list for",
                   subtitle2:
                     selectPriceListtype === "FP"
                       ? `${
@@ -288,7 +288,7 @@ const ViewPriceBook = () => {
                       Type: "SUCCESS",
                       loading: false,
                       message:
-                        "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
+                      "Price book successfully created! Please wait while it is automatically downloaded.",
                     })
                   );
                   setTimeout(() => {
@@ -439,7 +439,7 @@ const ViewPriceBook = () => {
                 Type: "SUCCESS",
                 loading: false,
                 message:
-                  "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
               })
             );
             setIsGenerating(false);
@@ -458,7 +458,7 @@ const ViewPriceBook = () => {
                 }}
                 coverPageData={{
                   logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  subtitle1: "Price List for",
+                  subtitle1: "Price list for",
                   subtitle2: `${
                     selectedCustomerOptions
                       ? selectedCustomerOptions.Name
@@ -483,7 +483,7 @@ const ViewPriceBook = () => {
                       Type: "SUCCESS",
                       loading: false,
                       message:
-                        "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
+                        "Price book successfully created! Please wait while it is automatically downloaded.",
                     })
                   );
                   setIsGenerating(false);
@@ -771,7 +771,7 @@ const ViewPriceBook = () => {
               <CoverPageComponent
                 data={{
                   logo: `data:image/png;base64,${user.homePagelogo}`,
-                  subtitle1: "Price List for",
+                  subtitle1: "Price list for",
                   subtitle2:
                     selectPriceListtype === "FP"
                       ? "Customer Full Pricelist"

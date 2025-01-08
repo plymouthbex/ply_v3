@@ -42,6 +42,7 @@ import { IoMdPrint } from "react-icons/io";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import useSettings from "app/hooks/useSettings";
 import { useNavigate } from "react-router-dom";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -481,7 +482,14 @@ export default function EditRunPriceBook() {
             }}
           >
             <DataGrid
-              sx={{ height: "500px" }}
+              columnHeaderHeight={dataGridHeaderFooterHeight}
+                        sx={{
+                          // This is to override the default height of the footer row
+                          '& .MuiDataGrid-footerContainer': {
+                              height: dataGridHeaderFooterHeight,
+                              minHeight: dataGridHeaderFooterHeight,
+                          },
+                      height: "500px" }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: secondaryCustomToolbar,

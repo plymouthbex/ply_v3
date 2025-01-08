@@ -15,6 +15,7 @@ import {
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 import {
+  dataGridHeaderFooterHeight,
   dataGridHeight,
   dataGridPageSize,
   dataGridpageSizeOptions,
@@ -272,6 +273,14 @@ const ExistingCustomer = () => {
           }}
         >
           <DataGrid
+           columnHeaderHeight={dataGridHeaderFooterHeight}
+           sx={{
+             // This is to override the default height of the footer row
+             '& .MuiDataGrid-footerContainer': {
+                 height: dataGridHeaderFooterHeight,
+                 minHeight: dataGridHeaderFooterHeight,
+             },
+           }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

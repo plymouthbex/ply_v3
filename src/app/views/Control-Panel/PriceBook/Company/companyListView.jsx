@@ -13,7 +13,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight ,dataGridHeaderFooterHeight} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
@@ -53,7 +53,7 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
-      headerName: "Company code",
+      headerName: "Company Code",
       field: "CompanyCode",
       width: "150",
       align: "left",
@@ -61,7 +61,7 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
       hide: true,
     },
     {
-      headerName: "Company name",
+      headerName: "Company Name",
       field: "CompanyName",
       width: "170",
       align: "left",
@@ -271,6 +271,14 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
         }} 
         >
           <DataGrid
+           columnHeaderHeight={dataGridHeaderFooterHeight}
+           sx={{
+             // This is to override the default height of the footer row
+             '& .MuiDataGrid-footerContainer': {
+                 height: dataGridHeaderFooterHeight,
+                 minHeight: dataGridHeaderFooterHeight,
+             },
+           }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
@@ -283,9 +291,9 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
             disableRowSelectionOnClick
             getRowId={(row) => row.CompanyCode}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
-            }}
-            pageSizeOptions={[5, 10, 20, 25]}
+                          pagination: { paginationModel: { pageSize: dataGridPageSize } },
+                        }}
+                        pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               CompanyCode: true,
             }}

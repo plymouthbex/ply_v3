@@ -14,7 +14,7 @@ import {
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 import { dataGridHeight,  dataGridPageSize,
-  dataGridpageSizeOptions,dataGridRowHeight } from "app/utils/constant";
+  dataGridpageSizeOptions,dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
@@ -228,6 +228,14 @@ const loading = useSelector((state) => state.listview.loading);
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
+            }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              '& .MuiDataGrid-footerContainer': {
+                  height: dataGridHeaderFooterHeight,
+                  minHeight: dataGridHeaderFooterHeight,
+              },
             }}
             rowHeight={dataGridRowHeight}
             rows={companyRows}

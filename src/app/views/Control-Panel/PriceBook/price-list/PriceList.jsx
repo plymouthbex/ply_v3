@@ -20,6 +20,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 
 // ********************** ICONS ********************** //
@@ -225,9 +226,10 @@ const PriceList = () => {
             variant="contained"
             color="info"
             size="small"
+            startIcon={<Add fontSize="small" />}
             onClick={() => {
               if (rowSelectionModelRows.length === 0) {
-                return toast.error("Please Select Price List items");
+                return toast.error("Please Select a Price List Items");
               }
               try {
                 dispatch(printGroupSelectedItems(rowSelectionModelRows));
@@ -323,6 +325,14 @@ const PriceList = () => {
             }}
           >
             <DataGrid
+             columnHeaderHeight={dataGridHeaderFooterHeight}
+             sx={{
+               // This is to override the default height of the footer row
+               '& .MuiDataGrid-footerContainer': {
+                   height: dataGridHeaderFooterHeight,
+                   minHeight: dataGridHeaderFooterHeight,
+               },
+             }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: CustomToolbar,
@@ -390,11 +400,11 @@ const PriceList = () => {
               
               onClick={() => {
                 if (!printSelectedData) {
-                  return toast.error("Please Select Print Group");
+                  return toast.error("Please Select a Print Group ");
                 }
                 if (rowSelectionModelRows.length === 0) {
               
-                  return toast.error("Please Select Price List");
+                  return toast.error("Please Select a Price List");
                 }
                 try {
                   dispatch(printGroupSelectedItems(rowSelectionModelRows));
@@ -434,11 +444,11 @@ const PriceList = () => {
               size="small"
               onClick={() => {
                 if (!customerSelectData) {
-                  return toast.error("Please Select Customer");
+                  return toast.error("Please Select a Customer");
                 }
                 if (rowSelectionModelRows.length === 0) {
 
-                  return toast.error("Please Select Price List");
+                  return toast.error("Please Select a Price List");
                 }
                 try {
                   dispatch(customerListSelectedItems(rowSelectionModelRows));

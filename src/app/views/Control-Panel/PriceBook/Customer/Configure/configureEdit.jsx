@@ -22,7 +22,7 @@ import {
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 import Cover from "../../../../../../assets/plylogo.png";
-import { dataGridHeight, dataGridRowHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
 // ******************** ICONS ******************** //
 import { Add, AddAlertOutlined, RefreshOutlined } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
@@ -904,6 +904,14 @@ const ConfigureEdit = () => {
                     }}
                   >
                     <DataGrid
+                     columnHeaderHeight={dataGridHeaderFooterHeight}
+                     sx={{
+                       // This is to override the default height of the footer row
+                       '& .MuiDataGrid-footerContainer': {
+                           height: dataGridHeaderFooterHeight,
+                           minHeight: dataGridHeaderFooterHeight,
+                       },
+                     }}
                       slots={{
                         loadingOverlay: LinearProgress,
                         toolbar: CustomToolbar,

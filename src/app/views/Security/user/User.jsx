@@ -14,7 +14,7 @@ import {
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 import { dataGridHeight,  dataGridPageSize,
-  dataGridpageSizeOptions,dataGridRowHeight } from "app/utils/constant";
+  dataGridpageSizeOptions,dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
 
 // ********************** ICONS ********************** //
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -218,7 +218,7 @@ const {user}=useAuth();
             },
 
             "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.info.main,
+              backgroundColor: theme.palette.success.main,
 
               color: theme.palette.info.contrastText,
 
@@ -234,7 +234,7 @@ const {user}=useAuth();
             "& .MuiDataGrid-footerContainer": {
               borderTop: "none",
 
-              backgroundColor: theme.palette.info.main,
+              backgroundColor: theme.palette.success.main,
 
               color: theme.palette.info.contrastText,
             },
@@ -258,6 +258,18 @@ const {user}=useAuth();
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
             },
+            "& .MuiTablePagination-root": {
+              color: "white !important", // Ensuring white text color for the pagination
+            }, 
+        
+            "& .MuiTablePagination-root .MuiTypography-root": {
+              color: "white !important", // Ensuring white text for "Rows per page" and numbers
+            }, 
+        
+            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+              color: "white !important", // Ensuring white icons for pagination
+            },
+        
           }}
         >
           <DataGrid
@@ -275,6 +287,15 @@ const {user}=useAuth();
             initialState={{
               pagination: {
                 paginationModel: { pageSize: dataGridPageSize },
+              },
+            }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              '& .MuiDataGrid-footerContainer': {
+                  height: dataGridHeaderFooterHeight,
+                  minHeight: dataGridHeaderFooterHeight,
+                  color: theme.palette.info.contrastText,
               },
             }}
             pageSizeOptions={dataGridpageSizeOptions}
