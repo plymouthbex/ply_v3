@@ -8,6 +8,7 @@ import HomePagePricing from "./views/Pricing-Portal/Home/Home";
 import UnderDevelopment from "./views/Pricing-Portal/sessions/UnderDevelopment";
 import priceBookRoutes from "./views/Pricing-Portal/priceBook/priceBookRoutes";
 import QuoteRoutes from "./views/Pricing-Portal/quote/QuoteRoutes";
+import QuoteRoutes2 from "./views/Pricing-Portal/quotev2/QuoteRoutes";
 import profileRoutes from "./views/Pricing-Portal/profile/ProfileRoutes";
 import mailRoutes from "./views/Pricing-Portal/Mail/mailRoutes";
 
@@ -32,6 +33,7 @@ const routes = [
          { path: '/favorite/pricing-portal/home', element:<HomePage/> },
         ...priceBookRoutes,
         ...QuoteRoutes,
+        ...QuoteRoutes2,
         ...profileRoutes,
         ...mailRoutes,
         ...controlPanelRoutes,

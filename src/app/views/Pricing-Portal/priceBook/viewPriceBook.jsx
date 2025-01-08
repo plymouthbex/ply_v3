@@ -34,9 +34,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import useAuth from "app/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import {
-  ViewPriceSingleAutocomplete,
-} from "app/components/AutoComplete";
+import { ViewPriceSingleAutocomplete } from "app/components/AutoComplete";
 import CoverPageComponent from "app/components/PDFCoverPage";
 import {
   getCustomerViewPriceCustomBook,
@@ -53,7 +51,6 @@ import LoadingApiDialog, {
 } from "app/components/LoadindgDialog";
 import { CustomerCustomPriceDocument } from "app/components/Template/pdfs/CustomerCustomPriceBook";
 import { CustomerFullPriceDocument } from "app/components/Template/pdfs/CustomerFullPriceBook";
-
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -77,9 +74,13 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   borderRadius: "4px",
   marginBottom: "16px",
   transition: "all 350ms ease-in-out",
-  border: `2px dashed rgba(${convertHexToRGB(theme.palette.text.primary)}, 0.3)`,
+  border: `2px dashed rgba(${convertHexToRGB(
+    theme.palette.text.primary
+  )}, 0.3)`,
   "&:hover": {
-    background: `rgb(${convertHexToRGB(theme.palette.text.primary)}, 0.2) !important`,
+    background: `rgb(${convertHexToRGB(
+      theme.palette.text.primary
+    )}, 0.2) !important`,
   },
   background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
 }));
@@ -179,7 +180,9 @@ const ViewPriceBook = () => {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN)${formatDateLong(sunday)} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week (SUN)${formatDateLong(
+        sunday
+      )} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -215,8 +218,8 @@ const ViewPriceBook = () => {
         loading: true,
         message:
           priceListOutType === "EXCEL"
-            ? "Genrating Price Book Excel"
-            : "Genrating Price Book PDF",
+            ? "Generating Price Book Excel"
+            : "Generating Price Book PDF",
       })
     );
 
@@ -406,8 +409,8 @@ const ViewPriceBook = () => {
         loading: true,
         message:
           priceListOutType === "EXCEL"
-            ? "Genrating Price Book Excel"
-            : "Genrating Price Book PDF",
+            ? "Generating Price Book Excel"
+            : "Generating Price Book PDF",
       })
     );
 
@@ -649,10 +652,11 @@ const ViewPriceBook = () => {
               <Stack direction="row" alignItems={"center"}>
                 <Tooltip title="PDF" placement="top">
                   <CustomIconButton
-                    onClick={() =>
-                      selectPriceListtype === "FP"
-                        ? getPriceListCustomerFull("PDF")
-                        : getPriceListCustomerCustom("PDF")
+                    onClick={
+                      () =>
+                        selectPriceListtype === "FP"
+                          ? getPriceListCustomerFull("PDF")
+                          : getPriceListCustomerCustom("PDF")
                       // navigate("/PDF8")
                     }
                     sx={{
@@ -728,16 +732,6 @@ const ViewPriceBook = () => {
                 width: isNonMobile ? "50%" : "100%",
               }}
             >
-              <ViewPriceSingleAutocomplete
-                isError={isCustomer}
-                name="customer"
-                id="customer"
-                value={selectedCustomerOptions}
-                onChange={handleSelectionCustomerChange}
-                label="Customer"
-                url={`${process.env.REACT_APP_BASE_URL}Customer/GetCustomer?CompanyCode=${user.companyCode}`}
-              />
-
               <FormControl fullWidth size="small">
                 <InputLabel id="demo-simple-select-label">
                   Price Book Type
@@ -754,6 +748,16 @@ const ViewPriceBook = () => {
                   {/* <MenuItem value={"B"}>Both</MenuItem> */}
                 </Select>
               </FormControl>
+              <ViewPriceSingleAutocomplete
+                isError={isCustomer}
+                name="customer"
+                id="customer"
+                value={selectedCustomerOptions}
+                onChange={handleSelectionCustomerChange}
+                label="Customer"
+                url={`${process.env.REACT_APP_BASE_URL}Customer/GetCustomer?CompanyCode=${user.companyCode}&Type=${selectPriceListtype=="CP" ? "Custom": "Full"}`}
+              />
+
               <Box></Box>
             </Box>
 
