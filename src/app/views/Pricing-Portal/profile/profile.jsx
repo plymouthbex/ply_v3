@@ -32,7 +32,7 @@ import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   height: 70,
-  width: "100%",
+  width: "30%",
   cursor: "pointer",
   borderRadius: "4px",
   marginBottom: "16px",
@@ -166,14 +166,28 @@ export default function Page() {
     <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
       {/* First Stack: Profile Picture */}
       <Stack spacing={2} alignItems="center" sx={{ flex: 1 }}>
-        <Avatar
-          src={
-            previewImages1.length > 0
-              ? previewImages1[0]["preview"]
-              : `data:image/png;base64,${user.avatar}`
-          }
-          sx={{ height: "100px", width: "100px" }}
-        />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+  {/* Avatar */}
+  <Avatar
+    src={
+      previewImages1.length > 0
+        ? previewImages1[0]["preview"]
+        : `data:image/png;base64,${user.avatar}`
+    }
+    sx={{ height: "100px", width: "100px" }}
+  />
+  
+  {/* Name and Role */}
+  <Stack spacing={0.5} sx={{ alignItems: "flex-start" }}>
+    <Typography variant="h5">
+      {values.firstname} {values.lastname}
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      {user.role}
+    </Typography>
+  </Stack>
+</Box>
+
         <DropZone {...dropzoneProps1.getRootProps()} sx={{ textAlign: "center" }}>
           <input {...dropzoneProps1.getInputProps()} />
           <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
@@ -183,18 +197,7 @@ export default function Page() {
         </DropZone>
       </Stack>
 
-      {/* Second Stack: Name and Role */}
-      <Stack spacing={1} sx={{ flex: 1, alignItems: "flex-start" }}>
-        <Typography variant="h5">
-          {values.firstname} {values.lastname}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {user.role}
-        </Typography>
-      </Stack>
-
-      {/* Third Stack: Details */}
-      <Stack spacing={1} sx={{ flex: 1, alignItems: "flex-end" }}>
+      <Stack spacing={1} sx={{ flex: 1, alignItems: "flex-end",marginLeft: 6  }}>
       <Stack spacing={2} sx={{ flex: 1, alignItems: "flex-start" }}>
   <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <MailOutlineIcon sx={{ color: "black" }} />
