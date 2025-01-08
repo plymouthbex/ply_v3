@@ -75,6 +75,7 @@ import { getPriceListView } from "app/redux/slice/listviewSlice";
 import { QuotePriceListDocument } from "app/components/Template/pdfs/QuotePriceList";
 import { pdf } from "@react-pdf/renderer";
 import { exportToExcelQuotePriceBook } from "app/components/Template/Excel";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -1182,7 +1183,14 @@ const QuoteEdit = () => {
                           }}
                         >
                           <DataGrid
-                            sx={{ height: "500px" }}
+                           columnHeaderHeight={dataGridHeaderFooterHeight}
+                           sx={{
+                             // This is to override the default height of the footer row
+                             '& .MuiDataGrid-footerContainer': {
+                                 height: dataGridHeaderFooterHeight,
+                                 minHeight: dataGridHeaderFooterHeight,
+                             },
+                           height: "500px" }}
                             slots={{
                               loadingOverlay: LinearProgress,
                             }}
@@ -1250,7 +1258,14 @@ const QuoteEdit = () => {
                           }}
                         >
                           <DataGrid
-                            sx={{ height: "500px" }}
+                           columnHeaderHeight={40}
+                           sx={{
+                             // This is to override the default height of the footer row
+                             '& .MuiDataGrid-footerContainer': {
+                                 height: '40px',
+                                 minHeight: '40px',
+                             },
+                            height: "500px" }}
                             slots={{
                               loadingOverlay: LinearProgress,
                             }}

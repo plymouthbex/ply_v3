@@ -24,6 +24,7 @@ import {
   PriceGroupAlertApiDialog,
   QuoteTempAlertApiDialog,
 } from "app/components/LoadindgDialog";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -271,7 +272,14 @@ export default function QuoteTemplate() {
             }}
           >
             <DataGrid
-              sx={{ height: "550px" }}
+             columnHeaderHeight={dataGridHeaderFooterHeight}
+             sx={{
+               // This is to override the default height of the footer row
+               '& .MuiDataGrid-footerContainer': {
+                   height: dataGridHeaderFooterHeight,
+                   minHeight: dataGridHeaderFooterHeight,
+               },
+              height: "550px" }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: CustomToolbar,

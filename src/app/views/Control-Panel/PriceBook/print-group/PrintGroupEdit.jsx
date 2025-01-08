@@ -23,6 +23,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -335,7 +336,7 @@ const PrintGroupEdit = () => {
                 <Breadcrumb
                   routeSegments={[
                     { name: "CP-Price Book" },
-                    { name: "Price Book Category", path: "/pages/control-panel/price-lists-group" },
+                    { name: "Price Book Category", path: "/pages/control-panel/print-group" },
                     {
                       name: `${params.mode} Price Book Category`,
                     },
@@ -490,6 +491,14 @@ const PrintGroupEdit = () => {
                   }}
                 >
                   <DataGrid
+                   columnHeaderHeight={dataGridHeaderFooterHeight}
+                   sx={{
+                     // This is to override the default height of the footer row
+                     '& .MuiDataGrid-footerContainer': {
+                         height: dataGridHeaderFooterHeight,
+                         minHeight: dataGridHeaderFooterHeight,
+                     },
+                   }}
                     slots={{
                       loadingOverlay: LinearProgress,
                       toolbar: CustomToolbar,

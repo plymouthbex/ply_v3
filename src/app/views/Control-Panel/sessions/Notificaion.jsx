@@ -105,7 +105,7 @@ import {
                     color: "#164D50",
                   }}
                 >
-                  {params.notificationName == "unlock-notify" ? "Your request to unlock password sent to admin successfully" : "Your password changed successfully"}
+                  {params.notificationName == "unlock-notify" ? "Your request to unlock the password has been sent to the admin successfully" : "Your password has been changed successfully"}
                 </Typography>
   
 

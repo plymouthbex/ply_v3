@@ -25,6 +25,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 import { Formik } from "formik";
 import lodash from "lodash";
@@ -172,7 +173,7 @@ const PriceListEdit = () => {
       hide: false,
     },
     {
-      headerName: "Add Hoc Item",
+      headerName: "Ad Hoc Item",
       field: "AdHocItem",
       minWidth: "100",
       align: "left",
@@ -574,7 +575,7 @@ const PriceListEdit = () => {
           >
             <OptimizedAutocomplete
               errors={isItemExistsError}
-              helper={isItemExistsError && "please select item!"}
+              helper={isItemExistsError && "please select an item!"}
               disabled={
                 params.mode === "delete" || params.mode === "view"
                   ? true
@@ -988,7 +989,7 @@ const PriceListEdit = () => {
                       type="text"
                       id="comments"
                       name="comments"
-                      label="comments"
+                      label="Comments"
                       value={values.comments}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -1337,7 +1338,7 @@ const PriceListEdit = () => {
                         }
                         onClick={() => getFilteredData(values)}
                       >
-                        Apply filters & Save
+                        Apply Filters & Save
                       </Button> :<Button
                         variant="contained"
                         color="info"
@@ -1350,7 +1351,7 @@ const PriceListEdit = () => {
                         }
                         type="submit"
                       >
-                        Apply filters & Save
+                        Apply Filters & Save
                       </Button> }
                       
                       {state.id ? <Button
@@ -1426,6 +1427,14 @@ const PriceListEdit = () => {
                     }}
                   >
                     <DataGrid
+                     columnHeaderHeight={dataGridHeaderFooterHeight}
+                     sx={{
+                       // This is to override the default height of the footer row
+                       '& .MuiDataGrid-footerContainer': {
+                           height:dataGridHeaderFooterHeight,
+                           minHeight: dataGridHeaderFooterHeight,
+                       },
+                     }}
                       key={showGridData}
                       slots={{
                         loadingOverlay: LinearProgress,
@@ -1539,7 +1548,7 @@ const PriceListEdit = () => {
               <MessageAlertDialog
                 open={isRemoveItem}
                 tittle={""}
-                message={`Are you sure you want to Clear filter and Item ?`}
+                message={`Are you sure you want to Clear Filter and Item ?`}
                 Actions={
                   <DialogActions>
                     <Button
@@ -1582,7 +1591,7 @@ const PriceListEdit = () => {
                 tittle={
                   addPriceListData
                     ? addPriceListData.Item_Description
-                    : "Please select item!"
+                    : "Please select an item!"
                 }
                 message={
                   addPriceListData

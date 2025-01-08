@@ -303,6 +303,14 @@ const dispatch=useDispatch();
         }} 
         >
           <DataGrid
+           columnHeaderHeight={40}
+           sx={{
+             // This is to override the default height of the footer row
+             '& .MuiDataGrid-footerContainer': {
+                 height: '40px',
+                 minHeight: '40px',
+             },
+           }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

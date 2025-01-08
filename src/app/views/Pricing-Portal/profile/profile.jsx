@@ -28,7 +28,8 @@ import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
 import { Publish } from "@mui/icons-material";
 import { useDropzone } from "react-dropzone";
 import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
-
+import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   height: 70,
   width: "100%",
@@ -160,104 +161,71 @@ export default function Page() {
             setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
-             <Card>
+<Card>
   <CardContent>
-    <Box sx={{ display: "flex", gap: 3 }}>
-      {/* First Section */}
-      <Box sx={{ flex: 1 }}>
-        <Stack spacing={2} sx={{ alignItems: "center" }}>
-          <Avatar
-            src={
-              previewImages1.length > 0
-                ? previewImages1[0]["preview"]
-                : `data:image/png;base64,${user.avatar}`
-            }
-            sx={{ height: "80px", width: "80px" }}
-          />
-          <Stack spacing={1} sx={{ textAlign: "center" }}>
-            <Typography variant="h5">
-              {values.firstname} {values.lastname}
-            </Typography>
-          </Stack>
-        </Stack>
-        <Box sx={{ marginTop: 2 }}>
-          <DropZone {...dropzoneProps1.getRootProps()}>
-            <input {...dropzoneProps1.getInputProps()} />
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
-              {imageList1.length ? (
-                <span>{imageList1.length} images were selected</span>
-              ) : (
-                <span>Upload image</span>
-              )}
-            </Box>
-          </DropZone>
-        </Box>
-      </Box>
+    <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+      {/* First Stack: Profile Picture */}
+      <Stack spacing={2} alignItems="center" sx={{ flex: 1 }}>
+        <Avatar
+          src={
+            previewImages1.length > 0
+              ? previewImages1[0]["preview"]
+              : `data:image/png;base64,${user.avatar}`
+          }
+          sx={{ height: "100px", width: "100px" }}
+        />
+        <DropZone {...dropzoneProps1.getRootProps()} sx={{ textAlign: "center" }}>
+          <input {...dropzoneProps1.getInputProps()} />
+          <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+          <Typography variant="body2">
+            {imageList1.length ? `${imageList1.length} images selected` : "Upload image"}
+          </Typography>
+        </DropZone>
+      </Stack>
 
-      {/* Second Section */}
-      <Box sx={{ flex: 2 }}>
-        <CardHeader title="Profile" />
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            type="text"
-            id="firstname"
-            name="firstname"
-            label="First Name"
-            size="small"
-            disabled
-            value={values.firstname}
-            sx={{ flex: "1 1 calc(50% - 12px)" }}
-          />
-          <TextField
-            fullWidth
-            variant="outlined"
-            type="text"
-            id="lastname"
-            name="lastname"
-            label="Last Name"
-            size="small"
-            disabled
-            value={values.lastname}
-            sx={{ flex: "1 1 calc(50% - 12px)" }}
-          />
-          {/* Uncomment these if needed */}
-          {/* <TextField
-              fullWidth
-              variant="outlined"
-              type="text"
-              id="mobilenumber"
-              name="mobilenumber"
-              label="Mobile"
-              size="small"
-              disabled
-              value={values.mobilenumber}
-              sx={{ flex: "1 1 calc(50% - 12px)" }}
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              type="email"
-              id="email"
-              name="email"
-              label="Email"
-              size="small"
-              value={values.email}
-              disabled
-              sx={{ flex: "1 1 calc(50% - 12px)" }}
-            /> */}
-        </Box>
-        <Box sx={{ marginTop: 3, display: "flex", justifyContent: "flex-end" }}>
-          <Button color="info" type="submit" variant="contained">
-            Save
-          </Button>
-        </Box>
-      </Box>
+      {/* Second Stack: Name and Role */}
+      <Stack spacing={1} sx={{ flex: 1, alignItems: "flex-start" }}>
+        <Typography variant="h5">
+          {values.firstname} {values.lastname}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {user.role}
+        </Typography>
+      </Stack>
+
+      {/* Third Stack: Details */}
+      <Stack spacing={1} sx={{ flex: 1, alignItems: "flex-end" }}>
+      <Stack spacing={2} sx={{ flex: 1, alignItems: "flex-start" }}>
+  <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <MailOutlineIcon sx={{ color: "black" }} />
+    <strong>Email:</strong>
+  </Typography>
+  <Typography variant="body2" sx={{ marginLeft: "32px" }}>
+    {user.email || "Add an email"}
+  </Typography>
+
+  <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <PhoneAndroidIcon sx={{ color: "black" }} />
+    <strong>Phone:</strong>
+  </Typography>
+  <Typography variant="body2" sx={{ marginLeft: "32px" }}>
+    {"846739408674"}
+  </Typography>
+
+  <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <PhoneAndroidIcon sx={{ color: "black" }} />
+    <strong>Mobile:</strong>
+  </Typography>
+  <Typography variant="body2" sx={{ marginLeft: "32px" }}>
+    {"Add a mobile"}
+  </Typography>
+</Stack>
+
+      </Stack>
     </Box>
   </CardContent>
 </Card>
+
 
 
               <PriceGroupAlertApiDialog
@@ -297,3 +265,28 @@ export default function Page() {
     </Stack>
   );
 }
+{/* Uncomment these if needed */}
+          {/* <TextField
+              fullWidth
+              variant="outlined"
+              type="text"
+              id="mobilenumber"
+              name="mobilenumber"
+              label="Mobile"
+              size="small"
+              disabled
+              value={values.mobilenumber}
+              sx={{ flex: "1 1 calc(50% - 12px)" }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="email"
+              id="email"
+              name="email"
+              label="Email"
+              size="small"
+              value={values.email}
+              disabled
+              sx={{ flex: "1 1 calc(50% - 12px)" }}
+            /> */}

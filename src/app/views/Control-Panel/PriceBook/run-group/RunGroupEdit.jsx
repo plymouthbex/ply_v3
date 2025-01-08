@@ -21,6 +21,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 import { Formik } from "formik";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -455,6 +456,14 @@ const RunGroupEdit = () => {
                     }}
                   >
                     <DataGrid
+                     columnHeaderHeight={dataGridHeaderFooterHeight}
+                     sx={{
+                       // This is to override the default height of the footer row
+                       '& .MuiDataGrid-footerContainer': {
+                           height: dataGridHeaderFooterHeight,
+                           minHeight: dataGridHeaderFooterHeight,
+                       },
+                     }}
                       slots={{
                         loadingOverlay: LinearProgress,
                         toolbar: CustomToolbar,
@@ -523,7 +532,7 @@ const RunGroupEdit = () => {
               <MessageAlertDialog
                 open={isRemoveCustomer}
                 tittle={removeCustomerdDesc}
-                message={`Are you sure you want to remove customer ?`}
+                message={`Are you sure you want to remove the customers?`}
                 Actions={
                   <DialogActions>
                     <Button

@@ -24,14 +24,7 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         fav: false,
       },
-      // {
-      //   name: "New Quote",
-      //   icon: <DescriptionIcon fontSize="small" />,
-      //   path: "/pages/pricing-portal/quote-list",
-      //   accessID: "PPB003",
-      //   iconText: "V",
-      //   fav: false,
-      // },
+    
 
       {
         name: "New Quote",
@@ -52,11 +45,19 @@ export const navigations = [
       {
         name: "Templates",
         icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/quote-template",
+        path: "/pages/pricing-portal/quote-list",
         accessID: "PPB004",
-        iconText: "QT",
+        iconText: "V",
         fav: false,
       },
+      // {
+      //   name: "Templates",
+      //   icon: <DescriptionIcon fontSize="small" />,
+      //   path: "/pages/pricing-portal/quote-template",
+      //   accessID: "PPB004",
+      //   iconText: "QT",
+      //   fav: false,
+      // },
     ],
   },
 

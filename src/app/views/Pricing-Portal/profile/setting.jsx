@@ -508,53 +508,54 @@ const Settings = () => {
       return;
     }
 
-    if (!selectedRungroupOptions?.Name) {
-      setOpenDialog(true);
-      return;
-    }
+    // if (!selectedRungroupOptions?.Name) {
+    //   setOpenDialog(true);
+    //   return;
+    // }
     const data = {
       UserRecID: user.id,
       CompanyCode: selectedCompanyOptions.Code,
-      RungroupName: selectedRungroupOptions.Name,
+      // RungroupName: selectedRungroupOptions.Name,
     };
 
     const response = await dispatch(updatesettingData({ data }));
 
     if (response.payload.Status === "Y") {
       // toast.success("User updated Successfully");
+      setOpenAlert(true);
       updateCompany();
 
       const company = companyList.find(
         (value) => value.companyCode === selectedCompanyOptions.Code
       );
-
-      // Check if the selected rungroup name is different from the user's defaultRunGroup
-      const isDefaultRunGroupUpdated =
-        user.defaultRunGroup !== selectedRungroupOptions.Name;
-
-      if (isDefaultRunGroupUpdated) {
-        // Update the user's defaultRunGroup globally
-        updateUser({
-          ...user,
-          defaultRunGroup: selectedRungroupOptions.Name,
-        });
-      }
-
       if (company) {
         updateUser({
           ...user,
           ...company,
-          defaultRunGroup: isDefaultRunGroupUpdated
-            ? selectedRungroupOptions.Name
-            : user.defaultRunGroup,
+          // defaultRunGroup: isDefaultRunGroupUpdated
+          //   ? selectedRungroupOptions.Name
+          //   : user.defaultRunGroup,
         });
+      // Check if the selected rungroup name is different from the user's defaultRunGroup
+      // const isDefaultRunGroupUpdated =
+      //   user.defaultRunGroup !== selectedRungroupOptions.Name;
+
+      // if (isDefaultRunGroupUpdated) {
+      //   // Update the user's defaultRunGroup globally
+      //   updateUser({
+      //     ...user,
+      //     // defaultRunGroup: selectedRungroupOptions.Name,
+      //   });
+      // }
+
+      
       } else {
         // console.error("Company not found for RecordID:", newValue.RecordID);
         // toast.error("Company not found for the selected record.");
         // toast.error("Please choose the relevant Rungroup.");
       }
 
-      setOpenAlert(true);
+     
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -628,7 +629,7 @@ const Settings = () => {
               justifyContent="center"
               alignItems="center"
             >
-              <Typography variant="h5">Plymouth Logo</Typography>
+              
               <SettingsLogo previewImages={previewImages1} />
               {/* {user.role === "ADMIN" && ( */}
                 <DropZone {...dropzoneProps1.getRootProps()}>
@@ -660,7 +661,7 @@ const Settings = () => {
               justifyContent="center"
               alignItems="center"
             >
-              <Typography variant="h5">S and J Logo</Typography>
+              
               <SettingsLogo previewImages={previewImages2} />
               {/* {user.role === "ADMIN" && ( */}
                 <DropZone {...dropzoneProps2.getRootProps()}>
@@ -692,7 +693,7 @@ const Settings = () => {
               justifyContent="center"
               alignItems="center"
             >
-              <Typography variant="h5">Nicky Logo</Typography>
+              
               <SettingsLogo previewImages={previewImages3} />
               {/* {user.role === "ADMIN" && ( */}
                 <DropZone {...dropzoneProps3.getRootProps()}>

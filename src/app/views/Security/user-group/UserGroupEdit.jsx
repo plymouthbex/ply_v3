@@ -34,6 +34,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 
 // ******************** ICONS ******************** //
@@ -77,9 +78,9 @@ const validationSchema = Yup.object({
   //   .min(1, "Code must be at least 1 characters")
   //   .max(15, "Code must be at most 15 characters"),
 
-  userName: Yup.string()
-    .min(3, "User Name must be at least 3 characters")
-    .max(20, "User Name must be at most 20 characters"),
+  // userName: Yup.string()
+  //   .min(3, "User Name must be at least 3 characters")
+  //   .max(20, "User Name must be at most 20 characters"),
 
   userGroupName: Yup.string()
     .min(3, "User Group Name must be at least 3 characters")
@@ -311,10 +312,10 @@ const UserGroupEdit = () => {
       {status === "fulfilled" && !error ? (
         <Formik
           initialValues={{
-            code: data.Code,
+            // code: data.Code,
             disable: data.Disable === "Y" ? true : false,
             userGroupName: data.Name,
-            sequence: data.Sortorder,
+            // sequence: data.Sortorder,
             type: data.Type,
           }}
           validationSchema={validationSchema}
@@ -587,6 +588,14 @@ const UserGroupEdit = () => {
                           loadingOverlay: LinearProgress,
                           toolbar: CustomToolbar,
                         }}
+                        columnHeaderHeight={dataGridHeaderFooterHeight}
+                        sx={{
+                          // This is to override the default height of the footer row
+                          '& .MuiDataGrid-footerContainer': {
+                              height: dataGridHeaderFooterHeight,
+                              minHeight: dataGridHeaderFooterHeight,
+                          },
+                        }}
                         rowHeight={dataGridRowHeight}
                         rows={data.CompanyAccess}
                         columns={columns}
@@ -696,6 +705,14 @@ const UserGroupEdit = () => {
                         slots={{
                           loadingOverlay: LinearProgress,
                           toolbar: ApplicationCustomToolbar,
+                        }}
+                        columnHeaderHeight={dataGridHeaderFooterHeight}
+                        sx={{
+                          // This is to override the default height of the footer row
+                          '& .MuiDataGrid-footerContainer': {
+                              height: dataGridHeaderFooterHeight,
+                              minHeight: dataGridHeaderFooterHeight,
+                          },
                         }}
                         rowHeight={dataGridRowHeight}
                         // rows={data.ApplicationAccess}

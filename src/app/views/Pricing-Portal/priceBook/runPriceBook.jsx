@@ -45,6 +45,7 @@ import {
 } from "app/components/Template/Excel";
 import { CustomerFullPriceDocument } from "app/components/Template/pdfs/CustomerFullPriceBook";
 import { CustomerCustomPriceDocument } from "app/components/Template/pdfs/CustomerCustomPriceBook";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -637,8 +638,8 @@ export default function RunPriceBook() {
                       key={row.id}
                       data={fpResData.payload}
                       coverPageData={{
-                        logo: user.homePagelogo,
-                        subtitle1: "Price List for",
+                        logo: user.homePagelogo, // Replace with the actual path to the logo image
+                        subtitle1: "Price list for",
                         subtitle2: row.customer,
                         effectiveDate: formatedDate,
                         preparedByName: user.name,
@@ -701,8 +702,8 @@ export default function RunPriceBook() {
                         effectiveDate: formatedDate,
                       }}
                       coverPageData={{
-                        logo: user.homePagelogo,
-                        subtitle1: "Price List for",
+                        logo: user.homePagelogo, // Replace with the actual path to the logo image
+                        subtitle1: "Price list for",
                         subtitle2: row.customer,
                         effectiveDate: formatedDate,
                         preparedByName: user.name,
@@ -903,7 +904,7 @@ export default function RunPriceBook() {
               id="rungroup"
               value={selectedRunGrpOptions}
               onChange={handleSelectionRunGrpChange}
-              label="Price Book Group"
+              label="Price Book"
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             />
           </Box>
@@ -1050,7 +1051,15 @@ export default function RunPriceBook() {
           }}
         >
           <DataGrid
-            sx={{ height: "500px" }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+              height: "500px",
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               // toolbar: secondaryCustomToolbar,

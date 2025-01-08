@@ -10,6 +10,7 @@ export const dataGridHeight = 500;
 export const dataGridPageSize = 100;
 export const dataGridpageSizeOptions = [20,50,100,];
 export const dataGridHeightC = 300;
+export const dataGridHeaderFooterHeight = 35;
 
 
 

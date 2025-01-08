@@ -15,6 +15,7 @@ import {
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 import {
+  dataGridHeaderFooterHeight,
   dataGridHeight,
   dataGridPageSize,
   dataGridpageSizeOptions,
@@ -118,7 +119,7 @@ const ExistingCustomer = () => {
               size="small"
               //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editexisting", {
+                navigate("/pages/pricing-portal/build-price-list", {
                   state: {
                     prospectID: params.row.RecordID,
                     templateID: state.templateID ? state.templateID : 0,
@@ -127,9 +128,9 @@ const ExistingCustomer = () => {
                 });
               }}
             >
-              Copy Quote
+             View
             </Button>
-            <Button
+            {/* <Button
               sx={{
                 height: 25,
                 color: theme.palette.secondary.contrastText,
@@ -153,7 +154,7 @@ const ExistingCustomer = () => {
               }}
             >
               Print Quote
-            </Button>
+            </Button> */}
           </div>
         );
       },
@@ -186,7 +187,7 @@ const ExistingCustomer = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
@@ -202,7 +203,7 @@ const ExistingCustomer = () => {
             }}
           >
             NEW
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -220,8 +221,8 @@ const ExistingCustomer = () => {
       >
         <Breadcrumb
           routeSegments={[
-            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "Existing Customer" },
+            { name: "Quote", },
+            { name: "Price List" },
           ]}
         />
         <Stack direction={"row"} gap={1}>
@@ -272,6 +273,14 @@ const ExistingCustomer = () => {
           }}
         >
           <DataGrid
+           columnHeaderHeight={dataGridHeaderFooterHeight}
+           sx={{
+             // This is to override the default height of the footer row
+             '& .MuiDataGrid-footerContainer': {
+                 height: dataGridHeaderFooterHeight,
+                 minHeight: dataGridHeaderFooterHeight,
+             },
+           }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

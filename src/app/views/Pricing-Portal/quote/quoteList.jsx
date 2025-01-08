@@ -16,6 +16,7 @@ import { Breadcrumb } from "app/components";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -85,20 +86,20 @@ const QuoteList = () => {
 
   const rows = [
     {
-      name: "New Prospect",
+      name: "Saved Quotes",
       CompanyCode: "NP001",
       path: "/pages/pricing-portal/new-prospect-quote",
     },
     {
-      name: "Existing Customer",
+      name: "Saved Price List",
       CompanyCode: "EP001",
       path: "/pages/pricing-portal/existing-customer-quote",
     },
-    {
-      name: "Templates",
-      CompanyCode: "T001",
-      path: "/pages/pricing-portal/quote-template",
-    },
+    // {
+    //   name: "Templates",
+    //   CompanyCode: "T001",
+    //   path: "/pages/pricing-portal/quote-template",
+    // },
   ];
 
   // ********************* TOOLBAR ********************* //
@@ -147,7 +148,7 @@ const QuoteList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Quote" }, { name: "Quote List" }]}
+          routeSegments={[{ name: "Quote" }, { name: "Templates" }]}
         />
       </div>
 
@@ -186,6 +187,14 @@ const QuoteList = () => {
           }}
         >
           <DataGrid
+           columnHeaderHeight={dataGridHeaderFooterHeight}
+           sx={{
+             // This is to override the default height of the footer row
+             '& .MuiDataGrid-footerContainer': {
+                 height:dataGridHeaderFooterHeight,
+                 minHeight:dataGridHeaderFooterHeight,
+             },
+           }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

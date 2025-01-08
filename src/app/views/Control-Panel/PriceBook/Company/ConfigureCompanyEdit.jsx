@@ -22,7 +22,7 @@ import {
   GridToolbarQuickFilter,
   GridToolbarContainer,
 } from "@mui/x-data-grid";
-import { dataGridHeight, dataGridHeightC, dataGridRowHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridHeightC, dataGridRowHeight ,dataGridHeaderFooterHeight} from "app/utils/constant";
 
 
 // ******************** ICONS ******************** //
@@ -612,6 +612,14 @@ const pricedata={
                 }}
               >
                 <DataGrid
+                 columnHeaderHeight={dataGridHeaderFooterHeight}
+                 sx={{
+                   // This is to override the default height of the footer row
+                   '& .MuiDataGrid-footerContainer': {
+                       height: dataGridHeaderFooterHeight,
+                       minHeight: dataGridHeaderFooterHeight,
+                   },
+                 }}
                   slots={{
                     loadingOverlay: LinearProgress,
                     toolbar: CustomToolbar,
@@ -643,7 +651,7 @@ const pricedata={
             <MessageAlertDialog
               open={isRemovePriceList}
               tittle={removePriceListdDesc}
-              message={`Are you sure you want to remove Price List ?`}
+              message={`Are you sure you want to remove this Pricelist ?`}
               Actions={
                 <DialogActions>
                   <Button
@@ -691,9 +699,9 @@ const pricedata={
                   tittle={
                     addPriceListData
                       ? addPriceListData.PRICELISTDESCRIPTION
-                      : "Please select price list!"
+                      : "Please select the Pricelist!"
                   }
-                  message={"Oops! This price list is already exists in print group."}
+                  message={"Oops! This pricelist is already exists in print group."}
                   Actions={
                     <DialogActions>
                       <Button
@@ -727,10 +735,10 @@ const pricedata={
         error={postError}
         message={
           params.mode === "add"
-            ? "Configure Company added successfully"
+            ? "Company configuration added successfully."
             : params.mode === "delete"
-              ? "Configure Company Deleted Successfully"
-              : "Configure Company updated successfully"
+              ? "Company configuration deleted Successfully."
+              : "Company configuration updated successfully."
         }
         Actions={
           params.mode === "add" ? (
