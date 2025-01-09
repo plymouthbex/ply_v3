@@ -42,9 +42,9 @@ const Container = styled("div")(({ theme }) => ({
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
-  code: Yup.string()
-    .min(1, "Code must be at least 1 characters")
-    .max(15, "Code must be at most 15 characters"),
+  // code: Yup.string()
+  //   .min(1, "Code must be at least 1 characters")
+  //   .max(15, "Code must be at most 15 characters"),
 
   sortOrder: Yup.string()
     .min(1, "Sort Order must be at least 1 character")
@@ -183,7 +183,7 @@ const ApplicationEdit = () => {
                   }}
                 >
                   {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}> */}
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -202,7 +202,7 @@ const ApplicationEdit = () => {
                     error={touched.code && Boolean(errors.code)}
                     helperText={touched.code && errors.code}
                     autoFocus
-                  />
+                  /> */}
                   <TextField
                     fullWidth
                     variant="outlined"

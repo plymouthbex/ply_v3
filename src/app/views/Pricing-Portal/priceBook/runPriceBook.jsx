@@ -89,6 +89,7 @@ export default function RunPriceBook() {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const theme = useTheme();
   const { user, updateUser } = useAuth();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const colors = themeColors;
@@ -190,15 +191,25 @@ export default function RunPriceBook() {
         <div>
           <Checkbox
             checked={params.row.fpexcel}
-            onChange={() =>
-              dispatch(
-                onCheckboxChange({
-                  id: params.row.id,
-                  field: "fpexcel",
-                  rows: runGrpRows,
-                })
-              )
-            }
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "fpexcel",
+                    rows: runGrpRows,
+                  })
+                )
+              }else if(user.role !=="USER"){
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "fpexcel",
+                    rows: runGrpRows,
+                  })
+                )
+              }
+            }}
             // onChange={() => handleCheckboxChange(params.row.id, "fp")}
             sx={{
               color: "#174c4f",
@@ -210,7 +221,8 @@ export default function RunPriceBook() {
           Excel
           <Checkbox
             checked={params.row.fppdf}
-            onChange={() =>
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
               dispatch(
                 onCheckboxChange({
                   id: params.row.id,
@@ -218,7 +230,16 @@ export default function RunPriceBook() {
                   rows: runGrpRows,
                 })
               )
-            }
+            }else if(user.role !=="USER"){
+            dispatch(
+              onCheckboxChange({
+                id: params.row.id,
+                field: "fppdf",
+                rows: runGrpRows,
+              })
+            )
+          }
+            }}
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -245,7 +266,9 @@ export default function RunPriceBook() {
         <div>
           <Checkbox
             checked={params.row.cpexcel}
-            onChange={() =>
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+
               dispatch(
                 onCheckboxChange({
                   id: params.row.id,
@@ -253,6 +276,16 @@ export default function RunPriceBook() {
                   rows: runGrpRows,
                 })
               )
+            }else if(user.role !=="USER"){
+              dispatch(
+                onCheckboxChange({
+                  id: params.row.id,
+                  field: "cpexcel",
+                  rows: runGrpRows,
+                })
+              )
+            }
+            }
             }
             sx={{
               color: "#174c4f",
@@ -264,14 +297,27 @@ export default function RunPriceBook() {
           Excel
           <Checkbox
             checked={params.row.cppdf}
-            onChange={() =>
-              dispatch(
-                onCheckboxChange({
-                  id: params.row.id,
-                  field: "cppdf",
-                  rows: runGrpRows,
-                })
-              )
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "cppdf",
+                    rows: runGrpRows,
+                  })
+                )
+              }else if(user.role !=="USER"){
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "cppdf",
+                    rows: runGrpRows,
+                  })
+                )
+              }
+              
+            }
+            
             }
             sx={{
               color: "#174c4f",
@@ -287,7 +333,7 @@ export default function RunPriceBook() {
   ];
 
   const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState({
-    Name: user.defaultRunGroup,
+    Name: user.defaultRunGroup || ""
   });
 
   const handleSelectionRunGrpChange = (newValue) => {
@@ -912,6 +958,22 @@ export default function RunPriceBook() {
       </Box>
     );
   }
+  // console.log("🚀 ~ handleRowSelectionChange ~ selectedRunGrpOptions.Name:", selectedRunGrpOptions.Name)
+  //       console.log("🚀 ~ handleRowSelectionChange ~ user.defaultRunGroup:", user.defaultRunGroup)
+  //       const handleRowSelectionChange = (newRowSelectionModel) => {
+  //         if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+           
+  //           setRowSelectionModel(newRowSelectionModel);
+  //         }
+          
+  //       };
+        
+  
+  
+
+  
+
+  
   return (
     <Container>
       <Box className="breadcrumb">
@@ -1047,6 +1109,16 @@ export default function RunPriceBook() {
 
             "& .MuiCheckbox-root.Mui-checked": {
               color: "#174c4f !important",
+            },"& .MuiTablePagination-root": {
+              color: "white !important", // Ensuring white text color for the pagination
+            }, 
+        
+            "& .MuiTablePagination-root .MuiTypography-root": {
+              color: "white !important", // Ensuring white text for "Rows per page" and numbers
+            }, 
+        
+            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+              color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
@@ -1064,12 +1136,18 @@ export default function RunPriceBook() {
               loadingOverlay: LinearProgress,
               // toolbar: secondaryCustomToolbar,
             }}
+ 
+
+
             onRowSelectionModelChange={(newRowSelectionModel) => {
               // const filterArray = runGrpRows.filter((v) =>
               //   newRowSelectionModel.includes(v.id)
               // );
               setRowSelectionModel(newRowSelectionModel);
               // setRowSelectionModelRows(filterArray);
+
+
+              
             }}
             rowSelectionModel={rowSelectionModel}
             rows={runGrpRows}

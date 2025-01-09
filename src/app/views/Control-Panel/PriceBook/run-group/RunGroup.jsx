@@ -292,6 +292,17 @@ const RunGroup = () => {
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
             },
+            "& .MuiTablePagination-root": {
+              color: "white !important", // Ensuring white text color for the pagination
+            }, 
+        
+            "& .MuiTablePagination-root .MuiTypography-root": {
+              color: "white !important", // Ensuring white text for "Rows per page" and numbers
+            }, 
+        
+            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+              color: "white !important", // Ensuring white icons for pagination
+            },
           }}
         >
           <DataGrid

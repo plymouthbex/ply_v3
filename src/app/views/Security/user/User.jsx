@@ -58,24 +58,25 @@ const {user}=useAuth();
   },[dispatch])
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    // {
-    //   headerName: "User Code",
-    //   field: "UserCode",
-    //   width: "100",
-    //   align: "left",
-    //   headerAlign: "left",
-    //   hide: true,
-    // },
+   
     {
-      headerName: "User Name",
+      headerName: "First Name",
       field: "Name",
       width: "170",
       align: "left",
       headerAlign: "left",
       hide: true,
     },
+     {
+      headerName: "Last Name",
+      field: "LastName",
+      width: "170",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
     {
-      headerName: "Email",
+      headerName: "Login ID",
       field: "Email",
       width: "300",
       align: "left",
@@ -83,7 +84,7 @@ const {user}=useAuth();
       hide: true,
     },
     {
-      headerName: "User Company",
+      headerName: "Company",
       field: "CompanyName",
       width: "250",
       align: "left",
@@ -218,7 +219,7 @@ const {user}=useAuth();
             },
 
             "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.success.main,
+              backgroundColor: theme.palette.info.main,
 
               color: theme.palette.info.contrastText,
 
@@ -234,7 +235,7 @@ const {user}=useAuth();
             "& .MuiDataGrid-footerContainer": {
               borderTop: "none",
 
-              backgroundColor: theme.palette.success.main,
+              backgroundColor: theme.palette.info.main,
 
               color: theme.palette.info.contrastText,
             },
@@ -295,7 +296,7 @@ const {user}=useAuth();
               '& .MuiDataGrid-footerContainer': {
                   height: dataGridHeaderFooterHeight,
                   minHeight: dataGridHeaderFooterHeight,
-                  color: theme.palette.info.contrastText,
+                  // color: theme.palette.info.contrastText,
               },
             }}
             pageSizeOptions={dataGridpageSizeOptions}

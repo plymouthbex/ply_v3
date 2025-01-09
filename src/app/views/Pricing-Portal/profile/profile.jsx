@@ -161,7 +161,8 @@ export default function Page() {
             setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
-<Card>
+<Card sx={{ borderRadius: "8px", border: "2px solid black" }}>
+
   <CardContent>
     <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
       {/* First Stack: Profile Picture */}
@@ -197,7 +198,7 @@ export default function Page() {
         </DropZone>
       </Stack>
 
-      <Stack spacing={1} sx={{ flex: 1, alignItems: "flex-end",marginLeft: 6  }}>
+      <Stack spacing={1} sx={{ flex: 1, alignItems: "center",marginLeft: 6  }}>
       <Stack spacing={2} sx={{ flex: 1, alignItems: "flex-start" }}>
   <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <MailOutlineIcon sx={{ color: "black" }} />
@@ -215,13 +216,13 @@ export default function Page() {
     {"846739408674"}
   </Typography>
 
-  <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+  {/* <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     <PhoneAndroidIcon sx={{ color: "black" }} />
     <strong>Mobile:</strong>
   </Typography>
   <Typography variant="body2" sx={{ marginLeft: "32px" }}>
     {"Add a mobile"}
-  </Typography>
+  </Typography> */}
 </Stack>
 
       </Stack>

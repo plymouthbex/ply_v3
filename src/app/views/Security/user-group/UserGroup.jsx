@@ -58,16 +58,16 @@ useEffect(()=>{
 },[dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
+    // {
+    //   headerName: "User Group Code",
+    //   field: "Code",
+    //   width: "150",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
-      headerName: "User Group Code",
-      field: "Code",
-      width: "150",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
-    {
-      headerName: "User Group Name",
+      headerName: "User Security Group",
       field: "Name",
       width: "250",
       align: "left",
@@ -236,6 +236,17 @@ useEffect(()=>{
 
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
+            },
+            "& .MuiTablePagination-root": {
+              color: "white !important", // Ensuring white text color for the pagination
+            }, 
+        
+            "& .MuiTablePagination-root .MuiTypography-root": {
+              color: "white !important", // Ensuring white text for "Rows per page" and numbers
+            }, 
+        
+            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+              color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
