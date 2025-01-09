@@ -426,75 +426,147 @@ export const OptimizedAutocomplete = ({
 
 
 // Combined Component
-// export const PriceListOptimizedAutocomplete = ({
-//   value = null,
-//   onChange,
-//   url,
-//   height = 20,
-//   ...props
-// }) => {
-//   const [options, setOptions] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
+export const PriceListOptimizedAutocompleteQuote = ({
+  value = null,
+  onChange,
+  url,
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       setLoading(true);
-//       try {
-//         const response = await axios.get(url, {
-//           headers: {
-//             Authorization: process.env.REACT_APP_API_TOKEN,
-//           },
-//         });
-//         setOptions(response.data.data || []); // Assuming API response has `Data` array
-//       } catch (error) {
-//         console.error("Error fetching data:", error);
-//         setOptions([]);
-//         setError("Failed to load. Please try again.");
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
        
-//       } finally {
-//         setLoading(false);
-//         setError();
-//       }
-//     };
+      } finally {
+        setLoading(false);
+        setError();
+      }
+    };
 
-//     fetchData();
-//   }, [url]);
+    fetchData();
+  }, [url]);
 
-//   return (
-//     <Autocomplete
-//       size="small"
-//       limitTags={1}
-//       options={options}
-//       loading={loading}
-//       value={value}
-//       isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
-//       onChange={(event, newValue) => onChange(newValue)}
-//       getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
-//       ListboxComponent={ListboxComponent} // Custom listbox component
-//       renderInput={(params) => (
-//         <TextField
-//           {...params}
-//           label={props.label || "Select Options"}
-//           error={!!error}
-//           helperText={error}
-//           InputProps={{
-//             ...params.InputProps,
-//             endAdornment: (
-//               <>
-//                 {loading ? (
-//                   <CircularProgress color="inherit" size={20} />
-//                 ) : null}
-//                 {params.InputProps.endAdornment}
-//               </>
-//             ),
-//           }}
-//         />
-//       )}
-//       {...props}
-//     />
-//   );
-// };
+  return (
+    <Autocomplete
+      size="small"
+      limitTags={1}
+      options={options}
+      loading={loading}
+      value={value}
+      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+      onChange={(event, newValue) => onChange(newValue)}
+      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      ListboxComponent={ListboxComponent} // Custom listbox component
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select Options"}
+          error={!!error}
+          helperText={error}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
+
+
+
+export const PriceListItemsOptimizedAutocompleteQuote = ({
+  value = null,
+  onChange,
+  url,
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+       
+      } finally {
+        setLoading(false);
+        setError();
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      size="small"
+      limitTags={1}
+      options={options}
+      loading={loading}
+      value={value}
+      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+      onChange={(event, newValue) => onChange(newValue)}
+      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      ListboxComponent={ListboxComponent} // Custom listbox component
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select Options"}
+          error={!!error}
+          helperText={error}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
 export const PriceListOptimizedAutocomplete = ({
   value = null,
   onChange,

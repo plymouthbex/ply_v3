@@ -6,7 +6,7 @@ export const navigations = [
   {
     name: "Price Book",
     icon: <FolderIcon fontSize="small" />,
-    role:authRoles.user,
+    role: authRoles.user,
     children: [
       {
         name: "Print Price Book",
@@ -14,7 +14,7 @@ export const navigations = [
         iconText: "P",
         accessID: "PPB001",
         icon: <DescriptionIcon fontSize="small" />,
-        fav : false,
+        fav: false,
       },
       {
         name: "Print Price Book Group",
@@ -22,15 +22,33 @@ export const navigations = [
         iconText: "PP",
         accessID: "PPB002",
         icon: <DescriptionIcon fontSize="small" />,
-        fav : false,
+        fav: false,
       },
+    
+
       {
         name: "New Quote",
         icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/quote-list",
+        path: "/pages/pricing-portal/new-quote",
         accessID: "PPB003",
         iconText: "V",
-        fav : false,
+        fav: false,
+      },
+      {
+        name: "Build A Price List",
+        icon: <DescriptionIcon fontSize="small" />,
+        path: "/pages/pricing-portal/build-price-list",
+        accessID: "PPB005",
+        iconText: "V",
+        fav: false,
+      },
+      {
+        name: "Templates",
+        icon: <DescriptionIcon fontSize="small" />,
+        path: "/pages/pricing-portal/quote-list",
+        accessID: "PPB004",
+        iconText: "V",
+        fav: false,
       },
       // {
       //   name: "Templates",
@@ -38,37 +56,11 @@ export const navigations = [
       //   path: "/pages/pricing-portal/quote-template",
       //   accessID: "PPB004",
       //   iconText: "QT",
-      //   fav : false,
+      //   fav: false,
       // },
     ],
   },
-  // {
-  //   name: "Quote",
-  //   icon: <FolderIcon fontSize="small" />,
-  //   role: authRoles.user,
-  //   children: [
-  //     {
-  //       name: "New Quote",
-  //       icon: <DescriptionIcon fontSize="small" />,
-  //       path: "/pages/pricing-portal/quote-list",
-  //       accessID: "PPB003",
-  //       iconText: "V",
-  //       fav : false,
-  //     },
-  //     {
-  //       name: "Templates",
-  //       icon: <DescriptionIcon fontSize="small" />,
-  //       path: "/pages/pricing-portal/quote-template",
-  //       accessID: "PPB004",
-  //       iconText: "QT",
-  //       fav : false,
-  //     },
-  //   ],
-  // },
 
-
-
-  //======================================+CONTROL-PANEL============================================//
   {
     name: "CP-Price Book",
     icon: <FolderIcon fontSize="small" />,
@@ -90,7 +82,7 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
-  
+
       {
         name: "Price Book Categories",
         path: "/pages/control-panel/print-group",
@@ -99,7 +91,7 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
-    
+
       {
         name: "Run Group",
         path: "/pages/control-panel/company-run-group",
@@ -253,9 +245,6 @@ export const favMenu = [
     iconText: "C",
   },
 ];
-
-
-
 
 // export const navigations = [
 //   {

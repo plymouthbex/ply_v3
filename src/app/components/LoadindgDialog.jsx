@@ -312,7 +312,7 @@ export const PriceGroupAlertApiDialog = ({
               alignItems={"center"}
               textAlign={"center"}
               sx={{ fontSize: isNonMobile ? 17 : 12 }}
-            >{`Error: ${message}`}</Typography>
+            >{`${message}`}</Typography>
           ) : (
             <Typography
               variant="h6"

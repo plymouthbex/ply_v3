@@ -29,9 +29,16 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { postContractItems, quoteInfoData } from "app/redux/slice/postSlice";
+import {
+  postContractItems,
+  quoteInfoData,
+  QuoteUpdateDate,
+} from "app/redux/slice/postSlice";
 import useAuth from "app/hooks/useAuth";
-import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
+import {
+  GenricPriceBookLoadingApiDialog,
+  PriceGroupAlertApiDialog,
+} from "app/components/LoadindgDialog";
 import {
   SingleAutocomplete,
   ViewPriceSingleAutocomplete,
@@ -48,7 +55,11 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import { Span } from "app/components/Typography";
 import { themeColors } from "app/components/baseTheme/themeColors";
-import { quoteClearState } from "app/redux/slice/priceListSlice";
+import {
+  genricPriceBookPdfGenrationg,
+  getQuotePriceList,
+  quoteClearState,
+} from "app/redux/slice/priceListSlice";
 import { useTheme } from "@emotion/react";
 import { SiMicrosoftexcel } from "react-icons/si";
 import { FaFilePdf } from "react-icons/fa6";
@@ -61,6 +72,9 @@ import {
   FormikOptimizedAutocomplete,
 } from "app/components/SingleAutocompletelist";
 import { getPriceListView } from "app/redux/slice/listviewSlice";
+import { QuotePriceListDocument } from "app/components/Template/pdfs/QuotePriceList";
+import { pdf } from "@react-pdf/renderer";
+import { exportToExcelQuotePriceBook } from "app/components/Template/Excel";
 import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -186,7 +200,6 @@ const QuoteEdit = () => {
   };
 
   useEffect(() => {
-
     dispatch(clearStateProspectInfoQuote());
     dispatch(getProspectInfoData({ data: { RecordID: state.prospectID } }));
     dispatch(getPriceListView({ ID: user.companyID }));
@@ -223,21 +236,6 @@ const QuoteEdit = () => {
 
   const { shortSunday, shortSaturday, sunday, saturday, formatedDate } =
     getWeekDates();
-
-  const [selectedCustomerOptions, setSelectedCustomerOptions] = useState(null);
-  const [selectedCustomerName, setSelectedCustomerName] = useState(null);
-
-  const handleSelectionCustomerChange = (newValue) => {
-    if (newValue) {
-      const Name = newValue.CustomerName;
-
-      setSelectedCustomerOptions(newValue);
-      setSelectedCustomerName(Name);
-    } else {
-      setSelectedCustomerOptions(null);
-      setSelectedCustomerName(null);
-    }
-  };
 
   // ******************** LOCAL STATE ******************** //
 
@@ -282,7 +280,6 @@ const QuoteEdit = () => {
         setTimeout(() => {
           setOpenAlert(false);
           setSubmitting(false);
-          
         }, 2000);
       } else {
         dispatch(
@@ -294,7 +291,7 @@ const QuoteEdit = () => {
             },
           })
         );
-       
+
         setTimeout(() => {
           setOpenAlert(false);
           setSubmitting(false);
@@ -309,7 +306,6 @@ const QuoteEdit = () => {
           });
         }, 2000);
       }
-    
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -320,6 +316,181 @@ const QuoteEdit = () => {
         setSubmitting(false);
       }, 2000);
     }
+  };
+
+  const genricPriceBookIsPdfGenrating = useSelector(
+    (state) => state.priceList.genricPriceBookIsPdfGenrating
+  );
+  const genricPriceBookPdfGenratingMsg = useSelector(
+    (state) => state.priceList.genricPriceBookPdfGenratingMsg
+  );
+  const genricPriceBookIsPdfError = useSelector(
+    (state) => state.priceList.genricPriceBookIsPdfError
+  );
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const getPriceBookFull = (priceListOutType, name = "") => {
+    setIsGenerating(true);
+    dispatch(
+      genricPriceBookPdfGenrationg({
+        Type: "LOADING",
+        loading: true,
+        message: "Preparing Quote...",
+      })
+    );
+
+    dispatch(
+      getQuotePriceList({
+        CompanyCode: user.CompanyCode,
+        FromDate: sunday,
+        ToDate: saturday,
+        CustomerNumber: name,
+        PriceBooktype: "Quote Price Book",
+        filterparameters: "",
+      })
+    )
+      .then(async (response) => {
+        if (response.payload.length > 0) {
+          dispatch(
+            QuoteUpdateDate({
+              data: {
+                recordId: state.prospectID,
+                fromData: sunday,
+                toDate: saturday,
+              },
+            })
+          );
+          if (priceListOutType === "EXCEL") {
+            exportToExcelQuotePriceBook({
+              excelData: response.payload,
+              fileName: `${user.companyName}_Quote_${sunday} TO ${saturday}.pdf`,
+              isPrice: isChecked,
+            });
+            dispatch(
+              genricPriceBookPdfGenrationg({
+                Type: "SUCCESS",
+                loading: false,
+                message: "Full Price Book Succesfully Prepared",
+              })
+            );
+            setIsGenerating(false);
+            return;
+          }
+
+          try {
+            const instance = pdf(
+              <QuotePriceListDocument
+                key={`Pricing Week (SUN)${sunday} TO ${saturday}(SAT) - ${isChecked}`}
+                data={response.payload}
+                headerData={{
+                  logo: user.homePagelogo, // Replace with the actual path to the logo image
+                  customerName: name,
+                  effectiveDate: formatedDate,
+                }}
+                coverPageData={{
+                  logo: user.homePagelogo, // Replace with the actual path to the logo image
+                  subtitle1: "Price List for",
+                  subtitle2: "Quote Pricelist",
+                  effectiveDate: formatedDate,
+                  preparedByName: user.name,
+                  preparedByPhone: user.userMobile,
+                  preparedByEmail: user.email,
+                  phone1: user.phone1,
+                  phone2: user.phone2,
+                  fax: user.fax,
+                  coverImg: user.customerCustomPriceBookImg,
+                }}
+                isPrice={isChecked}
+                onRenderFinish={() => {
+                  dispatch(
+                    genricPriceBookPdfGenrationg({
+                      Type: "SUCCESS",
+                      loading: false,
+                      message: "Quote Succesfully Prepared",
+                    })
+                  );
+                  setTimeout(() => {
+                    setIsGenerating(false);
+                  }, 500);
+                }}
+                onError={(e) => {
+                  console.error("Render Error:", e);
+                  dispatch(
+                    genricPriceBookPdfGenrationg({
+                      Type: "ERROR",
+                      message: "An error occurred while rendering the PDF.",
+                      loading: false,
+                      error: true,
+                    })
+                  );
+                  setIsGenerating(false);
+                }}
+              />
+            );
+
+            const blob = await instance.toBlob();
+            const url = URL.createObjectURL(blob);
+
+            if (priceListOutType === "PDF") {
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `${user.company}_Quote_${sunday} TO ${saturday}.pdf`;
+              document.body.appendChild(link);
+
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }
+
+            if (priceListOutType === "PRINT") {
+              window.open(
+                url,
+                `${user.company}_Quote_${sunday} TO ${saturday}.pdf`
+              );
+              setTimeout(() => {
+                URL.revokeObjectURL(url);
+              }, 100);
+            }
+          } catch (e) {
+            dispatch(
+              genricPriceBookPdfGenrationg({
+                Type: "ERROR",
+                message: "An error occurred while rendering the PDF.",
+                loading: false,
+                error: true,
+              })
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 1500);
+          }
+        } else {
+          dispatch(
+            genricPriceBookPdfGenrationg({
+              Type: "ERROR",
+              message: response.payload.message,
+              loading: false,
+              error: true,
+            })
+          );
+          setTimeout(() => {
+            setIsGenerating(false);
+          }, 2000);
+        }
+      })
+      .catch((e) => {
+        dispatch(
+          genricPriceBookPdfGenrationg({
+            Type: "ERROR",
+            message: "An error occurred while rendering the PDF.",
+            loading: false,
+            error: true,
+          })
+        );
+        setTimeout(() => {
+          setIsGenerating(false);
+        }, 2000);
+      });
   };
 
   //==============================PRICELIST COLUMNS AND ROWS=============================//
@@ -464,11 +635,13 @@ const QuoteEdit = () => {
             mobile: getQuoteProspectInfoData.Mobile,
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
-            customer:getQuoteProspectInfoData.CustomerNumber ? {
-              Code: getQuoteProspectInfoData.CustomerNumber,
-              Name: `${getQuoteProspectInfoData.CustomerNumber} || ${getQuoteProspectInfoData.CustomerName}`,
-              CustomerName: getQuoteProspectInfoData.CustomerName,
-            }: null,
+            customer: getQuoteProspectInfoData.CustomerNumber
+              ? {
+                  Code: getQuoteProspectInfoData.CustomerNumber,
+                  Name: `${getQuoteProspectInfoData.CustomerNumber} || ${getQuoteProspectInfoData.CustomerName}`,
+                  CustomerName: getQuoteProspectInfoData.CustomerName,
+                }
+              : null,
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
@@ -566,7 +739,6 @@ const QuoteEdit = () => {
                       <Stack direction="row" alignItems={"flex-end"}>
                         <Tooltip title="PDF" placement="top">
                           <CustomIconButton
-                            // disabled={true}
                             sx={{
                               bgcolor: theme.palette.primary.main, // Use sx for styling
                               color: "white", // Ensure icon button text color is visible
@@ -575,7 +747,14 @@ const QuoteEdit = () => {
                               },
                             }}
                             aria-label="pdf"
-                            onClick={() => toast.error("Under Construction")}
+                            onClick={() =>
+                              getPriceBookFull(
+                                "PDF",
+                                values.name
+                                  ? values.name
+                                  : values.customer.CustomerName || ""
+                              )
+                            }
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -585,7 +764,9 @@ const QuoteEdit = () => {
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
-                            onClick={() => toast.error("Under Construction")}
+                            onClick={() => getPriceBookFull("EXCEL", values.name
+                              ? values.name
+                              : values.customer.CustomerName || "")}
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -594,12 +775,9 @@ const QuoteEdit = () => {
                         <Tooltip title="Print" placement="top">
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
-                            onClick={() => toast.error("Under Construction")}
-                            component="a"
-                            aria-label="print"
-                            // href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            onClick={() => getPriceBookFull("PRINT", values.name
+                              ? values.name
+                              : values.customer.CustomerName || "")}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -694,49 +872,49 @@ const QuoteEdit = () => {
                               />
                             </Stack>
 
-                            <FormikCustomAutocompleteCustomer
-                              name="customer"
-                              id="customer"
-                              sx={{ gridColumn: "span 2" }}
-                              multiple={false}
-                              value={values.customer}
-                              onChange={(event, newValue) =>
-                                setFieldValue("customer", newValue)
-                              }
-                              label="Customer"
-                              url={`${
-                                process.env.REACT_APP_BASE_URL
-                              }Customer/GetCustomer?CompanyCode=${
-                                false ? values.company : user.companyCode
-                              }`}
-                            />
+                          <FormikCustomAutocompleteCustomer
+                            name="customer"
+                            id="customer"
+                            sx={{ gridColumn: "span 2" }}
+                            multiple={false}
+                            value={values.customer}
+                            onChange={(event, newValue) =>
+                              setFieldValue("customer", newValue)
+                            }
+                            label="Customer"
+                            url={`${
+                              process.env.REACT_APP_BASE_URL
+                            }Customer/GetCustomer?CompanyCode=${
+                              false ? values.company : user.companyCode
+                            }`}
+                          />
 
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                gridColumn: "span 4",
-                              }}
-                            >
-                              {params.mode === "newexisting" ||
-                              (params.mode === "editexisting" &&
-                                params.mode !== "print") ? (
-                                <Button
-                                  variant="contained"
-                                  color="info"
-                                  size="small"
-                                  endIcon={<ArrowForwardIcon />}
-                                  sx={{ padding: "8px 16px" }}
-                                  type="submit"
-                                >
-                                  Save & Go Non-contract Items
-                                </Button>
-                              ) : (
-                                false
-                              )}
-                            </Box>
-                          </>
-                        )}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gridColumn: "span 4",
+                            }}
+                          >
+                            {params.mode === "newexisting" ||
+                            (params.mode === "editexisting" &&
+                              params.mode !== "print") ? (
+                              <Button
+                                variant="contained"
+                                color="info"
+                                size="small"
+                                endIcon={<ArrowForwardIcon />}
+                                sx={{ padding: "8px 16px" }}
+                                type="submit"
+                              >
+                                Save & Go Non-contract Items
+                              </Button>
+                            ) : (
+                              false
+                            )}
+                          </Box>
+                        </>
+                      )}
 
                       {params.mode !== "newexisting" &&
                         params.mode !== "editexisting" && (
@@ -1175,6 +1353,14 @@ const QuoteEdit = () => {
         false
       )}
 
+      <GenricPriceBookLoadingApiDialog
+        logo={`data:image/png;base64,${user.logo}`}
+        tittle={""}
+        open={isGenerating}
+        message={genricPriceBookPdfGenratingMsg}
+        loading={genricPriceBookIsPdfGenrating}
+        error={genricPriceBookIsPdfError}
+      />
       <PriceGroupAlertApiDialog
         open={openAlert}
         error={postError}

@@ -114,7 +114,7 @@ const NewProspect = () => {
               color="info"
               size="small"
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editprospect", {
+                navigate("/pages/pricing-portal/new-quote", {
                   state: {
                     prospectID: params.row.RecordID,
                     templateID: state.templateID ? state.templateID : 0,
@@ -123,9 +123,9 @@ const NewProspect = () => {
                 });
               }}
             >
-              Copy Quote
+              View
             </Button>
-            <Button
+            {/* <Button
               sx={{
                 height: 25,
               }}
@@ -143,7 +143,7 @@ const NewProspect = () => {
               }}
             >
               Print Quote
-            </Button>
+            </Button> */}
           </div>
         );
       },
@@ -176,7 +176,7 @@ const NewProspect = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
@@ -192,7 +192,7 @@ const NewProspect = () => {
             }}
           >
             NEW
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -212,7 +212,7 @@ const NewProspect = () => {
         <Breadcrumb
           routeSegments={[
             { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "New Prospect" },
+            { name: "Quote List" },
           ]}
         />
         <Stack direction={"row"} gap={1}>

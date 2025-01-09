@@ -25,15 +25,12 @@ import { Add } from "@mui/icons-material";
 import { Box, styled } from "@mui/material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { Breadcrumb, SimpleCard } from "app/components";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { useTheme } from "@emotion/react";
+import React, { useEffect, useState } from "react";
 import { SiMicrosoftexcel } from "react-icons/si";
 import { FaFilePdf } from "react-icons/fa6";
 import { IoIosMailOpen } from "react-icons/io";
 import { IoMdPrint } from "react-icons/io";
-import React, { useEffect, useState } from "react";
-
 // CUSTOM UTILS LIBRARY FUNCTIONS
 
 import useAuth from "app/hooks/useAuth";
@@ -81,9 +78,14 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { themeColors } from "app/components/baseTheme/themeColors";
-import { OptimizedAutocomplete } from "app/components/SingleAutocompletelist";
+import {
+  FormikCustomAutocompleteCustomer,
+  FormikCustomSelectCompany,
+  OptimizedAutocomplete,
+  PriceListItemsOptimizedAutocompleteQuote,
+  PriceListOptimizedAutocompleteQuote,
+} from "app/components/SingleAutocompletelist";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -186,8 +188,6 @@ export default function BuildCustomPriceBook() {
     (state) => state.getSlice.getQuteFiltError
   );
 
-
-
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -229,27 +229,55 @@ export default function BuildCustomPriceBook() {
   async function getQuoteData(id) {
     const response = await dispatch(
       getQuoteItemsAndFilters({
-        data:{RecordID:id}
+        data: { RecordID: id },
       })
     );
-    console.log("🚀 ~ getQuoteData ~ response:", response)
+    console.log("🚀 ~ getQuoteData ~ response:", response);
     if (response.payload.status === "Y") {
       // setSelectedCustomerOptions(JSON.parse(response.payload.data.filterData.Customer));
-      setSelectedBrandOptions(JSON.parse(response.payload.data.filterData.Brand.Value));
-      setSelectedAltOptions(JSON.parse(response.payload.data.filterData.AltClass.Value));
-      setSelectedComOptions(JSON.parse(response.payload.data.filterData.Commodity.Value));
+      setSelectedBrandOptions(
+        JSON.parse(response.payload.data.filterData.Brand.Value)
+      );
+      setSelectedAltOptions(
+        JSON.parse(response.payload.data.filterData.AltClass.Value)
+      );
+      setSelectedComOptions(
+        JSON.parse(response.payload.data.filterData.Commodity.Value)
+      );
       setSelectedSecondaryOptions(
         JSON.parse(response.payload.data.filterData.SecondaryClass.Value)
       );
       // setSelectedItemNoOptions(JSON.parse(response.payload.data.filterData.Item));
-      setSelectedVendorOptions(JSON.parse(response.payload.data.filterData.Vendor.Value));
-      setSelectedFsFzOptions(JSON.parse(response.payload.data.filterData.Type.Value));
-      setSelectedClassIDOptions(JSON.parse(response.payload.data.filterData.Class.Value));
+      setSelectedVendorOptions(
+        JSON.parse(response.payload.data.filterData.Vendor.Value)
+      );
+      setSelectedFsFzOptions(
+        JSON.parse(response.payload.data.filterData.Type.Value)
+      );
+      setSelectedClassIDOptions(
+        JSON.parse(response.payload.data.filterData.Class.Value)
+      );
       // setIsChecked(response.payload.data.ShowPrice === "Y" ? true : false);
       // setHeaderName(response.payload.data.Header);
       // setSalesRepName(response.payload.data.SalesRepresentativeName);
     }
   }
+
+  //======================= SELECT PRICE LIST ===================================//
+  const [addPriceListQuoteData, setAddPriceListQuoteData] = useState(null);
+
+  const handleSelectionAddPriceListQuoteData = (newValue) => {
+    console.log("🚀 ~ handleSelectionAddPriceListData ~ newValue:", newValue);
+    setAddPriceListQuoteData(newValue);
+  };
+
+  //======================= SELECT PRICE LIST ===================================//
+  const [addPriceListQuoteItemData, setAddPriceListQuoteItemData] =
+    useState(null);
+
+  const handleSelectionAddPriceListQuoteItemData = (newValue) => {
+    setAddPriceListQuoteItemData(newValue);
+  };
 
   //======================= ADD PRICE LIST ===================================//
   const [addPriceListData, setAddPriceListData] = useState();
@@ -272,20 +300,20 @@ export default function BuildCustomPriceBook() {
   const [isNextWeek, setIsNextWeek] = useState(false);
   useEffect(() => {
     dispatch(quoteClearState());
-    if (location.state.templateID) {
-      setSelectedTemplateOptions({
-        Recid: location.state.templateID,
-        TemplateName: location.state.templateName,
-      });
-    }
-    if(location.state.templateID ){
-      getBuildPriceTemData(
-        location.state.templateID ? location.state.templateID : "-1"
-      );
-    }else{
-      getQuoteData(location.state.headerID ? location.state.headerID : 0)
-    }
-  
+    // if (location.state.templateID ) {
+    //   setSelectedTemplateOptions({
+    //     Recid: location.state.templateID,
+    //     TemplateName: location.state.templateName,
+    //   });
+    // }
+    // if(location.state.templateID ){
+    // getBuildPriceTemData(
+    //   location.state.templateID ? location.state.templateID : "-1"
+    // );
+    // }else{
+    // getQuoteData(location.state.headerID ? location.state.headerID : 0)
+    // }
+
     const today = new Date();
     setCurrentDate(today);
   }, [location.key]);
@@ -582,12 +610,14 @@ export default function BuildCustomPriceBook() {
                       filterType: "Q",
                       itemNo: addPriceListData.Item_Number,
                       itemDescription: addPriceListData.Item_Description,
-                      CONTARCTITEMS:"N"
+                      CONTARCTITEMS: "N",
                     },
                   })
                 );
                 if (res.payload.status === "Y") {
-                  getQuoteData(location.state.headerID ? location.state.headerID : 0)
+                  getQuoteData(
+                    location.state.headerID ? location.state.headerID : 0
+                  );
                   // toast.success("Ad Hoc Item added successfully");
                   // dispatch(
                   //   // addQuoteItemData({ ...addPriceListData, AdHocItem: "Y", CONTARCTITEMS:"N" })
@@ -614,7 +644,6 @@ export default function BuildCustomPriceBook() {
       </GridToolbarContainer>
     );
   }
-  
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -685,42 +714,6 @@ export default function BuildCustomPriceBook() {
         setCustomName("");
         // toast.error("Something went wrong");
       }
-    }
-  };
-
-  const handleProcess = async () => {
-    try {
-      const filterparameters = JSON.stringify({
-        CompanyName: "Company",
-        customer: "Customer",
-        brand: selectedBrandOptions.map((item) => item.Name).join(","),
-        commodity: selectedComOptions.map((item) => item.Name).join(","),
-        vendor: selectedVendorOptions.map((item) => item.Name).join(","),
-        type: selectedFsFzOptions.map((item) => item.Name).join(","),
-        class: selectedClassIDOptions.map((item) => item.Name).join(","),
-        altClass: selectedAltOptions.map((item) => item.Name).join(","),
-        secondaryClass: selectedSecondaryOptions
-          .map((item) => item.Name)
-          .join(","),
-        item: selectedItemNoOptions.map((item) => item.Name).join(","),
-        showPrice: isChecked ? "Y" : "N",
-      });
-      dispatch(
-        getQuotePriceList({
-          CompanyCode: user.CompanyCode,
-          FromDate: sunday,
-          ToDate: saturday,
-          CustomerNumber: selectedCustomerOptions
-            ? selectedCustomerOptions.Code
-            : "",
-          PriceBooktype: "Quote Price Book",
-          filterparameters,
-        })
-      ).then(() => {
-        dispatch(updateDelayedQuotePriceBook());
-      });
-    } catch (error) {
-      console.log("🚀 ~ handleProcess ~ error", error);
     }
   };
 
@@ -856,7 +849,7 @@ export default function BuildCustomPriceBook() {
       setPostError2(true);
     }
   };
-
+  const priceBookLevel1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const clearQuotePriceList = () => {
     dispatch(quoteClearState());
     dispatch(quoteClearState2());
@@ -898,8 +891,7 @@ export default function BuildCustomPriceBook() {
             routeSegments={[
               { name: "Quote" },
               { name: "Prospect Info" },
-              { name: "Contract Items" },
-              { name: "Non-Contract Items" },
+              { name: "Items" },
             ]}
           />
         </Box>
@@ -909,13 +901,11 @@ export default function BuildCustomPriceBook() {
             color="info"
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
-            onClick={() =>
-              navigate("/pages/pricing-portal/quote-list", { state: { prospectID: state.headerID } })
-            }
+            onClick={() => navigate(-1)}
           >
             Back
           </Button>
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
@@ -930,7 +920,7 @@ export default function BuildCustomPriceBook() {
             }}
           >
             Print
-          </Button>
+          </Button> */}
         </Box>
       </Box>
 
@@ -938,7 +928,7 @@ export default function BuildCustomPriceBook() {
 
       <Box>
         <SimpleCard>
-          {/* <Box
+          <Box
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
             alignItems={"center"}
@@ -1007,18 +997,17 @@ export default function BuildCustomPriceBook() {
                       },
                     }}
                     aria-label="pdf"
-                    onClick={()=> toast.error('Under Construction')}
+                    onClick={() => toast.error("Under Construction")}
                   >
                     <FaFilePdf style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
 
                 <Tooltip title="Excel" placement="top">
-                  
                   <CustomIconButton
                     bgcolor={theme.palette.success.main}
                     aria-label="excel"
-                    onClick={()=> toast.error('Under Construction')}
+                    onClick={() => toast.error("Under Construction")}
                   >
                     <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                   </CustomIconButton>
@@ -1027,7 +1016,7 @@ export default function BuildCustomPriceBook() {
                 <Tooltip title="Print" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.warning.main}
-                    onClick={()=> toast.error('Under Construction')}
+                    onClick={() => toast.error("Under Construction")}
                     component="a"
                     aria-label="print"
                     // href={url}
@@ -1050,7 +1039,7 @@ export default function BuildCustomPriceBook() {
                 </Tooltip>
               </Stack>
             </Stack>
-          </Box> */}
+          </Box>
 
           <Box
             display="grid"
@@ -1153,14 +1142,111 @@ export default function BuildCustomPriceBook() {
               url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
             />
           </Box>
+          <Box
+            display="grid"
+            gap="20px"
+            padding={1}
+            gridTemplateColumns="repeat(2, minmax(0, 1fr))"
+            sx={{
+              "& > div": {
+                gridColumn: isNonMobile ? undefined : "span 4",
+              },
+            }}
+          >
+            <FormikCustomSelectCompany
+              name="company"
+              id="company"
+              sx={{ gridColumn: "span 1" }}
+              multiple={false}
+              disabled={user.role == "USER"}
+              // value={values.company}
+              // onChange={handleChange}
+              label="Company"
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
+            />
+            <TextField
+              variant="outlined"
+              name="salesRepName"
+              id="salesRepName"
+              label="Sales Representative Name"
+              size="small"
+              sx={{ gridColumn: "span 1" }}
+              // value={values.salesRepName}
+              // onChange={handleChange}
+              // onBlur={handleBlur}
+            />
+            {user.role === "USER"}
+            <Stack sx={{ gridColumn: "span 1" }} direction="column" gap={2}>
+              <Autocomplete
+                fullWidth
+                disabled={user.role === "USER"}
+                id="priceBookLevel"
+                name="priceBookLevel"
+                options={priceBookLevel1}
+                // value={values.priceBookLevel}
+                getOptionLabel={(option) => `Price Book Level ${option}`}
+                // onChange={(event, newValue) =>
+                //   handleChange({
+                //     target: {
+                //       name: "priceBookLevel",
+                //       value: newValue,
+                //     },
+                //   })
+                // }
+                // onBlur={handleBlur}
+                disableClearable
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Price Book Level"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                )}
+              />
+            </Stack>
+
+            <FormikCustomAutocompleteCustomer
+              name="customer"
+              id="customer"
+              sx={{ gridColumn: "span 1" }}
+              multiple={false}
+              // value={values.customer}
+              value={null}
+              // onChange={(event, newValue) =>
+              //   setFieldValue("customer", newValue)
+              // }
+              label="Customer"
+              url={`${
+                process.env.REACT_APP_BASE_URL
+              }Customer/GetCustomer?CompanyCode=${ user.companyCode
+              }`}
+            />
+          </Box>
 
           <Stack direction="row" justifyContent="end" gap={2} mb={1}>
             <Button
               variant="contained"
-              onClick={() => {
-                setIsFilterApplied(true);
-                getFilteredData();
+              // onClick={() => {
+              //   setIsFilterApplied(true);
+              //   getFilteredData();
+              // }}
+              sx={{
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
+                color: theme.palette.secondary.contrastText,
+                bgcolor: theme.palette.secondary.light,
               }}
+            >
+              Save as New Price List
+            </Button>
+            <Button
+              variant="contained"
+              // onClick={() => {
+              //   setIsFilterApplied(true);
+              //   getFilteredData();
+              // }}
               sx={{
                 "&:hover": {
                   backgroundColor: theme.palette.secondary.light, // Custom hover color
@@ -1181,14 +1267,14 @@ export default function BuildCustomPriceBook() {
                 color: theme.palette.secondary.contrastText,
                 bgcolor: theme.palette.secondary.light,
               }}
-              onClick={() => setIsClear(true)}
+              // onClick={() => setIsClear(true)}
             >
               Clear Filters
             </Button>
 
             <Button
               variant="contained"
-              onClick={handleClick}
+              // onClick={handleClick}
               sx={{
                 "&:hover": {
                   backgroundColor: theme.palette.secondary.light, // Custom hover color
@@ -1197,7 +1283,7 @@ export default function BuildCustomPriceBook() {
                 bgcolor: theme.palette.secondary.light,
               }}
             >
-              Save as Template
+              Save
             </Button>
           </Stack>
 
@@ -1226,14 +1312,6 @@ export default function BuildCustomPriceBook() {
             }}
           >
             <DataGrid
-             columnHeaderHeight={dataGridHeaderFooterHeight}
-             sx={{
-               // This is to override the default height of the footer row
-               '& .MuiDataGrid-footerContainer': {
-                   height:dataGridHeaderFooterHeight,
-                   minHeight:dataGridHeaderFooterHeight,
-               },
-             }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: CustomToolbar,

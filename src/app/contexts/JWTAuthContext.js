@@ -52,13 +52,13 @@ const reducer = (state, action) => {
         companyList,
       };
     }
-    case " LOGOUT": {
-      const { user } = action.payload;
+    case "LOGOUT": {
+      // const { user } = action.payload;
 
       return {
         ...state,
         isAuthenticated: false,
-        user,
+        user:{},
         favoriteList : []
       };
     }

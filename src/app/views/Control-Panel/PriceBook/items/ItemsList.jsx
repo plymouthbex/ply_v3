@@ -90,16 +90,13 @@ const ItemList = () => {
   const [addPriceListData, setAddPriceListData] = useState(null);
 
   const handleSelectionAddPriceListData = (newValue) => {
-    console.log("🚀 ~ handleSelectionAddPriceListData ~ newValue:", newValue)
+    console.log("🚀 ~ handleSelectionAddPriceListData ~ newValue:", newValue);
     setAddPriceListData(newValue);
-  
-  
   };
 
   const [openAlert1, setOpenAlert1] = useState(false);
   const [postError1, setPostError1] = useState(false);
   const saveItems = async (itemsArray) => {
-    
     let hasError = false;
 
     for (const item of itemsArray) {
@@ -381,7 +378,10 @@ const ItemList = () => {
                   },
                 }}
                 onRowSelectionModelChange={(newRowSelectionModel) => {
-                  console.log("🚀 ~ ItemList ~ newRowSelectionModel:", newRowSelectionModel)
+                  console.log(
+                    "🚀 ~ ItemList ~ newRowSelectionModel:",
+                    newRowSelectionModel
+                  );
                   const filterArray = rows.filter((v) =>
                     newRowSelectionModel.includes(v.item_key)
                   );
@@ -412,17 +412,17 @@ const ItemList = () => {
                 url={`${process.env.REACT_APP_BASE_URL}Company`}
               />
               <PriceListOptimizedAutocomplete
-        sx={{ maxWidth: 400 }}
-        fullWidth
-        name="priceList"
-        id="priceList"
-        value={addPriceListData}
-        onChange={handleSelectionAddPriceListData}
-        label="Price List"
-        companyID={companyID} // Pass companyID to the component
-        url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${companyID}`}
-        onOpen={handleOpen} // Trigger handleOpen when autocomplete opens
-      />
+                sx={{ maxWidth: 400 }}
+                fullWidth
+                name="priceList"
+                id="priceList"
+                value={addPriceListData}
+                onChange={handleSelectionAddPriceListData}
+                label="Price List"
+                companyID={companyID} // Pass companyID to the component
+                url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${companyID}`}
+                onOpen={handleOpen} // Trigger handleOpen when autocomplete opens
+              />
               <Button
                 variant="contained"
                 color="info"
@@ -436,13 +436,11 @@ const ItemList = () => {
                   }
                   try {
                     dispatch(priceListSelectedItems(rowSelectionModelRows));
-                    saveItems(rowSelectionModelRows)
+                    saveItems(rowSelectionModelRows);
                     // navigate("/pages/price-list/price-list-detail/edit", {
                     //   state: { id: addPriceListData.PRICELISTID },
                     // });
-                  } catch (e) {
-
-                  }
+                  } catch (e) {}
                 }}
               >
                 Add Items to Price list
@@ -509,16 +507,15 @@ const ItemList = () => {
           message={"Item saved successfully!"}
           Actions={
             <DialogActions>
-            
               <Button
                 variant="contained"
                 color="info"
                 size="small"
                 onClick={() => {
                   setOpenAlert1(false);
-                  setRowSelectionModel([])
-                  setRowSelectionModelRows([])
-                  setAddPriceListData(null)
+                  setRowSelectionModel([]);
+                  setRowSelectionModelRows([]);
+                  setAddPriceListData(null);
                 }}
               >
                 Close
