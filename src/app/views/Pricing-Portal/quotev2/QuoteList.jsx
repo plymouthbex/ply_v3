@@ -6,30 +6,14 @@ import {
   Button,
   styled,
   useTheme,
-  Stack,
 } from "@mui/material";
-import {
-  DataGrid,
-  GridToolbarQuickFilter,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
+import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import {
-  dataGridHeaderFooterHeight,
-  dataGridHeight,
-  dataGridPageSize,
-  dataGridpageSizeOptions,
-  dataGridRowHeight,
-} from "app/utils/constant";
 
-// ********************** ICONS ********************** //
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Add } from "@mui/icons-material";
-import { useLocation, useNavigate } from "react-router-dom";
-import useAuth from "app/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
-import { getProspectListData } from "app/redux/slice/getSlice";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -42,60 +26,31 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ********************* ITEMS SCREEN LISTVIEW ********************* //
-const NewProspect = () => {
+const QuoteList = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const dispatch = useDispatch();
   const colors = themeColors;
-  const location = useLocation();
-  const state = location.state ? location.state : {};
-
-  const rowProspect = useSelector((state) => state.getSlice.getQuoteProspectData)
-  const statusProspect = useSelector((state) => state.getSlice.getQuoteProspectStatus)
-  const loadingProspect = useSelector((state) => state.getSlice.getQuoteProspectLoading)
-  const errorProspect = useSelector((state) => state.getSlice.getQuoteProspectError)
-
-  useEffect(()=>{
-    dispatch(getProspectListData({data:{Type:"Prospect",UserID:user.id,}}))
-  },[])
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
 
-  //=======================API_CALL===================================//
-
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
-      headerName: "Date",
-      field: "FromDate",
-      width: "100",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
-    {
       headerName: "Name",
-      field: "Name",
-      width: "170",
+      field: "name",
+      width: 150,
       align: "left",
       headerAlign: "left",
       hide: true,
     },
-    {
-      headerName: "Description",
-      field: "Description",
-      width: "300",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+
     {
       field: "Action",
       headerName: "Action",
-      minWidth: 200,
+      minWidth: 100,
       flex: 1,
       sortable: false,
       headerAlign: "center",
@@ -105,44 +60,20 @@ const NewProspect = () => {
       align: "center",
       renderCell: (params) => {
         return (
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div>
             <Button
               sx={{
                 height: 25,
+                width: 200,
               }}
               variant="contained"
               color="info"
               size="small"
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editprospect", {
-                  state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
-                  },
-                });
+                navigate(params.row.path);
               }}
             >
-              Copy Quote
-            </Button>
-            <Button
-              sx={{
-                height: 25,
-              }}
-              variant="contained"
-              color="info"
-              size="small"
-              onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/print", {
-                  state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
-                  },
-                });
-              }}
-            >
-              Print Quote
+              {params.row.name}
             </Button>
           </div>
         );
@@ -150,7 +81,19 @@ const NewProspect = () => {
     },
   ];
 
-
+  const rows = [
+    {
+      name: "Saved Quote",
+      CompanyCode: "NP001",
+      path: "./saved-quote-list",
+      path: "",
+    },
+    {
+      name: "Saved Price List",
+      CompanyCode: "EP001",
+      path: "/pages/pricing-portal/saved-price-list",
+    },
+  ];
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -174,58 +117,32 @@ const NewProspect = () => {
             paddingX: 2,
           }}
         >
-          <GridToolbarQuickFilter />
+          {/* <GridToolbarQuickFilter /> */}
 
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
             startIcon={<Add />}
             onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/newprospect", {
-                state: {
-                  prospectID: 0,
-                  templateID: state.templateID ? state.templateID : 0,
-                  templateName: state.templateName ? state.templateName : "",
-                },
+              navigate("/pages/company/company-edit-detail/add", {
+                state: { ID:0 },
               });
             }}
           >
-            NEW
-          </Button>
+            Add
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
   }
 
-
   return (
     <Container>
-      <div
-        className="breadcrumb"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[
-            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "New Prospect" },
-          ]}
+          routeSegments={[{ name: "Quote" }, { name: "Templates" }]}
         />
-        <Stack direction={"row"} gap={1}>
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </Button>
-        </Stack>
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
@@ -263,24 +180,24 @@ const NewProspect = () => {
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
             }}
-            rows={rowProspect}
-            loading={loadingProspect}
+            rows={rows}
             columns={columns}
+            // checkboxSelection
             disableSelectionOnClick
             disableRowSelectionOnClick
-            getRowId={(row) => row.RecordID}
+            getRowId={(row) => row.name}
             initialState={{
               pagination: { paginationModel: { pageSize: 20 } },
             }}
@@ -304,4 +221,24 @@ const NewProspect = () => {
   );
 };
 
-export default NewProspect;
+export default QuoteList;
+const rows = [
+  {
+    company_code: 11243,
+    company_name: "Plymouth",
+    Email: "ply123@gmail.com",
+    Address: "1000 S Miller St",
+  },
+  {
+    company_code: 11244,
+    company_name: "Nicky",
+    Email: "nicky123@gmail.com",
+    Address: "741  Lawernce St",
+  },
+  {
+    company_code: 11245,
+    company_name: "S&J",
+    Email: "sj123@gmail.com",
+    Address: "100  Road 80th Venue ",
+  },
+];

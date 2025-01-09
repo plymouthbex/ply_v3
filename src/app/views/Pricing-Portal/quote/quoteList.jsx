@@ -86,20 +86,20 @@ const QuoteList = () => {
 
   const rows = [
     {
-      name: "Saved Quotes",
+      name: "New Prospect",
       CompanyCode: "NP001",
       path: "/pages/pricing-portal/new-prospect-quote",
     },
     {
-      name: "Saved Price List",
+      name: "Existing Customer",
       CompanyCode: "EP001",
       path: "/pages/pricing-portal/existing-customer-quote",
     },
-    // {
-    //   name: "Templates",
-    //   CompanyCode: "T001",
-    //   path: "/pages/pricing-portal/quote-template",
-    // },
+    {
+      name: "Templates",
+      CompanyCode: "T001",
+      path: "/pages/pricing-portal/quote-template",
+    },
   ];
 
   // ********************* TOOLBAR ********************* //
@@ -148,7 +148,7 @@ const QuoteList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Quote" }, { name: "Templates" }]}
+          routeSegments={[{ name: "Quote" }, { name: "Quote List" }]}
         />
       </div>
 

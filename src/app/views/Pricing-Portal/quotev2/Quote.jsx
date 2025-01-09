@@ -1186,7 +1186,7 @@ export default function BuildCustomPriceBook() {
                 bgcolor: theme.palette.secondary.light,
               }}
             >
-              Save as New Price List
+              Save as New Quote
             </Button>
             <Button
               variant="contained"

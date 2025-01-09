@@ -23,14 +23,14 @@ import {
 } from "app/utils/constant";
 
 // ********************** ICONS ********************** //
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { getProspectListData } from "app/redux/slice/getSlice";
+
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -42,7 +42,7 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ********************* ITEMS SCREEN LISTVIEW ********************* //
-const ExistingCustomer = () => {
+const SavedQuoteList = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
@@ -51,42 +51,43 @@ const ExistingCustomer = () => {
   const colors = themeColors;
   const location = useLocation();
   const state = location.state ? location.state : {};
-  // ********************* LOCAL STATE ********************* //
 
-  // ********************* REDUX STATE ********************* //
   const rowProspect = useSelector((state) => state.getSlice.getQuoteProspectData)
   const statusProspect = useSelector((state) => state.getSlice.getQuoteProspectStatus)
   const loadingProspect = useSelector((state) => state.getSlice.getQuoteProspectLoading)
   const errorProspect = useSelector((state) => state.getSlice.getQuoteProspectError)
 
   useEffect(()=>{
-    dispatch(getProspectListData({data:{Type:"Customer",UserID:user.id,}}))
+    dispatch(getProspectListData({data:{Type:"Prospect",UserID:user.id,}}))
   },[])
+  // ********************* LOCAL STATE ********************* //
+
+  // ********************* REDUX STATE ********************* //
+
   //=======================API_CALL===================================//
 
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
       headerName: "Date",
-      field: "Date",
+      field: "FromDate",
       width: "100",
       align: "left",
       headerAlign: "left",
       hide: true,
     },
     {
-      headerName: "Customer Name",
-      field: "CustomerName",
-      flex:1,
-      minWidth: 170,
+      headerName: "Name",
+      field: "Name",
+      width: "170",
       align: "left",
       headerAlign: "left",
       hide: true,
     },
     {
       headerName: "Description",
-      field: "Name",
-      minWidth: 300,
+      field: "Description",
+      width: "300",
       align: "left",
       headerAlign: "left",
       hide: true,
@@ -108,18 +109,12 @@ const ExistingCustomer = () => {
             <Button
               sx={{
                 height: 25,
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
               }}
               variant="contained"
-              color="secondary"
+              color="info"
               size="small"
-              //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editexisting", {
+                navigate("/pages/pricing-portal/quote-form/editprospect", {
                   state: {
                     prospectID: params.row.RecordID,
                     templateID: state.templateID ? state.templateID : 0,
@@ -133,16 +128,10 @@ const ExistingCustomer = () => {
             <Button
               sx={{
                 height: 25,
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
               }}
               variant="contained"
-              color="secondary"
+              color="info"
               size="small"
-              //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
                 navigate("/pages/pricing-portal/quote-form/print", {
                   state: {
@@ -153,7 +142,7 @@ const ExistingCustomer = () => {
                 });
               }}
             >
-              Print Quote
+              View Quote
             </Button>
           </div>
         );
@@ -193,7 +182,7 @@ const ExistingCustomer = () => {
             size="small"
             startIcon={<Add />}
             onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/newexisting", {
+              navigate("/pages/pricing-portal/quote-form/SavedQuoteList", {
                 state: {
                   prospectID: 0,
                   templateID: state.templateID ? state.templateID : 0,
@@ -209,6 +198,7 @@ const ExistingCustomer = () => {
     );
   }
 
+
   return (
     <Container>
       <div
@@ -222,7 +212,7 @@ const ExistingCustomer = () => {
         <Breadcrumb
           routeSegments={[
             { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "Existing Customer" },
+            { name: "New Prospect" },
           ]}
         />
         <Stack direction={"row"} gap={1}>
@@ -288,7 +278,6 @@ const ExistingCustomer = () => {
             rows={rowProspect}
             loading={loadingProspect}
             columns={columns}
-            // checkboxSelection
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
@@ -315,4 +304,4 @@ const ExistingCustomer = () => {
   );
 };
 
-export default ExistingCustomer;
+export default SavedQuoteList;
