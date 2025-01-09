@@ -67,7 +67,7 @@ useEffect(()=>{
     //   hide: true,
     // },
     {
-      headerName: "User Group Name",
+      headerName: "User Security Group",
       field: "Name",
       width: "250",
       align: "left",

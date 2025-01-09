@@ -89,6 +89,7 @@ export default function RunPriceBook() {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const theme = useTheme();
   const { user, updateUser } = useAuth();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const colors = themeColors;
@@ -99,12 +100,14 @@ export default function RunPriceBook() {
   const [isNextWeek, setIsNextWeek] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup })).then((res) => {
-      console.log("🚀 ~ dispatch ~ res:", res)
+    dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup })).then(
+      (res) => {
+        console.log("🚀 ~ dispatch ~ res:", res);
 
-    	 const allRowIds = res.payload.rows.map((row) => row.id);
+        const allRowIds = res.payload.rows.map((row) => row.id);
         setRowSelectionModel(allRowIds);
-    })
+      }
+    );
     const today = new Date();
     setCurrentDate(today);
   }, []);
@@ -123,7 +126,9 @@ export default function RunPriceBook() {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN)${formatDateLong(sunday)} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week (SUN)${formatDateLong(
+        sunday
+      )} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -138,7 +143,7 @@ export default function RunPriceBook() {
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
-  console.log("🚀 ~ RunPriceBook ~ runGrpRows:", runGrpRows)
+  console.log("🚀 ~ RunPriceBook ~ runGrpRows:", runGrpRows);
   const runGrpProcessingMsg = useSelector(
     (state) => state.listview.runGrpProcessingMsg
   );
@@ -158,8 +163,14 @@ export default function RunPriceBook() {
   const runGroupMailIsAction = useSelector(
     (state) => state.postData.runGroupMailIsAction
   );
- 
+
   const columns = [
+    {
+      field: "customernumber",
+      headerName: "Customer Number",
+      minWidth: 200,
+      // flex: 1,
+    },
     {
       field: "customer",
       headerName: "Customer Name",
@@ -180,15 +191,25 @@ export default function RunPriceBook() {
         <div>
           <Checkbox
             checked={params.row.fpexcel}
-            // onChange={() =>
-            //   dispatch(
-            //     onCheckboxChange({
-            //       id: params.row.id,
-            //       field: "fpexcel",
-            //       rows: runGrpRows,
-            //     })
-            //   )
-            // }
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "fpexcel",
+                    rows: runGrpRows,
+                  })
+                )
+              }else if(user.role !=="USER"){
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "fpexcel",
+                    rows: runGrpRows,
+                  })
+                )
+              }
+            }}
             // onChange={() => handleCheckboxChange(params.row.id, "fp")}
             sx={{
               color: "#174c4f",
@@ -200,15 +221,25 @@ export default function RunPriceBook() {
           Excel
           <Checkbox
             checked={params.row.fppdf}
-            // onChange={() =>
-            //   dispatch(
-            //     onCheckboxChange({
-            //       id: params.row.id,
-            //       field: "fppdf",
-            //       rows: runGrpRows,
-            //     })
-            //   )
-            // }
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+              dispatch(
+                onCheckboxChange({
+                  id: params.row.id,
+                  field: "fppdf",
+                  rows: runGrpRows,
+                })
+              )
+            }else if(user.role !=="USER"){
+            dispatch(
+              onCheckboxChange({
+                id: params.row.id,
+                field: "fppdf",
+                rows: runGrpRows,
+              })
+            )
+          }
+            }}
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -235,15 +266,27 @@ export default function RunPriceBook() {
         <div>
           <Checkbox
             checked={params.row.cpexcel}
-            // onChange={() =>
-            //   dispatch(
-            //     onCheckboxChange({
-            //       id: params.row.id,
-            //       field: "cpexcel",
-            //       rows: runGrpRows,
-            //     })
-            //   )
-            // }
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+
+              dispatch(
+                onCheckboxChange({
+                  id: params.row.id,
+                  field: "cpexcel",
+                  rows: runGrpRows,
+                })
+              )
+            }else if(user.role !=="USER"){
+              dispatch(
+                onCheckboxChange({
+                  id: params.row.id,
+                  field: "cpexcel",
+                  rows: runGrpRows,
+                })
+              )
+            }
+            }
+            }
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -254,15 +297,28 @@ export default function RunPriceBook() {
           Excel
           <Checkbox
             checked={params.row.cppdf}
-            // onChange={() =>
-            //   dispatch(
-            //     onCheckboxChange({
-            //       id: params.row.id,
-            //       field: "cppdf",
-            //       rows: runGrpRows,
-            //     })
-            //   )
-            // }
+            onChange={() =>{
+              if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "cppdf",
+                    rows: runGrpRows,
+                  })
+                )
+              }else if(user.role !=="USER"){
+                dispatch(
+                  onCheckboxChange({
+                    id: params.row.id,
+                    field: "cppdf",
+                    rows: runGrpRows,
+                  })
+                )
+              }
+              
+            }
+            
+            }
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -277,18 +333,20 @@ export default function RunPriceBook() {
   ];
 
   const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState({
-    Name: user.defaultRunGroup,
+    Name: user.defaultRunGroup || ""
   });
 
   const handleSelectionRunGrpChange = (newValue) => {
     setSelectedRunGrpOptions(newValue);
     if (newValue) {
-      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then((res) => {
-        // console.log("🚀 ~ dispatch ~ res:", res)
-  
-         const allRowIds = res.payload.rows.map((row) => row.id);
+      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
+        (res) => {
+          // console.log("🚀 ~ dispatch ~ res:", res)
+
+          const allRowIds = res.payload.rows.map((row) => row.id);
           setRowSelectionModel(allRowIds);
-      });
+        }
+      );
     }
   };
 
@@ -303,9 +361,9 @@ export default function RunPriceBook() {
     const data = runGrpRows
       .filter(
         (v) =>
-          rowSelectionModel.includes(v.id) &&
-          (v.fppdf || v.fpexcel) ||
-          (v.cppdf || v.cpexcel)
+          (rowSelectionModel.includes(v.id) && (v.fppdf || v.fpexcel)) ||
+          v.cppdf ||
+          v.cpexcel
       )
       .map((v) => ({
         CustomerNumber: v.customernumber,
@@ -339,8 +397,246 @@ export default function RunPriceBook() {
   const [processError, setProcessError] = useState(false);
   const [showPrice, setShowprice] = useState(true);
 
+  // const fnProcess = () => {
+  //   if (rowSelectionModel.length == 0 ) {
+  //     setProcessFunLoading(false);
+  //     setProcessLoading(true);
+  //     setProcessError(true);
+  //     dispatch(runGrpMsgUpdate("Please Select Customer"));
+  //     setTimeout(() => {
+  //       setProcessLoading(false);
+  //       dispatch(runGrpMsgUpdate(""));
+  //       setProcessError(false);
+  //     }, 2000);
+  //     return;
+  //   }
+  //   setProcessLoading(true);
+  //   setProcessFunLoading(true);
+
+  //   const processData = new Promise((resolve, reject) => {
+  //     try {
+  //       const promises = runGrpRows
+  //         .map((value, index) => {
+  //           const promisesForRow = [];
+
+  //           // Handle fp case
+  //           if (
+  //             (value.fpexcel || value.fppdf) &&
+  //             rowSelectionModel.includes(value.id)
+  //           ) {
+  //             const fpPromise = dispatch(
+  //               getCustomerViewPriceFullBook({
+  //                 CompanyCode: user.companyCode,
+  //                 FromDate: sunday,
+  //                 ToDate: saturday,
+  //                 CustomerNumber: value.customernumber,
+  //               })
+  //             ).then((fpResData) => {
+  //               if (fpResData.payload.length > 0  ) {
+  //                 dispatch(
+  //                   runGrpMsgUpdate(`Full PDF for ${value.customer}...`)
+  //                 );
+
+  //                 // Generate Excel Blob for Full Price List
+  //                 const excelBlobfp = exportToExcelBuildFullPriceBookBlob({
+  //                   excelData: fpResData.payload,
+  //                   date: formatedDate,
+  //                   customerName: value.customer,
+  //                   isPrice: value.selected,
+  //                 });
+
+  //                 return pdf(
+  //                   <CustomerFullPriceDocument
+  //                     key={index}
+  //                     data={fpResData.payload}
+  //                     coverPageData={{
+  //                       logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                       subtitle1: "Price List for",
+  //                       subtitle2: value.customer,
+  //                       effectiveDate: formatedDate,
+  //                       preparedByName: user.name,
+  //                       preparedByPhone: user.userMobile,
+  //                       preparedByEmail: user.email,
+  //                       phone1: user.phone1,
+  //                       phone2: user.phone2,
+  //                       fax: user.fax,
+  //                       coverImg: user.customerFullPriceBookImg,
+  //                     }}
+  //                     isPrice={showPrice}
+  //                     onRenderFinish={() => {
+
+  //                     }}
+  //                     onError={(e) => {
+
+  //                     }}
+  //                   />
+  //                 )
+  //                   .toBlob()
+  //                   .then((blob) => ({
+  //                     ...value,
+  //                     blobfp: blob,
+  //                     excelBlobfp,
+  //                     fileName1: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
+  //                   }));
+  //               } else {
+  //                 return {
+  //                   ...value,
+  //                   fpexcel: false,
+  //                   fppdf: false,
+  //                 };
+  //               }
+  //             });
+
+  //             promisesForRow.push(fpPromise);
+  //           }
+
+  //           // Handle cp case
+  //           if (
+  //             (value.cpexcel || value.cppdf) &&
+  //             rowSelectionModel.includes(value.id)
+  //           ) {
+  //             const cpPromise = dispatch(
+  //               getCustomerViewPriceCustomBook({
+  //                 CompanyCode: user.companyCode,
+  //                 FromDate: sunday,
+  //                 ToDate: saturday,
+  //                 CustomerNumber: value.customernumber,
+  //                 filterparameters: "",
+  //               })
+  //             ).then((cpResData) => {
+  //               if (cpResData.payload.length > 0 ) {
+  //                 dispatch(
+  //                   runGrpMsgUpdate(`Custom PDF for ${value.customer}...`)
+  //                 );
+
+  //                 // Generate Excel Blob for Custom Price List
+  //                 const excelBlobcp = exportToExcelBuildCustomPriceBookBlob({
+  //                   excelData: cpResData.payload,
+  //                   date: formatedDate,
+  //                   customerName: value.customer,
+  //                   isPrice: value.selected,
+  //                 });
+
+  //                 return pdf(
+  //                   <CustomerCustomPriceDocument
+  //                     key={index}
+  //                     data={cpResData.payload}
+  //                     headerData={{
+  //                       logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                       customerName: value.customer,
+  //                       effectiveDate: formatedDate,
+  //                     }}
+  //                     coverPageData={{
+  //                       logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                       subtitle1: "Price List for",
+  //                       subtitle2: value.customer,
+  //                       effectiveDate: formatedDate,
+  //                       preparedByName: user.name,
+  //                       preparedByPhone: user.userMobile,
+  //                       preparedByEmail: user.email,
+  //                       phone1: user.phone1,
+  //                       phone2: user.phone2,
+  //                       fax: user.fax,
+  //                       coverImg: user.customerCustomPriceBookImg,
+  //                     }}
+  //                     isPrice={showPrice}
+  //                     onRenderFinish={() => {
+  //                       // dispatch(
+  //                       //   viewPricePdfGenrationg({
+  //                       //     Type: "SUCCESS",
+  //                       //     loading: false,
+  //                       //     message:
+  //                       //       "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
+  //                       //   })
+  //                       // );
+  //                       // setIsGenerating(false);
+  //                     }}
+  //                     onError={(e) => {
+  //                       // console.error("Render Error:", e);
+  //                       // dispatch(
+  //                       //   viewPricePdfGenrationg({
+  //                       //     Type: "ERROR",
+  //                       //     message: "An error occurred while rendering the PDF.",
+  //                       //     loading: false,
+  //                       //     error: true,
+  //                       //   })
+  //                       // );
+  //                     }}
+  //                   />
+  //                 )
+  //                   .toBlob()
+  //                   .then((blob) => ({
+  //                     ...value,
+  //                     blobcp: blob,
+  //                     excelBlobcp,
+  //                     fileName2: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_CPB_${sunday} TO ${saturday}`,
+  //                   }));
+  //               } else {
+  //                 return {
+  //                   ...value,
+  //                   cpexcel: false,
+  //                   cppdf: false,
+  //                 };
+  //               }
+  //             });
+
+  //             promisesForRow.push(cpPromise);
+  //           }
+
+  //           if (promisesForRow.length > 0) {
+  //             console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow)
+  //             return Promise.all(promisesForRow).then((results) => {
+
+  //               console.log("🚀 ~ returnPromise.all ~ results:", results)
+  //              return results.reduce((acc, result) => {
+
+  //               return({ ...acc, ...result })}, {})  }
+  //             );
+  //           }
+
+  //           // Skip rows where no valid promises are created
+  //           return null;
+  //         })
+  //         .filter(Boolean); // Remove skipped rows (null values)
+
+  //       // Wait for all promises to resolve and return the combined results
+  //       Promise.all(promises)
+  //         .then((allResults) => resolve(allResults))
+  //         .catch(reject);
+  //     } catch (error) {
+  //       reject(error);
+  //     }
+  //   });
+
+  //   dispatch(runGrpMsgUpdate("Initiating..."));
+
+  //   processData
+  //     .then((result) => {
+  //       console.log("🚀 ~ .then ~ result:", result)
+  //       setProcessFunLoading(false);
+  //       dispatch(runGrpMsgUpdate(`Successfully Processed!`));
+  //       dispatch(runGrpProcessedDataUpdate(result));
+  //       setTimeout(() => {
+  //         setProcessLoading(false);
+  //         // navigate("./send-run-price-book");
+  //         dispatch(runGrpMsgUpdate(""));
+  //       }, 1500);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //       setProcessFunLoading(false);
+  //       setProcessError(true);
+  //       dispatch(runGrpMsgUpdate(`ERROR: ${error}`));
+  //       setTimeout(() => {
+  //         setProcessLoading(false);
+  //         dispatch(runGrpMsgUpdate(""));
+  //         setProcessError(false);
+  //       }, 1500);
+  //     });
+  // };
+
   const fnProcess = () => {
-    if (rowSelectionModel.length == 0 ) {
+    if (rowSelectionModel.length === 0) {
       setProcessFunLoading(false);
       setProcessLoading(true);
       setProcessError(true);
@@ -352,49 +648,45 @@ export default function RunPriceBook() {
       }, 2000);
       return;
     }
+
     setProcessLoading(true);
     setProcessFunLoading(true);
 
     const processData = new Promise((resolve, reject) => {
       try {
         const promises = runGrpRows
-          .map((value, index) => {
+          .map((row) => {
             const promisesForRow = [];
 
-            // Handle fp case
+            // Handle `fp` case
             if (
-              (value.fpexcel || value.fppdf) &&
-              rowSelectionModel.includes(value.id)
+              (row.fpexcel || row.fppdf) &&
+              rowSelectionModel.includes(row.id)
             ) {
               const fpPromise = dispatch(
                 getCustomerViewPriceFullBook({
                   CompanyCode: user.companyCode,
                   FromDate: sunday,
                   ToDate: saturday,
-                  CustomerNumber: value.customernumber,
+                  CustomerNumber: row.customernumber,
                 })
               ).then((fpResData) => {
-                if (fpResData.payload.length > 0  ) {
-                  dispatch(
-                    runGrpMsgUpdate(`Full PDF for ${value.customer}...`)
-                  );
-
-                  // Generate Excel Blob for Full Price List
+                if (fpResData.payload.length > 0) {
                   const excelBlobfp = exportToExcelBuildFullPriceBookBlob({
                     excelData: fpResData.payload,
                     date: formatedDate,
-                    customerName: value.customer,
-                    isPrice: value.selected,
+                    customerName: row.customer,
+                    isPrice: row.selected,
                   });
 
                   return pdf(
                     <CustomerFullPriceDocument
-                      key={index}
+                      key={row.id}
                       data={fpResData.payload}
                       coverPageData={{
                         logo: user.homePagelogo, // Replace with the actual path to the logo image
                         subtitle1: "Price list for",
-                        subtitle2: value.customer,
+                        subtitle2: row.customer,
                         effectiveDate: formatedDate,
                         preparedByName: user.name,
                         preparedByPhone: user.userMobile,
@@ -405,73 +697,60 @@ export default function RunPriceBook() {
                         coverImg: user.customerFullPriceBookImg,
                       }}
                       isPrice={showPrice}
-                      onRenderFinish={() => {
-
-                      }}
-                      onError={(e) => {
-
-                      }}
                     />
                   )
                     .toBlob()
                     .then((blob) => ({
-                      ...value,
+                      ...row,
                       blobfp: blob,
                       excelBlobfp,
-                      fileName1: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
+                      fileName: `${user.company}_${row.customer.replace(
+                        /\.$/,
+                        ""
+                      )}_FPB_${sunday} TO ${saturday}`,
                     }));
-                } else {
-                  return {
-                    ...value,
-                    fpexcel: false,
-                    fppdf: false,
-                  };
                 }
+                return null; // Invalid `fp`
               });
 
               promisesForRow.push(fpPromise);
             }
 
-            // Handle cp case
+            // Handle `cp` case
             if (
-              (value.cpexcel || value.cppdf) &&
-              rowSelectionModel.includes(value.id)
+              (row.cpexcel || row.cppdf) &&
+              rowSelectionModel.includes(row.id)
             ) {
               const cpPromise = dispatch(
                 getCustomerViewPriceCustomBook({
                   CompanyCode: user.companyCode,
                   FromDate: sunday,
                   ToDate: saturday,
-                  CustomerNumber: value.customernumber,
+                  CustomerNumber: row.customernumber,
                   filterparameters: "",
                 })
               ).then((cpResData) => {
-                if (cpResData.payload.length > 0 ) {
-                  dispatch(
-                    runGrpMsgUpdate(`Custom PDF for ${value.customer}...`)
-                  );
-
-                  // Generate Excel Blob for Custom Price List
+                if (cpResData.payload.length > 0) {
                   const excelBlobcp = exportToExcelBuildCustomPriceBookBlob({
                     excelData: cpResData.payload,
                     date: formatedDate,
-                    customerName: value.customer,
-                    isPrice: value.selected,
+                    customerName: row.customer,
+                    isPrice: row.selected,
                   });
 
                   return pdf(
                     <CustomerCustomPriceDocument
-                      key={index}
+                      key={row.id}
                       data={cpResData.payload}
                       headerData={{
-                        logo: user.homePagelogo, // Replace with the actual path to the logo image
-                        customerName: value.customer,
+                        logo: user.homePagelogo,
+                        customerName: row.customer,
                         effectiveDate: formatedDate,
                       }}
                       coverPageData={{
                         logo: user.homePagelogo, // Replace with the actual path to the logo image
                         subtitle1: "Price list for",
-                        subtitle2: value.customer,
+                        subtitle2: row.customer,
                         effectiveDate: formatedDate,
                         preparedByName: user.name,
                         preparedByPhone: user.userMobile,
@@ -482,64 +761,55 @@ export default function RunPriceBook() {
                         coverImg: user.customerCustomPriceBookImg,
                       }}
                       isPrice={showPrice}
-                      onRenderFinish={() => {
-                        // dispatch(
-                        //   viewPricePdfGenrationg({
-                        //     Type: "SUCCESS",
-                        //     loading: false,
-                        //     message:
-                        //       "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
-                        //   })
-                        // );
-                        // setIsGenerating(false);
-                      }}
-                      onError={(e) => {
-                        // console.error("Render Error:", e);
-                        // dispatch(
-                        //   viewPricePdfGenrationg({
-                        //     Type: "ERROR",
-                        //     message: "An error occurred while rendering the PDF.",
-                        //     loading: false,
-                        //     error: true,
-                        //   })
-                        // );
-                      }}
                     />
                   )
                     .toBlob()
                     .then((blob) => ({
-                      ...value,
+                      ...row,
                       blobcp: blob,
                       excelBlobcp,
-                      fileName2: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_CPB_${sunday} TO ${saturday}`,
+                      fileName: `${user.company}_${row.customer.replace(
+                        /\.$/,
+                        ""
+                      )}_CPB_${sunday} TO ${saturday}`,
                     }));
-                } else {
-                  return {
-                    ...value,
-                    cpexcel: false,
-                    cppdf: false,
-                  };
                 }
+                return null; // Invalid `cp`
               });
 
               promisesForRow.push(cpPromise);
             }
 
             if (promisesForRow.length > 0) {
-              console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow)
-              return Promise.all(promisesForRow).then((results) =>
-                results.reduce((acc, result) => ({ ...acc, ...result }), {})
-              );
+              return Promise.all(promisesForRow).then((results) => {
+                // Merge results into a single object
+                const finalResult = results.reduce((acc, result) => {
+                  return result ? { ...acc, ...result } : acc;
+                }, {});
+
+                // Remove rows if both `fp` and `cp` failed
+                if (!finalResult.blobfp && !finalResult.blobcp) {
+                  return null;
+                }
+
+                return finalResult;
+              });
             }
 
-            // Skip rows where no valid promises are created
-            return null;
+            return null; // Skip rows with no valid promises
           })
-          .filter(Boolean); // Remove skipped rows (null values)
+          .filter(Boolean); // Remove null values
 
-        // Wait for all promises to resolve and return the combined results
-        Promise.all(promises)
-          .then((allResults) => resolve(allResults))
+        Promise.allSettled(promises)
+          .then((results) =>
+            resolve(
+              results
+                .filter(
+                  (result) => result.status === "fulfilled" && result.value
+                )
+                .map((result) => result.value)
+            )
+          )
           .catch(reject);
       } catch (error) {
         reject(error);
@@ -550,36 +820,45 @@ export default function RunPriceBook() {
 
     processData
       .then((result) => {
-        console.log("🚀 ~ .then ~ result:", result)
-        setProcessFunLoading(false);
-        dispatch(runGrpMsgUpdate(`Successfully Processed!`));
-        dispatch(runGrpProcessedDataUpdate(result));
-        setTimeout(() => {
-          setProcessLoading(false);
-          navigate("./send-run-price-book");
-          dispatch(runGrpMsgUpdate(""));
-        }, 1500);
+        console.log("🚀 ~ .then ~ result:", result);
+        if (result.length > 0) {
+          setProcessFunLoading(false);
+          dispatch(runGrpMsgUpdate(`Successfully Processed`));
+          dispatch(runGrpProcessedDataUpdate(result));
+          setTimeout(() => {
+            setProcessLoading(false);
+            navigate("./send-run-price-book");
+            dispatch(runGrpMsgUpdate(""));
+          }, 1500);
+        } else {
+          setProcessFunLoading(false);
+          setProcessError(true);
+          dispatch(runGrpMsgUpdate(`No Data Found`));
+          dispatch(runGrpProcessedDataUpdate(result));
+          setTimeout(() => {
+            setProcessLoading(false);
+            setProcessError(false);
+            dispatch(runGrpMsgUpdate(""));
+          }, 1500);
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
         setProcessFunLoading(false);
         setProcessError(true);
-        dispatch(runGrpMsgUpdate(`ERROR: ${error}`));
+        dispatch(runGrpMsgUpdate(`${error.message}`));
         setTimeout(() => {
           setProcessLoading(false);
           dispatch(runGrpMsgUpdate(""));
           setProcessError(false);
         }, 1500);
       });
-  }; 
-  
-  
-  
+  };
 
   //=================================TOOLBAR=====================================//
-  function secondaryCustomToolbar() {
+  function SecondaryCustomToolbar() {
     return (
-      <GridToolbarContainer>
+      <Box>
         {/* First Row */}
         <Box
           sx={{
@@ -676,9 +955,25 @@ export default function RunPriceBook() {
             />
           </Box>
         </Box>
-      </GridToolbarContainer>
+      </Box>
     );
   }
+  // console.log("🚀 ~ handleRowSelectionChange ~ selectedRunGrpOptions.Name:", selectedRunGrpOptions.Name)
+  //       console.log("🚀 ~ handleRowSelectionChange ~ user.defaultRunGroup:", user.defaultRunGroup)
+  //       const handleRowSelectionChange = (newRowSelectionModel) => {
+  //         if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
+           
+  //           setRowSelectionModel(newRowSelectionModel);
+  //         }
+          
+  //       };
+        
+  
+  
+
+  
+
+  
   return (
     <Container>
       <Box className="breadcrumb">
@@ -687,6 +982,104 @@ export default function RunPriceBook() {
         />
       </Box>
       <SimpleCard>
+        <Box>
+          {/* First Row */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+              mb: 2, // Add margin-bottom for spacing between rows
+            }}
+          >
+            {/* Price Week Section */}
+            <Stack direction="row-reverse" gap={5}>
+              <Typography
+                variant="caption"
+                align="center"
+                alignItems="center"
+                alignSelf="center"
+              >
+                {formatedDate}
+              </Typography>
+              <RadioGroup
+                row
+                name="week"
+                value={isNextWeek}
+                onChange={toggleWeek}
+              >
+                <FormControlLabel
+                  sx={{ height: 40 }}
+                  value={false}
+                  control={<Radio />}
+                  label="Current Week"
+                />
+                <FormControlLabel
+                  sx={{ height: 40 }}
+                  value={true}
+                  control={<Radio />}
+                  label="Next Week"
+                />
+              </RadioGroup>
+            </Stack>
+
+            {/* Label with Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showPrice}
+                  onChange={(e) => setShowprice(e.target.checked)}
+                  sx={{
+                    color: "#174c4f",
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+              }
+              label="Show Price"
+            />
+          </Box>
+
+          {/* Second Row */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%",
+              padding: 1,
+            }}
+          >
+            <Typography
+              variant="h6"
+              width="100%"
+              sx={{
+                mr: { xs: 0, md: 5 },
+                mb: { md: 0 },
+                color: "black",
+                textAlign: { xs: "center", md: "left" },
+              }}
+            >
+              Price Book Group
+            </Typography>
+            <Box sx={{ width: "50%" }}>
+              <SingleAutocomplete
+                focused
+                fullWidth
+                required
+                name="rungroup"
+                id="rungroup"
+                value={selectedRunGrpOptions}
+                onChange={handleSelectionRunGrpChange}
+                label="Price Book Group"
+                url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+              />
+            </Box>
+          </Box>
+        </Box>
         <Box
           sx={{
             "& .MuiDataGrid-root": {
@@ -711,34 +1104,40 @@ export default function RunPriceBook() {
               color: colors.blue.palette.info.contrastText,
             },
             "& .MuiCheckbox-root": {
-              color: "#174c4f !important", 
+              color: "#174c4f !important",
             },
-           
+
             "& .MuiCheckbox-root.Mui-checked": {
-              color: "#174c4f !important", 
+              color: "#174c4f !important",
             },
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-         height: "500px" }}
-            
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+              height: "500px",
+            }}
             slots={{
               loadingOverlay: LinearProgress,
-              toolbar: secondaryCustomToolbar,
+              // toolbar: secondaryCustomToolbar,
             }}
+ 
+
+
             onRowSelectionModelChange={(newRowSelectionModel) => {
               // const filterArray = runGrpRows.filter((v) =>
               //   newRowSelectionModel.includes(v.id)
               // );
               setRowSelectionModel(newRowSelectionModel);
               // setRowSelectionModelRows(filterArray);
+
+
+              
             }}
             rowSelectionModel={rowSelectionModel}
             rows={runGrpRows}
@@ -771,79 +1170,129 @@ export default function RunPriceBook() {
           />
         </Box>
 
-        <Stack direction="row" justifyContent="end" gap={2} mt={2}>
-          <Button
-            variant="contained"
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          gap={2}
+          mt={2}
+        >
+          {/* Note or Placeholder on the left side */}
+
+          <Box
             sx={{
-              "&:hover": {
-                backgroundColor: theme.palette.secondary.light, // Custom hover color
-              },
-              color: theme.palette.secondary.contrastText,
-              bgcolor: theme.palette.secondary.light,
-              fontWeight: "bold",
+              display: "flex",
+
+              alignItems: "center",
+
+              padding: 2,
+
+              border: rowSelectionModel.length > 10 ? "1px solid red" : "none",
+
+              borderRadius: 1,
+
+              backgroundColor:
+                rowSelectionModel.length > 10 ? "#ffe6e6" : "transparent",
+
+              minHeight: 50, // Ensure consistent height
+
+              minWidth: 300, // Ensure consistent width
             }}
-            onClick={fnRunGrpEmailProcess}
           >
-            Email Price Book(s)
-          </Button>
-          <PriceGroupAlertApiDialog
-            open={openAlert}
-            error={postError}
-            message={
-              rowSelectionModel.length == 0
-                ? "Please Select Customer"
-                : postError
+            {rowSelectionModel.length > 10 && (
+              <Typography color="error" align="center">
+                Note: To View Price Book, select no more than 10 rows at a time
+              </Typography>
+            )}
+          </Box>
+
+          {/* Buttons on the right side */}
+
+          <Stack direction="row" justifyContent="end" gap={2}>
+            <Button
+              variant="contained"
+              sx={{
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
+
+                color: theme.palette.secondary.contrastText,
+
+                bgcolor: theme.palette.secondary.light,
+
+                fontWeight: "bold",
+              }}
+              onClick={fnRunGrpEmailProcess}
+            >
+              Email Price Book(s)
+            </Button>
+
+            <PriceGroupAlertApiDialog
+              open={openAlert}
+              error={postError}
+              message={
+                rowSelectionModel.length === 0
+                  ? "Please Select Customer"
+                  : postError
                   ? "Something Went Wrong"
-                  : "The customer(s) will receive their price book shortly"
-            }
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert(false);
-                    setTimeout(() => {
-                      setPostError(false);
-                    }, 1000);
-                    // setPostError(false)
+                  : "Customer(s) will receive their Price Book shortly"
+              }
+              Actions={
+                <Box
+                  sx={{
+                    display: "flex",
+
+                    justifyContent: "flex-end",
+
+                    width: "100%",
                   }}
-                  sx={{ height: 25 }}
                 >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-          <LoadingApiDialog
-          logo={`data:image/png;base64,${user.logo}`}
-            open={processLoading}
-            message={runGrpProcessingMsg}
-            loading={processFunLoading}
-            error={processError}
-          />
-          <Button
-            variant="contained"
-            disabled={rowSelectionModel.length > 10}
-            sx={{
-              "&:hover": {
-                backgroundColor: theme.palette.secondary.light, // Custom hover color
-              },
-              color: theme.palette.secondary.contrastText,
-              bgcolor: theme.palette.secondary.light,
-              fontWeight: "bold",
-            }}
-            onClick={fnProcess}
-          >
-           View Price Book 
-          </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={() => {
+                      setOpenAlert(false);
+
+                      setTimeout(() => {
+                        setPostError(false);
+                      }, 1000);
+                    }}
+                    sx={{ height: 25 }}
+                  >
+                    Close
+                  </Button>
+                </Box>
+              }
+            />
+
+            <LoadingApiDialog
+              logo={`data:image/png;base64,${user.logo}`}
+              open={processLoading}
+              message={runGrpProcessingMsg}
+              loading={processFunLoading}
+              error={processError}
+            />
+
+            <Button
+              variant="contained"
+              disabled={rowSelectionModel.length > 10}
+              sx={{
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
+
+                color: theme.palette.secondary.contrastText,
+
+                bgcolor: theme.palette.secondary.light,
+
+                fontWeight: "bold",
+              }}
+              onClick={fnProcess}
+            >
+              View Price Book
+            </Button>
+          </Stack>
         </Stack>
       </SimpleCard>
     </Container>

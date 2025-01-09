@@ -132,7 +132,7 @@ const UserEdit = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
 
-
+const[OpenUser,setOpenUser]=useState(false);
 
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.userFormData);
@@ -206,7 +206,7 @@ const UserEdit = () => {
     let userData;
 
     if (UserName === "User" && (!values.runGroup || values.runGroup.length === 0)) {
-      alert("Please select the price book group");
+      setOpenUser(true);
     } else {
       userData = {
         recordID: data.RecordID,
@@ -223,7 +223,7 @@ const UserEdit = () => {
         company: JSON.stringify(values.defaultCompany),
         UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
       };
-    }
+    
     
     const response = await dispatch(userPost({ userData }));
     if (response.payload.status === "Y") {
@@ -232,6 +232,7 @@ const UserEdit = () => {
       setOpenAlert(true);
       setPostError(true);
     }
+  }
   };
 
   // ******************** DELETE ******************** //
@@ -314,7 +315,7 @@ const UserEdit = () => {
                       )
                     }
                     type="submit"
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
                   >
                     {params.mode === "delete" ? "Confirm" : "Save"}
                   </Button>
@@ -712,6 +713,28 @@ const UserEdit = () => {
                       autoFocus
                     >
                       No
+                    </Button>
+                  </DialogActions>
+                }
+              />
+               <MessageAlertDialog
+                open={OpenUser}
+                // tittle={"ALERT"}
+                message={`Please select the price book group.`}
+                Actions={
+                  <DialogActions>
+                   
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      onClick={() => {
+                       setOpenUser(false);
+                        // setSubmitting(false);
+                      }}
+                      autoFocus
+                    >
+                      Close
                     </Button>
                   </DialogActions>
                 }

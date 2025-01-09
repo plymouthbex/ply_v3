@@ -76,7 +76,7 @@ const {user}=useAuth();
       hide: true,
     },
     {
-      headerName: "LoginID",
+      headerName: "Login ID",
       field: "Email",
       width: "300",
       align: "left",

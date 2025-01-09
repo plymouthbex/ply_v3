@@ -431,7 +431,7 @@ const HomePage = () => {
           </Tooltip>
         </Box>
         <Box sx={{ height: "250px" }}>
-          <IMG alt={user.companyName} sx={{opacity: 0.5,filter: "grayscale(100%)"}} src={`data:image/png;base64,${user.homePagelogo}`} width={"100%"} height={"100%"} />
+          <IMG alt={user.companyName} sx={{opacity: 0.5,filter: "grayscale(100%)"}} src={`data:image/png;base64,${user.logo}`} width={"100%"} height={"100%"} />
         </Box>
 
         <GenricPriceBookLoadingApiDialog
