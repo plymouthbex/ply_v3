@@ -772,6 +772,7 @@ const[OpenUser,setOpenUser]=useState(false);
                 size="small"
                 onClick={() => {
                   dispatch(getUserData({ ID: 0 }));
+                  setPreviewImages1([])
                   setOpenAlert(false);
                 }}
                 autoFocus
