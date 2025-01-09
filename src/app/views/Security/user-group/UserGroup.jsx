@@ -58,14 +58,14 @@ useEffect(()=>{
 },[dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    {
-      headerName: "User Group Code",
-      field: "Code",
-      width: "150",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    // {
+    //   headerName: "User Group Code",
+    //   field: "Code",
+    //   width: "150",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
       headerName: "User Group Name",
       field: "Name",

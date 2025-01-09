@@ -418,7 +418,7 @@ const UserGroupEdit = () => {
                     type="text"
                     id="userGroupName"
                     name="userGroupName"
-                    label="User Group Name"
+                    label="User Security Group"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     disabled={params?.mode === "delete"}

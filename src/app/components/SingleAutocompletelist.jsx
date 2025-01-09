@@ -993,6 +993,10 @@ export const FormikUserGroupOptimizedAutocomplete = ({
           {...params}
           label={props.label || "Select Options"}
           error={!!error}
+          required
+          InputLabelProps={{
+            sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+          }}
           helperText={error}
           InputProps={{
             ...params.InputProps,

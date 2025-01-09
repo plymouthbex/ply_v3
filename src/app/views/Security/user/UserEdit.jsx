@@ -123,14 +123,17 @@ const UserEdit = () => {
   const location = useLocation();
   const state = location.state;
   const { user } = useAuth();
+
+ 
   // ******************** LOCAL STATE ******************** //
 
   const [openDialog, setOpenDialog] = useState(false);
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
-  const [UserID, setSelectUserID] = useState(null);
-  console.log("🚀 ~ UserEdit ~ UserID:", UserID);
+
+
+
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.userFormData);
   console.log("🚀 ~ UserEdit ~ data:", data);
@@ -139,6 +142,25 @@ const UserEdit = () => {
 
   const error = useSelector((state) => state.getSlice.userError);
 
+
+   //==================================================================//
+   let UG = null;
+   let name=null;
+ 
+   if (data.UserGroup && typeof data.UserGroup === 'string') {
+     try {
+       UG = JSON.parse(data.UserGroup);
+       name=UG.Name
+     } catch (error) {
+       console.error("Error parsing UserGroup:", error);
+     }
+   } else {
+     console.error("data.UserGroup is not a valid string:", data.UserGroup);
+   }
+   
+   console.log("🚀 ~ UserEdit ~ UG:", name);
+   const [UserName, setSelectUserName] = useState(name);
+   console.log("🚀 ~ UserEdit ~ UserName:", UserName)
   ///===========API CALL GET============================//
   useEffect(() => {
     dispatch(getUserData({ ID: state.ID }));
@@ -181,21 +203,28 @@ const UserEdit = () => {
       const image = previewImages1[0]["preview"];
       images = image.split(",");
     }
-    const userData = {
-      recordID: data.RecordID,
-      firstname: values.firstname,
-      lastname: values.lastname,
-      password: values.password,
-      userCode: values.code,
-      sortOrder: values.sequence,
-      disable: values.disable ? "Y" : "N",
-      email: values.email,
-      phone: values.mobilenumber,
-      userGroup: JSON.stringify(values.userGroup),
-      rungroup: JSON.stringify(values.runGroup),
-      company: JSON.stringify(values.defaultCompany),
-      UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
-    };
+    let userData;
+
+    if (UserName === "User" && (!values.runGroup || values.runGroup.length === 0)) {
+      alert("Please select the price book group");
+    } else {
+      userData = {
+        recordID: data.RecordID,
+        firstname: values.firstname,
+        lastname: values.lastname,
+        password: values.password,
+        userCode: values.code,
+        sortOrder: values.sequence,
+        disable: values.disable ? "Y" : "N",
+        email: values.email,
+        phone: values.mobilenumber,
+        userGroup: JSON.stringify(values.userGroup),
+        rungroup: JSON.stringify(values.runGroup),
+        company: JSON.stringify(values.defaultCompany),
+        UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
+      };
+    }
+    
     const response = await dispatch(userPost({ userData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
@@ -222,7 +251,7 @@ const UserEdit = () => {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
   };
-
+ 
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -541,8 +570,15 @@ const UserEdit = () => {
                     id="userGroup"
                     value={values.userGroup}
                     onChange={(event, newValue) => {
-                      setFieldValue("userGroup", newValue);
-                      setSelectUserID(newValue ? newValue.RecordID : null); // Handle null cases gracefully
+                      setFieldValue("userGroup", newValue)
+                      // Ensure that newValue is defined before accessing properties
+    if (newValue) {
+      setSelectUserName(newValue.Name);  // Accessing the Name of the selected user group
+        // Assuming newValue has an ID property for the user ID
+    } else {
+      setSelectUserName(null);           // Handle case where no value is selected
+              // Handle case where no value is selected
+    }// Handle null cases gracefully
                     }}
                     label="User Group"
                     url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}

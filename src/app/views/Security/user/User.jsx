@@ -58,24 +58,25 @@ const {user}=useAuth();
   },[dispatch])
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    // {
-    //   headerName: "User Code",
-    //   field: "UserCode",
-    //   width: "100",
-    //   align: "left",
-    //   headerAlign: "left",
-    //   hide: true,
-    // },
+   
     {
-      headerName: "User Name",
+      headerName: "First Name",
       field: "Name",
       width: "170",
       align: "left",
       headerAlign: "left",
       hide: true,
     },
+     {
+      headerName: "Last Name",
+      field: "LastName",
+      width: "170",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
     {
-      headerName: "Email",
+      headerName: "LoginID",
       field: "Email",
       width: "300",
       align: "left",
@@ -83,7 +84,7 @@ const {user}=useAuth();
       hide: true,
     },
     {
-      headerName: "User Company",
+      headerName: "Company",
       field: "CompanyName",
       width: "250",
       align: "left",
@@ -206,71 +207,59 @@ const {user}=useAuth();
 
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
-          sx={{
-            height: dataGridHeight,
-
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-
-            "& .name-column--cell": {
-              color: theme.palette.info.contrastText,
-            },
-
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.success.main,
-
-              color: theme.palette.info.contrastText,
-
-              fontWeight: "bold",
-
-              fontSize: theme.typography.subtitle2.fontSize,
-            },
-
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.info.light,
-            },
-
-            "& .MuiDataGrid-footerContainer": {
-              borderTop: "none",
-
-              backgroundColor: theme.palette.success.main,
-
-              color: theme.palette.info.contrastText,
-            },
-
-            "& .MuiCheckbox-root": {
-              color: "black !important",
-            },
-
-            "& .MuiCheckbox-root.Mui-checked": {
-              color: "black !important",
-            },
-
-            "& .MuiDataGrid-row:nth-of-type(even)": {
-              backgroundColor: theme.palette.action.hover,
-            },
-
-            "& .MuiDataGrid-row:nth-of-type(odd)": {
-              backgroundColor: theme.palette.background.default,
-            },
-
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
-            },
-            "& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
-        
-          }}
+           sx={{
+                      height: dataGridHeight,
+          
+                      "& .MuiDataGrid-root": {
+                        border: "none",
+                      },
+          
+                      "& .name-column--cell": {
+                        color: theme.palette.info.contrastText,
+                      },
+          
+                      "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: theme.palette.info.main,
+          
+                        color: theme.palette.info.contrastText,
+          
+                        fontWeight: "bold",
+          
+                        fontSize: theme.typography.subtitle2.fontSize,
+                      },
+          
+                      "& .MuiDataGrid-virtualScroller": {
+                        backgroundColor: theme.palette.info.light,
+                      },
+          
+                      "& .MuiDataGrid-footerContainer": {
+                        borderTop: "none",
+          
+                        backgroundColor: theme.palette.info.main,
+          
+                        color: theme.palette.info.contrastText,
+                      },
+          
+                      "& .MuiCheckbox-root": {
+                        color: "black !important",
+                      },
+          
+                      "& .MuiCheckbox-root.Mui-checked": {
+                        color: "black !important",
+                      },
+          
+                      "& .MuiDataGrid-row:nth-of-type(even)": {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+          
+                      "& .MuiDataGrid-row:nth-of-type(odd)": {
+                        backgroundColor: theme.palette.background.default,
+                      },
+          
+                      "& .MuiDataGrid-row.Mui-selected:hover": {
+                        backgroundColor: `${theme.palette.action.selected} !important`,
+                      },
+                    }}
         >
           <DataGrid
             slots={{
@@ -295,7 +284,7 @@ const {user}=useAuth();
               '& .MuiDataGrid-footerContainer': {
                   height: dataGridHeaderFooterHeight,
                   minHeight: dataGridHeaderFooterHeight,
-                  color: theme.palette.info.contrastText,
+                  
               },
             }}
             pageSizeOptions={dataGridpageSizeOptions}
