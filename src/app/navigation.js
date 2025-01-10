@@ -24,12 +24,19 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         fav: false,
       },
-    
+      // {
+      //   name: "New Quote",
+      //   icon: <DescriptionIcon fontSize="small" />,
+      //   path: "/pages/pricing-portal/quote-list",
+      //   accessID: "PPB003",
+      //   iconText: "V",
+      //   fav: false,
+      // },
 
       {
         name: "New Quote",
         icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/new-quote",
+        path: "/pages/pricing-portal/new-quote/new",
         accessID: "PPB003",
         iconText: "V",
         fav: false,
@@ -37,7 +44,7 @@ export const navigations = [
       {
         name: "Build A Price List",
         icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/build-price-list",
+        path: "/pages/pricing-portal/build-price-list/new",
         accessID: "PPB005",
         iconText: "V",
         fav: false,
@@ -45,9 +52,9 @@ export const navigations = [
       {
         name: "Templates",
         icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/quote-list",
+        path: "/pages/pricing-portal/templates",
         accessID: "PPB004",
-        iconText: "V",
+        iconText: "QT",
         fav: false,
       },
       {

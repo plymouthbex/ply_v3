@@ -23,14 +23,14 @@ import {
 } from "app/utils/constant";
 
 // ********************** ICONS ********************** //
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { getProspectListData } from "app/redux/slice/getSlice";
-
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -42,7 +42,7 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ********************* ITEMS SCREEN LISTVIEW ********************* //
-const NewProspect = () => {
+const SavedPriceList = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
@@ -51,19 +51,17 @@ const NewProspect = () => {
   const colors = themeColors;
   const location = useLocation();
   const state = location.state ? location.state : {};
+  // ********************* LOCAL STATE ********************* //
 
+  // ********************* REDUX STATE ********************* //
   const rowProspect = useSelector((state) => state.getSlice.getQuoteProspectData)
   const statusProspect = useSelector((state) => state.getSlice.getQuoteProspectStatus)
   const loadingProspect = useSelector((state) => state.getSlice.getQuoteProspectLoading)
   const errorProspect = useSelector((state) => state.getSlice.getQuoteProspectError)
 
   useEffect(()=>{
-    dispatch(getProspectListData({data:{Type:"Prospect",UserID:user.id,}}))
+    dispatch(getProspectListData({data:{Type:"Customer",UserID:user.id,}}))
   },[])
-  // ********************* LOCAL STATE ********************* //
-
-  // ********************* REDUX STATE ********************* //
-
   //=======================API_CALL===================================//
 
   // ********************* COLUMN AND ROWS ********************* //
@@ -77,21 +75,22 @@ const NewProspect = () => {
       hide: true,
     },
     {
-      headerName: "Name",
-      field: "Name",
-      width: "170",
+      headerName: "Customer Name",
+      field: "CustomerName",
+      flex:1,
+      minWidth: 170,
       align: "left",
       headerAlign: "left",
       hide: true,
     },
-    {
-      headerName: "Description",
-      field: "Description",
-      width: "300",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    // {
+    //   headerName: "Description",
+    //   field: "Name",
+    //   minWidth: 300,
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
       field: "Action",
       headerName: "Action",
@@ -109,40 +108,49 @@ const NewProspect = () => {
             <Button
               sx={{
                 height: 25,
+                color: theme.palette.secondary.contrastText,
+                bgcolor: theme.palette.secondary.light,
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
               }}
               variant="contained"
-              color="info"
+              color="secondary"
               size="small"
+              //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editprospect", {
+                navigate("/pages/pricing-portal/build-price-list/copy", {
                   state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
+                    headerID: params.row.RecordID,
+
                   },
                 });
               }}
             >
-              Copy Quote
+              Copy Price List
             </Button>
             <Button
               sx={{
                 height: 25,
+                color: theme.palette.secondary.contrastText,
+                bgcolor: theme.palette.secondary.light,
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light, // Custom hover color
+                },
               }}
               variant="contained"
-              color="info"
+              color="secondary"
               size="small"
+              //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/print", {
+                navigate("/pages/pricing-portal/build-price-list/view", {
                   state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
+                    headerID: params.row.RecordID,
                   },
                 });
               }}
             >
-              Print Quote
+              View Price List
             </Button>
           </div>
         );
@@ -176,13 +184,13 @@ const NewProspect = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
             startIcon={<Add />}
             onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/newprospect", {
+              navigate("/pages/pricing-portal/quote-form/newexisting", {
                 state: {
                   prospectID: 0,
                   templateID: state.templateID ? state.templateID : 0,
@@ -192,12 +200,11 @@ const NewProspect = () => {
             }}
           >
             NEW
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
   }
-
 
   return (
     <Container>
@@ -211,8 +218,8 @@ const NewProspect = () => {
       >
         <Breadcrumb
           routeSegments={[
-            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "New Prospect" },
+            { name: "Templates", path:"/pages/pricing-portal/templates" },
+            { name: "Saved Price List" },
           ]}
         />
         <Stack direction={"row"} gap={1}>
@@ -259,16 +266,6 @@ const NewProspect = () => {
 
             "& .MuiCheckbox-root.Mui-checked": {
               color: "#174c4f !important",
-            },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
@@ -288,6 +285,7 @@ const NewProspect = () => {
             rows={rowProspect}
             loading={loadingProspect}
             columns={columns}
+            // checkboxSelection
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
@@ -314,4 +312,4 @@ const NewProspect = () => {
   );
 };
 
-export default NewProspect;
+export default SavedPriceList;

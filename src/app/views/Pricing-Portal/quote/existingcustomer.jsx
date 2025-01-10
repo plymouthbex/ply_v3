@@ -119,7 +119,7 @@ const ExistingCustomer = () => {
               size="small"
               //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
-                navigate("/pages/pricing-portal/build-price-list", {
+                navigate("/pages/pricing-portal/quote-form/editexisting", {
                   state: {
                     prospectID: params.row.RecordID,
                     templateID: state.templateID ? state.templateID : 0,
@@ -128,9 +128,9 @@ const ExistingCustomer = () => {
                 });
               }}
             >
-             View
+              Copy Quote
             </Button>
-            {/* <Button
+            <Button
               sx={{
                 height: 25,
                 color: theme.palette.secondary.contrastText,
@@ -154,7 +154,7 @@ const ExistingCustomer = () => {
               }}
             >
               Print Quote
-            </Button> */}
+            </Button>
           </div>
         );
       },
@@ -187,7 +187,7 @@ const ExistingCustomer = () => {
         >
           <GridToolbarQuickFilter />
 
-          {/* <Button
+          <Button
             variant="contained"
             color="info"
             size="small"
@@ -203,7 +203,7 @@ const ExistingCustomer = () => {
             }}
           >
             NEW
-          </Button> */}
+          </Button>
         </Box>
       </GridToolbarContainer>
     );
@@ -221,8 +221,8 @@ const ExistingCustomer = () => {
       >
         <Breadcrumb
           routeSegments={[
-            { name: "Quote", },
-            { name: "Price List" },
+            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
+            { name: "Existing Customer" },
           ]}
         />
         <Stack direction={"row"} gap={1}>

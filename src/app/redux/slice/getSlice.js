@@ -128,6 +128,7 @@ const initialState = {
   getQuoteFilterItemData: [],
   getQuoteFilterItemError: null,
   getQuteFiltData: {},
+  getQuoteHeaderData: {},
   getQuteFiltStatus: "idle",
   getQuteFiltLoading: false,
   getQuteFiltError: null,
@@ -391,9 +392,9 @@ export const getQuoteBookData = createAsyncThunk(
 
 export const getPriceListItemGet = createAsyncThunk(
   "page/getPriceListItemGet",
-  async ({ id, itemNumber, type = "PL" }, { rejectWithValue }) => {
+  async ({ id = 0, RecordID = 0, type = "PL", }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceListItemByNumber?ItemNumber=${itemNumber}&PriceListID=${id}&Type=${type}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceListItemByNumber?RecordID=${RecordID}&PriceListID=${id}&Type=${type}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -525,6 +526,49 @@ export const getQuoteItemsAndFilters = createAsyncThunk(
     }
   }
 );
+
+export const getQuoteItemsAndFiltersget2 = createAsyncThunk(
+  "get/getQuoteItemsAndFiltersget2", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetQutationConditionItems`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const getQuoteItemsAndFiltersget3 = createAsyncThunk(
+  "get/getQuoteItemsAndFiltersget3", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/GetQutationConditionItems`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
 
 const getSlice = createSlice({
   name: "getSlice",
@@ -1036,31 +1080,46 @@ const getSlice = createSlice({
       })
 
       .addCase(getQuoteItemsAndFilters.pending, (state) => {
-        state.getQuoteFilterItemStatus = "pending";
-        state.getQuoteFilterItemLoading = true;
         state.getQuoteFilterItemData = [];
-        state.getQuteFiltStatus = "pending";
-        state.getQuteFiltLoading = true;
         state.getQuteFiltData = {};
+        state.getQuoteHeaderData = {};
+
+        state.getQuoteFilterItemLoading = true;
+        state.getQuteFiltLoading = true;
+
+        state.getQuoteFilterItemStatus = "pending";
+        state.getQuteFiltStatus = "pending";
       })
       .addCase(getQuoteItemsAndFilters.fulfilled, (state, action) => {
+        state.getQuoteHeaderData = action.payload.data.headerdata;
         state.getQuteFiltData = action.payload.data.filterData;
         state.getQuoteFilterItemData = action.payload.data.itemData;
 
-        state.getQuoteFilterItemStatus = "fulfilled";
-        state.getQuoteFilterItemLoading = false;
-        state.getQuteFiltStatus = "fulfilled";
         state.getQuteFiltLoading = false;
+        state.getQuoteFilterItemLoading = false;
+        state.getQuoteFilterItemStatus = "fulfilled";
+        state.getQuteFiltStatus = "fulfilled";
       })
       .addCase(getQuoteItemsAndFilters.rejected, (state, action) => {
-        state.getQuoteFilterItemStatus = "rejected";
         state.getQuoteFilterItemLoading = false;
-        state.getQuteFiltStatus = "rejected";
         state.getQuteFiltLoading = false;
+
+        state.getQuoteFilterItemStatus = "rejected";
+        state.getQuteFiltStatus = "rejected";
 
         state.getQuoteFilterItemError = action.error.message;
         state.getQuoteFilterItemError = action.error.message;
-      });
+      })
+
+      .addCase(getQuoteItemsAndFiltersget2.fulfilled, (state, action) => {
+        state.getQuoteHeaderData = action.payload.data.headerdata;
+        state.getQuteFiltData = action.payload.data.filterData;
+
+      })
+      .addCase(getQuoteItemsAndFiltersget3.fulfilled, (state, action) => {
+        state.getQuoteFilterItemData = action.payload.data.itemData;
+      })
+
   },
 });
 

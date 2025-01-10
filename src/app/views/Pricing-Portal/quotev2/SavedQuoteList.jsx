@@ -42,7 +42,7 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ********************* ITEMS SCREEN LISTVIEW ********************* //
-const NewProspect = () => {
+const SavedQuoteList = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
@@ -114,11 +114,9 @@ const NewProspect = () => {
               color="info"
               size="small"
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editprospect", {
+                navigate("/pages/pricing-portal/new-quote/copy", {
                   state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
+                    headerID: params.row.RecordID,
                   },
                 });
               }}
@@ -133,16 +131,14 @@ const NewProspect = () => {
               color="info"
               size="small"
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/print", {
+                navigate("/pages/pricing-portal/new-quote/view/build-quote", {
                   state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
+                    headerID: params.row.RecordID,
                   },
                 });
               }}
             >
-              Print Quote
+              View Quote
             </Button>
           </div>
         );
@@ -175,24 +171,6 @@ const NewProspect = () => {
           }}
         >
           <GridToolbarQuickFilter />
-
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/newprospect", {
-                state: {
-                  prospectID: 0,
-                  templateID: state.templateID ? state.templateID : 0,
-                  templateName: state.templateName ? state.templateName : "",
-                },
-              });
-            }}
-          >
-            NEW
-          </Button>
         </Box>
       </GridToolbarContainer>
     );
@@ -209,12 +187,12 @@ const NewProspect = () => {
           alignItems: "center",
         }}
       >
-        <Breadcrumb
-          routeSegments={[
-            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "New Prospect" },
-          ]}
-        />
+          <Breadcrumb
+                 routeSegments={[
+                   { name: "Templates", path:"/pages/pricing-portal/templates" },
+                   { name: "Saved Quote" },
+                 ]}
+               />
         <Stack direction={"row"} gap={1}>
           <Button
             variant="contained"
@@ -259,16 +237,6 @@ const NewProspect = () => {
 
             "& .MuiCheckbox-root.Mui-checked": {
               color: "#174c4f !important",
-            },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
@@ -314,4 +282,4 @@ const NewProspect = () => {
   );
 };
 
-export default NewProspect;
+export default SavedQuoteList;

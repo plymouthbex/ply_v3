@@ -7,10 +7,7 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import {
-  DataGrid,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
+import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 
 import { useNavigate } from "react-router-dom";
@@ -86,19 +83,14 @@ const QuoteList = () => {
 
   const rows = [
     {
-      name: "New Prospect",
+      name: "Saved Quote",
       CompanyCode: "NP001",
-      path: "/pages/pricing-portal/new-prospect-quote",
+      path: "/pages/pricing-portal/saved-quote-list",
     },
     {
-      name: "Existing Customer",
+      name: "Saved Price List",
       CompanyCode: "EP001",
-      path: "/pages/pricing-portal/existing-customer-quote",
-    },
-    {
-      name: "Templates",
-      CompanyCode: "T001",
-      path: "/pages/pricing-portal/quote-template",
+      path: "/pages/pricing-portal/saved-price-list",
     },
   ];
 
@@ -148,7 +140,7 @@ const QuoteList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Quote" }, { name: "Quote List" }]}
+          routeSegments={[{ name: "Quote" }, { name: "Templates" }]}
         />
       </div>
 
@@ -183,28 +175,18 @@ const QuoteList = () => {
 
             "& .MuiCheckbox-root.Mui-checked": {
               color: "#174c4f !important",
-            },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height:dataGridHeaderFooterHeight,
-                 minHeight:dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
