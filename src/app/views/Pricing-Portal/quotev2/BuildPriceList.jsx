@@ -660,15 +660,15 @@ export default function BuildCustomPriceBook() {
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
-          {/* <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </Button> */}
+        {params.mode === "copy" &&<Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    startIcon={<ArrowBackIcon size="small" />}
+                    onClick={() => navigate(-1)}
+                  >
+                    Back
+                  </Button>}
         </Box>
       </Box>
 
