@@ -50,6 +50,14 @@ export const navigations = [
         iconText: "V",
         fav: false,
       },
+      {
+        name: "Contact Directory",
+        path: "/pages/pricing-portal/contact-directory",
+        iconText: "C",
+        accessID: "PPB015",
+        icon: <DescriptionIcon fontSize="small" />,
+        role: authRoles.admin,
+      },
       // {
       //   name: "Templates",
       //   icon: <DescriptionIcon fontSize="small" />,

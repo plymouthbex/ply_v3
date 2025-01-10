@@ -46,9 +46,9 @@ const validationSchema = Yup.object({
   //   .min(1, "Code must be at least 1 characters")
   //   .max(15, "Code must be at most 15 characters"),
 
-  sortOrder: Yup.string()
-    .min(1, "Sort Order must be at least 1 character")
-    .max(15, "Sort Order must be at most 15 characters"),
+  // sortOrder: Yup.string()
+  //   .min(1, "Sort Order must be at least 1 character")
+  //   .max(15, "Sort Order must be at most 15 characters"),
 
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
