@@ -43,6 +43,7 @@ import CustomAutocomplete, {
 } from "app/components/AutoComplete";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  DeleteAdHocItem,
   postBuildData,
   postQutoeData,
   priceListClearFilter,
@@ -75,6 +76,7 @@ import {
 } from "app/redux/slice/priceListSlice";
 import LoadingApiDialog, {
   PriceGroupAlertApiDialog,
+  QuoteTempAlertApiDialog,
 } from "app/components/LoadindgDialog";
 import {
   DataGrid,
@@ -92,7 +94,10 @@ import {
 } from "app/components/SingleAutocompletelist";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Formik } from "formik";
-import { FormikCustomAutocompleteMulti } from "app/components/FormikAutocomplete";
+import {
+  FormikCustomAutocompleteMulti,
+  FormikCustomAutocompleteMultiAdHocItems,
+} from "app/components/FormikAutocomplete";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -265,22 +270,22 @@ export default function BuildCustomPriceBook() {
     {
       headerName: "Item Number",
       field: "Item_Number",
-      width: "150",
+      width: 150,
       align: "left",
       headerAlign: "left",
     },
     {
       headerName: "Item Description",
       field: "Item_Description",
-      minWidth: "350",
+      minWidth: 350,
       flex: 1,
       align: "left",
       headerAlign: "left",
     },
     {
-      headerName: "Add Hoc Item",
+      headerName: "Ad Hoc Item",
       field: "AdHocItem",
-      minWidth: "100",
+      Width: 100,
       align: "left",
       headerAlign: "left",
       renderCell: (param) => {
@@ -289,9 +294,8 @@ export default function BuildCustomPriceBook() {
     },
     {
       field: "Action",
-      headerName: "Attributes",
+      headerName: "Action",
       minWidth: 200,
-      flex: 1,
       sortable: false,
       headerAlign: "center",
       filterable: false,
@@ -302,7 +306,7 @@ export default function BuildCustomPriceBook() {
       renderCell: (param) => {
         return (
           <>
-            <Button
+            {/* <Button
               sx={{
                 height: 25,
                 "&:hover": {
@@ -327,37 +331,38 @@ export default function BuildCustomPriceBook() {
               startIcon={<ModeEditOutlineIcon size="small" />}
             >
               Edit
-            </Button>
+            </Button> */}
 
-            {param.row.AdHocItem === "Y" && (
+            
               <Button
                 sx={{
                   height: 25,
                   ml: 1,
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-                  color: theme.palette.secondary.contrastText,
-                  bgcolor: theme.palette.secondary.light,
-                  fontWeight: "bold",
                 }}
+                color="info"
                 variant="contained"
                 size="small"
-                onClick={() =>
-                  navigate("./item-attributes/delete", {
-                    state: {
-                      headerID: getQuoteHeaderData.RecordID,
-                      RecordID: param.row.RecordId,
-                      itemNumber: param.row.Item_Number,
-                      itemDesc: param.row.Item_Description,
-                    },
-                  })
-                }
+                // onClick={() =>
+                //   navigate("./item-attributes/delete", {
+                //     state: {
+                //       headerID: getQuoteHeaderData.RecordID,
+                //       RecordID: param.row.RecordId,
+                //       itemNumber: param.row.Item_Number,
+                //       itemDesc: param.row.Item_Description,
+                //     },
+                //   })
+                // }
+
+                onClick={()=>{
+                  setDeleteID(param.row.RecordId)
+                  setIsRemoveItem(true)
+                }}
+                
                 startIcon={<DeleteIcon size="small" />}
               >
-                Delete
+                Remove
               </Button>
-            )}
+          
           </>
         );
       },
@@ -385,7 +390,7 @@ export default function BuildCustomPriceBook() {
           }}
         >
           <GridToolbarQuickFilter />
-          <OptimizedAutocomplete
+          {/* <FormikCustomAutocompleteMultiAdHocItems
             errors={isItemExistsError}
             helper={isItemExistsError && "please select item!"}
             name="adHocItem"
@@ -401,14 +406,10 @@ export default function BuildCustomPriceBook() {
             size="small"
             type="reset"
             startIcon={<Add size="small" />}
-            disabled={
-            params.mode == "copy"
-                ? true
-                : false 
-            }
+            disabled={params.mode == "copy" ? true : false}
           >
             Ad Hoc Item
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -468,7 +469,7 @@ export default function BuildCustomPriceBook() {
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
 
-  const getFilteredDataAndSave = async (values) => {
+  const getFilteredDataAndSave = async (values, setSubmitting) => {
     try {
       const data = {
         RecordID: params.mode == "copy" ? 0 : getQuoteHeaderData.RecordID,
@@ -476,8 +477,8 @@ export default function BuildCustomPriceBook() {
         UserID: user.id,
         FromDate: sunday,
         ToDate: saturday,
-        Name: values.customer ? values.customer.CustomerName : "",
-        Description: "",
+        Description: values.pricelistName,
+        Name: "",
         Address1: "",
         Address2: "",
         City: "",
@@ -487,14 +488,14 @@ export default function BuildCustomPriceBook() {
         Mobile: "",
         Provider: "",
         Salesrepresentative: values.salesRepName,
-        PriceLevel: values.priceBookLevel,
+        PriceLevel: values.customer?values.customer.PriceLevel:"",
         CustomerName: values.customer ? values.customer.CustomerName : "",
         CustomerNumber: values.customer ? values.customer.Code : "",
       };
 
       const response = await dispatch(quoteInfoData({ data }));
       if (response.payload.status === "Y") {
-       
+        setSubmitting(false);
         const filterData = {
           filterType: "Q",
           headerRecordID: response.payload.RecordId.toString(),
@@ -538,12 +539,8 @@ export default function BuildCustomPriceBook() {
             Option: "",
             Value: JSON.stringify(values.classID),
           },
-          PriceLists: {
-            Attribute: "PriceListID",
-            Option: "",
-            Value: "[]",
-          },
           PriceLists: [],
+          AdHocItem:values.adHocItems,
         };
         dispatch(getQuoteFilterData(filterData));
 
@@ -553,7 +550,7 @@ export default function BuildCustomPriceBook() {
               headerID: response.payload.RecordId,
             },
           });
-          return
+          return;
         }
         if (getQuoteHeaderData.RecordID == 0) {
           dispatch(
@@ -566,6 +563,7 @@ export default function BuildCustomPriceBook() {
 
         // clearQuotePriceList();
       } else {
+        setSubmitting(false);
         setOpenAlert(true);
         setPostError(true);
       }
@@ -605,6 +603,7 @@ export default function BuildCustomPriceBook() {
       setFieldValue("com", []);
       setFieldValue("alt", []);
       setFieldValue("vendor", []);
+
       setFieldValue("fsfz", []);
       setFieldValue("classID", []);
       setFieldValue("secondary", []);
@@ -612,6 +611,39 @@ export default function BuildCustomPriceBook() {
     } else {
       setOpenAlert4(true);
       setPostError4(true);
+    }
+  };
+
+  const [isRemoveItem, setIsRemoveItem] = useState(false);
+  const [openAlert6, setOpenAlert6] = useState(false);
+  const [postError6, setPostError6] = useState(false);
+  const [deleteID, setDeleteID] = useState(0);
+  const itemDeleteFn = async (id) => {
+    const data = {
+      RecordID: deleteID,
+      priceListID: "0",
+      quotationRecordID: getQuoteHeaderData.RecordID.toString(),
+      filterType: "Q",
+      itemNo: "",
+      printSequence: '',
+      printItem:"",
+      comment: "",
+    };
+
+    const response = await dispatch(DeleteAdHocItem({ data }));
+    if (response.payload.status === "Y") {
+      dispatch(
+        getQuoteItemsAndFiltersget3({
+          data: { RecordID: getQuoteHeaderData.RecordID.toString() },
+        })
+      );
+      setPostError6(false);
+      setOpenAlert6(true);
+      setDeleteID(0)
+    } else {
+      setOpenAlert6(true);
+      setPostError6(true);
+      setDeleteID(0)
     }
   };
   return (
@@ -646,6 +678,7 @@ export default function BuildCustomPriceBook() {
             company: getQuoteHeaderData.CompanyCode
               ? getQuoteHeaderData.CompanyCode
               : user.companyCode,
+            pricelistName: getQuoteHeaderData.Description,
             salesRepName: getQuoteHeaderData.Salesrepresentative,
             priceBookLevel: getQuoteHeaderData.PriceLevel
               ? getQuoteHeaderData.PriceLevel
@@ -654,7 +687,7 @@ export default function BuildCustomPriceBook() {
               ? {
                   Code: getQuoteHeaderData.CustomerNumber,
                   Name: `${getQuoteHeaderData.CustomerNumber} || ${getQuoteHeaderData.CustomerName}`,
-                  CustomerName: getQuoteHeaderData.CustomerName,
+                  CustomerName: getQuoteHeaderData.CustomerName,PriceLevel:getQuoteHeaderData.PriceLevel
                 }
               : null,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
@@ -664,6 +697,29 @@ export default function BuildCustomPriceBook() {
             fsfz: JSON.parse(getQuteFiltData.Type.Value),
             classID: JSON.parse(getQuteFiltData.Class.Value),
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
+            adHocItems: [],
+          }}
+          validate={(values) => {
+            console.log("🚀 ~ BuildCustomPriceBook ~ values:", values);
+            const errors = {};
+            // Check if at least one filter array has data (ignore other fields like `name`, `description`)
+            const filters = [
+              "brand",
+              "com",
+              "alt",
+              "vendor",
+              "fsfz",
+              "classID",
+              "secondary",
+              "adHocItems",
+            ];
+            const hasData = filters.some((filter) => values[filter].length > 0);
+            if (!hasData) {
+              errors.filters =
+                "At least one filter or Ad Hoc must have selected filter/item";
+            }
+            console.log("🚀 ~ BuildCustomPriceBook ~ errors:", errors);
+            return errors;
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -686,9 +742,9 @@ export default function BuildCustomPriceBook() {
           }) => (
             <form
               onSubmit={handleSubmit}
-              onReset={() => {
-                adHocItem(values);
-              }}
+              // onReset={() => {
+              //   adHocItem(values);
+              // }}
             >
               <Box>
                 <SimpleCard>
@@ -829,53 +885,24 @@ export default function BuildCustomPriceBook() {
 
                     <TextField
                       variant="outlined"
-                      name="salesRepName"
-                      id="salesRepName"
-                      label="Sales Representative Name"
+                      name="pricelistName"
+                      id="pricelistName"
+                      label="Price List Name"
                       size="small"
                       sx={{ gridColumn: "span 1" }}
-                      value={values.salesRepName}
+                      value={values.pricelistName}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      required
+                      InputLabelProps={{
+                        sx: {
+                          "& .MuiInputLabel-asterisk": { color: "red" },
+                        },
+                      }}
                     />
-                    {user.role === "USER"}
-                    <Stack
-                      sx={{ gridColumn: "span 1" }}
-                      direction="column"
-                      gap={2}
-                    >
-                      <Autocomplete
-                        fullWidth
-                        disabled={user.role === "USER"}
-                        id="priceBookLevel"
-                        name="priceBookLevel"
-                        options={priceBookLevel1}
-                        value={values.priceBookLevel}
-                        getOptionLabel={(option) =>
-                          `Price Book Level ${option}`
-                        }
-                        onChange={(event, newValue) =>
-                          handleChange({
-                            target: {
-                              name: "priceBookLevel",
-                              value: newValue,
-                            },
-                          })
-                        }
-                        onBlur={handleBlur}
-                        disableClearable
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Price Book Level"
-                            size="small"
-                            sx={{ gridColumn: "span 2" }}
-                          />
-                        )}
-                      />
-                    </Stack>
 
                     <FormikCustomAutocompleteCustomer
+                      required={true}
                       name="customer"
                       id="customer"
                       sx={{ gridColumn: "span 1" }}
@@ -891,6 +918,63 @@ export default function BuildCustomPriceBook() {
                       }Customer/GetCustomer?CompanyCode=${
                         values.company ? values.company : user.companyCode
                       }`}
+                    />
+
+                    <TextField
+                      variant="outlined"
+                      label="Price Book Level"
+                      size="small"
+                      sx={{ gridColumn: "span 1" }}
+                      id="priceBookLevel"
+                      name="priceBookLevel"
+                      value={ values.customer?`Price Book Level ${values.customer.PriceLevel}`:""}
+                      inputProps={{ readOnly: true }}
+                    />
+                    {/* <Autocomplete
+                      fullWidth
+                      disabled={user.role === "USER"}
+                      sx={{ gridColumn: "span 1" }}
+                      id="priceBookLevel"
+                      name="priceBookLevel"
+                      value={values.priceBookLevel}
+                      options={priceBookLevel1}
+                      getOptionLabel={(option) => `Price Book Level ${option}`}
+                      onChange={(event, newValue) =>
+                        handleChange({
+                          target: {
+                            name: "priceBookLevel",
+                            value: newValue,
+                          },
+                        })
+                      }
+                      onBlur={handleBlur}
+                      disableClearable
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Price Book Level"
+                          size="small"
+                          sx={{ gridColumn: "span 2" }}
+                        />
+                      )}
+                    /> */}
+
+                    <TextField
+                      variant="outlined"
+                      name="salesRepName"
+                      id="salesRepName"
+                      label="Sales Representative Name"
+                      size="small"
+                      sx={{ gridColumn: "span 1" }}
+                      value={values.salesRepName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      InputLabelProps={{
+                        sx: {
+                          "& .MuiInputLabel-asterisk": { color: "red" },
+                        },
+                      }}
                     />
                   </Box>
                   <Box
@@ -919,7 +1003,12 @@ export default function BuildCustomPriceBook() {
                       direction="row"
                       justifyContent={"flex-end"}
                       gap={2}
-                    ></Stack>
+                    >
+                      {" "}
+                      {errors.filters && (
+                        <div style={{ color: "red" }}>{errors.filters}</div>
+                      )}
+                    </Stack>
                     <FormikCustomAutocompleteMulti
                       name="brand"
                       id="brand"
@@ -996,10 +1085,26 @@ export default function BuildCustomPriceBook() {
                       label="Secondary Class"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
                     />
+
+                    <FormikCustomAutocompleteMultiAdHocItems
+                      name="adHocItems"
+                      id="adHocItems"
+                      value={values.adHocItems}
+                      onChange={(event, newValue) =>
+                        setFieldValue("adHocItems", newValue)
+                      }
+                      label="Ad Hoc Items"
+                      url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
+                    />
                   </Box>
 
                   <Stack direction="row" justifyContent="end" gap={2} mb={1}>
-                    <Button variant="contained" color="info" type="submit">
+                    <Button
+                      disabled={isSubmitting}
+                      variant="contained"
+                      color="info"
+                      type="submit"
+                    >
                       Apply Filters & Save
                     </Button>
 
@@ -1007,10 +1112,12 @@ export default function BuildCustomPriceBook() {
                       variant="contained"
                       color="info"
                       disabled={
-                        params.mode == "copy" ? true : getQuoteHeaderData.RecordID &&
-                        getQuoteFilterItemData.length > 0 
-                          ? false  
-                          : true 
+                        params.mode == "copy"
+                          ? true
+                          : getQuoteHeaderData.RecordID &&
+                            getQuoteFilterItemData.length > 0
+                          ? false
+                          : true
                       }
                       onClick={() => setIsClear(true)}
                     >
@@ -1291,6 +1398,75 @@ export default function BuildCustomPriceBook() {
                     }
                   />
                 </SimpleCard>
+                <PriceGroupAlertApiDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  key={23131}
+                  open={openAlert6}
+                  error={postError6}
+                  message={"Item Deleted Successfully"}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setOpenAlert6(false);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
+                />
+
+                <QuoteTempAlertApiDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isRemoveItem}
+                  //  tittle={values.itemDescription}
+                  error={true}
+                  message={`Are you sure you want to remove Item ?`}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        sx={{ mr: 1, height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsRemoveItem(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        sx={{ height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          itemDeleteFn(values);
+                          setIsRemoveItem(false);
+                        }}
+                      >
+                        Confirm
+                      </Button>
+                    </Box>
+                  }
+                />
               </Box>{" "}
             </form>
           )}

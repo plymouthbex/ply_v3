@@ -14,6 +14,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 // ******************** ICONS ******************** //
 import { Formik } from "formik";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -78,9 +79,11 @@ const NewProspect = () => {
   );
 
   useEffect(() => {
-    // dispatch(clearStateProspectInfoQuote());
-    dispatch(getProspectInfoData({ data: { RecordID: 0 } }));
-    // dispatch(getPriceListView({ ID: user.companyID }));
+    dispatch(
+      getProspectInfoData({
+        data: { RecordID: state.headerID ? state.headerID : 0 },
+      })
+    );
     dispatch(quoteClearState2());
   }, [location.key]);
 
@@ -94,7 +97,7 @@ const NewProspect = () => {
   const handleSave = async (values, setSubmitting) => {
     const data = {
       RecordID: 0,
-      CompanyId: values.company ? values.company : "",
+      CompanyCode: values.company ? values.company : "",
       UserID: user.id,
       FromDate: "",
       ToDate: "",
@@ -118,38 +121,17 @@ const NewProspect = () => {
 
     if (response.payload.status === "Y") {
       setOpenAlert(true);
-      if (params.mode === "newprospect" || params.mode === "editprospect") {
-        // setShowDataGrid(true);
-        // setHeaderID(response.payload.RecordId);
-        setTimeout(() => {
-          setOpenAlert(false);
-          setSubmitting(false);
-        }, 2000);
-      } else {
-        // dispatch(
-        //   postContractItems({
-        //     data: rowSelectionModelRows,
-        //     params: {
-        //       ProspectID: state.prospectID,
-        //       HeaderID: response.payload.RecordId,
-        //     },
-        //   })
-        // );
 
-        setTimeout(() => {
-          setOpenAlert(false);
-          setSubmitting(false);
-          navigate("/pages/pricing-portal/quote", {
-            state: {
-              headerID: response.payload.RecordId,
-              templateID: state.templateID ? state.templateID : 0,
-              templateName: state.templateName ? state.templateName : "",
-              accessID: "PPB005",
-              name: "Quote",
-            },
-          });
-        }, 2000);
-      }
+      setTimeout(() => {
+        navigate(
+          params.mode === ""
+            ? "/pages/pricing-portal/new-quote/new/build-quote"
+            : "./build-quote",
+          { state: { headerID: response.payload.RecordId } }
+        );
+        setOpenAlert(false);
+        setSubmitting(false);
+      }, 2000);
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -161,18 +143,6 @@ const NewProspect = () => {
       }, 2000);
     }
   };
-
-  const genricPriceBookIsPdfGenrating = useSelector(
-    (state) => state.priceList.genricPriceBookIsPdfGenrating
-  );
-  const genricPriceBookPdfGenratingMsg = useSelector(
-    (state) => state.priceList.genricPriceBookPdfGenratingMsg
-  );
-  const genricPriceBookIsPdfError = useSelector(
-    (state) => state.priceList.genricPriceBookIsPdfError
-  );
-
-  const priceBookLevel1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   return (
     <Container>
@@ -194,16 +164,8 @@ const NewProspect = () => {
             mobile: getQuoteProspectInfoData.Mobile,
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
-            customer: getQuoteProspectInfoData.CustomerNumber
-              ? {
-                  Code: getQuoteProspectInfoData.CustomerNumber,
-                  Name: `${getQuoteProspectInfoData.CustomerNumber} || ${getQuoteProspectInfoData.CustomerName}`,
-                  CustomerName: getQuoteProspectInfoData.CustomerName,
-                }
-              : null,
-            priceBookLevel: getQuoteProspectInfoData.PriceLevel
-              ? getQuoteProspectInfoData.PriceLevel
-              : null,
+            customer: getQuoteProspectInfoData.CustomerNumber,
+            priceBookLevel: getQuoteProspectInfoData.PriceLevel,
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -223,10 +185,28 @@ const NewProspect = () => {
             setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
-              <div className="breadcrumb">
+              <div
+                className="breadcrumb"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <Breadcrumb
                   routeSegments={[{ name: "Quote" }, { name: `New Prospect` }]}
                 />
+                <Stack direction={"row"} gap={1}>
+                  {params.mode === "copy" &&<Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    startIcon={<ArrowBackIcon size="small" />}
+                    onClick={() => navigate(-1)}
+                  >
+                    Back
+                  </Button>}
+                </Stack>
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
@@ -262,6 +242,12 @@ const NewProspect = () => {
                     value={values.salesRepName}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    required
+                    InputLabelProps={{
+                      sx: {
+                        "& .MuiInputLabel-asterisk": { color: "red" },
+                      },
+                    }}
                   />
                   <TextField
                     fullWidth
@@ -284,7 +270,7 @@ const NewProspect = () => {
                     error={!!touched.name && !!errors.name}
                     helperText={touched.name && errors.name}
                   />
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -296,7 +282,7 @@ const NewProspect = () => {
                     value={values.description}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                  />
+                  /> */}
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -349,21 +335,27 @@ const NewProspect = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
+
                   <TextField
                     fullWidth
                     variant="outlined"
-                    type="email"
-                    id="email"
-                    name="email"
-                    label="Email"
+                    type="number"
+                    id="priceBookLevel"
+                    name="priceBookLevel"
+                    label="price Book Level"
                     size="small"
+                    required
+                    InputLabelProps={{
+                      sx: {
+                        "& .MuiInputLabel-asterisk": { color: "red" },
+                      },
+                    }}
                     sx={{ gridColumn: "span 2" }}
-                    value={values.email}
+                    value={values.priceBookLevel}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={touched.email && Boolean(errors.email)}
-                    helperText={touched.email && errors.email}
                   />
+
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -399,7 +391,28 @@ const NewProspect = () => {
                       <MenuItem value={"TM"}>T-Mobile</MenuItem>
                     </Select>
                   </FormControl>
-                  <Stack
+                  <TextField
+                    required
+                    InputLabelProps={{
+                      sx: {
+                        "& .MuiInputLabel-asterisk": { color: "red" },
+                      },
+                    }}
+                    fullWidth
+                    variant="outlined"
+                    type="email"
+                    id="email"
+                    name="email"
+                    label="Email"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
+                  />
+                  {/* <Stack
                     sx={{ gridColumn: "span 2" }}
                     direction="column"
                     gap={2}
@@ -430,7 +443,7 @@ const NewProspect = () => {
                         />
                       )}
                     />
-                  </Stack>
+                  </Stack> */}
 
                   <Box
                     sx={{
@@ -445,10 +458,12 @@ const NewProspect = () => {
                       size="small"
                       endIcon={<ArrowForwardIcon />}
                       sx={{ padding: "8px 16px" }}
-                    //   type="submit"
-                    onClick={() => navigate('/pages/pricing-portal/build-new-quote')}
+                      type="submit"
+                      // onClick={() =>
+                      //   navigate("/pages/pricing-portal/build-new-quote")
+                      // }
                     >
-                     Next
+                      Next
                     </Button>
                   </Box>
                 </Box>

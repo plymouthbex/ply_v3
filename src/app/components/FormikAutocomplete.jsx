@@ -93,6 +93,7 @@ export function FormikCustomAutocompleteMulti({
       }}
       size="small"
       multiple={multiple}
+      limitTags={2}
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
@@ -113,6 +114,169 @@ export function FormikCustomAutocompleteMulti({
             checked={selected}
           />
           {option.Name}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+
+
+export function FormikCustomAutocompleteMultiAdHocItems({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+      }}
+      size="small"
+      multiple={multiple}
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.item_key === value.item_key}
+      getOptionLabel={(option) => `${option.Item_Number} || ${option.Item_Description}`}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox
+            size="small"
+            sx={{ marginLeft: -1 }}
+            checked={selected}
+          />
+          {`${option.Item_Number} || ${option.Item_Description}`}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+
+export function FormikCustomAutocompleteMultiPriceList({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+      }}
+      size="small"
+      multiple={multiple}
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox
+            size="small"
+            sx={{ marginLeft: -1 }}
+            checked={selected}
+          />
+          {`${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
         </li>
       )}
       renderInput={(params) => (

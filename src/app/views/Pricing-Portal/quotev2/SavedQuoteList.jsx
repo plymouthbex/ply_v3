@@ -114,11 +114,9 @@ const SavedQuoteList = () => {
               color="info"
               size="small"
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/editprospect", {
+                navigate("/pages/pricing-portal/new-quote/copy", {
                   state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
+                    headerID: params.row.RecordID,
                   },
                 });
               }}
@@ -133,11 +131,9 @@ const SavedQuoteList = () => {
               color="info"
               size="small"
               onClick={() => {
-                navigate("/pages/pricing-portal/quote-form/print", {
+                navigate("/pages/pricing-portal/new-quote/view/build-quote", {
                   state: {
-                    prospectID: params.row.RecordID,
-                    templateID: state.templateID ? state.templateID : 0,
-                    templateName: state.templateName ? state.templateName : "",
+                    headerID: params.row.RecordID,
                   },
                 });
               }}
@@ -175,24 +171,6 @@ const SavedQuoteList = () => {
           }}
         >
           <GridToolbarQuickFilter />
-
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/SavedQuoteList", {
-                state: {
-                  prospectID: 0,
-                  templateID: state.templateID ? state.templateID : 0,
-                  templateName: state.templateName ? state.templateName : "",
-                },
-              });
-            }}
-          >
-            NEW
-          </Button>
         </Box>
       </GridToolbarContainer>
     );
@@ -209,12 +187,12 @@ const SavedQuoteList = () => {
           alignItems: "center",
         }}
       >
-        <Breadcrumb
-          routeSegments={[
-            { name: "Quote", path: "/pages/pricing-portal/quote-list" },
-            { name: "New Prospect" },
-          ]}
-        />
+          <Breadcrumb
+                 routeSegments={[
+                   { name: "Templates", path:"/pages/pricing-portal/templates" },
+                   { name: "Saved Quote" },
+                 ]}
+               />
         <Stack direction={"row"} gap={1}>
           <Button
             variant="contained"

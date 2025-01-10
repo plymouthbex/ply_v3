@@ -185,14 +185,21 @@ export const FormikCustomSelectCompany = ({
   }, [url]);
 
   return (
-    <FormControl {...props} fullWidth error={!!error} size="small">
-      <InputLabel>{label}</InputLabel>
+    <FormControl {...props} fullWidth error={!!error} size="small"     required 
+    >
+      <InputLabel sx={{
+      "& .MuiInputLabel-asterisk": {
+        color: "red",
+      },
+    }}  >{label}</InputLabel>
       <Select
         value={value || ''}
         onChange={onChange}
         label={label}
         displayEmpty
         {...props}
+
+ 
       >
         {loading ? (
           <MenuItem disabled>
@@ -278,6 +285,7 @@ export const FormikCustomAutocompleteCustomer = ({
   onChange = () =>{},
   url,
   height = 20,
+  required = false,
   ...props
 }) => {
   const [options, setOptions] = useState([]);
@@ -325,6 +333,12 @@ export const FormikCustomAutocompleteCustomer = ({
           label={props.label || "Select Options"}
           error={!!error}
           helperText={error}
+          required={required}
+          InputLabelProps={{
+            sx: {
+              "& .MuiInputLabel-asterisk": { color: "red" },
+            },
+          }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
@@ -458,7 +472,7 @@ export const OptimizedAutocomplete = ({
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.item_key === value.item_key}
+      // isOptionEqualToValue={(option, value) => option.item_key === value.item_key}
       onChange={(event, newValue) => onChange(newValue)}
       getOptionLabel={(option) => `${option.Item_Number} || ${option.Item_Description}`}
       ListboxComponent={ListboxComponent} // Custom listbox component

@@ -19,6 +19,7 @@ import {
   DialogActions,
   RadioGroup,
   Radio,
+  Divider,
 } from "@mui/material";
 import lodash from "lodash";
 import { Add } from "@mui/icons-material";
@@ -37,16 +38,19 @@ import useAuth from "app/hooks/useAuth";
 
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CustomAutocomplete, {
+  FormikCustomAutocomplete,
   QuoteTempSingleAutocomplete,
   SingleAutocomplete,
 } from "app/components/AutoComplete";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  DeleteAdHocItem,
   postBuildData,
   postQutoeData,
   priceListClearFilter,
   quoteAddHocItem,
   quoteFilterAndItemPostData,
+  quoteInfoData,
   QuoteUpdateDate,
   updateQuoteData,
 } from "app/redux/slice/postSlice";
@@ -56,6 +60,8 @@ import {
   getQuoteBookData,
   getQuoteFilterData,
   getQuoteItemsAndFilters,
+  getQuoteItemsAndFiltersget2,
+  getQuoteItemsAndFiltersget3,
   quoteClearState2,
 } from "app/redux/slice/getSlice";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -71,6 +77,7 @@ import {
 } from "app/redux/slice/priceListSlice";
 import LoadingApiDialog, {
   PriceGroupAlertApiDialog,
+  QuoteTempAlertApiDialog,
 } from "app/components/LoadindgDialog";
 import {
   DataGrid,
@@ -79,12 +86,16 @@ import {
 } from "@mui/x-data-grid";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import {
-  OptimizedAutocomplete,
-  PriceListItemsOptimizedAutocompleteQuote,
-  PriceListOptimizedAutocompleteQuote,
+  FormikCustomAutocompleteCustomer,
+  FormikCustomSelectCompany,
 } from "app/components/SingleAutocompletelist";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { dataGridHeaderFooterHeight } from "app/utils/constant";
+import { Formik } from "formik";
+import {
+  FormikCustomAutocompleteMulti,
+  FormikCustomAutocompleteMultiAdHocItems,
+  FormikCustomAutocompleteMultiPriceList,
+} from "app/components/FormikAutocomplete";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -143,25 +154,6 @@ export default function BuildCustomPriceBook() {
   const dispatch = useDispatch();
   const params = useParams();
   const colors = themeColors;
-  const [isFilterApplied, setIsFilterApplied] = useState(false);
-  const quotePriceListData = useSelector(
-    (state) => state.priceList.quotePriceData
-  );
-  const quotePriceListStatus = useSelector(
-    (state) => state.priceList.quotePriceStatus
-  );
-  const quotePriceListMessage = useSelector(
-    (state) => state.priceList.quotePriceMessage
-  );
-  const quotePriceListLoading = useSelector(
-    (state) => state.priceList.quotePriceLoading
-  );
-  const quotePriceListOpenLoading = useSelector(
-    (state) => state.priceList.quotePriceOpenLoading
-  );
-  const quotePriceListError = useSelector(
-    (state) => state.priceList.quoteError
-  );
 
   const getQuoteFilterItemStatus = useSelector(
     (state) => state.getSlice.getQuoteFilterItemStatus
@@ -180,6 +172,12 @@ export default function BuildCustomPriceBook() {
   const getQuteFiltStatus = useSelector(
     (state) => state.getSlice.getQuteFiltStatus
   );
+  const getQuteFiltData = useSelector(
+    (state) => state.getSlice.getQuteFiltData
+  );
+  const getQuoteHeaderData = useSelector(
+    (state) => state.getSlice.getQuoteHeaderData
+  );
   const getQuteFiltLoading = useSelector(
     (state) => state.getSlice.getQuteFiltLoading
   );
@@ -187,91 +185,20 @@ export default function BuildCustomPriceBook() {
     (state) => state.getSlice.getQuteFiltError
   );
 
-  const [open, setOpen] = React.useState(false);
-
-  const handleClick = () => {
-    setCustomName(
-      location.state.templateName ? location.state.templateName : "Custom Name"
-    );
-    setOpen(true);
-  };
-
   const handleMailNavigate = () => {
     navigate("/sent-mail", { state: { screenName: "Quote" } });
   };
-
-  async function getBuildPriceTemData(templateId) {
-    const response = await dispatch(
-      getQuoteBookData({
-        userID: user.id,
-        templateID: templateId,
-      })
-    );
-    if (response.payload.Status === "Y") {
-      setSelectedCustomerOptions(JSON.parse(response.payload.Data.Customer));
-      setSelectedBrandOptions(JSON.parse(response.payload.Data.Brand));
-      setSelectedAltOptions(JSON.parse(response.payload.Data.AltClass));
-      setSelectedComOptions(JSON.parse(response.payload.Data.Commodity));
-      setSelectedSecondaryOptions(
-        JSON.parse(response.payload.Data.SecondaryClass)
-      );
-      setSelectedItemNoOptions(JSON.parse(response.payload.Data.Item));
-      setSelectedVendorOptions(JSON.parse(response.payload.Data.Vendor));
-      setSelectedFsFzOptions(JSON.parse(response.payload.Data.Type));
-      setSelectedClassIDOptions(JSON.parse(response.payload.Data.Class));
-      setIsChecked(response.payload.Data.ShowPrice === "Y" ? true : false);
-      setHeaderName(response.payload.Data.Header);
-      setSalesRepName(response.payload.Data.SalesRepresentativeName);
-    }
-  }
-
-  async function getQuoteData(id) {
-    const response = await dispatch(
-      getQuoteItemsAndFilters({
-        data: { RecordID: id },
-      })
-    );
-    console.log("🚀 ~ getQuoteData ~ response:", response);
-    if (response.payload.status === "Y") {
-      // setSelectedCustomerOptions(JSON.parse(response.payload.data.filterData.Customer));
-      setSelectedBrandOptions(
-        JSON.parse(response.payload.data.filterData.Brand.Value)
-      );
-      setSelectedAltOptions(
-        JSON.parse(response.payload.data.filterData.AltClass.Value)
-      );
-      setSelectedComOptions(
-        JSON.parse(response.payload.data.filterData.Commodity.Value)
-      );
-      setSelectedSecondaryOptions(
-        JSON.parse(response.payload.data.filterData.SecondaryClass.Value)
-      );
-      // setSelectedItemNoOptions(JSON.parse(response.payload.data.filterData.Item));
-      setSelectedVendorOptions(
-        JSON.parse(response.payload.data.filterData.Vendor.Value)
-      );
-      setSelectedFsFzOptions(
-        JSON.parse(response.payload.data.filterData.Type.Value)
-      );
-      setSelectedClassIDOptions(
-        JSON.parse(response.payload.data.filterData.Class.Value)
-      );
-      // setIsChecked(response.payload.data.ShowPrice === "Y" ? true : false);
-      // setHeaderName(response.payload.data.Header);
-      // setSalesRepName(response.payload.data.SalesRepresentativeName);
-    }
-  }
 
   //======================= SELECT PRICE LIST ===================================//
   const [addPriceListQuoteData, setAddPriceListQuoteData] = useState(null);
 
   const handleSelectionAddPriceListQuoteData = (newValue) => {
-    console.log("🚀 ~ handleSelectionAddPriceListData ~ newValue:", newValue);
     setAddPriceListQuoteData(newValue);
   };
 
-    //======================= SELECT PRICE LIST ===================================//
-  const [addPriceListQuoteItemData, setAddPriceListQuoteItemData] = useState(null);
+  //======================= SELECT PRICE LIST ===================================//
+  const [addPriceListQuoteItemData, setAddPriceListQuoteItemData] =
+    useState(null);
 
   const handleSelectionAddPriceListQuoteItemData = (newValue) => {
     setAddPriceListQuoteItemData(newValue);
@@ -283,34 +210,18 @@ export default function BuildCustomPriceBook() {
     setAddPriceListData(newValue);
   };
 
-  //=======================TEMPLATE===================================//
-  const [selectedTemplateOptions, setSelectedTemplateOptions] = useState(null);
-
-  const handleSelectionTemplateChange = (newValue) => {
-    setSelectedTemplateOptions(newValue);
-    if (newValue) {
-      getBuildPriceTemData(newValue.Recid);
-    }
-  };
-
   const [isItemExistsError, setIsItemExistsError] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isNextWeek, setIsNextWeek] = useState(false);
   useEffect(() => {
     dispatch(quoteClearState());
-    // if (location.state.templateID ) {
-    //   setSelectedTemplateOptions({
-    //     Recid: location.state.templateID,
-    //     TemplateName: location.state.templateName,
-    //   });
-    // }
-    // if(location.state.templateID ){
-    // getBuildPriceTemData(
-    //   location.state.templateID ? location.state.templateID : "-1"
-    // );
-    // }else{
-    // getQuoteData(location.state.headerID ? location.state.headerID : 0)
-    // }
+    dispatch(
+      getQuoteItemsAndFilters({
+        data: {
+          RecordID: location.state.headerID ? location.state.headerID : 0,
+        },
+      })
+    );
 
     const today = new Date();
     setCurrentDate(today);
@@ -343,103 +254,8 @@ export default function BuildCustomPriceBook() {
   const { shortSunday, shortSaturday, sunday, saturday, formatedDate } =
     getWeekDates(); // Get formatted Saturday and Sunday dates
 
-  //=======================COMPANY===================================//
-  const [selectedCompanyOptions, setSelectedCompanyOptions] = useState(
-    user.companyID == 5
-      ? { RecordID: 5, Name: "Plymouth" }
-      : user.companyID == 6
-      ? {
-          RecordID: 6,
-          Name: "S & J Food Distributors",
-        }
-      : {
-          RecordID: 7,
-          Name: "Nicky USA",
-        }
-  );
-
-  const handleSelectionCompanyChange = (newValue) => {
-    setSelectedCompanyOptions(newValue);
-  };
-  //=======================CUSTOMER===================================//
-  const [selectedCustomerOptions, setSelectedCustomerOptions] = useState(null);
-
-  const handleSelectionCustomerChange = (newValue) => {
-    setSelectedCustomerOptions(newValue);
-  };
-
-  //=======================BRAND===================================//
-  const [selectedBrandOptions, setSelectedBrandOptions] = useState([]);
-
-  const handleSelectionBrandChange = (newValue) => {
-    setSelectedBrandOptions(newValue);
-  };
-
-  //=======================Alternative Class===================================//
-  const [selectedAltOptions, setSelectedAltOptions] = useState([]);
-
-  const handleSelectionAltChange = (newValue) => {
-    setSelectedAltOptions(newValue);
-  };
-  //=======================Com /Cat===================================//
-  const [selectedComOptions, setSelectedComOptions] = useState([]);
-
-  const handleSelectionComChange = (newValue) => {
-    setSelectedComOptions(newValue);
-  };
-
-  //=======================Secondary Class===================================//
-  const [selectedSecondaryOptions, setSelectedSecondaryOptions] = useState([]);
-
-  const handleSelectionSecondaryChange = (newValue) => {
-    setSelectedSecondaryOptions(newValue);
-  };
-
-  //=======================Item ===================================//
-  const [selectedItemNoOptions, setSelectedItemNoOptions] = useState([]);
-
-  const handleSelectionItemNoChange = (newValue) => {
-    setSelectedItemNoOptions(newValue);
-  };
-
-  //=======================Vendor ===================================//
-  const [selectedVendorOptions, setSelectedVendorOptions] = useState([]);
-
-  const handleSelectionVendorChange = (newValue) => {
-    setSelectedVendorOptions(newValue);
-  };
-
-  //=======================FSFZ ===================================//
-  const [selectedFsFzOptions, setSelectedFsFzOptions] = useState([]);
-
-  const handleSelectionFsFzChange = (newValue) => {
-    setSelectedFsFzOptions(newValue);
-  };
-
-  //=======================CLASSID ===================================//
-  const [selectedClassIDOptions, setSelectedClassIDOptions] = useState([]);
-
-  const handleSelectionClassIDChange = (newValue) => {
-    setSelectedClassIDOptions(newValue);
-  };
-
-  const [isChecked, setIsChecked] = useState(true);
-
-  const handleCheckboxChange = (event) => {
-    setIsChecked(event.target.checked);
-  };
-
-  const handleChange = (event) => {
-    setCustomName(event.target.value); // Update state on input change
-  };
   const [isItemExists, setIsItemExists] = useState(false);
-
-  const [CustomName, setCustomName] = useState("CustomName");
-  const [headerName, setHeaderName] = useState("");
-  const [salesRepName, setSalesRepName] = useState("");
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-
-  const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
 
   //=======================================================================//
   // ********************** COLUMN AND ROWS ********************** //
@@ -447,22 +263,22 @@ export default function BuildCustomPriceBook() {
     {
       headerName: "Item Number",
       field: "Item_Number",
-      width: "150",
+      width: 150,
       align: "left",
       headerAlign: "left",
     },
     {
       headerName: "Item Description",
       field: "Item_Description",
-      minWidth: "350",
+      minWidth: 350,
       flex: 1,
       align: "left",
       headerAlign: "left",
     },
     {
-      headerName: "Add Hoc Item",
+      headerName: "Ad Hoc Item",
       field: "AdHocItem",
-      minWidth: "100",
+      Width: 100,
       align: "left",
       headerAlign: "left",
       renderCell: (param) => {
@@ -471,9 +287,8 @@ export default function BuildCustomPriceBook() {
     },
     {
       field: "Action",
-      headerName: "Attributes",
+      headerName: "Action",
       minWidth: 200,
-      flex: 1,
       sortable: false,
       headerAlign: "center",
       filterable: false,
@@ -484,7 +299,7 @@ export default function BuildCustomPriceBook() {
       renderCell: (param) => {
         return (
           <>
-            <Button
+            {/* <Button
               sx={{
                 height: 25,
                 "&:hover": {
@@ -499,9 +314,8 @@ export default function BuildCustomPriceBook() {
               onClick={() =>
                 navigate("./item-attributes/edit", {
                   state: {
-                    id: location.state.headerID
-                      ? `${location.state.headerID}`
-                      : "0",
+                    headerID: getQuoteHeaderData.RecordID,
+                    RecordID: param.row.RecordId,
                     itemNumber: param.row.Item_Number,
                     itemDesc: param.row.Item_Description,
                   },
@@ -510,38 +324,38 @@ export default function BuildCustomPriceBook() {
               startIcon={<ModeEditOutlineIcon size="small" />}
             >
               Edit
-            </Button>
+            </Button> */}
 
-            {param.row.AdHocItem === "Y" && (
+            
               <Button
                 sx={{
                   height: 25,
                   ml: 1,
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-                  color: theme.palette.secondary.contrastText,
-                  bgcolor: theme.palette.secondary.light,
-                  fontWeight: "bold",
                 }}
+                color="info"
                 variant="contained"
                 size="small"
-                onClick={() =>
-                  navigate("./item-attributes/delete", {
-                    state: {
-                      id: location.state.headerID
-                        ? `${location.state.headerID}`
-                        : "0",
-                      itemNumber: param.row.Item_Number,
-                      itemDesc: param.row.Item_Description,
-                    },
-                  })
-                }
+                // onClick={() =>
+                //   navigate("./item-attributes/delete", {
+                //     state: {
+                //       headerID: getQuoteHeaderData.RecordID,
+                //       RecordID: param.row.RecordId,
+                //       itemNumber: param.row.Item_Number,
+                //       itemDesc: param.row.Item_Description,
+                //     },
+                //   })
+                // }
+
+                onClick={()=>{
+                  setDeleteID(param.row.RecordId)
+                  setIsRemoveItem(true)
+                }}
+                
                 startIcon={<DeleteIcon size="small" />}
               >
-                Delete
+                Remove
               </Button>
-            )}
+          
           </>
         );
       },
@@ -569,7 +383,7 @@ export default function BuildCustomPriceBook() {
           }}
         >
           <GridToolbarQuickFilter />
-          <OptimizedAutocomplete
+          {/* <FormikCustomAutocompleteMultiAdHocItems
             errors={isItemExistsError}
             helper={isItemExistsError && "please select item!"}
             name="adHocItem"
@@ -583,200 +397,152 @@ export default function BuildCustomPriceBook() {
             variant="contained"
             color="info"
             size="small"
-            onClick={async () => {
-              if (addPriceListData) {
-                const isItem = getQuoteFilterItemData.some((item) =>
-                  lodash.isEqual(item.Item_Number, addPriceListData.Item_Number)
-                );
-                if (isItem) {
-                  setIsItemExists(true);
-                  setTimeout(() => {
-                    setIsItemExists(false);
-                    setAddPriceListData(null);
-                  }, 5000);
-                  return;
-                }
-                setRowSelectionModel([
-                  ...rowSelectionModel,
-                  addPriceListData.Item_Number,
-                ]);
-                const res = await dispatch(
-                  quoteAddHocItem({
-                    data: {
-                      priceListID: "0",
-                      quotationRecordID: `${location.state.headerID}`,
-                      filterType: "Q",
-                      itemNo: addPriceListData.Item_Number,
-                      itemDescription: addPriceListData.Item_Description,
-                      CONTARCTITEMS: "N",
-                    },
-                  })
-                );
-                if (res.payload.status === "Y") {
-                  getQuoteData(
-                    location.state.headerID ? location.state.headerID : 0
-                  );
-                  // toast.success("Ad Hoc Item added successfully");
-                  // dispatch(
-                  //   // addQuoteItemData({ ...addPriceListData, AdHocItem: "Y", CONTARCTITEMS:"N" })
-                  // );
-                  setOpenAlert3(true);
-                } else {
-                  setOpenAlert3(true);
-                  setPostError3(true);
-                }
-
-                setAddPriceListData(null);
-              } else {
-                setIsItemExistsError(true);
-                setTimeout(() => {
-                  setIsItemExistsError(false);
-                }, 2000);
-              }
-            }}
+            type="reset"
             startIcon={<Add size="small" />}
+            disabled={params.mode == "copy" ? true : false}
           >
             Ad Hoc Item
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
   }
 
+  async function adHocItem(values) {
+    if (addPriceListData) {
+      const isItem = getQuoteFilterItemData.some((item) =>
+        lodash.isEqual(item.Item_Number, addPriceListData.Item_Number)
+      );
+      if (isItem) {
+        setIsItemExists(true);
+        setTimeout(() => {
+          setIsItemExists(false);
+          setAddPriceListData(null);
+        }, 5000);
+        return;
+      }
+      setRowSelectionModel([
+        ...rowSelectionModel,
+        addPriceListData.Item_Number,
+      ]);
+      const res = await dispatch(
+        quoteAddHocItem({
+          data: {
+            priceListID: "0",
+            quotationRecordID: getQuoteHeaderData.RecordID.toString(),
+            filterType: "Q",
+            itemNo: addPriceListData.Item_Number,
+            itemDescription: addPriceListData.Item_Description,
+            CONTARCTITEMS: "N",
+            AdHocItem: "Y",
+          },
+        })
+      );
+      if (res.payload.status === "Y") {
+        dispatch(
+          getQuoteItemsAndFiltersget3({
+            data: { RecordID: getQuoteHeaderData.RecordID.toString() },
+          })
+        );
+
+        setOpenAlert3(true);
+      } else {
+        setOpenAlert3(true);
+        setPostError3(true);
+      }
+
+      setAddPriceListData(null);
+    } else {
+      setIsItemExistsError(true);
+      setTimeout(() => {
+        setIsItemExistsError(false);
+      }, 2000);
+    }
+  }
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-  const fnQuotesave = async () => {
-    const data = {
-      recid: location.state.templateID,
-      UserId: user.id,
-      CompanyName: JSON.stringify(selectedCompanyOptions),
-      Customer: JSON.stringify(selectedCustomerOptions),
-      Brand: JSON.stringify(selectedBrandOptions),
-      Commodity: JSON.stringify(selectedComOptions),
-      Vendor: JSON.stringify(selectedVendorOptions),
-      Type: JSON.stringify(selectedFsFzOptions),
-      Class: JSON.stringify(selectedClassIDOptions),
-      AltClass: JSON.stringify(selectedAltOptions),
-      SecondaryClass: JSON.stringify(selectedSecondaryOptions),
-      Item: JSON.stringify(selectedItemNoOptions),
-      ShowPrice: isChecked ? "Y" : "N",
-      CustomName: CustomName,
-      SalesRepresentativeName: salesRepName,
-      Header: headerName,
-    };
 
-    if (location.state.templateID) {
-      // Check if the CustomName is the same as the templateName in location.state
-      if (CustomName === location.state.templateName) {
-        const response = await dispatch(updateQuoteData({ data }));
-        if (response.payload.Status === "Y") {
-          // toast.success("Template Updated successfully");
-          setOpen(false);
-          setCustomName("");
-          setOpenAlert(true);
-        } else {
-          setOpenAlert(true);
-          setPostError(true);
-          setOpen(false);
-          setCustomName("");
-          // toast.error("Something went wrong");
-        }
-      } else {
-        // Handle the case where CustomName differs from templateName (post a new template)
-        const response = await dispatch(postQutoeData({ data }));
-        if (response.payload.Status === "Y") {
-          // toast.success("Template added successfully");
-          setOpen(false);
-          setCustomName("");
-          setOpenAlert(true);
-        } else {
-          setOpenAlert(true);
-          setPostError(true);
-          setOpen(false);
-          setCustomName("");
-          // toast.error("Something went wrong");
-        }
-      }
-    } else {
-      // If there's no templateID, always post a new template
-      const response = await dispatch(postQutoeData({ data }));
-      if (response.payload.Status === "Y") {
-        // toast.success("Template added successfully");
-        setOpen(false);
-        setCustomName("");
+  const getFilteredDataAndSave = async (values, setSubmitting) => {
+    try {
+      const data = {
+        RecordID: getQuoteHeaderData.RecordID,
+        CompanyCode: getQuoteHeaderData.CompanyCode,
+        UserID: user.id,
+        FromDate: sunday,
+        ToDate: saturday,
+        Description: "",
+        Name: getQuoteHeaderData.Name,
+        Address1: getQuoteHeaderData.Address1,
+        Address2: getQuoteHeaderData.Address2,
+        City: getQuoteHeaderData.City,
+        State: getQuoteHeaderData.State,
+        Zip: getQuoteHeaderData.Zip,
+        EmailID: getQuoteHeaderData.EmailID,
+        Mobile: getQuoteHeaderData.Mobile,
+        Provider: getQuoteHeaderData.Provider,
+        Salesrepresentative: getQuoteHeaderData.Salesrepresentative,
+        PriceLevel: getQuoteHeaderData.PriceLevel,
+        CustomerName:"",
+        CustomerNumber: "",
+      };
+
+      const response = await dispatch(quoteInfoData({ data }));
+      if (response.payload.status === "Y") {
+        setSubmitting(false);
+        const filterData = {
+          filterType: "Q",
+          headerRecordID: response.payload.RecordId.toString(),
+          Company: {
+            Attribute: "Company",
+            Option: "",
+            Value: "",
+          },
+          Brand: {
+            Attribute: "Brand",
+            Option: "",
+            Value: JSON.stringify(values.brand),
+          },
+          Commodity: {
+            Attribute: "Commodity",
+            Option: "",
+            Value: JSON.stringify(values.com),
+          },
+          AlternativeClass: {
+            Attribute: "AlternativeClass",
+            Option: "",
+            Value: JSON.stringify(values.alt),
+          },
+          Vendor: {
+            Attribute: "Vendor",
+            Option: "",
+            Value: JSON.stringify(values.vendor),
+          },
+          Type: {
+            Attribute: "Type",
+            Option: "",
+            Value: JSON.stringify(values.fsfz),
+          },
+          SecondaryClass: {
+            Attribute: "SecondaryClass",
+            Option: "",
+            Value: JSON.stringify(values.secondary),
+          },
+          Class: {
+            Attribute: "Class",
+            Option: "",
+            Value: JSON.stringify(values.classID),
+          },
+          PriceListID: values.PriceLists,
+          AdHocItem:values.adHocItems,
+        };
+        dispatch(getQuoteFilterData(filterData));
         setOpenAlert(true);
+
+        // clearQuotePriceList();
       } else {
+        setSubmitting(false);
         setOpenAlert(true);
         setPostError(true);
-        setOpen(false);
-        setCustomName("");
-        // toast.error("Something went wrong");
-      }
-    }
-  };
-
-  const getFilteredData = async (values) => {
-    const filterData = {
-      filterType: "Q",
-      headerRecordID: location.state.headerID
-        ? `${location.state.headerID}`
-        : "0",
-      Company: {
-        Attribute: "Company",
-        Option: "",
-        Value: JSON.stringify(selectedCompanyOptions),
-      },
-      Brand: {
-        Attribute: "Brand",
-        Option: "",
-        Value: JSON.stringify(selectedBrandOptions),
-      },
-      Commodity: {
-        Attribute: "Commodity",
-        Option: "",
-        Value: JSON.stringify(selectedComOptions),
-      },
-      AlternativeClass: {
-        Attribute: "AlternativeClass",
-        Option: "",
-        Value: JSON.stringify(selectedAltOptions),
-      },
-      Vendor: {
-        Attribute: "Vendor",
-        Option: "",
-        Value: JSON.stringify(selectedVendorOptions),
-      },
-      Type: {
-        Attribute: "Type",
-        Option: "",
-        Value: JSON.stringify(selectedFsFzOptions),
-      },
-      SecondaryClass: {
-        Attribute: "SecondaryClass",
-        Option: "",
-        Value: JSON.stringify(selectedSecondaryOptions),
-      },
-      Class: {
-        Attribute: "Class",
-        Option: "",
-        Class: JSON.stringify(selectedClassIDOptions),
-      },
-    };
-
-    try {
-      const res = await dispatch(getQuoteFilterData(filterData));
-      if (res.payload.status === "Y") {
-        // const allRowIds = res.payload.data.map((row) => row.Item_Number);
-        // setRowSelectionModel(allRowIds);
-        // dispatch(
-        //   QuoteUpdateDate({
-        //     data: {
-        //       recordId: location.state.headerID,
-        //       fromData: sunday,
-        //       toDate: saturday,
-        //     },
-        //   })
-        // );
       }
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
@@ -785,74 +551,11 @@ export default function BuildCustomPriceBook() {
 
   const [openAlert2, setOpenAlert2] = useState(false);
   const [postError2, setPostError2] = useState(false);
-  const fnQuotesave2 = async () => {
-    const filterArray = getQuoteFilterItemData.filter((v) =>
-      rowSelectionModel.includes(v.Item_Number)
-    );
-    const data = {
-      filterConditions: {
-        Company: {
-          Attribute: "Company",
-          Option: "",
-          Value: JSON.stringify(selectedCompanyOptions),
-        },
-        Brand: {
-          Attribute: "Brand",
-          Option: "",
-          Value: JSON.stringify(selectedBrandOptions),
-        },
-        Commodity: {
-          Attribute: "Commodity",
-          Option: "",
-          Value: JSON.stringify(selectedComOptions),
-        },
-        AlternativeClass: {
-          Attribute: "AlternativeClass",
-          Option: "",
-          Value: JSON.stringify(selectedAltOptions),
-        },
-        Vendor: {
-          Attribute: "Vendor",
-          Option: "",
-          Value: JSON.stringify(selectedVendorOptions),
-        },
-        Type: {
-          Attribute: "Type",
-          Option: "",
-          Value: JSON.stringify(selectedFsFzOptions),
-        },
-        SecondaryClass: {
-          Attribute: "SecondaryClass",
-          Option: "",
-          Value: JSON.stringify(selectedSecondaryOptions),
-        },
-        Class: {
-          Attribute: "Class",
-          Option: "",
-          Class: JSON.stringify(selectedClassIDOptions),
-        },
-      },
-      filterItems: filterArray,
-    };
 
-    // If there's no templateID, always post a new template
-    const response = await dispatch(
-      quoteFilterAndItemPostData({ data, RecordId: location.state.headerID })
-    );
-
-    if (response.payload.status === "Y") {
-      setOpenAlert2(true);
-    } else {
-      setOpenAlert2(true);
-      setPostError2(true);
-    }
-  };
-
+  const priceBookLevel1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const clearQuotePriceList = () => {
     dispatch(quoteClearState());
     dispatch(quoteClearState2());
-    getBuildPriceTemData("-1");
-    setSelectedTemplateOptions(null);
   };
 
   const [openAlert3, setOpenAlert3] = useState(false);
@@ -861,19 +564,61 @@ export default function BuildCustomPriceBook() {
   const [openAlert4, setOpenAlert4] = useState(false);
   const [postError4, setPostError4] = useState(false);
   const [isClear, setIsClear] = useState(false);
-  const clearFilter = async () => {
+
+  const clearFilter = async (setFieldValue) => {
     const data = {
-      QuotationRecordId: location.state.headerID,
+      QuotationRecordId: getQuoteHeaderData.RecordID,
       PriceListID: 0,
       Type: "Q",
     };
     const response = await dispatch(priceListClearFilter({ data }));
     if (response.payload.status === "Y") {
       setOpenAlert4(true);
+      setFieldValue("brand", []);
+      setFieldValue("com", []);
+      setFieldValue("alt", []);
+      setFieldValue("vendor", []);
+
+      setFieldValue("fsfz", []);
+      setFieldValue("classID", []);
+      setFieldValue("secondary", []);
       clearQuotePriceList();
     } else {
       setOpenAlert4(true);
       setPostError4(true);
+    }
+  };
+
+  const [isRemoveItem, setIsRemoveItem] = useState(false);
+  const [openAlert6, setOpenAlert6] = useState(false);
+  const [postError6, setPostError6] = useState(false);
+  const [deleteID, setDeleteID] = useState(0);
+  const itemDeleteFn = async (id) => {
+    const data = {
+      RecordID: deleteID,
+      priceListID: "0",
+      quotationRecordID: getQuoteHeaderData.RecordID.toString(),
+      filterType: "Q",
+      itemNo: "",
+      printSequence: '',
+      printItem:"",
+      comment: "",
+    };
+
+    const response = await dispatch(DeleteAdHocItem({ data }));
+    if (response.payload.status === "Y") {
+      dispatch(
+        getQuoteItemsAndFiltersget3({
+          data: { RecordID: getQuoteHeaderData.RecordID.toString() },
+        })
+      );
+      setPostError6(false);
+      setOpenAlert6(true);
+      setDeleteID(0)
+    } else {
+      setOpenAlert6(true);
+      setPostError6(true);
+      setDeleteID(0)
     }
   };
   return (
@@ -886,11 +631,7 @@ export default function BuildCustomPriceBook() {
       >
         <Box className="breadcrumb">
           <Breadcrumb
-            routeSegments={[
-              { name: "Quote" },
-              { name: "Prospect Info" },
-              { name: "Items" },
-            ]}
+            routeSegments={[{ name: "New Prospect" }, { name: "Quote" }]}
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
@@ -899,692 +640,688 @@ export default function BuildCustomPriceBook() {
             color="info"
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(-1,{state:{headerID:state.headerID}})}
           >
             Back
           </Button>
-          {/* <Button
-            variant="contained"
-            color="info"
-            size="small"
-            onClick={() => {
-              navigate("/pages/pricing-portal/quote-form/print", {
-                state: {
-                  prospectID: state.headerID,
-                  templateID: state.templateID ? state.templateID : 0,
-                  templateName: state.templateName ? state.templateName : "",
-                },
-              });
-            }}
-          >
-            Print
-          </Button> */}
         </Box>
       </Box>
 
-      {/* Back Button on the right */}
-
-      <Box>
-        <SimpleCard>
-          <Box
-            display="grid"
-            gridTemplateColumns="repeat(3, minmax(0, 1fr))"
-            alignItems={"center"}
-          >
-            <Stack direction={"row"} sx={{ gridColumn: "span 2" }}>
-              <RadioGroup
-                row
-                name="week"
-                value={isNextWeek}
-                onChange={toggleWeek}
-              >
-                <FormControlLabel
-                  sx={{ height: 40 }}
-                  value={false}
-                  control={<Radio />}
-                  label="Current Week"
-                />
-                <FormControlLabel
-                  sx={{ height: 40 }}
-                  value={true}
-                  control={<Radio />}
-                  label="Next Week"
-                />
-              </RadioGroup>
-              <Typography
-                variant="caption"
-                align="left"
-                alignItems="center"
-                alignSelf="center"
-                ml={5}
-              >
-                {formatedDate}
-              </Typography>
-            </Stack>
-
-            <Stack
-              direction={"row"}
-              alignItems={"center"}
-              justifyContent={"flex-end"}
-              gap={1}
+      {getQuteFiltStatus === "fulfilled" && !getQuteFiltLoading ? (
+        <Formik
+          initialValues={{
+            brand: JSON.parse(getQuteFiltData.Brand.Value),
+            com: JSON.parse(getQuteFiltData.Commodity.Value),
+            alt: JSON.parse(getQuteFiltData.AlternativeClass.Value),
+            vendor: JSON.parse(getQuteFiltData.Vendor.Value),
+            fsfz: JSON.parse(getQuteFiltData.Type.Value),
+            classID: JSON.parse(getQuteFiltData.Class.Value),
+            secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
+            PriceLists: getQuteFiltData.PriceListID,
+            adHocItems: [],
+          }}
+          validate={(values) => {
+            const errors = {};
+            // Check if at least one filter array has data (ignore other fields like `name`, `description`)
+            const filters = [
+              "brand",
+              "com",
+              "alt",
+              "vendor",
+              "fsfz",
+              "classID",
+              "secondary",
+              "PriceLists",
+              "adHocItems",
+            ];
+            const hasData = filters.some((filter) => values[filter].length > 0);
+            if (!hasData) {
+              errors.filters =
+                "At least one filter or Ad Hoc must have selected filter/item";
+            }
+            return errors;
+          }}
+          enableReinitialize={true}
+          onSubmit={(values, { setSubmitting }) => {
+            setTimeout(() => {
+              getFilteredDataAndSave(values, setSubmitting);
+            }, 400);
+          }}
+        >
+          {({
+            errors,
+            touched,
+            handleBlur,
+            handleChange,
+            isSubmitting,
+            values,
+            handleSubmit,
+            resetForm,
+            setFieldValue,
+            setSubmitting,
+          }) => (
+            <form
+              onSubmit={handleSubmit}
             >
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isChecked} // Controlled checkbox state
-                    onChange={handleCheckboxChange} // Update state on change
+              <Box>
+                <SimpleCard>
+                  <Box
+                    display="grid"
+                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    alignItems={"center"}
+                  >
+                    <Stack direction={"row"} sx={{ gridColumn: "span 2" }}>
+                      <RadioGroup
+                        row
+                        name="week"
+                        value={isNextWeek}
+                        onChange={toggleWeek}
+                      >
+                        <FormControlLabel
+                          sx={{ height: 40 }}
+                          value={false}
+                          control={<Radio />}
+                          label="Current Week"
+                        />
+                        <FormControlLabel
+                          sx={{ height: 40 }}
+                          value={true}
+                          control={<Radio />}
+                          label="Next Week"
+                        />
+                      </RadioGroup>
+                      <Typography
+                        variant="caption"
+                        align="left"
+                        alignItems="center"
+                        alignSelf="center"
+                        ml={5}
+                      >
+                        {formatedDate}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction={"row"}
+                      alignItems={"center"}
+                      justifyContent={"flex-end"}
+                      gap={1}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            // checked={isChecked} // Controlled checkbox state
+                            // onChange={handleCheckboxChange} // Update state on change
+                            sx={{
+                              color: "#174c4f",
+                              "&.Mui-checked": {
+                                color: "#174c4f",
+                              },
+                            }}
+                          />
+                        }
+                        label="Show Price"
+                      />
+                      <Stack direction="row" alignItems={"flex-end"}>
+                        <Tooltip title="PDF" placement="top">
+                          <CustomIconButton
+                            // disabled={true}
+                            sx={{
+                              bgcolor: theme.palette.primary.main, // Use sx for styling
+                              color: "white", // Ensure icon button text color is visible
+                              "&:hover": {
+                                bgcolor: theme.palette.primary.dark, // Darken color on hover
+                              },
+                            }}
+                            aria-label="pdf"
+                            onClick={() => toast.error("Under Construction")}
+                          >
+                            <FaFilePdf style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Excel" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.success.main}
+                            aria-label="excel"
+                            onClick={() => toast.error("Under Construction")}
+                          >
+                            <SiMicrosoftexcel style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Print" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.warning.main}
+                            onClick={() => toast.error("Under Construction")}
+                            component="a"
+                            aria-label="print"
+                            // href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <IoMdPrint style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Mail" placement="top">
+                          <CustomIconButton
+                            bgcolor={theme.palette.error.main}
+                            aria-label="mail"
+                            // disabled={true}
+                            onClick={handleMailNavigate}
+                          >
+                            <IoIosMailOpen style={{ fontSize: "21px" }} />
+                          </CustomIconButton>
+                        </Tooltip>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                  <Box
+                    display="grid"
+                    gap="20px"
+                    padding={1}
+                    gridTemplateColumns="repeat(2, minmax(0, 1fr))"
                     sx={{
-                      color: "#174c4f",
-                      "&.Mui-checked": {
-                        color: "#174c4f",
+                      "& > div": {
+                        gridColumn: isNonMobile ? undefined : "span 4",
                       },
                     }}
+                  >
+                    <Typography
+                      sx={{
+                        gridColumn: "span 1",
+                        fontFamily: "inherit",
+                        fontWeight: "600",
+                        marginLeft: 1,
+                      }}
+                    >
+                      Filters
+                    </Typography>
+                    <Stack
+                      sx={{ p: 0, m: 0 }}
+                      direction="row"
+                      justifyContent={"flex-end"}
+                      gap={2}
+                    >
+                      {" "}
+                      {errors.filters && (
+                        <div style={{ color: "red" }}>{errors.filters}</div>
+                      )}
+                    </Stack>
+                    <FormikCustomAutocompleteMulti
+                      name="brand"
+                      id="brand"
+                      value={values.brand}
+                      onChange={(event, newValue) =>
+                        setFieldValue("brand", newValue)
+                      }
+                      label="Brand"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
+                    />
+
+                    <FormikCustomAutocompleteMulti
+                      name="com"
+                      id="com"
+                      value={values.com}
+                      onChange={(event, newValue) =>
+                        setFieldValue("com", newValue)
+                      }
+                      label="Com || Cat"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
+                    />
+
+                    <FormikCustomAutocompleteMulti
+                      name="alt"
+                      id="alt"
+                      value={values.alt}
+                      onChange={(event, newValue) =>
+                        setFieldValue("alt", newValue)
+                      }
+                      label="Alternative Class"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
+                    />
+
+                    <FormikCustomAutocompleteMulti
+                      name="vendor"
+                      id="vendor"
+                      value={values.vendor}
+                      onChange={(event, newValue) =>
+                        setFieldValue("vendor", newValue)
+                      }
+                      label="Vendor"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
+                    />
+
+                    <FormikCustomAutocompleteMulti
+                      name="fsfz"
+                      id="fsfz"
+                      value={values.fsfz}
+                      onChange={(event, newValue) =>
+                        setFieldValue("fsfz", newValue)
+                      }
+                      label="Fs || Fz"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
+                    />
+
+                    <FormikCustomAutocompleteMulti
+                      name="classID"
+                      id="classID"
+                      value={values.classID}
+                      onChange={(event, newValue) =>
+                        setFieldValue("classID", newValue)
+                      }
+                      label="ClassID"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
+                    />
+
+                    <FormikCustomAutocompleteMulti
+                      name="secondary"
+                      id="secondary"
+                      value={values.secondary}
+                      onChange={(event, newValue) =>
+                        setFieldValue("secondary", newValue)
+                      }
+                      label="Secondary Class"
+                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
+                    />
+
+                    
+
+                    <Divider sx={{gridColumn:"span 2", borderBottomWidth: 2, borderColor: 'info.main'}} />
+                    <FormikCustomAutocompleteMultiPriceList
+                      name="PriceLists"
+                      id="PriceLists"
+                      value={values.PriceLists}
+                      onChange={(event, newValue) =>
+                        setFieldValue("PriceLists", newValue)
+                      }
+                      label="Price Lists"
+                      url={ `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${user.companyID}`}
+                    />
+
+                    <FormikCustomAutocompleteMultiAdHocItems
+                      name="adHocItems"
+                      id="adHocItems"
+                      value={values.adHocItems}
+                      onChange={(event, newValue) =>
+                        setFieldValue("adHocItems", newValue)
+                      }
+                      label="Ad Hoc Items"
+                      url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
+                    />
+                  </Box>
+
+                  <Stack direction="row" justifyContent="end" gap={2} mb={1}>
+                    <Button
+                      disabled={isSubmitting}
+                      variant="contained"
+                      color="info"
+                      type="submit"
+                    >
+                      Apply Filters & Save
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      color="info"
+                      disabled={
+                        params.mode == "copy"
+                          ? true
+                          : getQuoteHeaderData.RecordID &&
+                            getQuoteFilterItemData.length > 0
+                          ? false
+                          : true
+                      }
+                      onClick={() => setIsClear(true)}
+                    >
+                      Clear Filters
+                    </Button>
+                  </Stack>
+
+                  <Box
+                    sx={{
+                      height: 400,
+                      "& .name-column--cell": {
+                        color: "black",
+                      },
+                      "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: colors.blue.palette.info.main,
+                        color: colors.blue.palette.info.contrastText,
+                        height: 20, // Set header height
+                      },
+                      "& .MuiDataGrid-footerContainer": {
+                        backgroundColor: colors.blue.palette.info.main,
+                        color: colors.blue.palette.info.contrastText,
+                        height: 20, // Set footer height
+                      },
+                      "& .MuiDataGrid-virtualScroller": {
+                        backgroundColor: colors.blueDark.palette.info.main,
+                      },
+                      "& .MuiCheckbox-root": {
+                        color: "primary",
+                      },
+                    }}
+                  >
+                    <DataGrid
+                      slots={{
+                        loadingOverlay: LinearProgress,
+                        toolbar: CustomToolbar,
+                      }}
+                      rowHeight={30}
+                      rows={getQuoteFilterItemData}
+                      loading={getQuoteFilterItemLoading}
+                      columns={columns}
+                      disableSelectionOnClick
+                      disableRowSelectionOnClick
+                      getRowId={(row) => row.RecordId}
+                      initialState={{
+                        pagination: { paginationModel: { pageSize: 100 } },
+                      }}
+                      pageSizeOptions={[20, 50, 100]}
+                      columnVisibilityModel={{
+                        item_key: true,
+                      }}
+                      disableColumnFilter
+                      disableColumnSelector
+                      disableDensitySelector
+                      slotProps={{
+                        toolbar: {
+                          showQuickFilter: true,
+                        },
+                      }}
+                    />
+                  </Box>
+                  <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={isItemExists}
+                    error={true}
+                    message={
+                      addPriceListData
+                        ? `${addPriceListData.Item_Number} Oops! This item is already exists in quote.`
+                        : "Please select item!"
+                    }
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setIsItemExists(false);
+                            setAddPriceListData(null);
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          Close
+                        </Button>
+                      </Box>
+                    }
                   />
-                }
-                label="Show Price"
-              />
-              <Stack direction="row" alignItems={"flex-end"}>
-                <Tooltip title="PDF" placement="top">
-                  <CustomIconButton
-                    // disabled={true}
-                    sx={{
-                      bgcolor: theme.palette.primary.main, // Use sx for styling
-                      color: "white", // Ensure icon button text color is visible
-                      "&:hover": {
-                        bgcolor: theme.palette.primary.dark, // Darken color on hover
-                      },
-                    }}
-                    aria-label="pdf"
-                    onClick={() => toast.error("Under Construction")}
-                  >
-                    <FaFilePdf style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
 
-                <Tooltip title="Excel" placement="top">
-                  <CustomIconButton
-                    bgcolor={theme.palette.success.main}
-                    aria-label="excel"
-                    onClick={() => toast.error("Under Construction")}
-                  >
-                    <SiMicrosoftexcel style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
+                  <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={isClear}
+                    error={false}
+                    message={`Are you sure you want to Clear filter and Item ?`}
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                          gap: 1,
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            clearFilter(setFieldValue);
+                            setIsClear(false);
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          Yes
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setIsClear(false);
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          No
+                        </Button>
+                      </Box>
+                    }
+                  />
 
-                <Tooltip title="Print" placement="top">
-                  <CustomIconButton
-                    bgcolor={theme.palette.warning.main}
-                    onClick={() => toast.error("Under Construction")}
-                    component="a"
-                    aria-label="print"
-                    // href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <IoMdPrint style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
+                  <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={openAlert}
+                    error={postError}
+                    message={
+                      postError ? "Something Went Wrong" : "Saved Successfully"
+                    }
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setOpenAlert(false);
+                            setTimeout(() => {
+                              setPostError(false);
+                            }, 1000);
+                            // setPostError(false)
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          Close
+                        </Button>
+                      </Box>
+                    }
+                  />
 
-                <Tooltip title="Mail" placement="top">
-                  <CustomIconButton
-                    bgcolor={theme.palette.error.main}
-                    aria-label="mail"
-                    // disabled={true}
-                    onClick={handleMailNavigate}
-                  >
-                    <IoIosMailOpen style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
-              </Stack>
-            </Stack>
-          </Box>
+                  <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={openAlert2}
+                    error={postError2}
+                    message={
+                      postError2 ? "Something Went Wrong" : "Saved Successfully"
+                    }
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setOpenAlert2(false);
+                            setTimeout(() => {
+                              setPostError2(false);
+                            }, 1000);
+                            // setPostError(false)
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          Close
+                        </Button>
+                      </Box>
+                    }
+                  />
 
-          <Box
-            display="grid"
-            gap="20px"
-            padding={1}
-            gridTemplateColumns="repeat(2, minmax(0, 1fr))"
-            sx={{
-              "& > div": {
-                gridColumn: isNonMobile ? undefined : "span 4",
-              },
-            }}
-          >
-            <Typography
-              sx={{
-                gridColumn: "span 1",
-                fontFamily: "inherit",
-                fontWeight: "600",
-                marginLeft: 1,
-              }}
-            >
-              Filters
-            </Typography>
-            <Stack
-              sx={{ p: 0, m: 0 }}
-              direction="row"
-              justifyContent={"flex-end"}
-              gap={2}
-            >
-              <QuoteTempSingleAutocomplete
-                name="Template"
-                id="Template"
-                multiple={false}
-                // disabled={user.role != "ADMIN"}
-                value={selectedTemplateOptions}
-                onChange={handleSelectionTemplateChange}
-                label="Select Template"
-                url={`${process.env.REACT_APP_BASE_URL}Quote/GetQuoteTemplatesList?UserId=${user.id}`}
-              />
-            </Stack>
+                  <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={openAlert4}
+                    error={postError4}
+                    message={
+                      postError4
+                        ? "Something Went Wrong"
+                        : "Filters And Items Cleared Successfully"
+                    }
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setOpenAlert4(false);
+                            setTimeout(() => {
+                              setPostError4(false);
+                            }, 1000);
+                            // setPostError(false)
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          Close
+                        </Button>
+                      </Box>
+                    }
+                  />
 
-            <CustomAutocomplete
-              name="brand"
-              id="brand"
-              value={selectedBrandOptions}
-              onChange={handleSelectionBrandChange}
-              label="Brand"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
-            />
+                  <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={openAlert3}
+                    error={postError3}
+                    message={
+                      postError3
+                        ? "Something Went Wrong"
+                        : "Item Added Successfully"
+                    }
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setOpenAlert3(false);
+                            setTimeout(() => {
+                              setPostError3(false);
+                            }, 1000);
+                            // setPostError(false)
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                          Close
+                        </Button>
+                      </Box>
+                    }
+                  />
+                </SimpleCard>
+                <PriceGroupAlertApiDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  key={23131}
+                  open={openAlert6}
+                  error={postError6}
+                  message={"Item Deleted Successfully"}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setOpenAlert6(false);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
+                />
 
-            <CustomAutocomplete
-              name="com"
-              id="com"
-              value={selectedComOptions}
-              onChange={handleSelectionComChange}
-              label="Com || Cat"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
-            />
-
-            <CustomAutocomplete
-              name="alt"
-              id="alt"
-              value={selectedAltOptions}
-              onChange={handleSelectionAltChange}
-              label="Alternative Class"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
-            />
-
-            <CustomAutocomplete
-              name="vendor"
-              id="vendor"
-              value={selectedVendorOptions}
-              onChange={handleSelectionVendorChange}
-              label="Vendor"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
-            />
-            <CustomAutocomplete
-              name="fsfz"
-              id="fsfz"
-              value={selectedFsFzOptions}
-              onChange={handleSelectionFsFzChange}
-              label="Fs || Fz"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
-            />
-
-            <CustomAutocomplete
-              name="classID"
-              id="classID"
-              // multiple
-              value={selectedClassIDOptions}
-              onChange={handleSelectionClassIDChange}
-              label="ClassID"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
-            />
-            <CustomAutocomplete
-              name="secondary"
-              id="secondary"
-              value={selectedSecondaryOptions}
-              onChange={handleSelectionSecondaryChange}
-              label="Secondary Class"
-              url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
-            />
-          </Box>
-          <Box
-            display="grid"
-            gap="20px"
-            padding={1}
-            gridTemplateColumns="repeat(2, minmax(0, 1fr))"
-            sx={{
-              "& > div": {
-                gridColumn: isNonMobile ? undefined : "span 4",
-              },
-            }}
-          >
-            <PriceListOptimizedAutocompleteQuote
-              fullWidth
-              name="priceList"
-              id="priceList"
-              value={addPriceListQuoteData}
-              onChange={handleSelectionAddPriceListQuoteData}
-              label="Price List"
-              url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${user.companyID}`}
-            />
-
-            <PriceListItemsOptimizedAutocompleteQuote
-              fullWidth
-              name="Items"
-              id="Items"
-              value={addPriceListQuoteItemData}
-              onChange={handleSelectionAddPriceListQuoteItemData}
-              label="Items"
-              // url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${user.companyID}`}
-            />
-          </Box>
-
-          <Stack direction="row" justifyContent="end" gap={2} mb={1}>
-            <Button
-              variant="contained"
-              // onClick={() => {
-              //   setIsFilterApplied(true);
-              //   getFilteredData();
-              // }}
-              sx={{
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-              }}
-            >
-              Save as New Quote
-            </Button>
-            <Button
-              variant="contained"
-              // onClick={() => {
-              //   setIsFilterApplied(true);
-              //   getFilteredData();
-              // }}
-              sx={{
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-              }}
-            >
-              Apply Filters & Save
-            </Button>
-
-            <Button
-              variant="contained"
-              sx={{
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-              }}
-              // onClick={() => setIsClear(true)}
-            >
-              Clear Filters
-            </Button>
-
-            <Button
-              variant="contained"
-              // onClick={handleClick}
-              sx={{
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-              }}
-            >
-              Save
-            </Button>
-          </Stack>
-
-          <Box
-            sx={{
-              height: 400,
-              "& .name-column--cell": {
-                color: "black",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blue.palette.info.main,
-                color: colors.blue.palette.info.contrastText,
-                height: 20, // Set header height
-              },
-              "& .MuiDataGrid-footerContainer": {
-                backgroundColor: colors.blue.palette.info.main,
-                color: colors.blue.palette.info.contrastText,
-                height: 20, // Set footer height
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.blueDark.palette.info.main,
-              },
-              "& .MuiCheckbox-root": {
-                color: "primary",
-              },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
-            }}
-          >
-            <DataGrid
-            columnHeaderHeight={dataGridHeaderFooterHeight}
-                                 sx={{
-                                   // This is to override the default height of the footer row
-                                   '& .MuiDataGrid-footerContainer': {
-                                       height: dataGridHeaderFooterHeight,
-                                       minHeight: dataGridHeaderFooterHeight,
-                                   },
-                                 }}
-              slots={{
-                loadingOverlay: LinearProgress,
-                toolbar: CustomToolbar,
-              }}
-              rowHeight={30}
-              rows={getQuoteFilterItemData}
-              loading={getQuoteFilterItemLoading}
-              columns={columns}
-              // checkboxSelection
-              disableSelectionOnClick
-              disableRowSelectionOnClick
-              getRowId={(row) => row.RecordId}
-              initialState={{
-                pagination: { paginationModel: { pageSize: 100 } },
-              }}
-              pageSizeOptions={[20, 50, 100]}
-              columnVisibilityModel={{
-                item_key: true,
-              }}
-              disableColumnFilter
-              disableColumnSelector
-              disableDensitySelector
-              slotProps={{
-                toolbar: {
-                  showQuickFilter: true,
-                },
-              }}
-              // onRowSelectionModelChange={(newRowSelectionModel) => {
-              //   setRowSelectionModel(newRowSelectionModel);
-              //   // setRowSelectionModelRows(filterArray);
-              // }}
-              // rowSelectionModel={rowSelectionModel}
-            />
-          </Box>
-          <PriceGroupAlertApiDialog
-            logo={`data:image/png;base64,${user.logo}`}
-            open={isItemExists}
-            error={true}
-            message={
-              addPriceListData
-                ? `${addPriceListData.Item_Number} Oops! This item is already exists in quote.`
-                : "Please select item!"
-            }
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setIsItemExists(false);
-                    setAddPriceListData(null);
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-
-          <PriceGroupAlertApiDialog
-            logo={`data:image/png;base64,${user.logo}`}
-            open={isClear}
-            error={false}
-            message={`Are you sure you want to Clear filter and Item ?`}
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                  gap: 1,
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    clearFilter();
-                    setIsClear(false);
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setIsClear(false);
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  No
-                </Button>
-              </Box>
-            }
-          />
-          <Dialog
-            open={open} // Bind the state to the Dialog's open prop
-            onClose={() => setOpen(false)}
-            PaperProps={{
-              component: "form",
-              onSubmit: (e) => {
-                e.preventDefault(); // Prevent form submission
-                fnQuotesave(); // Close dialog on submit
-              },
-            }}
-          >
-            <DialogTitle>Template Name</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                To create a new Quote Template, please fill out the Template
-                Name below.
-              </DialogContentText>
-              <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="runGroup"
-                name="runGroup"
-                label="Template Name"
-                type="text"
-                value={CustomName}
-                onChange={handleChange}
-                fullWidth
-                variant="standard"
-                color="primary"
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="contained"
-                // color="warning"
-                onClick={() => setOpen(false)}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-                  color: theme.palette.secondary.contrastText,
-                  bgcolor: theme.palette.secondary.light,
-                  fontWeight: "bold",
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  "&:hover": {
-                    backgroundColor: theme.palette.secondary.light, // Custom hover color
-                  },
-                  color: theme.palette.secondary.contrastText,
-                  bgcolor: theme.palette.secondary.light,
-                  fontWeight: "bold",
-                }}
-                type="submit"
-              >
-                Submit
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <PriceGroupAlertApiDialog
-            logo={`data:image/png;base64,${user.logo}`}
-            open={openAlert}
-            error={postError}
-            message={postError ? "Something Went Wrong" : "Saved Successfully"}
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert(false);
-                    setTimeout(() => {
-                      setPostError(false);
-                    }, 1000);
-                    // setPostError(false)
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-
-          <PriceGroupAlertApiDialog
-            logo={`data:image/png;base64,${user.logo}`}
-            open={openAlert2}
-            error={postError2}
-            message={postError2 ? "Something Went Wrong" : "Saved Successfully"}
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert2(false);
-                    setTimeout(() => {
-                      setPostError2(false);
-                    }, 1000);
-                    // setPostError(false)
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-
-          <PriceGroupAlertApiDialog
-            logo={`data:image/png;base64,${user.logo}`}
-            open={openAlert4}
-            error={postError4}
-            message={
-              postError4
-                ? "Something Went Wrong"
-                : "Filters And Items Cleared Successfully"
-            }
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert4(false);
-                    setTimeout(() => {
-                      setPostError4(false);
-                    }, 1000);
-                    // setPostError(false)
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-
-          <PriceGroupAlertApiDialog
-            logo={`data:image/png;base64,${user.logo}`}
-            open={openAlert3}
-            error={postError3}
-            message={
-              postError3 ? "Something Went Wrong" : "Item Added Successfully"
-            }
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert3(false);
-                    setTimeout(() => {
-                      setPostError3(false);
-                    }, 1000);
-                    // setPostError(false)
-                  }}
-                  sx={{ height: 25 }}
-                >
-                  Close
-                </Button>
-              </Box>
-            }
-          />
-        </SimpleCard>
-      </Box>
+                <QuoteTempAlertApiDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isRemoveItem}
+                  //  tittle={values.itemDescription}
+                  error={true}
+                  message={`Are you sure you want to remove Item ?`}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        sx={{ mr: 1, height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsRemoveItem(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        sx={{ height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          itemDeleteFn(values);
+                          setIsRemoveItem(false);
+                        }}
+                      >
+                        Confirm
+                      </Button>
+                    </Box>
+                  }
+                />
+              </Box>{" "}
+            </form>
+          )}
+        </Formik>
+      ) : (
+        false
+      )}
     </Container>
   );
 }

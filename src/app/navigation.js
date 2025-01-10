@@ -36,7 +36,7 @@ export const navigations = [
       {
         name: "New Quote",
         icon: <DescriptionIcon fontSize="small" />,
-        path: "/pages/pricing-portal/new-quote",
+        path: "/pages/pricing-portal/new-quote/new",
         accessID: "PPB003",
         iconText: "V",
         fav: false,

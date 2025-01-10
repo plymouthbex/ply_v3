@@ -218,9 +218,8 @@ const SavedPriceList = () => {
       >
         <Breadcrumb
           routeSegments={[
-            { name: "Quote", },
             { name: "Templates", path:"/pages/pricing-portal/templates" },
-            { name: "Price List" },
+            { name: "Saved Price List" },
           ]}
         />
         <Stack direction={"row"} gap={1}>

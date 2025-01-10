@@ -85,8 +85,7 @@ const QuoteList = () => {
     {
       name: "Saved Quote",
       CompanyCode: "NP001",
-      path: "./saved-quote-list",
-      path: "",
+      path: "/pages/pricing-portal/saved-quote-list",
     },
     {
       name: "Saved Price List",
