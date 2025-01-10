@@ -98,6 +98,7 @@ import {
   FormikCustomAutocompleteMulti,
   FormikCustomAutocompleteMultiAdHocItems,
 } from "app/components/FormikAutocomplete";
+import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -1126,30 +1127,101 @@ export default function BuildCustomPriceBook() {
                   </Stack>
 
                   <Box
-                    sx={{
-                      height: 400,
-                      "& .name-column--cell": {
-                        color: "black",
-                      },
-                      "& .MuiDataGrid-columnHeaders": {
-                        backgroundColor: colors.blue.palette.info.main,
-                        color: colors.blue.palette.info.contrastText,
-                        height: 20, // Set header height
-                      },
-                      "& .MuiDataGrid-footerContainer": {
-                        backgroundColor: colors.blue.palette.info.main,
-                        color: colors.blue.palette.info.contrastText,
-                        height: 20, // Set footer height
-                      },
-                      "& .MuiDataGrid-virtualScroller": {
-                        backgroundColor: colors.blueDark.palette.info.main,
-                      },
-                      "& .MuiCheckbox-root": {
-                        color: "primary",
-                      },
-                    }}
+                   sx={{ 
+                   
+                             height: 400, 
+                   
+                             "& .MuiDataGrid-root": { 
+                   
+                               border: "none", 
+                   
+                             }, 
+                   
+                             "& .name-column--cell": { 
+                   
+                               color: theme.palette.info.contrastText, 
+                   
+                             }, 
+                   
+                             "& .MuiDataGrid-columnHeaders": { 
+                   
+                               backgroundColor: theme.palette.info.main, 
+                   
+                               color: theme.palette.info.contrastText, 
+                   
+                               fontWeight: "bold", 
+                   
+                               fontSize: theme.typography.subtitle2.fontSize, 
+                   
+                             }, 
+                   
+                             "& .MuiDataGrid-virtualScroller": { 
+                   
+                               backgroundColor: theme.palette.info.light, 
+                   
+                             }, 
+                   
+                             "& .MuiDataGrid-footerContainer": { 
+                   
+                               borderTop: "none", 
+                   
+                               backgroundColor: theme.palette.info.main, 
+                   
+                               color: theme.palette.info.contrastText, 
+                   
+                             }, 
+                   
+                             "& .MuiCheckbox-root": { 
+                   
+                               color: "black !important", 
+                   
+                             }, 
+                   
+                             "& .MuiCheckbox-root.Mui-checked": { 
+                   
+                               color: "black !important", 
+                   
+                             }, 
+                   
+                             "& .MuiDataGrid-row:nth-of-type(even)": { 
+                   
+                               backgroundColor: theme.palette.action.hover, 
+                   
+                             }, 
+                   
+                             "& .MuiDataGrid-row:nth-of-type(odd)": { 
+                   
+                               backgroundColor: theme.palette.background.default, 
+                   
+                             }, 
+                   
+                             "& .MuiDataGrid-row.Mui-selected:hover": { 
+                   
+                               backgroundColor: `${theme.palette.action.selected} !important`, 
+                   
+                             }, "& .MuiTablePagination-root": {
+                                 color: "white !important", // Ensuring white text color for the pagination
+                               }, 
+                           
+                               "& .MuiTablePagination-root .MuiTypography-root": {
+                                 color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                               }, 
+                           
+                               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                                 color: "white !important", // Ensuring white icons for pagination
+                               },
+                   
+                           }} 
                   >
                     <DataGrid
+                     columnHeaderHeight={dataGridHeaderFooterHeight}
+                               sx={{
+                                 // This is to override the default height of the footer row
+                                 '& .MuiDataGrid-footerContainer': {
+                                     height: dataGridHeaderFooterHeight,
+                                     minHeight: dataGridHeaderFooterHeight,
+                                 },
+                               }}
                       slots={{
                         loadingOverlay: LinearProgress,
                         toolbar: CustomToolbar,

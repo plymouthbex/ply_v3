@@ -57,6 +57,22 @@ export const navigations = [
         iconText: "QT",
         fav: false,
       },
+      {
+        name: "Contact Directory",
+        path: "/pages/pricing-portal/contact-directory",
+        iconText: "C",
+        accessID: "PPB015",
+        icon: <DescriptionIcon fontSize="small" />,
+        role: authRoles.admin,
+      },
+      // {
+      //   name: "Templates",
+      //   icon: <DescriptionIcon fontSize="small" />,
+      //   path: "/pages/pricing-portal/quote-template",
+      //   accessID: "PPB004",
+      //   iconText: "QT",
+      //   fav: false,
+      // },
     ],
   },
 

@@ -14,6 +14,7 @@ import mailRoutes from "./views/Pricing-Portal/Mail/mailRoutes";
 
 import controlPanelRoutes from "./views/Control-Panel/PriceBook/PriceBookRoutes";
 import SecurityRoutes from "./views/Security/SecurityRoutes";
+import contactRoutes from "./views/Pricing-Portal/contact/contactRoutes";
 
 // import { PDF8 } from "./components/Template/pdfs/CustomerTemp";
 
@@ -38,6 +39,7 @@ const routes = [
         ...mailRoutes,
         ...controlPanelRoutes,
         ...SecurityRoutes,
+        ...contactRoutes,
         { path: '*', element: <UnderDevelopment /> },
       ],
     },
