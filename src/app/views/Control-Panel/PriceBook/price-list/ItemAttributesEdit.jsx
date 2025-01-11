@@ -71,7 +71,7 @@ const ItemAttributesEdit = () => {
   // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
     dispatch(
-      getPriceListItemGet({ itemNumber: itemNumber, id: state.priceListID })
+      getPriceListItemGet({  itemNumber: itemNumber, id: state.id,RecordID:state.recordID })
     );
   }, []);
 
@@ -79,6 +79,7 @@ const ItemAttributesEdit = () => {
   const [postError1, setPostError1] = useState(false);
   const itemSaveFn = async (values) => {
     const data = {
+      RecordID:state.recordID,
       priceListID: state.priceListID,
       quotationRecordID: "0",
       filterType: "PL",
@@ -101,6 +102,7 @@ const ItemAttributesEdit = () => {
   const [postError2, setPostError2] = useState(false);
   const itemDeleteFn = async (values) => {
     const data = {
+      RecordID:state.recordID,
       priceListID: `${state.priceListID}`,
       quotationRecordID: "0",
       filterType: "PL",

@@ -144,6 +144,7 @@ const NewProspect = () => {
     }
   };
 
+  const priceBookLevel1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   return (
     <Container>
       {getQuoteProspectInfoStatus === "fulfilled" &&
@@ -165,7 +166,7 @@ const NewProspect = () => {
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
             customer: getQuoteProspectInfoData.CustomerNumber,
-            priceBookLevel: getQuoteProspectInfoData.PriceLevel,
+            priceBookLevel: getQuoteProspectInfoData.PriceLevel ? getQuoteProspectInfoData.PriceLevel : null,
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -197,15 +198,17 @@ const NewProspect = () => {
                   routeSegments={[{ name: "Quote" }, { name: `New Prospect` }]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  {params.mode === "copy" &&<Button
-                    variant="contained"
-                    color="info"
-                    size="small"
-                    startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => navigate(-1)}
-                  >
-                    Back
-                  </Button>}
+                  {params.mode === "copy" && (
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      startIcon={<ArrowBackIcon size="small" />}
+                      onClick={() => navigate(-1)}
+                    >
+                      Back
+                    </Button>
+                  )}
                 </Stack>
               </div>
 
@@ -336,7 +339,7 @@ const NewProspect = () => {
                     onBlur={handleBlur}
                   />
 
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="number"
@@ -354,7 +357,49 @@ const NewProspect = () => {
                     value={values.priceBookLevel}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                  />
+                  /> */}
+
+                  <Stack
+                    sx={{ gridColumn: "span 2" }}
+                    direction="column"
+                    gap={2}
+                  >
+                    <Autocomplete
+                      fullWidth
+                      
+                      id="priceBookLevel"
+                      name="priceBookLevel"
+                      options={priceBookLevel1}
+                      getOptionLabel={(option) => `Price Book Level ${option}`}
+                      value={values.priceBookLevel}
+                      onChange={(event, newValue) =>
+                        handleChange({
+                          target: {
+                            name: "priceBookLevel",
+                            value: newValue,
+                          },
+                        })
+                      }
+                      onBlur={handleBlur}
+                      disableClearable
+                      renderInput={(params) => (
+                        <TextField
+                         
+                          {...params}
+                        required
+
+                          InputLabelProps={{
+                            sx: {
+                              "& .MuiInputLabel-asterisk": { color: "red" },
+                            },
+                          }}
+                          label="Price Book Level"
+                          size="small"
+                          sx={{ gridColumn: "span 2" }}
+                        />
+                      )}
+                    />
+                  </Stack>
 
                   <TextField
                     fullWidth
@@ -412,38 +457,6 @@ const NewProspect = () => {
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />
-                  {/* <Stack
-                    sx={{ gridColumn: "span 2" }}
-                    direction="column"
-                    gap={2}
-                  >
-                    <Autocomplete
-                      fullWidth
-                      id="priceBookLevel"
-                      name="priceBookLevel"
-                      options={priceBookLevel1}
-                      getOptionLabel={(option) => `Price Book Level ${option}`}
-                      value={values.priceBookLevel}
-                      onChange={(event, newValue) =>
-                        handleChange({
-                          target: {
-                            name: "priceBookLevel",
-                            value: newValue,
-                          },
-                        })
-                      }
-                      onBlur={handleBlur}
-                      disableClearable
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="PriceBook Level"
-                          size="small"
-                          sx={{ gridColumn: "span 2" }}
-                        />
-                      )}
-                    />
-                  </Stack> */}
 
                   <Box
                     sx={{

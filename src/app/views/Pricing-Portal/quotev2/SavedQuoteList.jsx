@@ -30,6 +30,9 @@ import useAuth from "app/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import { getProspectListData } from "app/redux/slice/getSlice";
+import { deleteQuote } from "app/redux/slice/postSlice";
+import { PriceGroupAlertApiDialog, QuoteTempAlertApiDialog } from "app/components/LoadindgDialog";
+import { useState } from "react";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -52,14 +55,24 @@ const SavedQuoteList = () => {
   const location = useLocation();
   const state = location.state ? location.state : {};
 
-  const rowProspect = useSelector((state) => state.getSlice.getQuoteProspectData)
-  const statusProspect = useSelector((state) => state.getSlice.getQuoteProspectStatus)
-  const loadingProspect = useSelector((state) => state.getSlice.getQuoteProspectLoading)
-  const errorProspect = useSelector((state) => state.getSlice.getQuoteProspectError)
+  const rowProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectData
+  );
+  const statusProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectStatus
+  );
+  const loadingProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectLoading
+  );
+  const errorProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectError
+  );
 
-  useEffect(()=>{
-    dispatch(getProspectListData({data:{Type:"Prospect",UserID:user.id,}}))
-  },[])
+  useEffect(() => {
+    dispatch(
+      getProspectListData({ data: { Type: "Prospect", UserID: user.id } })
+    );
+  }, []);
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
@@ -84,14 +97,7 @@ const SavedQuoteList = () => {
       headerAlign: "left",
       hide: true,
     },
-    {
-      headerName: "Description",
-      field: "Description",
-      width: "300",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+
     {
       field: "Action",
       headerName: "Action",
@@ -121,7 +127,7 @@ const SavedQuoteList = () => {
                 });
               }}
             >
-              Copy Quote
+              Copy
             </Button>
             <Button
               sx={{
@@ -138,15 +144,28 @@ const SavedQuoteList = () => {
                 });
               }}
             >
-              View Quote
+              View
+            </Button>
+
+            <Button
+              sx={{
+                height: 25,
+              }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setDeleteID(params.row.RecordID);
+                setIsRemoveItem(true);
+              }}
+            >
+              Delete
             </Button>
           </div>
         );
       },
     },
   ];
-
-
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -176,6 +195,25 @@ const SavedQuoteList = () => {
     );
   }
 
+  const [isRemoveItem, setIsRemoveItem] = useState(false);
+  const [openAlert6, setOpenAlert6] = useState(false);
+  const [postError6, setPostError6] = useState(false);
+  const [deleteID, setDeleteID] = useState(0);
+  const itemDeleteFn = async (id) => {
+    const response = await dispatch(deleteQuote({ id: deleteID }));
+    if (response.payload.status === "Y") {
+      setPostError6(false);
+      setOpenAlert6(true);
+      setDeleteID(0);
+      dispatch(
+        getProspectListData({ data: { Type: "Prospect", UserID: user.id } })
+      );
+    } else {
+      setOpenAlert6(true);
+      setPostError6(true);
+      setDeleteID(0);
+    }
+  };
 
   return (
     <Container>
@@ -187,12 +225,12 @@ const SavedQuoteList = () => {
           alignItems: "center",
         }}
       >
-          <Breadcrumb
-                 routeSegments={[
-                   { name: "Templates", path:"/pages/pricing-portal/templates" },
-                   { name: "Saved Quote" },
-                 ]}
-               />
+        <Breadcrumb
+          routeSegments={[
+            { name: "Templates", path: "/pages/pricing-portal/templates" },
+            { name: "Saved Quote" },
+          ]}
+        />
         <Stack direction={"row"} gap={1}>
           <Button
             variant="contained"
@@ -241,14 +279,14 @@ const SavedQuoteList = () => {
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
@@ -260,10 +298,10 @@ const SavedQuoteList = () => {
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
             }}
-            rowHeight={30}
-            pageSizeOptions={[20, 50, 100]}
+            rowHeight={dataGridRowHeight}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}
@@ -277,6 +315,76 @@ const SavedQuoteList = () => {
             }}
           />
         </Box>
+
+        <PriceGroupAlertApiDialog
+          logo={`data:image/png;base64,${user.logo}`}
+          key={23131}
+          open={openAlert6}
+          error={postError6}
+          message={postError6 ? "Quote not deleted! and Please retry":"Quote deleted successfully"}
+          Actions={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setOpenAlert6(false);
+                }}
+                sx={{ height: 25 }}
+              >
+                Close
+              </Button>
+            </Box>
+          }
+        />
+
+        <QuoteTempAlertApiDialog
+          logo={`data:image/png;base64,${user.logo}`}
+          open={isRemoveItem}
+          //  tittle={values.itemDescription}
+          error={true}
+          message={`Are you sure you want to delete this quote?`}
+          Actions={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+              <Button
+                sx={{ mr: 1, height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setIsRemoveItem(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                sx={{ height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  itemDeleteFn();
+                  setIsRemoveItem(false);
+                }}
+              >
+                Confirm
+              </Button>
+            </Box>
+          }
+        />
       </Paper>
     </Container>
   );

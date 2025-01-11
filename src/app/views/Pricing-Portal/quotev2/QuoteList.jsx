@@ -13,7 +13,7 @@ import { Breadcrumb } from "app/components";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
-import { dataGridHeaderFooterHeight } from "app/utils/constant";
+import { dataGridHeaderFooterHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight } from "app/utils/constant";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -64,7 +64,7 @@ const QuoteList = () => {
             <Button
               sx={{
                 height: 25,
-                width: 200,
+                width: 150,
               }}
               variant="contained"
               color="info"
@@ -198,10 +198,10 @@ const QuoteList = () => {
             disableRowSelectionOnClick
             getRowId={(row) => row.name}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
             }}
-            rowHeight={30}
-            pageSizeOptions={[20, 50, 100]}
+            rowHeight={dataGridRowHeight}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}

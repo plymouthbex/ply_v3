@@ -1035,6 +1035,29 @@ export const postContractItems = createAsyncThunk(
     }
   }
 );
+
+
+export const deleteQuote = createAsyncThunk(
+  "deleteQuote/DELETE",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Quotation/DeleteQuotationHeader`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: {
+          Recordid: id, // This ensures the parameter is added to the query string
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,
