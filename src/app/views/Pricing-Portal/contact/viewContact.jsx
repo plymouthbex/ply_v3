@@ -214,6 +214,7 @@ const ViewContact = () => {
                     id="name"
                     name="name"
                     label="Customer Name"
+                     autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
@@ -222,7 +223,7 @@ const ViewContact = () => {
                     onBlur={handleBlur}
                     error={!!touched.code && !!errors.code}
                     disabled={
-                        params.mode === "delete" || params.mode === "view"
+                        params.mode === "delete" 
                           ? true
                           : false
                       }
@@ -234,7 +235,7 @@ const ViewContact = () => {
                   <FormikOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
                     disabled={
-                      params.mode === "delete" || params.mode === "view"
+                      params.mode === "delete" 
                         ? true
                         : false
                     }
@@ -266,11 +267,12 @@ const ViewContact = () => {
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
+                     autoComplete="off"
                   />
 
                   <TextField
                   disabled={
-                    params.mode === "delete" || params.mode === "view"
+                    params.mode === "delete" 
                       ? true
                       : false
                   }
@@ -285,11 +287,12 @@ const ViewContact = () => {
                     value={values.provider}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                     autoComplete="off"
 
                   />
                   <TextField
                   disabled={
-                    params.mode === "delete" || params.mode === "view"
+                    params.mode === "delete" 
                       ? true
                       : false
                   }
@@ -307,10 +310,11 @@ const ViewContact = () => {
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
+                     autoComplete="off"
                   />
                   <TextField
                   disabled={
-                    params.mode === "delete" || params.mode === "view"
+                    params.mode === "delete" 
                       ? true
                       : false
                   }
@@ -323,7 +327,7 @@ const ViewContact = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                  
-
+ autoComplete="off"
                     value={values.sequence}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -342,7 +346,7 @@ const ViewContact = () => {
                           onChange={handleChange}
                           sx={{ height: "10px" }}
                           disabled={
-                            params.mode === "delete" || params.mode === "view"
+                            params.mode === "delete" 
                               ? true
                               : false
                           }
@@ -364,7 +368,7 @@ const ViewContact = () => {
                           onChange={handleChange}
                           sx={{ height: "10px" }}
                           disabled={
-                            params.mode === "delete" || params.mode === "view"
+                            params.mode === "delete" 
                               ? true
                               : false
                           }
@@ -384,7 +388,7 @@ const ViewContact = () => {
                         onChange={handleChange}
                         sx={{ height: "10px" }}
                       disabled={
-                        params.mode === "delete" || params.mode === "view"
+                        params.mode === "delete" 
                           ? true
                           : false
                       }

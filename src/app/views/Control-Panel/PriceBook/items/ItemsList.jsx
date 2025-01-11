@@ -19,6 +19,8 @@ import {
   TableContainer,
   Stack,
   DialogActions,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -52,7 +54,7 @@ import {
 } from "app/components/SingleAutocompletelist";
 import { PostAdHocItem } from "app/redux/slice/postSlice";
 import AlertDialog from "app/components/AlertDialog";
-
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -165,29 +167,16 @@ const ItemList = () => {
       width: 200,
       renderCell: (params) => (
         <div style={{ display: "flex", gap: "10px" }}>
-          <Button
+        <Tooltip title="More">
+          <IconButton
             onClick={() => handleRowClick(params)}
-            // color="error"
-            sx={{
-              borderRadius: "8px", // Rounded corners
-              border: "none",
-              padding: "2px 6px", // Adjust padding for smaller size
-              fontSize: "0.75rem", // Adjust font size
-              lineHeight: "1rem", // Adjust line height for better vertical alignment
-              height: "24px", // Ensure the button fits within the row height
-              minWidth: "auto", // Prevent unnecessary width
-              "&:hover": {
-                backgroundColor: theme.palette.secondary.light, // Custom hover color
-              },
-              color: theme.palette.secondary.contrastText,
-              bgcolor: theme.palette.secondary.light,
-              fontWeight: "bold",
-            }}
-            size="small"
+            sx={{ height: 30, width: 30 }}
           >
-            More
-          </Button>
-        </div>
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </div>
+      
       ),
     },
   ];
@@ -222,15 +211,14 @@ const ItemList = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<RefreshOutlined fontSize="small" />}
-            onClick={() => toast.error("Under construction...")}
-          >
-            Refresh
-          </Button>
+          <Tooltip title="Refresh">
+    <IconButton
+      onClick={() => toast.error("Under construction...")}
+      sx={{ height: 30, width: 30 }}
+    >
+      <RefreshOutlined fontSize="small" />
+    </IconButton>
+  </Tooltip>
           {/* <Button
             variant="contained"
             color="info"

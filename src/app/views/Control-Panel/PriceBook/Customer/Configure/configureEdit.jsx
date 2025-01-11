@@ -14,6 +14,12 @@ import {
   Autocomplete,
   LinearProgress,
   DialogActions,
+  Tooltip,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   DataGrid,
@@ -24,6 +30,7 @@ import { Breadcrumb } from "app/components";
 import Cover from "../../../../../../assets/plylogo.png";
 import { dataGridHeight, dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
 // ******************** ICONS ******************** //
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Add, AddAlertOutlined, RefreshOutlined } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -83,12 +90,19 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
-  
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .max(60, "Name must be at most 60 characters"),
- 
+
+  phonenumber: Yup.string()
+    .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+    .required("Phone number is required"),
+
+  email: Yup.string()
+    .email("Must be a valid email")
+    .required("Email is required"),
 });
+
 
 // ******************** Price List Edit SCREEN  ******************** //
 const ConfigureEdit = () => {
@@ -190,37 +204,35 @@ const ConfigureEdit = () => {
       renderCell: (param) => {
         return (
           <Box gap={1}>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              // disabled={true} // Permanently disable the button
-              onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/price-list-items/customer", {
-                  state: {
-                    id: param.row.PRICELISTID,
-                  }
-                });
-              }}
-            >
-              View Items
-            </Button>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              // disabled={true} // Permanently disable the button
-              onClick={() => {
-                setremovePriceListID(param.row.PRICELISTID);
-                setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
-                setIsRemovePriceList(true);
-              }}
-              startIcon={<DeleteIcon size="small" />}
-            >
-              Remove Items
-            </Button>
+             <Tooltip title="View Items">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        navigate("/pages/control-panel/configure-price-book/price-list-items/customer", {
+          state: {
+            id: param.row.PRICELISTID,
+          },
+        });
+      }}
+    >
+      <VisibilityIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="Remove Items">
+    <IconButton
+      color="error"
+      size="small"
+      onClick={() => {
+        setremovePriceListID(param.row.PRICELISTID);
+        setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
+        setIsRemovePriceList(true);
+      }}
+    >
+      <DeleteIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
           </Box>
         );
       },
@@ -274,50 +286,50 @@ const ConfigureEdit = () => {
             url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
           />
 
-          <Button
-            disabled={params.mode === "delete" || params.mode === "view"}
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              if (addPriceListData) {
-                const isItem = [...getRows, ...filteredSelectedItems].some(
-                  (item) =>
-                    lodash.isEqual(item.PRICELISTID, addPriceListData.PRICELISTID)
-                ); if (isItem) {
-                  setIsPriceListExists(true);
-                  setTimeout(() => {
-                    setIsPriceListExists(false);
-                    setAddPriceListData(null);
-                  }, 5000);
-                  return;
-                }
-                dispatch(configureAddedPriceList(addPriceListData));
-                setAddPriceListData(null);
-              } else {
-                setIsPriceListExistsError(true);
-                setTimeout(() => {
-                  setIsPriceListExistsError(false);
-                }, 2000);
-              }
-              const pricedata = {
-                "recordID": data.RecordID,
-                "priceListID": addPriceListData.PRICELISTID,
-              }
-              const response = dispatch(PostConfigurePriceListID({
-                pricedata
-              }));
+<Tooltip title="Add">
+  <IconButton
+    disabled={params.mode === "delete" || params.mode === "view"}
+    color="black"
+    size="small"
+    onClick={() => {
+      if (addPriceListData) {
+        const isItem = [...getRows, ...filteredSelectedItems].some(
+          (item) =>
+            lodash.isEqual(item.PRICELISTID, addPriceListData.PRICELISTID)
+        );
+        if (isItem) {
+          setIsPriceListExists(true);
+          setTimeout(() => {
+            setIsPriceListExists(false);
+            setAddPriceListData(null);
+          }, 5000);
+          return;
+        }
+        dispatch(configureAddedPriceList(addPriceListData));
+        setAddPriceListData(null);
+      } else {
+        setIsPriceListExistsError(true);
+        setTimeout(() => {
+          setIsPriceListExistsError(false);
+        }, 2000);
+      }
 
-            }}
-          >
-            Add
-          </Button>
+      const pricedata = {
+        recordID: data.RecordID,
+        priceListID: addPriceListData.PRICELISTID,
+      };
+      const response = dispatch(PostConfigurePriceListID({ pricedata }));
+    }}
+  >
+    <Add />
+  </IconButton>
+</Tooltip>
+
         </Box>
       </GridToolbarContainer>
     );
   }
-
+  console.log("🚀 ~ handleSave ~ params.mode:", params.mode)
 
   //====================================================================================//
 
@@ -332,7 +344,8 @@ const ConfigureEdit = () => {
     let addressCode;
     let address1;
 
-    if (params.mode === "addContact") {
+    if (params.mode === "add-Contact") {
+      
       Classification = "CT";
       companyID = 5;
       companyCode = State.Configure.address.company.Code;
@@ -393,6 +406,7 @@ const ConfigureEdit = () => {
     console.log("🚀 ~ handleSave ~ CData:", Cdata)
     const response = await dispatch(postConfigureCompany({ Cdata }));
     if (response.payload.status === "Y") {
+      
       setOpenAlert(true);
     } else {
       setOpenAlert(true);
@@ -579,6 +593,7 @@ const ConfigureEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
+                     autoComplete="off"
                     value={values.name}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -614,26 +629,35 @@ const ConfigureEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     value={values.phonenumber}
+                     autoComplete="off"
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
                   />
 
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="provider"
-                    name="provider"
-                    label="Service Provider"
-                    size="small"
+<FormControl
                     sx={{ gridColumn: "span 2" }}
-                    value={values.provider}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-
-                  />
+                    fullWidth
+                    size="small"
+                  >
+                    <InputLabel id="demo-simple-select-label">
+                      Service Provider
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      value={values.provider}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      id="provider"
+                      name="provider"
+                      label="Price Book Type"
+                    >
+                      <MenuItem value={"AT&T"}>AT&T</MenuItem>
+                      <MenuItem value={"V"}>Verizon</MenuItem>
+                      <MenuItem value={"TM"}>T-Mobile</MenuItem>
+                    </Select>
+                  </FormControl>
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -643,30 +667,50 @@ const ConfigureEdit = () => {
                     label="Email"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
-
+                     autoComplete="off"
+required
+InputLabelProps={{
+  sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+}}
                     value={values.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="sequence"
-                    name="sequence"
-                    label="Sequence"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
-
-                    value={values.sequence}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.sequence && Boolean(errors.sequence)}
-                    helperText={touched.sequence && errors.sequence}
-                  />
+                    <Autocomplete
+                   sx={{ gridColumn: "span 2" }}
+                                      fullWidth
+                                      id="priceBookLevels"
+                                      name="priceBookLevels"
+                                      // Map through priceBookLevels to get the 'level' values for the options list
+                                      options={priceBookLevels.map((levelObj) => levelObj.level)}
+                                      disabled={params?.mode === "delete"}
+                  
+                                      // Set the value by finding the corresponding 'level' based on the id stored in Formik's values
+                                      value={priceBookLevels.find((levelObj) => levelObj.id === values.priceBookLevels)?.level || ""}
+                  
+                                      onChange={(event, newValue) => {
+                                        // Find the corresponding 'id' based on the selected 'level' value
+                                        const selectedLevel = priceBookLevels.find((levelObj) => levelObj.level === newValue);
+                  
+                  
+                                        handleChange({
+                                          target: { name: "priceBookLevels", value: selectedLevel?.id || null }, // If no match, set to null
+                                        });
+                                      }}
+                  
+                                      onBlur={handleBlur}
+                                      disableClearable
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          label="Price Book Level"
+                                          size="small"
+                                          sx={{ gridColumn: "span 2" }}
+                                        />
+                                      )}
+                                    />
                   <Stack
                     sx={{ gridColumn: "span 2" }}
                     direction="row"
@@ -750,7 +794,7 @@ const ConfigureEdit = () => {
                         value={values.cfpbtitle}
                         onChange={handleChange}
                         onBlur={handleBlur}
-
+ autoComplete="off"
                       />
 
                       <Stack
@@ -809,7 +853,7 @@ const ConfigureEdit = () => {
                         value={values.ccpbtitle}
                         onChange={handleChange}
                         onBlur={handleBlur}
-
+ autoComplete="off"
                       />
 
                       <Stack
@@ -1031,14 +1075,14 @@ const ConfigureEdit = () => {
         open={openAlert}
         error={postError}
         message={
-          params.mode === "add"
+          params.mode === "add-Contact"
             ? "Configure Customer added successfully"
             : params.mode === "delete"
               ? "Configure Customer Deleted Successfully"
               : "Configure Customer updated successfully"
         }
         Actions={
-          params.mode === "add" ? (
+          params.mode === "add-Contact" ? (
             <DialogActions>
               <Button
                 variant="contained"
@@ -1082,6 +1126,18 @@ const ConfigureEdit = () => {
 export default ConfigureEdit;
 
 
+const priceBookLevels = [
+  { id: 1, level: "Price Book Level 1" },
+  { id: 2, level: "Price Book Level 2" },
+  { id: 3, level: "Price Book Level 3" },
+  { id: 4, level: "Price Book Level 4" },
+  { id: 5, level: "Price Book Level 5" },
+  { id: 6, level: "Price Book Level 6" },
+  { id: 7, level: "Price Book Level 7" },
+  { id: 8, level: "Price Book Level 8" },
+  { id: 9, level: "Price Book Level 9" },
+  { id: 10, level: "Price Book Level 10" },
+];
 {/* {params.mode === 'edit-Customer' && (
  <Box display="flex" flexDirection="column" gap="20px"  justifyContent="center"
             alignItems="center">

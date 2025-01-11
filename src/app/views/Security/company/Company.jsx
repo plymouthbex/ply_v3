@@ -6,6 +6,8 @@ import {
   Button,
   styled,
   useTheme,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -13,14 +15,16 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight,  dataGridPageSize,
-  dataGridpageSizeOptions,dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
-import { Add } from "@mui/icons-material";
+import {
+  dataGridHeight, dataGridPageSize,
+  dataGridpageSizeOptions, dataGridRowHeight, dataGridHeaderFooterHeight
+} from "app/utils/constant";
+import { Add, MailOutline } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-
+import MailIcon from '@mui/icons-material/Mail';
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -36,13 +40,13 @@ const Company = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
-const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
- 
+  const companyRows = useSelector((state) => state.listview.comapnyListViewData);
+
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
@@ -90,21 +94,33 @@ const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
       align: "center",
       renderCell: (params) => {
         return (
-          <div>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate("/pages/security/company/company-edit-detail/edit", {
-                  state: { ID: params.row.CompanyCode },
-                });
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-              Edit
-            </Button>
+          <div gap={1}>
+            <Tooltip title="Edit">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="black"
+                onClick={() => {
+                  navigate("/pages/security/company/company-edit-detail/edit", {
+                    state: { ID: params.row.CompanyCode },
+                  });
+                }}
+              >
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="black"
+                onClick={() => {
+                  navigate("/pages/security/company/mail", {
+                    state: { Name: params.row.CompanyName },
+                  });
+                }}
+              >
+                <MailIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         );
       },
@@ -112,9 +128,9 @@ const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
   ];
   useEffect(() => {
     dispatch(getCompanyListView());
-   
+
   }, [dispatch]);
-  
+
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -140,19 +156,20 @@ const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
         >
           <GridToolbarQuickFilter />
 
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              navigate("/pages/security/company/company-edit-detail/add", {
-                state: { ID:0 },
-              });
-            }}
-          >
-            Add
-          </Button>
+          <Tooltip title="Add">
+            <IconButton
+              color="black"
+              sx={{ height: 30, width: 30 }}
+              onClick={() => {
+                navigate("/pages/security/company/company-edit-detail/add", {
+                  state: { ID: 0 },
+                });
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
         </Box>
       </GridToolbarContainer>
     );
@@ -219,14 +236,14 @@ const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
 
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
-            },"& .MuiTablePagination-root": {
+            }, "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
@@ -241,8 +258,8 @@ const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
             sx={{
               // This is to override the default height of the footer row
               '& .MuiDataGrid-footerContainer': {
-                  height: dataGridHeaderFooterHeight,
-                  minHeight: dataGridHeaderFooterHeight,
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
               },
             }}
             rowHeight={dataGridRowHeight}

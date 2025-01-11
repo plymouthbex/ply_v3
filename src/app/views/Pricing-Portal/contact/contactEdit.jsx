@@ -14,6 +14,11 @@ import {
   Autocomplete,
   LinearProgress,
   DialogActions,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
+  IconButton,Tooltip
 } from "@mui/material";
 import {
   DataGrid,
@@ -21,7 +26,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridRowHeight, dataGridHeaderFooterHeight } from "app/utils/constant";
 // ******************** ICONS ******************** //
 import { Add, AddAlertOutlined, RefreshOutlined } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
@@ -40,7 +45,7 @@ import { configureAddedPriceList, getConfigPriceBook } from "app/redux/slice/get
 import { ConfigurepriceListClear, postConfigureCompany, PostConfigurePriceListID } from "app/redux/slice/postSlice";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -72,12 +77,15 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
-  
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .max(60, "Name must be at most 60 characters"),
- 
+
+  phonenumber: Yup.string()
+    .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+    .required("Phone number is required"),
 });
+
 
 // ******************** Price List Edit SCREEN  ******************** //
 const ContactEdit = () => {
@@ -101,7 +109,7 @@ const ContactEdit = () => {
 
   const data = useSelector((state) => state.getSlice.getconfigureData);
   console.log("🚀 ~ ConfigureCompanyEdit ~ data:", data)
- 
+
 
   const loading = useSelector((state) => state.getSlice.getconfigureLoading);
   const status = useSelector((state) => state.getSlice.getconfigureStatus);
@@ -114,7 +122,7 @@ const ContactEdit = () => {
 
 
 
- 
+
   //==================================GETAPI=====================================//
   useEffect(() => {
     dispatch(getConfigPriceBook({ ID: State.RecordID }));
@@ -182,46 +190,45 @@ const ContactEdit = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate('/pages/pricing-portal/view-contact/view', {
-                  state: {
-                    ID: params.row.id,
-                  },
-                });
-              }}
-              
-            >
-              View
-            </Button>
-  
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<DeleteIcon color="error" size="small" />}
-              onClick={() => {
-                navigate('/pages/pricing-portal/view-contact/delete', {
-                  state: {
-                    ID: params.row.id,
-                  },
-                });
-              }}
-              
-            >
-              Remove
-            </Button>
+            <Tooltip title="View Details">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="black"
+                onClick={() => {
+                  navigate('/pages/pricing-portal/view-contact/view', {
+                    state: {
+                      ID: params.row.id,
+                    },
+                  });
+                }}
+              >
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+    
+            <Tooltip title="Delete">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="error"
+                onClick={() => {
+                  navigate('/pages/pricing-portal/view-contact/delete', {
+                    state: {
+                      ID: params.row.id,
+                    },
+                  });
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         );
       },
     },
+    
+    
   ];
-  
+
   // Example data with mock phone numbers
   const rows = [
     { id: 1, Name: "John", LastName: "Doe", Email: "john.doe@example.com", CompanyName: "Plymouth", PhoneNumber: "1234567890" },
@@ -230,7 +237,7 @@ const ContactEdit = () => {
     { id: 4, Name: "Alice", LastName: "Brown", Email: "alice.brown@example.com", CompanyName: "Plymouth", PhoneNumber: "8002345678" },
     { id: 5, Name: "Charlie", LastName: "Davis", Email: "charlie.davis@example.com", CompanyName: "Plymouth", PhoneNumber: "2129876543" },
   ];
-  
+
   function CustomToolbar() {
     return (
       <GridToolbarContainer
@@ -253,7 +260,19 @@ const ContactEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-         
+<Tooltip title="Add">
+            <IconButton
+               color="black"
+              sx={{ height: 35, width: 35 }}
+              onClick={() => {
+                navigate("/pages/pricing-portal/view-contact/add", {
+                  state: { RecordID: 0 },
+                });
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
       </GridToolbarContainer>
     );
@@ -262,93 +281,97 @@ const ContactEdit = () => {
 
   //====================================================================================//
 
-//   const handleSave = async (values) => {
+  //   const handleSave = async (values) => {
 
 
-//     let Classification;
-//     let companyID;
-//     let companyCode;
-//     let customerNumber;
-//     let customerName;
-//     let addressCode;
-//     let address1;
+  //     let Classification;
+  //     let companyID;
+  //     let companyCode;
+  //     let customerNumber;
+  //     let customerName;
+  //     let addressCode;
+  //     let address1;
 
-//     if (params.mode === "addContact") {
-//       Classification = "CT";
-//       companyID = 5;
-//       companyCode = State.Configure.address.company.Code;
-//       customerNumber = State.Configure.address.Code;
-//       customerName = State.Configure.address.Name;
-//       addressCode = State.Configure.Code;
-//       address1 = State.Configure.Name;
-//     } else {
-//       Classification = data.Classification;
-//       companyID = data.CompanyID;
-//       companyCode = data.CompanyCode;
-//       customerNumber = data.CustomerNumber;
-//       customerName = data.CustomerName;
-//       addressCode = data.AddressCode;
-//       address1 = data.Address1;
-//     }
+  //     if (params.mode === "addContact") {
+  //       Classification = "CT";
+  //       companyID = 5;
+  //       companyCode = State.Configure.address.company.Code;
+  //       customerNumber = State.Configure.address.Code;
+  //       customerName = State.Configure.address.Name;
+  //       addressCode = State.Configure.Code;
+  //       address1 = State.Configure.Name;
+  //     } else {
+  //       Classification = data.Classification;
+  //       companyID = data.CompanyID;
+  //       companyCode = data.CompanyCode;
+  //       customerNumber = data.CustomerNumber;
+  //       customerName = data.CustomerName;
+  //       addressCode = data.AddressCode;
+  //       address1 = data.Address1;
+  //     }
 
-//     const Cdata = {
+  //     const Cdata = {
 
-//       "recordID": data.RecordID,
-//       "classification": Classification,
-//       "companyID": companyID,
-//       "companyCode": companyCode,
-//       "customerNumber": customerNumber,
-//       "customerName": customerName,
-//       "addressCode": addressCode,
-//       "address1": address1,
-//       "contactName": values.name,
-//       "city": "",
-//       "state": "",
-//       "zip": "",
-//       "emailId": values.email,
-//       "preferedDeliveryEmail": values.pec ? "1" : "0",
-//       "Phone": values.phonenumber,
-//       "preferedDeliveryMobile": values.pmc ? "1" : "0",
-//       "provider": values.provider,
-//       "fullPriceBookPdf": values.cfpbpdf ? "1" : "0",
-//       "fullPriceBookExcel": values.cfpbexcel ? "1" : "0",
-//       "customPriceBookPdf": values.ccpbpdf ? "1" : "0",
-//       "customPriceBookExcel": values.ccpbexcel ? "1" : "0",
-//       "rungroup": data.Rungroup,
-//       "fullPriceBookTitle": values.cfpbtitle,
-//       "customPriceBookTitle": values.ccpbtitle,
-//       "tableID": "",
-//       "imageID": "",
-//       "sequence": values.sequence,
-//       "disable": values.disable ? "1" : "0",
-//       "createdDateTime": "",
-//       "lastModified": "",
-//       "createdBy": "",
-//       "modifiedBy": "",
-//       "pC_LASTRUNUSER": "",
-//       "pC_LASTRUNDATETIME": "",
-//       "priceLevel": 0,
-//       "fullPriceBook": "",
-//       "customPriceBook": ""
-//     };
-//     console.log("🚀 ~ handleSave ~ CData:", Cdata)
-//     const response = await dispatch(postConfigureCompany({ Cdata }));
-//     if (response.payload.status === "Y") {
-//       setOpenAlert(true);
-//     } else {
-//       setOpenAlert(true);
-//       setPostError(true);
-//       // toast.error("Error occurred while saving data");
-//     }
-//   };
-
-
-
+  //       "recordID": data.RecordID,
+  //       "classification": Classification,
+  //       "companyID": companyID,
+  //       "companyCode": companyCode,
+  //       "customerNumber": customerNumber,
+  //       "customerName": customerName,
+  //       "addressCode": addressCode,
+  //       "address1": address1,
+  //       "contactName": values.name,
+  //       "city": "",
+  //       "state": "",
+  //       "zip": "",
+  //       "emailId": values.email,
+  //       "preferedDeliveryEmail": values.pec ? "1" : "0",
+  //       "Phone": values.phonenumber,
+  //       "preferedDeliveryMobile": values.pmc ? "1" : "0",
+  //       "provider": values.provider,
+  //       "fullPriceBookPdf": values.cfpbpdf ? "1" : "0",
+  //       "fullPriceBookExcel": values.cfpbexcel ? "1" : "0",
+  //       "customPriceBookPdf": values.ccpbpdf ? "1" : "0",
+  //       "customPriceBookExcel": values.ccpbexcel ? "1" : "0",
+  //       "rungroup": data.Rungroup,
+  //       "fullPriceBookTitle": values.cfpbtitle,
+  //       "customPriceBookTitle": values.ccpbtitle,
+  //       "tableID": "",
+  //       "imageID": "",
+  //       "sequence": values.sequence,
+  //       "disable": values.disable ? "1" : "0",
+  //       "createdDateTime": "",
+  //       "lastModified": "",
+  //       "createdBy": "",
+  //       "modifiedBy": "",
+  //       "pC_LASTRUNUSER": "",
+  //       "pC_LASTRUNDATETIME": "",
+  //       "priceLevel": 0,
+  //       "fullPriceBook": "",
+  //       "customPriceBook": ""
+  //     };
+  //     console.log("🚀 ~ handleSave ~ CData:", Cdata)
+  //     const response = await dispatch(postConfigureCompany({ Cdata }));
+  //     if (response.payload.status === "Y") {
+  //       setOpenAlert(true);
+  //     } else {
+  //       setOpenAlert(true);
+  //       setPostError(true);
+  //       // toast.error("Error occurred while saving data");
+  //     }
+  //   };
 
 
 
 
 
+
+
+  const phone = data.Phone;
+  // Check if phone number is valid and 10 digits long
+  const formattedPhone = phone && phone.length === 10
+    ? `(${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6)}`
+    : "N/A";
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -359,7 +382,7 @@ const ContactEdit = () => {
             name: data.ContactName,
             provider: data.Provider,
             sequence: data.Sequence,
-            phonenumber: data.Phone,
+            phonenumber: formattedPhone,
             // pdf:data.,
             // excel:data.,
             disable: data.Disable === "1" ? true : false,
@@ -458,6 +481,7 @@ const ContactEdit = () => {
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
+                     autoComplete="off"
                   />
                   <FormikOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
@@ -487,24 +511,36 @@ const ContactEdit = () => {
                     value={values.phonenumber}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
+                     autoComplete="off"
                   />
-
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="provider"
-                    name="provider"
-                    label="Service Provider"
-                    size="small"
+                  <FormControl
                     sx={{ gridColumn: "span 2" }}
-                    value={values.provider}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-
-                  />
+                    fullWidth
+                    size="small"
+                  >
+                    <InputLabel id="demo-simple-select-label">
+                      Service Provider
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      value={values.provider}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      id="provider"
+                      name="provider"
+                      label="Price Book Type"
+                    >
+                      <MenuItem value={"AT&T"}>AT&T</MenuItem>
+                      <MenuItem value={"V"}>Verizon</MenuItem>
+                      <MenuItem value={"TM"}>T-Mobile</MenuItem>
+                    </Select>
+                  </FormControl>
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -513,31 +549,19 @@ const ContactEdit = () => {
                     name="email"
                     label="Email"
                     size="small"
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     sx={{ gridColumn: "span 2" }}
-
+ autoComplete="off"
                     value={values.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="sequence"
-                    name="sequence"
-                    label="Sequence"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={params?.mode === "delete"}
 
-                    value={values.sequence}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.sequence && Boolean(errors.sequence)}
-                    helperText={touched.sequence && errors.sequence}
-                  />
                   <Stack
                     sx={{ gridColumn: "span 2" }}
                     direction="row"
@@ -595,233 +619,233 @@ const ContactEdit = () => {
                     label="Disable"
                   />
                 </Box>
-           
-                  <Box
-                    display="grid"
-                    gap="20px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                      "& > div": {
-                        gridColumn: isNonMobile ? undefined : "span 4",
-                      },
-                      padding: "10px",
-                    }}
-                  >
-                    <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
-                      <Typography fontSize={"14px"} fontWeight={"bold"}>Customer Full Price Book</Typography>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        type="text"
-                        id="cfpbtitle"
-                        name="cfpbtitle"
-                        label="PriceBook Title"
-                        size="small"
-                        sx={{ gridColumn: "span 2" }}
-                        value={values.cfpbtitle}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
 
-                      />
-
-                      <Stack
-                        sx={{ gridColumn: "span 1" }}
-                        direction="row"
-                        gap={2}
-                      >
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={values.cfpbpdf}
-                              onChange={handleChange}
-                              sx={{ height: "10px" }}
-                              disabled={
-                                params.mode === "delete" || params.mode === "view"
-                              }
-                              size="small"
-                              id="cfpbpdf"
-                              name="cfpbpdf"
-                            />
-                          }
-                          label="PDF"
-                        />
-
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              size="small"
-                              id="cfpbexcel"
-                              name="cfpbexcel"
-                              checked={values.cfpbexcel}
-                              onChange={handleChange}
-                              sx={{ height: "10px" }}
-                              disabled={
-                                params.mode === "delete" || params.mode === "view"
-                              }
-                            />
-                          }
-                          label="EXCEL"
-                        />
-                      </Stack>
-
-                    </Stack>
-                    <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
-                      <Typography fontSize={"14px"} fontWeight={"bold"}>Customer Custom Price Book</Typography>
-
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        type="text"
-                        id="ccpbtitle"
-                        name="ccpbtitle"
-                        label="PriceBook Title"
-                        size="small"
-                        sx={{ gridColumn: "span 2" }}
-                        value={values.ccpbtitle}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-
-                      />
-
-                      <Stack
-                        sx={{ gridColumn: "span 1" }}
-                        direction="row"
-                        gap={2}
-                      >
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={values.ccpbpdf}
-                              onChange={handleChange}
-                              sx={{ height: "10px" }}
-                              disabled={
-                                params.mode === "delete" || params.mode === "view"
-                              }
-                              size="small"
-                              id="ccpbpdf"
-                              name="ccpbpdf"
-                            />
-                          }
-                          label="PDF"
-                        />
-
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              size="small"
-                              id="ccpbexcel"
-                              name="ccpbexcel"
-                              checked={values.ccpbexcel}
-                              onChange={handleChange}
-                              sx={{ height: "10px" }}
-                              disabled={
-                                params.mode === "delete" || params.mode === "view"
-                              }
-                            />
-                          }
-                          label="EXCEL"
-                        />
-                      </Stack>
-
-
-                    </Stack>
-                  </Box>
-           
-                  <Box
-                    sx={{
-                      height: 400,
-                      gridColumn: "span 4",
-                      "& .MuiDataGrid-root": {
-                        border: "none",
-                      },
-                      "& .MuiDataGrid-cell": {
-                        borderBottom: "none",
-                      },
-                      "& .name-column--cell": {
-                        color: theme.palette.info.contrastText,
-                      },
-                      "& .MuiDataGrid-columnHeaders": {
-                        backgroundColor: theme.palette.info.main,
-                        color: theme.palette.info.contrastText,
-                        fontWeight: "bold",
-                        fontSize: theme.typography.subtitle2.fontSize,
-                      },
-                      "& .MuiDataGrid-virtualScroller": {
-                        backgroundColor: theme.palette.info.light,
-                      },
-                      "& .MuiDataGrid-footerContainer": {
-                        borderTop: "none",
-                        backgroundColor: theme.palette.info.main,
-                        color: theme.palette.info.contrastText,
-                      },
-                      "& .MuiCheckbox-root": {
-                        color: "black !important", // Set checkbox color to black
-                      },
-
-                      "& .MuiCheckbox-root.Mui-checked": {
-                        color: "black !important", // Set checkbox color to black when checked
-                      },
-                      "& .MuiDataGrid-row:nth-of-type(even)": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                      "& .MuiDataGrid-row:nth-of-type(odd)": {
-                        backgroundColor: theme.palette.background.default, // Color for odd rows
-                      },
-
-                      "& .MuiDataGrid-row.Mui-selected:hover": {
-                        backgroundColor: `${theme.palette.action.selected} !important`,
-                      },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
-                    }}
-                  >
-                    <DataGrid
-                     columnHeaderHeight={dataGridHeaderFooterHeight}
-                     sx={{
-                       // This is to override the default height of the footer row
-                       '& .MuiDataGrid-footerContainer': {
-                           height: dataGridHeaderFooterHeight,
-                           minHeight: dataGridHeaderFooterHeight,
-                       },
-                     }}
-                      slots={{
-                        loadingOverlay: LinearProgress,
-                        toolbar: CustomToolbar,
-                      }}
-                      rowHeight={dataGridRowHeight}
-                      rows={rows}
-                      columns={columns}
-                      disableSelectionOnClick
-                      disableRowSelectionOnClick
-                      getRowId={(row) => row.id}
-                      initialState={{
-                        pagination: { paginationModel: { pageSize: 20 } },
-                      }}
-                      pageSizeOptions={[5, 10, 20, 25]}
-                      columnVisibilityModel={{
-                        id: false,
-                      }}
-                      disableColumnFilter
-                      disableColumnSelector
-                      disableDensitySelector
-                      slotProps={{
-                        toolbar: {
-                          showQuickFilter: true,
-                        },
-                      }}
+                <Box
+                  display="grid"
+                  gap="20px"
+                  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                  sx={{
+                    "& > div": {
+                      gridColumn: isNonMobile ? undefined : "span 4",
+                    },
+                    padding: "10px",
+                  }}
+                >
+                  <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
+                    <Typography fontSize={"14px"} fontWeight={"bold"}>Customer Full Price Book</Typography>
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="cfpbtitle"
+                      name="cfpbtitle"
+                      label="PriceBook Title"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      value={values.cfpbtitle}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+ autoComplete="off"
                     />
-                  </Box>
-              
+
+                    <Stack
+                      sx={{ gridColumn: "span 1" }}
+                      direction="row"
+                      gap={2}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={values.cfpbpdf}
+                            onChange={handleChange}
+                            sx={{ height: "10px" }}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                            }
+                            size="small"
+                            id="cfpbpdf"
+                            name="cfpbpdf"
+                          />
+                        }
+                        label="PDF"
+                      />
+
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="cfpbexcel"
+                            name="cfpbexcel"
+                            checked={values.cfpbexcel}
+                            onChange={handleChange}
+                            sx={{ height: "10px" }}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                            }
+                          />
+                        }
+                        label="EXCEL"
+                      />
+                    </Stack>
+
+                  </Stack>
+                  <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
+                    <Typography fontSize={"14px"} fontWeight={"bold"}>Customer Custom Price Book</Typography>
+
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="ccpbtitle"
+                      name="ccpbtitle"
+                      label="PriceBook Title"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      value={values.ccpbtitle}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+ autoComplete="off"
+                    />
+
+                    <Stack
+                      sx={{ gridColumn: "span 1" }}
+                      direction="row"
+                      gap={2}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={values.ccpbpdf}
+                            onChange={handleChange}
+                            sx={{ height: "10px" }}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                            }
+                            size="small"
+                            id="ccpbpdf"
+                            name="ccpbpdf"
+                          />
+                        }
+                        label="PDF"
+                      />
+
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="ccpbexcel"
+                            name="ccpbexcel"
+                            checked={values.ccpbexcel}
+                            onChange={handleChange}
+                            sx={{ height: "10px" }}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                            }
+                          />
+                        }
+                        label="EXCEL"
+                      />
+                    </Stack>
+
+
+                  </Stack>
+                </Box>
+
+                <Box
+                  sx={{
+                    height: 400,
+                    gridColumn: "span 4",
+                    "& .MuiDataGrid-root": {
+                      border: "none",
+                    },
+                    "& .MuiDataGrid-cell": {
+                      borderBottom: "none",
+                    },
+                    "& .name-column--cell": {
+                      color: theme.palette.info.contrastText,
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      backgroundColor: theme.palette.info.main,
+                      color: theme.palette.info.contrastText,
+                      fontWeight: "bold",
+                      fontSize: theme.typography.subtitle2.fontSize,
+                    },
+                    "& .MuiDataGrid-virtualScroller": {
+                      backgroundColor: theme.palette.info.light,
+                    },
+                    "& .MuiDataGrid-footerContainer": {
+                      borderTop: "none",
+                      backgroundColor: theme.palette.info.main,
+                      color: theme.palette.info.contrastText,
+                    },
+                    "& .MuiCheckbox-root": {
+                      color: "black !important", // Set checkbox color to black
+                    },
+
+                    "& .MuiCheckbox-root.Mui-checked": {
+                      color: "black !important", // Set checkbox color to black when checked
+                    },
+                    "& .MuiDataGrid-row:nth-of-type(even)": {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                    "& .MuiDataGrid-row:nth-of-type(odd)": {
+                      backgroundColor: theme.palette.background.default, // Color for odd rows
+                    },
+
+                    "& .MuiDataGrid-row.Mui-selected:hover": {
+                      backgroundColor: `${theme.palette.action.selected} !important`,
+                    }, "& .MuiTablePagination-root": {
+                      color: "white !important", // Ensuring white text color for the pagination
+                    },
+
+                    "& .MuiTablePagination-root .MuiTypography-root": {
+                      color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                    },
+
+                    "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                      color: "white !important", // Ensuring white icons for pagination
+                    },
+                  }}
+                >
+                  <DataGrid
+                    columnHeaderHeight={dataGridHeaderFooterHeight}
+                    sx={{
+                      // This is to override the default height of the footer row
+                      '& .MuiDataGrid-footerContainer': {
+                        height: dataGridHeaderFooterHeight,
+                        minHeight: dataGridHeaderFooterHeight,
+                      },
+                    }}
+                    slots={{
+                      loadingOverlay: LinearProgress,
+                      toolbar: CustomToolbar,
+                    }}
+                    rowHeight={dataGridRowHeight}
+                    rows={rows}
+                    columns={columns}
+                    disableSelectionOnClick
+                    disableRowSelectionOnClick
+                    getRowId={(row) => row.id}
+                    initialState={{
+                      pagination: { paginationModel: { pageSize: 20 } },
+                    }}
+                    pageSizeOptions={[5, 10, 20, 25]}
+                    columnVisibilityModel={{
+                      id: false,
+                    }}
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    slotProps={{
+                      toolbar: {
+                        showQuickFilter: true,
+                      },
+                    }}
+                  />
+                </Box>
+
               </Paper>
-             
+
             </form>
           )}
         </Formik>

@@ -12,7 +12,7 @@ const UserGroupEdit = Loadable(lazy(() => import('./user-group/UserGroupEdit')))
 // const ApplicationAccess = Loadable(lazy(() => import('./user-group/Applicationaccess')));
 const Application = Loadable(lazy(() => import('./application/Application')));
 const ApplicationEdit = Loadable(lazy(() => import('./application/ApplicationEdit')));
-
+const MailForm=Loadable(lazy(() => import('./company/mailForm')));
 
 const SecurityRoutes = [
   { path: '/pages/security/company', element: <Company /> },
@@ -25,6 +25,7 @@ const SecurityRoutes = [
   // { path: '/pages/security/user-group/applicationaccess/:mode', element: <ApplicationAccess /> },
   { path: '/pages/security/application', element: <Application /> },
   { path: '/pages/security/application-edit-detail/:mode', element: <ApplicationEdit /> },
+  { path: '/pages/security/company/mail', element: <MailForm /> },
 ];
 
 export default SecurityRoutes;

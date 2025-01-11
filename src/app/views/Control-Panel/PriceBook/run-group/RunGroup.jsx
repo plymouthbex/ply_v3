@@ -17,7 +17,7 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight ,dataGridHeaderFooterHeight} from "app/utils/constant";
+import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight, dataGridHeaderFooterHeight } from "app/utils/constant";
 
 // ********************** ICONS ********************** //
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -44,16 +44,16 @@ const RunGroup = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
   const theme = useTheme();
   const navigate = useNavigate();
-  const location=useLocation();
-  const state=location.state;
+  const location = useLocation();
+  const state = location.state;
   console.log("🚀 ~ RunGroup ~ state:", state)
-  const {user}=useAuth();
+  const { user } = useAuth();
   // ********************** LOCAL STATE ********************** //
 
   // ********************** REDUX STATE ********************** //
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getRunGroupListView({ID:state.companyID}));
+    dispatch(getRunGroupListView({ ID: state.companyID }));
     dispatch(clearRunGroupState());
   }, [dispatch]);
   const loading = useSelector((state) => state.listview.rungroupTemploading);
@@ -100,39 +100,38 @@ const RunGroup = () => {
       align: "center",
       renderCell: (params) => {
         return (
-          <div>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate("/pages/control-panel/run-group/run-group-getail/edit", {
-                  state: { ID: params.row.RecordID,
-                    companyID:state.companyID,
-                   },
-                });
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-              Edit
-            </Button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Tooltip title="Edit">
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() => {
+                  navigate("/pages/control-panel/run-group/run-group-getail/edit", {
+                    state: { ID: params.row.RecordID, companyID: state.companyID },
+                  });
+                }}
+                disabled={params.mode === "delete" || params.mode === "view"}
+              >
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-            <Button
-              sx={{ height: 25, marginLeft: 1 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<DeleteIcon color="error" size="small" />}
-              onClick={() => {
-                navigate("/pages/control-panel/run-group/run-group-getail/delete", {
-                  state: { ID: params.row.RecordID },
-                });
-              }}
-            >
-              Delete
-            </Button>
+            <Tooltip title="Delete">
+              <IconButton
+                color="error"
+                size="small"
+                onClick={() => {
+                  navigate("/pages/control-panel/run-group/run-group-getail/delete", {
+                    state: { ID: params.row.RecordID },
+                  });
+                }}
+                disabled={params.mode === "delete" || params.mode === "view"}
+              >
+                <DeleteIcon color="error" fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
+
         );
       },
     },
@@ -226,19 +225,20 @@ const RunGroup = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              navigate("/pages/control-panel/run-group/run-group-getail/add", {
-                state: { ID: 0 },
-              });
-            }}
-          >
-            Add Run Group
-          </Button>
+          <Tooltip title="Add Run Group">
+            <IconButton
+              color="black"
+              size="small"
+              onClick={() => {
+                navigate("/pages/control-panel/run-group/run-group-getail/add", {
+                  state: { ID: 0 },
+                });
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
         </Box>
       </GridToolbarContainer>
     );
@@ -248,8 +248,8 @@ const RunGroup = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Company",path:"/pages/company-run-group" }, { name: "Run Group" }]}
-          // ,path:"/pages/company-run-group" 
+          routeSegments={[{ name: "Company", path: "/pages/company-run-group" }, { name: "Run Group" }]}
+        // ,path:"/pages/company-run-group" 
         />
       </div>
 
@@ -294,26 +294,26 @@ const RunGroup = () => {
             },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight:dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              '& .MuiDataGrid-footerContainer': {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

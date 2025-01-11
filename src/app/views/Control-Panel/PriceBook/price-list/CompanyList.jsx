@@ -6,6 +6,8 @@ import {
   Button,
   styled,
   useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -20,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-
+import VisibilityIcon from "@mui/icons-material/Visibility"
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -90,24 +92,27 @@ const loading = useSelector((state) => state.listview.loading);
       align: "center",
       renderCell: (params) => {
         return (
-          <div>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
+          <div style={{ display: "flex", gap: "10px" }}>
+          <Tooltip title="Price List">
+            <IconButton
               onClick={() => {
                 navigate("/pages/control-panel/price-list", {
-                  state: { ID: params.row.RecordID,
-                    Code:params.row.CompanyCode
-                   },
+                  state: {
+                    ID: params.row.RecordID,
+                    Code: params.row.CompanyCode,
+                  },
                 });
               }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
+              style={{
+                height: 25,
+                width:25 
+              }}
             >
-          Price List
-            </Button>
-          </div>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+        
         );
       },
     },

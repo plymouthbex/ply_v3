@@ -328,7 +328,7 @@ export default function BuildCustomPriceBook() {
               Edit
             </Button> */}
 
-            <Button
+            {/* <Button
               sx={{
                 height: 25,
                 ml: 1,
@@ -354,7 +354,25 @@ export default function BuildCustomPriceBook() {
               startIcon={<DeleteIcon size="small" />}
             >
               Remove
-            </Button>
+            </Button> */}
+            <Tooltip title="Remove">
+            <IconButton
+  sx={{
+    height: 25,
+    ml: 1,
+  }}
+  color="error"
+  variant="contained"
+  size="small"
+  onClick={() => {
+    setDeleteID(param.row.RecordId);
+    setIsRemoveItem(true);
+  }}
+>
+  <DeleteIcon size="small" />
+</IconButton>
+</Tooltip>
+
           </>
         );
       },

@@ -10,6 +10,8 @@ import {
   TextField,
   Typography,
   Stack,
+  IconButton,
+  Tooltip
 } from "@mui/material";
 import {
   DataGrid,
@@ -21,7 +23,7 @@ import { dataGridHeight, dataGridRowHeight } from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
-
+import ContactPageIcon from '@mui/icons-material/ContactPage';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { getConfigureAddressListView } from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -89,41 +91,47 @@ const dispatch=useDispatch();
       align: "center",
       renderCell: (params) => {
         return (
-            <div style={{ display: "flex", gap: "8px" }}>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
+          <div style={{ display: "flex", gap: "8px" }}>
+         <Tooltip title="Contacts">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/configure-price-book/customer/contact", {
+        state: {
+          RecordID: params.row.RecordID,
+          Code: params.row.AddressCode,
+          Name: params.row.Address,
+          address: State,
+        },
+      });
+    }}
+  >
+    <ContactPageIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+      
+          <Tooltip title="Edit Communication">
+            <IconButton
+              color="black"
               size="small"
               onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer/contact",{state:{
-                  RecordID:params.row.RecordID,
-                  Code:params.row.AddressCode,
-                  Name:params.row.Address,
-                  address:State
-                }});
+                navigate("/pages/control-panel/configure-price-book/customer/edit-Address/configureEdit", {
+                  state: {
+                    RecordID: params.row.RecordID,
+                    Code: params.row.AddressCode,
+                    Name: params.row.Address,
+                    address: State,
+                  },
+                });
               }}
             >
-              Contacts
-            </Button>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<ModeEditOutlineIcon size="small" />}
-              onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer/edit-Address/configureEdit",{state:{
-                  RecordID:params.row.RecordID,
-                  Code:params.row.AddressCode,
-                  Name:params.row.Address,
-                  address:State
-                }});
-              }}
-            >
-              Edit Communication
-            </Button>
-          </div>
+              <ModeEditOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+        
           
         );
       },

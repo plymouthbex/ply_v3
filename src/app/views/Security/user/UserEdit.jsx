@@ -16,7 +16,7 @@ import {
   DialogContent,
   Dialog,
   FormControl,
-  Typography,
+  Typography,LinearProgress
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import Avatar from "@mui/material/Avatar";
@@ -25,7 +25,11 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Divider from "@mui/material/Divider";
 import CardHeader from "@mui/material/CardHeader";
-
+import {
+  DataGrid,
+  GridToolbarQuickFilter,
+  GridToolbarContainer,
+} from "@mui/x-data-grid";
 // ******************** ICONS ******************** //
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -43,7 +47,7 @@ import {
 import useAuth from "app/hooks/useAuth";
 import { deleteUserData, userPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
-import { convertHexToRGB } from "app/utils/constant";
+import { convertHexToRGB, dataGridHeaderFooterHeight, dataGridRowHeight,dataGridpageSizeOptions,dataGridPageSize } from "app/utils/constant";
 import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
 import { Publish } from "@mui/icons-material";
 import { useDropzone } from "react-dropzone";
@@ -144,6 +148,96 @@ const[OpenUser,setOpenUser]=useState(false);
 
 
    //==================================================================//
+   const columns = [
+    {
+      headerName: "Run Group",
+      field: "RunGroupCode",
+      width: "170",
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+    {
+      headerName: "Run Group Description",
+      field: "RunGroupName",
+      width: "200",
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+    // {
+    //   headerName: "Print Sequence",
+    //   field: "SortOrder",
+    //   width: "200",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: false,
+    // },
+   
+  ];
+
+  const rows = [
+    {
+      RunGroupCode: "RG1001",
+      RunGroupName: "SHEPARD",
+      SortOrder: 1,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1002",
+      RunGroupName: "DAVE",
+      SortOrder: 2,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1003",
+      RunGroupName: "BOB",
+      SortOrder: 3,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1004",
+      RunGroupName: "CAYTIE",
+      SortOrder: 4,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1005",
+      RunGroupName: "KRISTJAN",
+      SortOrder: 5,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1006",
+      RunGroupName: "LEAH",
+      SortOrder: 6,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1007",
+      RunGroupName: "TONY",
+      SortOrder: 7,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1008",
+      RunGroupName: "PAC",
+      SortOrder: 8,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1009",
+      RunGroupName: "SALES",
+      SortOrder: 9,
+      Disable: "N",
+    },
+    {
+      RunGroupCode: "RG1010",
+      RunGroupName: "HOSS",
+      SortOrder: 10,
+      Disable: "N",
+    },
+  ];
    let UG = null;
    let name=null;
  
@@ -204,11 +298,18 @@ const[OpenUser,setOpenUser]=useState(false);
       images = image.split(",");
     }
     let userData;
+    let passwordChanged;
+    if (data.Password === values.password) {
+      passwordChanged = 0;
+    } else {
+      passwordChanged = 1;
+    }
 
     if (UserName === "User" && (!values.runGroup || values.runGroup.length === 0)) {
       setOpenUser(true);
     } else {
       userData = {
+     
         recordID: data.RecordID,
         firstname: values.firstname,
         lastname: values.lastname,
@@ -222,9 +323,10 @@ const[OpenUser,setOpenUser]=useState(false);
         rungroup: JSON.stringify(values.runGroup),
         company: JSON.stringify(values.defaultCompany),
         UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
+        IsPasswordChanged:data.Password === values.password ?  0 : 1
       };
-    
-    
+      console.log("🚀 ~ HandleSave ~ userData:", userData);
+    // return;
     const response = await dispatch(userPost({ userData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
@@ -252,7 +354,35 @@ const[OpenUser,setOpenUser]=useState(false);
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
   };
- 
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          width: "100%",
+          padding: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            paddingX: 2,
+          }}
+        >
+          <GridToolbarQuickFilter />
+
+      
+
+        </Box>
+      </GridToolbarContainer>
+    );
+  }
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -343,47 +473,7 @@ const[OpenUser,setOpenUser]=useState(false);
                     padding: "10px",
                   }}
                 >
-                  <Card sx={{ gridColumn: "span 2" }}>
-                    <CardContent>
-                      <Stack spacing={2} sx={{ alignItems: "center" }}>
-                        <div>
-                          <Avatar
-                            src={
-                              previewImages1.length > 0
-                                ? previewImages1[0]["preview"]
-                                : `data:image/png;base64,${data.UserProfileImage}`
-                            }
-                            sx={{ height: "80px", width: "80px" }}
-                          />
-                        </div>
-                        <Stack spacing={1} sx={{ textAlign: "center" }}>
-                          <Typography variant="h5">
-                            {values.firstname} {values.lastname}
-                          </Typography>
-                        </Stack>
-
-                      </Stack>
-                    </CardContent>
-                    <Divider />
-                    <CardActions>
-                      <DropZone {...dropzoneProps1.getRootProps()}>
-                        <input {...dropzoneProps1.getInputProps()} />
-                        <FlexBox alignItems="center" flexDirection="column">
-                          <Publish
-                            sx={{ color: "text.secondary", fontSize: "48px" }}
-                          />
-                          {imageList1.length ? (
-                            <span>
-                              {imageList1.length} images were selected
-                            </span>
-                          ) : (
-                            <span>Upload image</span>
-                          )}
-                        </FlexBox>
-                      </DropZone>
-                    </CardActions>
-                  </Card>
-                  <Stack sx={{ gridColumn: "span 2" }} gap={"20px"} direction={"column"}>
+                   <Stack sx={{ gridColumn: "span 2" }} gap={"20px"} direction={"column"}>
                     <TextField
                       fullWidth
                       variant="outlined"
@@ -397,6 +487,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
+                        autoComplete="off"
                       value={values.email}
                       disabled={params?.mode === "delete"}
                       onChange={handleChange}
@@ -411,6 +502,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       id="firstname"
                       name="firstname"
                       label="First Name"
+                        autoComplete="off"
                       required
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
@@ -431,6 +523,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       id="lastname"
                       name="lastname"
                       label="Last Name"
+                        autoComplete="off"
                       size="small"
                       sx={{ gridColumn: "span 2" }}
                       disabled={params?.mode === "delete"}
@@ -454,6 +547,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
+                        autoComplete="off"
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -465,6 +559,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       fullWidth
                       variant="outlined"
                       type="password"
+                        autoComplete="off"
                       id="confirmpassword"
                       name="confirmpassword"
                       label="Confirm Password"
@@ -485,7 +580,8 @@ const[OpenUser,setOpenUser]=useState(false);
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                     />
-                  </Stack>
+                 
+                 
 
                   {/* <TextField
                     fullWidth
@@ -584,7 +680,36 @@ const[OpenUser,setOpenUser]=useState(false);
                     label="User Group"
                     url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
                   />
-
+ <FormikRungroupOptimizedAutocomplete
+                    sx={{ gridColumn: "span 2" }}
+                    disabled={
+                      params.mode === "delete" || params.mode === "view"
+                        ? true
+                        : false
+                    }
+                    name="runGroup"
+                    id="runGroup"
+                    value={values.runGroup}
+                    onChange={(event, newValue) =>
+                      setFieldValue("runGroup", newValue)
+                    }
+                    label="Default Price Book Group"
+                    url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+                  />
+                        <FormikCompanyOptimizedAutocomplete
+        sx={{ gridColumn: "span 2" }}
+        disabled={params.mode === "delete" || params.mode === "view"}
+       
+        name="defaultCompany"
+        id="defaultCompany"
+        value={values.defaultCompany}
+        onChange={(event, newValue) =>
+          setFieldValue("defaultCompany", newValue)
+        }
+        required
+        label="Default Company"
+        url={`${process.env.REACT_APP_BASE_URL}Company`}
+      />
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -601,89 +726,142 @@ const[OpenUser,setOpenUser]=useState(false);
                     }
                     label="Disable"
                   />
+                   </Stack>
+                  <Card sx={{ gridColumn: "span 2" }}>
+                    <CardContent>
+                      <Stack spacing={2} sx={{ alignItems: "center" }}>
+                        <div>
+                          <Avatar
+                            src={
+                              previewImages1.length > 0
+                                ? previewImages1[0]["preview"]
+                                : `data:image/png;base64,${data.UserProfileImage}`
+                            }
+                            sx={{ height: "80px", width: "80px" }}
+                          />
+                        </div>
+                        <Stack spacing={1} sx={{ textAlign: "center" }}>
+                          <Typography variant="h5">
+                            {values.firstname} {values.lastname}
+                          </Typography>
+                        </Stack>
+
+                      </Stack>
+                    </CardContent>
+                    <Divider />
+                    <CardActions>
+                      <DropZone {...dropzoneProps1.getRootProps()}>
+                        <input {...dropzoneProps1.getInputProps()} />
+                        <FlexBox alignItems="center" flexDirection="column">
+                          <Publish
+                            sx={{ color: "text.secondary", fontSize: "48px" }}
+                          />
+                          {imageList1.length ? (
+                            <span>
+                              {imageList1.length} images were selected
+                            </span>
+                          ) : (
+                            <span>Upload image</span>
+                          )}
+                        </FlexBox>
+                      </DropZone>
+                    </CardActions>
+                  </Card>
                 </Box>
                 <Box
-                  display="grid"
-                  gap="20px"
-                  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                  sx={{
-                    "& > div": {
-                      gridColumn: isNonMobile ? undefined : "span 4",
-                    },
-                    padding: "10px",
-                  }}
-                >
-
-<Stack
-  sx={{
-    gridColumn: "span 2", // Ensure the form takes up 2 columns
-    display: "grid", // Make Form respect the grid layout
-    gridTemplateColumns: "repeat(2, 1fr)", // Define 2 columns within the form
-    gap: 2,
-  }}
->
-      <FormikCompanyOptimizedAutocomplete
-        sx={{ gridColumn: "span 2" }}
-        disabled={params.mode === "delete" || params.mode === "view"}
-       
-        name="defaultCompany"
-        id="defaultCompany"
-        value={values.defaultCompany}
-        onChange={(event, newValue) =>
-          setFieldValue("defaultCompany", newValue)
-        }
-        required
-        label="Default Company"
-        url={`${process.env.REACT_APP_BASE_URL}Company`}
-      />
-      {/* Display error message outside the component */}
-      {touched.defaultCompany && errors.defaultCompany && (
-        <div style={{ color: "red", marginTop: "0.5rem" }}>
-          {errors.defaultCompany}
-        </div>
-      )}
-     
-    </Stack>
-                  {/* <FormikCompanyOptimizedAutocomplete
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                        ? true
-                        : false
-                    }
-                    name="defaultCompany"
-                    id="defaultCompany"
-                    value={values.defaultCompany}
-                    onChange={(event, newValue) =>
-                      setFieldValue("defaultCompany", newValue)
-                    }
-                    required
-                    label="Default Company"
-                    url={`${process.env.REACT_APP_BASE_URL}Company`}
-                    {touched.defaultCompany && errors.defaultCompany && (
-                      <div style={{ color: "red", marginTop: "0.5rem" }}>
-                        {errors.defaultCompany}
-                      </div>
-                    )}
-                  /> */}
-
-                  <FormikRungroupOptimizedAutocomplete
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                        ? true
-                        : false
-                    }
-                    name="runGroup"
-                    id="runGroup"
-                    value={values.runGroup}
-                    onChange={(event, newValue) =>
-                      setFieldValue("runGroup", newValue)
-                    }
-                    label="Default Price Book Group"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
-                  />
-                </Box>
+                                      sx={{
+                                        height: 400,
+                                        gridColumn: "span 4",
+                                        "& .MuiDataGrid-root": {
+                                          border: "none",
+                                        },
+                                        "& .MuiDataGrid-cell": {
+                                          borderBottom: "none",
+                                        },
+                                        "& .name-column--cell": {
+                                          color: theme.palette.info.contrastText,
+                                        },
+                                        "& .MuiDataGrid-columnHeaders": {
+                                          backgroundColor: theme.palette.info.main,
+                                          color: theme.palette.info.contrastText,
+                                          fontWeight: "bold",
+                                          fontSize: theme.typography.subtitle2.fontSize,
+                                        },
+                                        "& .MuiDataGrid-virtualScroller": {
+                                          backgroundColor: theme.palette.info.light,
+                                        },
+                                        "& .MuiDataGrid-footerContainer": {
+                                          borderTop: "none",
+                                          backgroundColor: theme.palette.info.main,
+                                          color: theme.palette.info.contrastText,
+                                        },
+                                        "& .MuiCheckbox-root": {
+                                          color: "black !important",
+                                        },
+                  
+                                        "& .MuiCheckbox-root.Mui-checked": {
+                                          color: "black !important",
+                                        },
+                                        "& .MuiDataGrid-row:nth-of-type(even)": {
+                                          backgroundColor: theme.palette.action.hover,
+                                        },
+                                        "& .MuiDataGrid-row:nth-of-type(odd)": {
+                                          backgroundColor: theme.palette.background.default,
+                                        },
+                  
+                                        "& .MuiDataGrid-row.Mui-selected:hover": {
+                                          backgroundColor: `${theme.palette.action.selected} !important`,
+                                        },"& .MuiTablePagination-root": {
+                                color: "white !important", // Ensuring white text color for the pagination
+                              }, 
+                          
+                              "& .MuiTablePagination-root .MuiTypography-root": {
+                                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                              }, 
+                          
+                              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                                color: "white !important", // Ensuring white icons for pagination
+                              },
+                                      }}
+                                    >
+                                      <DataGrid
+                                       columnHeaderHeight={dataGridHeaderFooterHeight}
+                                       sx={{
+                                         // This is to override the default height of the footer row
+                                         '& .MuiDataGrid-footerContainer': {
+                                             height: dataGridHeaderFooterHeight,
+                                             minHeight: dataGridHeaderFooterHeight,
+                                         },
+                                       }}
+                                        slots={{
+                                          loadingOverlay: LinearProgress,
+                                          toolbar: CustomToolbar,
+                                        }}
+                                        rowHeight={dataGridRowHeight}
+                                        rows={rows}
+                                        columns={columns}
+                                        disableSelectionOnClick
+                                        disableRowSelectionOnClick
+                                        getRowId={(row) => row.RunGroupCode}
+                                        initialState={{
+                                          pagination: {
+                                            paginationModel: { pageSize: dataGridPageSize },
+                                          },
+                                        }}
+                                        pageSizeOptions={dataGridpageSizeOptions}
+                                        columnVisibilityModel={{
+                                          item_key: false,
+                                        }}
+                                        disableColumnFilter
+                                        disableColumnSelector
+                                        disableDensitySelector
+                                        slotProps={{
+                                          toolbar: {
+                                            showQuickFilter: true,
+                                          },
+                                        }}
+                                      />
+                                      </Box>
               </Paper>
               <MessageAlertDialog
                 open={isDelete}
@@ -742,9 +920,11 @@ const[OpenUser,setOpenUser]=useState(false);
             </form>
           )}
         </Formik>
+        
       ) : (
         false
       )}
+     
       <AlertDialog
         open={openAlert}
         error={postError}

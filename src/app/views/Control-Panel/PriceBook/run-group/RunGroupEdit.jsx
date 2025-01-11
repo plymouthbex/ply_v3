@@ -10,6 +10,8 @@ import {
   TextField,
   Stack,
   DialogActions,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -133,21 +135,21 @@ const RunGroupEdit = () => {
       align: "center",
       renderCell: (param) => {
         return (
-          <Button
-            sx={{ height: 25 }}
-            variant="contained"
-            color="secondary"
-            size="small"
-            disabled={params.mode === "delete" || params.mode === "view"}
-            onClick={() => {
-              setremoveCustomerID(param.row.RecordID);
-              setremoveCustomerDesc(param.row.CustomerName);
-              setIsRemoveCustomer(true);
-            }}
-            startIcon={<DeleteIcon size="small" />}
-          >
-            Remove
-          </Button>
+          <Tooltip title="Remove Customer">
+  <IconButton
+    color="error"
+    size="small"
+    disabled={params.mode === "delete" || params.mode === "view"}
+    onClick={() => {
+      setremoveCustomerID(param.row.RecordID);
+      setremoveCustomerDesc(param.row.CustomerName);
+      setIsRemoveCustomer(true);
+    }}
+  >
+    <DeleteIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
         );
       },
     },
@@ -190,7 +192,40 @@ const RunGroupEdit = () => {
             label="Customer"
             url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
           />
-          <Button
+          <Tooltip title="Add Customer">
+  <IconButton
+    color="black"
+    size="small"
+    disabled={params.mode === "delete"}
+    onClick={() => {
+      if (addCustomerListData) {
+        const isItem = [...getRows, ...filteredSelectedItems].some(
+          (item) =>
+            lodash.isEqual(item.RecordID, addCustomerListData.RecordID)
+        );
+        if (isItem) {
+          setIsCustomerListExists(true);
+          setTimeout(() => {
+            setIsCustomerListExists(false);
+            setAddCustomerListData(null);
+          }, 5000);
+          return;
+        }
+        dispatch(runGroupAddedItem(addCustomerListData));
+        setAddCustomerListData(null);
+      } else {
+        setIsCustomerListExistsError(true);
+        setTimeout(() => {
+          setIsCustomerListExistsError(false);
+        }, 2000);
+      }
+    }}
+  >
+    <Add fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
@@ -221,7 +256,7 @@ const RunGroupEdit = () => {
             }}
           >
             Add
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -368,6 +403,7 @@ const RunGroupEdit = () => {
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
+                     autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 1" }}
                     disabled={params.mode === "delete" ? true : false}
@@ -387,6 +423,7 @@ const RunGroupEdit = () => {
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
+                     autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 1" }}
                     disabled={params.mode === "delete" ? true : false}
@@ -402,7 +439,7 @@ const RunGroupEdit = () => {
                     label="Sequence"
                     value={values.sortOrder}
                     onChange={handleChange}
-                    
+                     autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 1" }}
                     disabled={params.mode === "delete" ? true : false}

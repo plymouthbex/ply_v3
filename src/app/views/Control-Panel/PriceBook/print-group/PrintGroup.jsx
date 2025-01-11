@@ -5,7 +5,7 @@ import {
   Button,
   Box,
   styled,
-  useTheme,
+  useTheme,Tooltip,IconButton
 } from "@mui/material";
 import {
   DataGrid,
@@ -90,41 +90,34 @@ const PrintGroup = () => {
       renderCell: (params) => {
         return (
           <div>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate(
-                  "/pages/control-panel/print-group/print-group-detail/edit",
-                  {
-                    state: { id: params.row.RecordID },
-                  }
-                );
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-              Edit
-            </Button>
+          <Tooltip title="Edit">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/print-group/print-group-detail/edit", {
+        state: { id: params.row.RecordID },
+      });
+    }}
+  >
+    <ModeEditOutlineIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
 
-            <Button
-              sx={{ height: 25, marginLeft: 1 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<DeleteIcon color="error" size="small" />}
-              onClick={() => {
-                navigate(
-                  "/pages/control-panel/print-group/print-group-detail/delete",
-                  {
-                    state: { id: params.row.RecordID },
-                  }
-                );
-              }}
-            >
-             Delete
-            </Button>
+<Tooltip title="Delete">
+  <IconButton
+    color="error"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/print-group/print-group-detail/delete", {
+        state: { id: params.row.RecordID },
+      });
+    }}
+  >
+    <DeleteIcon color="error" fontSize="small" />
+  </IconButton>
+</Tooltip>
+
           </div>
         );
       },
@@ -160,8 +153,21 @@ const PrintGroup = () => {
           }}
         >
           <GridToolbarQuickFilter />
+          <Tooltip title="Create New Category">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/print-group/print-group-detail/add", {
+        state: { id: 0 },
+      });
+    }}
+  >
+    <Add fontSize="small" />
+  </IconButton>
+</Tooltip>
 
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
@@ -176,7 +182,7 @@ const PrintGroup = () => {
             }}
           >
             Create New Category
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );

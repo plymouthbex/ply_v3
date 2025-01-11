@@ -6,7 +6,7 @@ import {
   Button,
   styled,
   useTheme,
-  Stack,
+  Stack,Tooltip,IconButton
 } from "@mui/material";
 import {
   DataGrid,
@@ -34,6 +34,9 @@ import { getProspectListData } from "app/redux/slice/getSlice";
 import { useState } from "react";
 import { deleteQuote } from "app/redux/slice/postSlice";
 import { PriceGroupAlertApiDialog, QuoteTempAlertApiDialog } from "app/components/LoadindgDialog";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from "@mui/icons-material/Delete";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -119,7 +122,52 @@ const SavedPriceList = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Button
+            <Tooltip title="Copy">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/pricing-portal/build-price-list/copy", {
+        state: {
+          headerID: params.row.RecordID,
+        },
+      });
+    }}
+  >
+    <ContentCopyIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+<Tooltip title="View">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/pricing-portal/build-price-list/view", {
+        state: {
+          headerID: params.row.RecordID,
+        },
+      });
+    }}
+  >
+    <VisibilityIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+<Tooltip title="Delete">
+  <IconButton
+    color="error"
+    size="small"
+    onClick={() => {
+      setDeleteID(params.row.RecordID);
+      setIsRemoveItem(true);
+    }}
+  >
+    <DeleteIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+            {/* <Button
               sx={{
                 height: 25,
               }}
@@ -169,7 +217,7 @@ const SavedPriceList = () => {
               }}
             >
               Delete
-            </Button>
+            </Button> */}
           </div>
         );
       },

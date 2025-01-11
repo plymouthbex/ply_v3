@@ -8,6 +8,8 @@ import {
   useTheme,
   TableContainer,
   Stack,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -118,58 +120,51 @@ const PriceList = () => {
       align: "center",
       renderCell: (params) => {
         return (
-          <div>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                naviate("/pages/control-panel/price-list/price-list-detail/edit", {
-                  state: { id: params.row.PRICELISTID,
-                    company:state,
-                  },
-                });
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-              Edit
-            </Button>
+      
+            <div style={{ display: "flex", gap: "10px" }}>
+  <Tooltip title="Edit">
+    <IconButton
+      onClick={() => {
+        naviate("/pages/control-panel/price-list/price-list-detail/edit", {
+          state: { id: params.row.PRICELISTID, company: state },
+        });
+      }}
+      style={{ color: "secondary" }}
+      sx={{ height: 30, width: 30 }}
+    >
+      <ModeEditOutlineIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
 
-            <Button
-              sx={{ height: 25, marginLeft: 1 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<DeleteIcon color="error" size="small" />}
-              onClick={() => {
-                naviate("/pages/control-panel/price-list/price-list-detail/delete", {
-                  state: { id: params.row.PRICELISTID,
-                    company:state,
-                   },
-                });
-              }}
-            >
-              Delete
-            </Button>
+  <Tooltip title="Delete">
+    <IconButton
+      onClick={() => {
+        naviate("/pages/control-panel/price-list/price-list-detail/delete", {
+          state: { id: params.row.PRICELISTID, company: state },
+        });
+      }}
+      style={{ color: "secondary" }}
+      sx={{ height: 30, width: 30 }}
+    >
+      <DeleteIcon fontSize="small" color="error" />
+    </IconButton>
+  </Tooltip>
 
-            <Button
-              sx={{ height: 25, marginLeft: 1 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<VisibilityIcon size="small" />}
-              onClick={() => {
-                naviate("/pages/control-panel/price-list/price-list-detail/view", {
-                  state: { id: params.row.PRICELISTID,
-                    company:state,
-                   },
-                });
-              }}
-            >
-              View Items
-            </Button>
-          </div>
+  <Tooltip title="View Items">
+    <IconButton
+      onClick={() => {
+        naviate("/pages/control-panel/price-list/price-list-detail/view", {
+          state: { id: params.row.PRICELISTID, company: state },
+        });
+      }}
+      style={{ color: "secondary" }}
+      sx={{ height: 30, width: 30 }}
+    >
+      <VisibilityIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+</div>
+
         );
       },
     },
