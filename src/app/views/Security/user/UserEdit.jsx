@@ -204,11 +204,18 @@ const[OpenUser,setOpenUser]=useState(false);
       images = image.split(",");
     }
     let userData;
+let passwordChanged;
+if(data.Password === values.password){
+  passwordChanged=0;
+}else{
+  passwordChanged=1;
+}
 
     if (UserName === "User" && (!values.runGroup || values.runGroup.length === 0)) {
       setOpenUser(true);
     } else {
       userData = {
+     
         recordID: data.RecordID,
         firstname: values.firstname,
         lastname: values.lastname,
@@ -222,9 +229,10 @@ const[OpenUser,setOpenUser]=useState(false);
         rungroup: JSON.stringify(values.runGroup),
         company: JSON.stringify(values.defaultCompany),
         UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
+        IsPasswordChanged:passwordChanged
       };
-    
-    
+      console.log("🚀 ~ HandleSave ~ userData:", userData);
+    // return;
     const response = await dispatch(userPost({ userData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);

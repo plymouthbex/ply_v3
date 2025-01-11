@@ -6,6 +6,8 @@ import {
   Button,
   styled,
   useTheme,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -105,32 +107,35 @@ const {user}=useAuth();
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
+          <Tooltip title="Edit">
+            <IconButton
+              sx={{ height: 25, width: 25 }}
+              color="black"
               onClick={() => {
-                navigate("/pages/security/user/user-edit-detail/edit",{state:{ID:params.row.RecordID}});
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-              Edit
-            </Button>
-
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<DeleteIcon color="error" size="small" />}
-              onClick={() => {
-                navigate("/pages/security/user/user-edit-detail/delete",{state:{ID:params.row.RecordID}});
+                navigate("/pages/security/user/user-edit-detail/edit", {
+                  state: { ID: params.row.RecordID },
+                });
               }}
             >
-              Delete
-            </Button>
-          </div>
+              <ModeEditOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        
+          <Tooltip title="Delete">
+            <IconButton
+              sx={{ height: 25, width: 25 }}
+              color="error"
+              onClick={() => {
+                navigate("/pages/security/user/user-edit-detail/delete", {
+                  state: { ID: params.row.RecordID },
+                });
+              }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+        
         );
       },
     },
@@ -181,19 +186,20 @@ const {user}=useAuth();
         >
           <GridToolbarQuickFilter />
 
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              navigate("/pages/security/user/user-edit-detail/add", {
-                state: { ID:0 },
-              });
-            }}
-          >
-            Add
-          </Button>
+          <Tooltip title="Add">
+  <IconButton
+    sx={{ height: 35, width: 35 }}
+    color="info"
+    onClick={() => {
+      navigate("/pages/security/user/user-edit-detail/add", {
+        state: { ID: 0 },
+      });
+    }}
+  >
+    <Add fontSize="small" />
+  </IconButton>
+</Tooltip>
+
         </Box>
       </GridToolbarContainer>
     );

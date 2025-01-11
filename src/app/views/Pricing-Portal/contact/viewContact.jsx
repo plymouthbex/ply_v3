@@ -222,7 +222,7 @@ const ViewContact = () => {
                     onBlur={handleBlur}
                     error={!!touched.code && !!errors.code}
                     disabled={
-                        params.mode === "delete" || params.mode === "view"
+                        params.mode === "delete" 
                           ? true
                           : false
                       }
@@ -234,7 +234,7 @@ const ViewContact = () => {
                   <FormikOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
                     disabled={
-                      params.mode === "delete" || params.mode === "view"
+                      params.mode === "delete" 
                         ? true
                         : false
                     }
@@ -270,7 +270,7 @@ const ViewContact = () => {
 
                   <TextField
                   disabled={
-                    params.mode === "delete" || params.mode === "view"
+                    params.mode === "delete" 
                       ? true
                       : false
                   }
@@ -289,7 +289,7 @@ const ViewContact = () => {
                   />
                   <TextField
                   disabled={
-                    params.mode === "delete" || params.mode === "view"
+                    params.mode === "delete" 
                       ? true
                       : false
                   }
@@ -310,7 +310,7 @@ const ViewContact = () => {
                   />
                   <TextField
                   disabled={
-                    params.mode === "delete" || params.mode === "view"
+                    params.mode === "delete" 
                       ? true
                       : false
                   }
@@ -342,7 +342,7 @@ const ViewContact = () => {
                           onChange={handleChange}
                           sx={{ height: "10px" }}
                           disabled={
-                            params.mode === "delete" || params.mode === "view"
+                            params.mode === "delete" 
                               ? true
                               : false
                           }
@@ -364,7 +364,7 @@ const ViewContact = () => {
                           onChange={handleChange}
                           sx={{ height: "10px" }}
                           disabled={
-                            params.mode === "delete" || params.mode === "view"
+                            params.mode === "delete" 
                               ? true
                               : false
                           }
@@ -384,7 +384,7 @@ const ViewContact = () => {
                         onChange={handleChange}
                         sx={{ height: "10px" }}
                       disabled={
-                        params.mode === "delete" || params.mode === "view"
+                        params.mode === "delete" 
                           ? true
                           : false
                       }
