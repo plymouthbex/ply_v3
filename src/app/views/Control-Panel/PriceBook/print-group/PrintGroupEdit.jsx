@@ -10,6 +10,8 @@ import {
   TextField,
   Stack,
   DialogActions,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -144,21 +146,21 @@ const PrintGroupEdit = () => {
       renderCell: (param) => {
         return (
           <Box>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              disabled={params.mode === "delete" || params.mode === "view"}
-              onClick={() => {
-                setremovePriceListID(param.row.RecordID);
-                setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
-                setIsRemovePriceList(true);
-              }}
-              startIcon={<DeleteIcon size="small" />}
-            >
-              Remove
-            </Button>
+           <Tooltip title="Remove">
+  <IconButton
+    color="error"
+    size="small"
+    disabled={params.mode === "delete" || params.mode === "view"}
+    onClick={() => {
+      setremovePriceListID(param.row.RecordID);
+      setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
+      setIsRemovePriceList(true);
+    }}
+  >
+    <DeleteIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
           </Box>
         );
       },
@@ -198,8 +200,41 @@ const PrintGroupEdit = () => {
             label="Add Price List"
             url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
           />
+<Tooltip title="Add">
+  <IconButton
+    color="black"
+    sx={{height:25}}
+    size="small"
+    disabled={params.mode === "delete" || params.mode === "view"}
+    onClick={() => {
+      if (addPriceListData) {
+        const isItem = [...getRows, ...filteredSelectedItems].some(
+          (item) =>
+            lodash.isEqual(item.RecordID, addPriceListData.RecordID)
+        );
+        if (isItem) {
+          setIsPriceListExists(true);
+          setTimeout(() => {
+            setIsPriceListExists(false);
+            setAddPriceListData(null);
+          }, 5000);
+          return;
+        }
+        dispatch(printGroupAddedItem(addPriceListData));
+        setAddPriceListData(null);
+      } else {
+        setIsPriceListExistsError(true);
+        setTimeout(() => {
+          setIsPriceListExistsError(false);
+        }, 2000);
+      }
+    }}
+  >
+    <Add fontSize="small" />
+  </IconButton>
+</Tooltip>
 
-          <Button
+          {/* <Button
             disabled={params.mode === "delete" || params.mode === "view"}
             variant="contained"
             color="info"
@@ -230,7 +265,7 @@ const PrintGroupEdit = () => {
             }}
           >
             Add
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -406,6 +441,7 @@ const PrintGroupEdit = () => {
                       onBlur={(e) => isPrintGroupExists(e, setSubmitting)}
                       value={values.groupCode}
                       required
+                       autoComplete="off"
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
@@ -427,6 +463,7 @@ const PrintGroupEdit = () => {
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
+                     autoComplete="off"
                       // error={!!touched.groupName && !!errors.groupName}
                       // helperText={touched.groupName && errors.groupName}
                     />

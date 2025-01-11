@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-
+import VisibilityIcon from "@mui/icons-material/Visibility"
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -108,7 +108,7 @@ const loading = useSelector((state) => state.listview.loading);
                 width:25 
               }}
             >
-              <ModeEditOutlineIcon fontSize="small" />
+              <VisibilityIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </div>

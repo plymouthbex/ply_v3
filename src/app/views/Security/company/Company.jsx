@@ -19,12 +19,12 @@ import {
   dataGridHeight, dataGridPageSize,
   dataGridpageSizeOptions, dataGridRowHeight, dataGridHeaderFooterHeight
 } from "app/utils/constant";
-import { Add } from "@mui/icons-material";
+import { Add, MailOutline } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-
+import MailIcon from '@mui/icons-material/Mail';
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -94,7 +94,7 @@ const Company = () => {
       align: "center",
       renderCell: (params) => {
         return (
-          <div>
+          <div gap={1}>
             <Tooltip title="Edit">
               <IconButton
                 sx={{ height: 25, width: 25 }}
@@ -108,7 +108,19 @@ const Company = () => {
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-
+            <Tooltip title="Edit">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="black"
+                onClick={() => {
+                  navigate("/pages/security/company/mail", {
+                    state: { Name: params.row.CompanyName },
+                  });
+                }}
+              >
+                <MailIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         );
       },

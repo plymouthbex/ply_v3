@@ -14,6 +14,8 @@ import {
   Typography,
   MenuItem,
   DialogActions,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -57,7 +59,7 @@ import useAuth from "app/hooks/useAuth";
 // ********************** ICONS ********************** //
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Add } from "@mui/icons-material";
+import { Add, Title } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
@@ -198,10 +200,11 @@ const PriceListEdit = () => {
       renderCell: (param) => {
         return (
           <>
-            <Button
+            <Tooltip title="Edit">
+            <IconButton
               sx={{ height: 25 }}
               variant="contained"
-              color="secondary"
+              color="black"
               size="small"
               // onClick={() => handleRowClick(params)}
               onClick={() =>
@@ -216,20 +219,22 @@ const PriceListEdit = () => {
                   },
                 })
               }
-              startIcon={<ModeEditOutlineIcon size="small" />}
+              // startIcon={<ModeEditOutlineIcon size="small" />}
               disabled={
                 params.mode === "delete" || params.mode === "view"
                   ? true
                   : false
               }
             >
-              Edit
-            </Button>
+              <ModeEditOutlineIcon size="small" />
+            </IconButton>
+            </Tooltip>
             {showGridData === 3 ? (
-              <Button
+              <Tooltip title="Delete">
+              <IconButton
                 sx={{ height: 25, marginLeft: 2 }}
                 variant="contained"
-                color="secondary"
+                color="error"
                 size="small"
                 onClick={() => {
                   // setRemoveItemID(param.row.Item_Number);
@@ -246,20 +251,22 @@ const PriceListEdit = () => {
                     },
                   });
                 }}
-                startIcon={<DeleteIcon size="small" />}
+                // startIcon={<DeleteIcon size="small" />}
                 disabled={
                   params.mode === "delete" || params.mode === "view"
                     ? true
                     : false
                 }
               >
-                Delete
-              </Button>
+                <DeleteIcon size="small" />
+              </IconButton>
+              </Tooltip>
             ) : showGridData === 0 && param.row.showAction ? (
-              <Button
+              <Tooltip title="Remove">
+              <IconButton
                 sx={{ height: 25, marginLeft: 2 }}
                 variant="contained"
-                color="secondary"
+                color="error"
                 size="small"
                 onClick={() => {
                   // setRemoveItemID(param.row.Item_Number);
@@ -277,15 +284,16 @@ const PriceListEdit = () => {
                     },
                   });
                 }}
-                startIcon={<DeleteIcon size="small" />}
+                // startIcon={<DeleteIcon size="small" />}
                 disabled={
                   params.mode === "delete" || params.mode === "view"
                     ? true
                     : false
                 }
               >
-                Delete
-              </Button>
+                <DeleteIcon size="small" />
+              </IconButton>
+              </Tooltip>
             ) : (
               false
             )}
@@ -880,6 +888,7 @@ const PriceListEdit = () => {
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
+                       autoComplete="off"
                       size="small"
                       //   error={!!touched.priceListID && !!errors.priceListID}
                       //   helperText={touched.priceListID && errors.priceListID}
@@ -899,6 +908,7 @@ const PriceListEdit = () => {
                       name="priceListDescription"
                       label="Price List Description"
                       value={values.priceListDescription}
+                       autoComplete="off"
                       onChange={handleChange}
                       onBlur={handleBlur}
                       size="small"
@@ -1000,6 +1010,7 @@ const PriceListEdit = () => {
                       name="comments"
                       label="Comments"
                       value={values.comments}
+                       autoComplete="off"
                       onChange={handleChange}
                       onBlur={handleBlur}
                       size="small"

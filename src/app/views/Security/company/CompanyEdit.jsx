@@ -81,14 +81,15 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email format")
     .max(30, "Email must be at most 30 characters"),
-  sequence: Yup.string()
-    .min(1, "Sequence must be at least 1 character")
-    .max(15, "Sequence must be at most 15 characters"),
+
   name: Yup.string().min(3, "Name must be at least 3 characters"),
   // .max(20, "Name must be at most 20 characters"),
   address: Yup.string()
     .min(3, "Address must be at least 3 characters")
     .max(50, "Address must be at most 50 characters"),
+     phonenumber: Yup.string()
+        .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+        .required("Phone number is required"),
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -456,6 +457,7 @@ const CompanyEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
+                      autoComplete="off"
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
@@ -476,6 +478,7 @@ const CompanyEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
+                      autoComplete="off"
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
@@ -494,6 +497,7 @@ const CompanyEdit = () => {
                     name="email"
                     label="Email"
                     size="small"
+                      autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
                     required
                     InputLabelProps={{
@@ -516,6 +520,7 @@ const CompanyEdit = () => {
                     sx={{ gridColumn: "span 2" }}
                     value={values.phonenumber}
                     onChange={handleChange}
+                      autoComplete="off"
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
@@ -528,6 +533,7 @@ const CompanyEdit = () => {
                     name="address1"
                     label="Address 1"
                     size="small"
+                      autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
                     value={values.address1}
                     onChange={handleChange}
@@ -543,6 +549,7 @@ const CompanyEdit = () => {
                     name="address2"
                     label="Address 2"
                     size="small"
+                      autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
                     value={values.address2}
                     onChange={handleChange}
@@ -558,6 +565,7 @@ const CompanyEdit = () => {
                     name="address3"
                     label="Address 3"
                     size="small"
+                      autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
                     value={values.address3}
                     onChange={handleChange}
@@ -573,6 +581,7 @@ const CompanyEdit = () => {
                     name="sequence"
                     label="Sequence"
                     size="small"
+                      autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
                     InputProps={{
                       inputProps: {
@@ -594,6 +603,7 @@ const CompanyEdit = () => {
                     id="fax"
                     name="fax"
                     label="Fax"
+                      autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     InputProps={{
@@ -647,6 +657,7 @@ const CompanyEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     value={values.generic}
+                     autoComplete="off"
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.generic && Boolean(errors.generic)}
@@ -663,6 +674,7 @@ const CompanyEdit = () => {
                     sx={{ gridColumn: "span 2" }}
                     value={values.custom}
                     onChange={handleChange}
+                     autoComplete="off"
                     onBlur={handleBlur}
                     error={touched.custom && Boolean(errors.custom)}
                     helperText={touched.custom && errors.custom}
@@ -676,6 +688,7 @@ const CompanyEdit = () => {
                     name="customer"
                     label="Customer Custom Price Book"
                     size="small"
+                     autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
                     value={values.customer}
                     onChange={handleChange}

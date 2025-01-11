@@ -415,6 +415,7 @@ const UserGroupEdit = () => {
                   <TextField
                     fullWidth
                     variant="outlined"
+                      autoComplete="off"
                     type="text"
                     id="userGroupName"
                     name="userGroupName"

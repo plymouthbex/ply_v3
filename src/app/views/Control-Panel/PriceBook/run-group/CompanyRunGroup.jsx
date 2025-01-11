@@ -6,6 +6,8 @@ import {
   Button,
   styled,
   useTheme,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -20,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-
+import VisibilityIcon from "@mui/icons-material/Visibility"
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -91,20 +93,20 @@ const loading = useSelector((state) => state.listview.loading);
       renderCell: (params) => {
         return (
           <div>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate("/pages/control-panel/run-group", {
-                  state: { companyID: params.row.RecordID },
-                });
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-          List Of Run Group
-            </Button>
+            <Tooltip title="List Of Run Group">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() =>
+      navigate("/pages/control-panel/run-group", {
+        state: { companyID: params.row.RecordID },
+      })
+    }
+  >
+    <VisibilityIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
           </div>
         );
       },

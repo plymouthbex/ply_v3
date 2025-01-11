@@ -14,6 +14,8 @@ import {
   Typography,
   MenuItem,
   DialogActions,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -197,43 +199,12 @@ const PriceListEdit = () => {
       renderCell: (param) => {
         return (
           <>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              // onClick={() => handleRowClick(params)}
-              onClick={() =>
-                navigate("/pages/control-panel/configure-price-book/price-list-items/configure-items/edit", {
-                  state: {
-                    id: state.id,
-                    itemNumber: param.row.Item_Number,
-                    itemDesc: param.row.Item_Description,
-                    priceListID: priceListHeaderData.PriceListID,
-                    priceListDesc: priceListHeaderData.PricelistDesc,
-                  },
-                })
-              }
-              startIcon={<ModeEditOutlineIcon size="small" />}
-              disabled={
-                params.mode === "delete" || params.mode === "view"
-                  ? true
-                  : false
-              }
-            >
-              Edit
-            </Button>
-            {showGridData === 3 ? (
-              <Button
-                sx={{ height: 25, marginLeft: 2 }}
-                variant="contained"
-                color="secondary"
+            <Tooltip title="Edit">
+              <IconButton
+                color="black"
                 size="small"
-                onClick={() => {
-                  // setRemoveItemID(param.row.Item_Number);
-                  // setRemoveItemDesc(param.row.Item_Description);
-                  // setIsRemoveItem(true);
-                  navigate("/pages/control-panel/configure-price-book/price-list-items/configure-items/delete", {
+                onClick={() =>
+                  navigate("/pages/control-panel/configure-price-book/price-list-items/configure-items/edit", {
                     state: {
                       id: state.id,
                       itemNumber: param.row.Item_Number,
@@ -241,47 +212,58 @@ const PriceListEdit = () => {
                       priceListID: priceListHeaderData.PriceListID,
                       priceListDesc: priceListHeaderData.PricelistDesc,
                     },
-                  });
-                }}
-                startIcon={<DeleteIcon size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
+                  })
                 }
+                disabled={params.mode === "delete" || params.mode === "view"}
               >
-                Delete
-              </Button>
-            ) : showGridData === 0 && param.row.showAction ? (
-              <Button
-                sx={{ height: 25, marginLeft: 2 }}
-                variant="contained"
-                color="secondary"
-                size="small"
-                onClick={() => {
-                  // setRemoveItemID(param.row.Item_Number);
-                  // setRemoveItemDesc(param.row.Item_Description);
-                  // setIsRemoveItem(true);
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-                  navigate("./pages/control-panel/configure-price-book/price-list-items/configure-items/delete", {
-                    state: {
-                      id: state.id,
-                      itemNumber: param.row.Item_Number,
-                      itemDesc: param.row.Item_Description,
-                      priceListID: priceListHeaderData.PriceListID,
-                      priceListDesc: priceListHeaderData.PricelistDesc,
-                    },
-                  });
-                }}
-                startIcon={<DeleteIcon size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                Delete
-              </Button>
+            {showGridData === 3 ? (
+              <Tooltip title="Delete">
+                <IconButton
+                  color="error"
+                  size="small"
+                  onClick={() =>
+                    navigate("/pages/control-panel/configure-price-book/price-list-items/configure-items/delete", {
+                      state: {
+                        id: state.id,
+                        itemNumber: param.row.Item_Number,
+                        itemDesc: param.row.Item_Description,
+                        priceListID: priceListHeaderData.PriceListID,
+                        priceListDesc: priceListHeaderData.PricelistDesc,
+                      },
+                    })
+                  }
+                  disabled={params.mode === "delete" || params.mode === "view"}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+            ) : showGridData === 0 && param.row.showAction ? (
+              <Tooltip title="Delete">
+                <IconButton
+                  color="error"
+                  size="small"
+                  onClick={() =>
+                    navigate("/pages/control-panel/configure-price-book/price-list-items/configure-items/delete", {
+                      state: {
+                        id: state.id,
+                        itemNumber: param.row.Item_Number,
+                        itemDesc: param.row.Item_Description,
+                        priceListID: priceListHeaderData.PriceListID,
+                        priceListDesc: priceListHeaderData.PricelistDesc,
+                      },
+                    })
+                  }
+                  disabled={params.mode === "delete" || params.mode === "view"}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
             ) : (
               false
             )}
@@ -304,7 +286,7 @@ const PriceListEdit = () => {
       setSubmitting(false);
     }
   };
-  const priceListSaveFn = async (values, setSubmitting,isDerct = false) => {
+  const priceListSaveFn = async (values, setSubmitting, isDerct = false) => {
     const filterData = {
       Brand: {
         PriceListID: values.priceListID,
@@ -398,17 +380,17 @@ const PriceListEdit = () => {
           //   })
           // );
 
-          if(params.mode === "add"){
+          if (params.mode === "add") {
             dispatch(priceListConditionsPost({ data: filterData }));
             setOpenAlert(true);
           }
 
         } else {
-          if(params.mode === "add"){
+          if (params.mode === "add") {
             setOpenAlert(true);
             setPostError(true);
           }
-        
+
         }
       });
       setSubmitting(false);
@@ -810,7 +792,7 @@ const PriceListEdit = () => {
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                
+
                   <Button
                     variant="contained"
                     color="info"
@@ -826,7 +808,7 @@ const PriceListEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
-               
+
                 <Box
                   display="grid"
                   gap="20px"
@@ -838,7 +820,7 @@ const PriceListEdit = () => {
                     padding: "5px",
                   }}
                 >
-                  
+
                   <Box
                     sx={{
                       height: 450,
@@ -879,27 +861,27 @@ const PriceListEdit = () => {
                         backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
                       },
                       "& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                        color: "white !important", // Ensuring white text color for the pagination
+                      },
+
+                      "& .MuiTablePagination-root .MuiTypography-root": {
+                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                      },
+
+                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                        color: "white !important", // Ensuring white icons for pagination
+                      },
                     }}
                   >
                     <DataGrid
-                     columnHeaderHeight={dataGridHeaderFooterHeight}
-                     sx={{
-                       // This is to override the default height of the footer row
-                       '& .MuiDataGrid-footerContainer': {
-                           height: dataGridHeaderFooterHeight,
-                           minHeight: dataGridHeaderFooterHeight,
-                       },
-                     }}
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      sx={{
+                        // This is to override the default height of the footer row
+                        '& .MuiDataGrid-footerContainer': {
+                          height: dataGridHeaderFooterHeight,
+                          minHeight: dataGridHeaderFooterHeight,
+                        },
+                      }}
                       key={showGridData}
                       slots={{
                         loadingOverlay: LinearProgress,
@@ -1191,7 +1173,7 @@ const PriceListEdit = () => {
           </DialogActions>
         }
       />
-      
+
       {/* {getLoading &&<Box sx={{display:'flex',flexGrow:1}}> <Loading/></Box>} */}
     </Container>
   );

@@ -210,6 +210,7 @@ const ApplicationEdit = () => {
                     id="name"
                     name="name"
                     label="Menu Name"
+                     autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
@@ -238,6 +239,7 @@ const ApplicationEdit = () => {
                         },
                       },
                     }}
+                     autoComplete="off"
                     value={values.sequence}
                     onChange={handleChange}
                     onBlur={handleBlur}

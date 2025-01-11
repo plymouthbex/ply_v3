@@ -481,6 +481,7 @@ const ContactEdit = () => {
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
+                     autoComplete="off"
                   />
                   <FormikOptimizedAutocomplete
                     sx={{ gridColumn: "span 2" }}
@@ -511,8 +512,12 @@ const ContactEdit = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
+                     autoComplete="off"
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -544,8 +549,12 @@ const ContactEdit = () => {
                     name="email"
                     label="Email"
                     size="small"
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     sx={{ gridColumn: "span 2" }}
-
+ autoComplete="off"
                     value={values.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -636,7 +645,7 @@ const ContactEdit = () => {
                       value={values.cfpbtitle}
                       onChange={handleChange}
                       onBlur={handleBlur}
-
+ autoComplete="off"
                     />
 
                     <Stack
@@ -695,7 +704,7 @@ const ContactEdit = () => {
                       value={values.ccpbtitle}
                       onChange={handleChange}
                       onBlur={handleBlur}
-
+ autoComplete="off"
                     />
 
                     <Stack

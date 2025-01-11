@@ -9,7 +9,9 @@ import {
   TextField,
   Stack,
   useMediaQuery,
-  Typography
+  Typography,
+  IconButton,
+  Tooltip
 } from "@mui/material";
 import {
   DataGrid,
@@ -98,21 +100,23 @@ const dispatch=useDispatch();
           return (
               <div style={{ display: "flex", gap: "8px" }}>
               
-              <Button
-                sx={{ height: 25 }}
-                variant="contained"
-                color="secondary"
-                size="small"
-                startIcon={<ModeEditOutlineIcon size="small" />}
-                onClick={() => {
-                    navigate("/pages/control-panel/configure-price-book/customer/edit-Contact/configureEdit",{state:{
-                      RecordID:params.row.RecordID,
-                      Configure:State
-                    }});
-                  }}
-              >
-                Edit Communication
-              </Button>
+              <Tooltip title="Edit Communication">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/configure-price-book/customer/edit-Contact/configureEdit", {
+        state: {
+          RecordID: params.row.RecordID,
+          Configure: State,
+        },
+      });
+    }}
+  >
+    <ModeEditOutlineIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
             </div>
             
           );
@@ -196,20 +200,23 @@ const dispatch=useDispatch();
           }}
         >
             <GridToolbarQuickFilter />
-           <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add fontSize="small" />}
-            onClick={() => {
-              navigate("/pages/control-panel/configure-price-book/customer/add-Contact/configureEdit",{state:{
-                RecordID:0,
-                Configure:State
-              }});
-            }}
-          >
-            Add
-          </Button>
+            <Tooltip title="Add Contact">
+  <IconButton
+    color="info"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/configure-price-book/customer/add-Contact/configureEdit", {
+        state: {
+          RecordID: 0,
+          Configure: State,
+        },
+      });
+    }}
+  >
+    <Add fontSize="small" />
+  </IconButton>
+</Tooltip>
+
         
         </Box>
       </GridToolbarContainer>

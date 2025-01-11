@@ -214,6 +214,7 @@ const ViewContact = () => {
                     id="name"
                     name="name"
                     label="Customer Name"
+                     autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
@@ -266,6 +267,7 @@ const ViewContact = () => {
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
+                     autoComplete="off"
                   />
 
                   <TextField
@@ -285,6 +287,7 @@ const ViewContact = () => {
                     value={values.provider}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                     autoComplete="off"
 
                   />
                   <TextField
@@ -307,6 +310,7 @@ const ViewContact = () => {
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
+                     autoComplete="off"
                   />
                   <TextField
                   disabled={
@@ -323,7 +327,7 @@ const ViewContact = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                  
-
+ autoComplete="off"
                     value={values.sequence}
                     onChange={handleChange}
                     onBlur={handleBlur}

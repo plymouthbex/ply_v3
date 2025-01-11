@@ -8,6 +8,8 @@ import {
   useTheme,
   Typography,
   Stack,
+  Tooltip,
+  IconButton
 } from "@mui/material";
 import {
   DataGrid,
@@ -19,6 +21,7 @@ import { dataGridHeight, dataGridRowHeight,dataGridHeaderFooterHeight } from "ap
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useDispatch, useSelector } from "react-redux";
 import { getConfigureCustomerListView, getCustomerListView } from "app/redux/slice/listviewSlice";
@@ -85,39 +88,46 @@ const State=location.state;
       renderCell: (params) => {
         return (
             <div style={{ display: "flex", gap: "8px" }}>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer/address",{state:{
-                  RecordID:params.row.RecordID,
-                  Code:params.row.CustomerNumber,
-                  Name:params.row.CustomerName,
-                  company:State,
-                }});
-              }}
-            >
-              Address Locations
-            </Button>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              startIcon={<ModeEditOutlineIcon size="small" />}
-              onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer/edit-Customer/configureEdit",{state:{
-                  RecordID:params.row.RecordID,
-                  Code:params.row.CustomerNumber,
-                  Name:params.row.CustomerName,
-                  company:State,
-                }})
-              }}
-            >
-              Edit Communication
-            </Button>
+            <div style={{ display: "flex", gap: "10px" }}>
+  <Tooltip title="Address Locations">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        navigate("/pages/control-panel/configure-price-book/customer/address", {
+          state: {
+            RecordID: params.row.RecordID,
+            Code: params.row.CustomerNumber,
+            Name: params.row.CustomerName,
+            company: State,
+          },
+        });
+      }}
+    >
+      <LocationOnIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="Edit Communication">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        navigate("/pages/control-panel/configure-price-book/customer/edit-Customer/configureEdit", {
+          state: {
+            RecordID: params.row.RecordID,
+            Code: params.row.CustomerNumber,
+            Name: params.row.CustomerName,
+            company: State,
+          },
+        });
+      }}
+    >
+      <ModeEditOutlineIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+</div>
+
           </div>
           
         );

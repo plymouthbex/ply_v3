@@ -5,7 +5,7 @@ import {
   Paper,
   Button,
   styled,
-  useTheme,
+  useTheme,Tooltip,IconButton
 } from "@mui/material";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import { dataGridHeaderFooterHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight } from "app/utils/constant";
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -61,7 +61,19 @@ const QuoteList = () => {
       renderCell: (params) => {
         return (
           <div>
-            <Button
+            <Tooltip title={params.row.name}>
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate(params.row.path);
+    }}
+  >
+    <VisibilityIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+            {/* <Button
               sx={{
                 height: 25,
                 width: 150,
@@ -74,7 +86,7 @@ const QuoteList = () => {
               }}
             >
               {params.row.name}
-            </Button>
+            </Button> */}
           </div>
         );
       },

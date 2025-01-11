@@ -15,6 +15,12 @@ import {
   LinearProgress,
   Input,
   DialogActions,
+  Tooltip,
+  IconButton,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import {
@@ -26,6 +32,7 @@ import { dataGridHeight, dataGridHeightC, dataGridRowHeight ,dataGridHeaderFoote
 
 
 // ******************** ICONS ******************** //
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Add, AddAlertOutlined, RefreshOutlined } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -181,38 +188,38 @@ const error=useSelector((state) => state.getSlice.getconfigureError);
         return (
           <div>
             <Box gap={1}>
-              <Button
-                sx={{ height: 25 }}
-                variant="contained"
-                color="secondary"
-                size="small"
-                // disabled={true} // Permanently disable the button
-                onClick={() => {
-                  navigate("/pages/control-panel/configure-price-book/price-list-items/company", {
-                    state: {
-                      id: param.row.PRICELISTID,
-                    }
-                  });
-                }}
-                
-              >
-                View Items
-              </Button>
-              <Button
-                sx={{ height: 25 }}
-                variant="contained"
-                color="secondary"
-                size="small"
-                // disabled={true} // Permanently disable the button
-                onClick={() => {
-                  setremovePriceListID(param.row.PRICELISTID);
-                  setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
-                  setIsRemovePriceList(true);
-                }}
-                startIcon={<DeleteIcon size="small" />}
-              >
-                Remove Items
-              </Button>
+            <div style={{ display: "flex", gap: "10px" }}>
+  <Tooltip title="View Items">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        navigate("/pages/control-panel/configure-price-book/price-list-items/company", {
+          state: {
+            id: param.row.PRICELISTID,
+          },
+        });
+      }}
+    >
+      <VisibilityIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="Remove Items">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        setremovePriceListID(param.row.PRICELISTID);
+        setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
+        setIsRemovePriceList(true);
+      }}
+    >
+      <DeleteIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+</div>
+
             </Box>
           </div>
         );
@@ -254,45 +261,45 @@ const error=useSelector((state) => state.getSlice.getconfigureError);
             url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
           />
 
-          <Button
-            disabled={params.mode === "delete" || params.mode === "view"}
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              if (addPriceListData) {
-                const isItem = [...getRows, ...filteredSelectedItems].some(
-                  (item) =>
-                    lodash.isEqual(item.PRICELISTID, addPriceListData.PRICELISTID)
-                ); if (isItem) {
-                  setIsPriceListExists(true);
-                  setTimeout(() => {
-                    setIsPriceListExists(false);
-                    setAddPriceListData(null);
-                  }, 5000);
-                  return;
-                }
-                dispatch(configureAddedPriceList(addPriceListData));
-                setAddPriceListData(null);
-              } else {
-                setIsPriceListExistsError(true);
-                setTimeout(() => {
-                  setIsPriceListExistsError(false);
-                }, 2000);
-              }
-const pricedata={
-  "recordID": data.RecordID,
-  "priceListID": addPriceListData.PRICELISTID,
-}
-              const response= dispatch(PostConfigurePriceListID({
-                pricedata
-              }));
+<Tooltip title="Add">
+  <IconButton
+    disabled={params.mode === "delete" || params.mode === "view"}
+    color="black"
+    size="small"
+    onClick={() => {
+      if (addPriceListData) {
+        const isItem = [...getRows, ...filteredSelectedItems].some(
+          (item) =>
+            lodash.isEqual(item.PRICELISTID, addPriceListData.PRICELISTID)
+        );
+        if (isItem) {
+          setIsPriceListExists(true);
+          setTimeout(() => {
+            setIsPriceListExists(false);
+            setAddPriceListData(null);
+          }, 5000);
+          return;
+        }
+        dispatch(configureAddedPriceList(addPriceListData));
+        setAddPriceListData(null);
+      } else {
+        setIsPriceListExistsError(true);
+        setTimeout(() => {
+          setIsPriceListExistsError(false);
+        }, 2000);
+      }
 
-            }}
-          >
-            Add
-          </Button>
+      const pricedata = {
+        recordID: data.RecordID,
+        priceListID: addPriceListData.PRICELISTID,
+      };
+      const response = dispatch(PostConfigurePriceListID({ pricedata }));
+    }}
+  >
+    <Add />
+  </IconButton>
+</Tooltip>
+
         </Box>
       </GridToolbarContainer>
     );
@@ -445,6 +452,7 @@ const pricedata={
                     onBlur={handleBlur}
                     error={touched.name && Boolean(errors.name)}
                     helperText={touched.name && errors.name}
+                     autoComplete="off"
                   />
                   <Autocomplete
                     fullWidth
@@ -478,6 +486,28 @@ const pricedata={
                       />
                     )}
                   />
+                  <FormControl
+                    sx={{ gridColumn: "span 2" }}
+                    fullWidth
+                    size="small"
+                  >
+                    <InputLabel id="demo-simple-select-label">
+                     Automatic Mail Configuration
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      value={values.provider}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      id="provider"
+                      name="provider"
+                      label="Price Book Type"
+                    >
+                      <MenuItem value={"AT&T"}>User</MenuItem>
+                      <MenuItem value={"V"}>Single Origin</MenuItem>
+                      <MenuItem value={"TM"}>UserGroup</MenuItem>
+                    </Select>
+                  </FormControl>
                   <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="row"

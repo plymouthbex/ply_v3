@@ -5,7 +5,7 @@ import {
   Paper,
   Button,
   styled,
-  useTheme,
+  useTheme,Tooltip,IconButton
 } from "@mui/material";
 import {
   DataGrid,
@@ -18,7 +18,7 @@ import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getApplicationListView } from "app/redux/slice/listviewSlice";
-
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -73,7 +73,21 @@ const dispatch=useDispatch();
       renderCell: (params) => {
         return (
           <div>
-            <Button
+            <Tooltip title="Edit">
+  <IconButton
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/security/application-edit-detail/edit", {
+        state: { ID: params.row.RecordID },
+      });
+    }}
+  >
+    <ModeEditOutlineIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+            {/* <Button
               sx={{ height: 25 }}
               variant="contained"
               color="secondary"
@@ -85,7 +99,7 @@ const dispatch=useDispatch();
               }}
             >
               Edit
-            </Button>
+            </Button> */}
           </div>
         );
       },
@@ -121,8 +135,20 @@ useEffect(() => {
           }}
         >
           <GridToolbarQuickFilter />
+          <Tooltip title="Add">
+  <IconButton
+   sx={{ height: 25 }}
+    color="black"
+    size="small"
+    onClick={() => {
+      navigate("/pages/security/application-edit-detail/add", { state: { ID: 0 } });
+    }}
+  >
+    <Add fontSize="small" />
+  </IconButton>
+</Tooltip>
 
-          <Button
+          {/* <Button
             variant="contained"
             color="info"
             size="small"
@@ -132,7 +158,7 @@ useEffect(() => {
             }}
           >
             Add
-          </Button>
+          </Button> */}
         </Box>
       </GridToolbarContainer>
     );

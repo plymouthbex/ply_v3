@@ -6,6 +6,8 @@ import {
   Button,
   styled,
   useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -17,6 +19,7 @@ import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowH
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { getCompanyListView, getConfigureCompanyListView } from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { clearConfigurePriceList } from "app/redux/slice/getSlice";
@@ -84,38 +87,44 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
         return (
           <div style={{ display: "flex", gap: "8px" }}>
 
-<Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              // startIcon={<ModeEditOutlineIcon size="small" />}
-              onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/customer",{state:{
-                  RecordID:params.row.CompanyID,
-                      Code:params.row.CompanyCode,
-                      Name:params.row.CompanyName
-                }})
-              }}
-            >
-             Customer List
-            </Button>
-            <Button
-              sx={{ height: 25 }}
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => {
-                navigate("/pages/control-panel/configure-price-book/configure-company-edit/edit",{state:{
-                  RecordID:params.row.RecordID,
-                  Code:params.row.CompanyCode,
-                  Name:params.row.CompanyName
-            }});
-              }}
-              startIcon={<ModeEditOutlineIcon size="small" />}
-            >
-              Configure Price Book
-            </Button>
+<div style={{ display: "flex", gap: "10px" }}>
+  <Tooltip title="Customer List">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        navigate("/pages/control-panel/configure-price-book/customer", {
+          state: {
+            RecordID: params.row.CompanyID,
+            Code: params.row.CompanyCode,
+            Name: params.row.CompanyName,
+          },
+        });
+      }}
+    >
+      <ListAltIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="Configure Price Book">
+    <IconButton
+      color="black"
+      size="small"
+      onClick={() => {
+        navigate("/pages/control-panel/configure-price-book/configure-company-edit/edit", {
+          state: {
+            RecordID: params.row.RecordID,
+            Code: params.row.CompanyCode,
+            Name: params.row.CompanyName,
+          },
+        });
+      }}
+    >
+      <ModeEditOutlineIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+</div>
+
             
           </div>
         );
