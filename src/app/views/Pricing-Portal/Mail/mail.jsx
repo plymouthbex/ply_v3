@@ -16,21 +16,26 @@ import { SimpleCard } from "app/components";
 import { themeShadows } from "app/components/baseTheme/themeColors";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
-
+import { runGroupMailData } from "app/redux/slice/postSlice";
+import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
+import { useDispatch } from "react-redux";
+import { Formik } from "formik";
+import * as Yup from "yup";
 // Sample mail data object
 
 const MailSidebar = () => {
   const location = useLocation();
-  // const screenName = location.state?.screenName || "Generic";
+  const state = location.state || {};
   const initialMailData = {
     to: "",
     cc: "",
-    subject: `RE:Plymouth Full Price Book`,
+    subject: `RE:Plymouth ${state.fppdf ? "Full" : "Custom"} Price Book`,
     content:
       "Hi  \nKindly find attached Generic Full Price Book\n\nwith Regards\nPlymouth-commercial team",
   };
   const theme = useTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user } = useAuth();
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
@@ -39,136 +44,56 @@ const MailSidebar = () => {
   const [subject, setSubject] = useState(initialMailData.subject);
   const [content, setContent] = useState(initialMailData.content);
 
-  const [dateRange, setDateRange] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-
   useEffect(() => {
-    const fromDateInit = new Date();
-    const toDateInit = new Date();
-    toDateInit.setDate(fromDateInit.getDate() + 6);
-
-    const formattedFromDate = formatFromDate(fromDateInit);
-    const formattedToDate = formatToDate(toDateInit);
-
-    const initialDateRange = `${formattedFromDate} To ${formattedToDate}`;
-    setDateRange(initialDateRange);
-    setFromDate(formattedFromDate);
-    setToDate(formattedToDate);
-
     // Update content with date range
     setContent(
-      `Hi  \n\nPlymouth Full Price Book for the Week(${initialDateRange})-Attached\n\nwith Regards\n${user.name}\nPlymouth-commercial team`
+      `Hi  \n\n${user.company} Full Price Book for the Week(Pricing Week (SUN) ${state.FromDate}TO (SAT) ${state.ToDate})-Attached\n\nwith Regards\n${user.name}\n${user.company}-commercial team`
     );
   }, []);
 
-  const handleDateChange = (newDate) => {
-    const selectedDate = new Date(newDate + "T00:00:00");
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
+  const fnRunGrpEmailProcess = async () => {
+    const data = [
+      {
+        CustomerNumber: state.customernumber,
+        FullPriceBookPdf: state.fppdf ? "1" : "0",
+        FullPriceBookExcel: state.fpexcel ? "1" : "0",
+        CustomPriceBooPdf: state.cppdf ? "1" : "0",
+        CustomPriceBookExcel: state.cpexcel ? "1" : "0",
+        FromDate: state.FromDate,
+        ToDate: state.ToDate,
+      },
+    ];
+    console.log("🚀 ~ data ~ data:", data);
 
-    const formattedFromDate = formatFromDate(selectedDate);
-    setFromDate(formattedFromDate);
+    try {
+      const response = await dispatch(runGroupMailData({ data }));
 
-    const newToDate = new Date(selectedDate);
-    newToDate.setDate(selectedDate.getDate() + 6);
-    const formattedToDate = formatToDate(newToDate);
-    setToDate(formattedToDate);
-
-    const updatedDateRange = `Pricing Week ${formattedFromDate} - ${formattedToDate}`;
-    setDateRange(updatedDateRange);
-
-    // Update content with new date range
-    setContent(
-      `Hi  \nKindly find attached Generic Full Price Book ${updatedDateRange}\n\nwith Regards\nPlymouth-commercial team`
-    );
+      if (response.payload.status === "Y") {
+        setOpenAlert(true);
+      } else {
+        setOpenAlert(true);
+        setPostError(true);
+      }
+    } catch (error) {
+      setOpenAlert(true);
+      setPostError(true);
+      console.error("Error during HandleSave:", error);
+    }
   };
 
-  const formatFromDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${month}/${day}/${year}`;
-  };
+  const validationSchema = Yup.object({
 
-  const formatToDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${month}/${day}/${year}`;
-  };
+  
+    to: Yup.string()
+      .email("Invalid email format")
+      .max(200, "Email must be at most 200 characters"),
+      cc: Yup.string()
+      .email("Invalid email format")
+      .max(200, "Email must be at most 200 characters"),
 
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  //   if (files.length > 0) {
-  //     const fileReaders = files.map((file) => {
-  //       return new Promise((resolve, reject) => {
-  //         const reader = new FileReader();
-  //         reader.onload = () => {
-  //           resolve({
-  //             content: reader.result.split(",")[1], // Strip off the base64 prefix
-  //             name: file.name,
-  //           });
-  //         };
-  //         reader.onerror = (error) => reject(error);
-  //         reader.readAsDataURL(file);
-  //       });
-  //     });
-
-  //     Promise.all(fileReaders)
-  //       .then((attachments) => {
-  //         const emailData = {
-  //           ...formData,
-  //           attachments, // Pass the array of base64-encoded files with names
-  //         };
-
-  //         emailjs
-  //           .send(
-  //             process.env.REACT_APP_EMAILJS_SERVICE_ID,
-  //             process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-  //             emailData,
-  //             process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-  //           )
-  //           .then(
-  //             (result) => {
-  //               console.log("Email successfully sent!", result.text);
-  //               alert("Message sent!");
-  //               setFormData({ name: "", email: "", message: "" }); // Reset form
-  //               setFiles([]); // Clear files
-  //             },
-  //             (error) => {
-  //               console.error("Failed to send email:", error.text);
-  //               alert("Failed to send message. Please try again.");
-  //             }
-  //           );
-  //       })
-  //       .catch((error) => {
-  //         console.error("Failed to process files:", error);
-  //         alert("Failed to attach files. Please try again.");
-  //       });
-  //   } else {
-  //     // Send without attachments if no files are selected
-  //     emailjs
-  //       .send(
-  //         process.env.REACT_APP_EMAILJS_SERVICE_ID,
-  //         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-  //         formData,
-  //         process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-  //       )
-  //       .then(
-  //         (result) => {
-  //           console.log("Email successfully sent!", result.text);
-  //           alert("Message sent!");
-  //           setFormData({ name: "", email: "", message: "" });
-  //         },
-  //         (error) => {
-  //           console.error("Failed to send email:", error.text);
-  //           alert("Failed to send message. Please try again.");
-  //         }
-  //       );
-  //   }
-  // };
-
+  });
 
   return (
     <Box sx={{ margin: "15px" }}>
@@ -186,10 +111,10 @@ const MailSidebar = () => {
           }}
         >
           <Box display="flex">
-            <Icon className="icon" color="primary">
+            <Icon className="icon" color="error">
               mail
             </Icon>
-            <H5 sx={{ ml: 1, fontSize: "1rem" }}>Send Mail</H5>
+            <H5 sx={{ ml: 1, fontSize: "1rem" }}>Email Price Book</H5>
           </Box>
 
           <IconButton onClick={() => navigate(-1)}>
@@ -198,47 +123,111 @@ const MailSidebar = () => {
         </Box>
 
         {/* Form Fields */}
-        <Box
-          sx={{ mt: 4, display: "flex", gap: "20px", flexDirection: "column" }}
-        >
-          <TextField
-            id="to"
-            label="To"
-            variant="outlined"
-            fullWidth
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
-          <TextField
-            id="cc"
-            label="CC"
-            variant="outlined"
-            fullWidth
-            value={cc}
-            onChange={(e) => setCc(e.target.value)}
-          />
-          <TextField
-            id="subject"
-            label="Subject"
-            variant="outlined"
-            fullWidth
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-          />
-          <TextField
-            id="content"
-            label="Content"
-            variant="outlined"
-            fullWidth
-            multiline
-            minRows={5}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </Box>
 
-        {/* Attachment and Action Buttons */}
-        <Box sx={{ mt: 4, padding: 1 }}>
+        <Formik
+          initialValues={{
+            to: "",
+            cc: "",
+            subject: `RE:Plymouth ${
+              state.fppdf ? "Full" : "Custom"
+            } Price Book`,
+            content: `Hi  \n\n${user.company} ${
+              state.fppdf ? "Full" : "Custom"
+            } Price Book for the Week(Pricing Week (SUN) ${state.FromDate}TO (SAT) ${state.ToDate})-Attached\n\nwith Regards\n${user.name}\n${user.company}-commercial team`,
+          }}
+          validationSchema={validationSchema}
+          enableReinitialize={true}
+          onSubmit={(values, { setSubmitting }) => {
+            setTimeout(() => {
+              fnRunGrpEmailProcess(values, setSubmitting);
+            }, 400);
+          }}
+        >
+          {({
+            errors,
+            touched,
+            handleBlur,
+            handleChange,
+            isSubmitting,
+            values,
+            handleSubmit,
+            setFieldValue,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <Box
+                sx={{
+                  mt: 4,
+                  display: "flex",
+                  gap: "20px",
+                  flexDirection: "column",
+                }}
+              >
+                <TextField
+                  id="to"
+                  label="To"
+                  type="email"
+                  variant="outlined"
+                  fullWidth
+                  name="to"
+                  value={values.to}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  required
+                  InputLabelProps={{
+                    sx: {
+                      "& .MuiInputLabel-asterisk": { color: "red" },
+                    },
+                  }}
+                  error={touched.to && Boolean(errors.to)}
+                  helperText={touched.to && errors.to}
+                  autoComplete="off"
+                />
+                <TextField
+                  id="cc"
+                  label="CC"
+                  variant="outlined"
+                    type="email"
+                  fullWidth
+                  name="cc"
+                  value={values.cc}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.cc && Boolean(errors.cc)}
+                  helperText={touched.cc && errors.cc}
+                  autoComplete="off"
+                />
+                <TextField
+                  id="subject"
+                  label="Subject"
+                  variant="outlined"
+                  fullWidth
+                  name="subject"
+                  value={values.subject}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  required
+                  InputLabelProps={{
+                    sx: {
+                      "& .MuiInputLabel-asterisk": { color: "red" },
+                    },
+                  }}
+                  autoComplete="off"
+                />
+                <TextField
+                  id="content"
+                  label="Content"
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  minRows={5}
+                  name="content"
+                  value={values.content}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  autoComplete="off"
+                />
+              </Box>
+              <Box sx={{ mt: 4, padding: 1 }}>
           <Box
             sx={{
               display: "flex",
@@ -266,6 +255,7 @@ const MailSidebar = () => {
               }}
               variant="contained"
               startIcon={<SendIcon />}
+              type="submit"
             >
               Send
             </Button>
@@ -277,7 +267,49 @@ const MailSidebar = () => {
               Cancel
             </Button>
           </Box>
+          <PriceGroupAlertApiDialog
+            open={openAlert}
+            error={postError}
+            message={
+              postError
+                ? "An error occurred while sending the email. Please try again."
+                : "Customer will receive their Price Book shortly"
+            }
+            Actions={
+              <Box
+                sx={{
+                  display: "flex",
+
+                  justifyContent: "flex-end",
+
+                  width: "100%",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+
+                    setTimeout(() => {
+                      setPostError(false);
+                    }, 1000);
+                  }}
+                  sx={{ height: 25 }}
+                >
+                  Close
+                </Button>
+              </Box>
+            }
+          />
         </Box>
+            </form>
+          )}
+        </Formik>
+
+        {/* Attachment and Action Buttons */}
+   
       </SimpleCard>
     </Box>
   );

@@ -166,7 +166,9 @@ const NewProspect = () => {
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
             customer: getQuoteProspectInfoData.CustomerNumber,
-            priceBookLevel: getQuoteProspectInfoData.PriceLevel ? getQuoteProspectInfoData.PriceLevel : null,
+            priceBookLevel: getQuoteProspectInfoData.PriceLevel
+              ? getQuoteProspectInfoData.PriceLevel
+              : null,
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -237,11 +239,11 @@ const NewProspect = () => {
                   />
                   <TextField
                     variant="outlined"
-                    name="salesRepName"
                     id="salesRepName"
                     label="Sales Representative Name"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
+                    name="salesRepName"
                     value={values.salesRepName}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -251,6 +253,7 @@ const NewProspect = () => {
                         "& .MuiInputLabel-asterisk": { color: "red" },
                       },
                     }}
+                    autoComplete="off"
                   />
                   <TextField
                     fullWidth
@@ -272,6 +275,7 @@ const NewProspect = () => {
                     onBlur={handleBlur}
                     error={!!touched.name && !!errors.name}
                     helperText={touched.name && errors.name}
+                    autoComplete="off"
                   />
                   {/* <TextField
                     fullWidth
@@ -298,6 +302,7 @@ const NewProspect = () => {
                     value={values.address1}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    autoComplete="off"
                   />
                   <TextField
                     fullWidth
@@ -311,6 +316,7 @@ const NewProspect = () => {
                     value={values.city}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    autoComplete="off"
                   />
                   <TextField
                     fullWidth
@@ -324,6 +330,7 @@ const NewProspect = () => {
                     value={values.state}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    autoComplete="off"
                   />
                   <TextField
                     fullWidth
@@ -337,6 +344,7 @@ const NewProspect = () => {
                     value={values.zip}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    autoComplete="off"
                   />
 
                   {/* <TextField
@@ -366,7 +374,6 @@ const NewProspect = () => {
                   >
                     <Autocomplete
                       fullWidth
-                      
                       id="priceBookLevel"
                       name="priceBookLevel"
                       options={priceBookLevel1}
@@ -384,10 +391,8 @@ const NewProspect = () => {
                       disableClearable
                       renderInput={(params) => (
                         <TextField
-                         
                           {...params}
-                        required
-
+                          required
                           InputLabelProps={{
                             sx: {
                               "& .MuiInputLabel-asterisk": { color: "red" },
@@ -413,6 +418,7 @@ const NewProspect = () => {
                     value={values.mobile}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    autoComplete="off"
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -456,6 +462,7 @@ const NewProspect = () => {
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
+                    autoComplete="off"
                   />
 
                   <Box

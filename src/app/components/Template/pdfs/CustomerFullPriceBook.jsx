@@ -150,7 +150,18 @@ const TableHeader = ({ isPrice }) => (
     </Text>
     <Text
       style={{
-        width:  !isPrice ? "59%" : "47%",
+        width: "5%",
+        fontSize: 10,
+        textAlign: "center",
+        alignSelf: "center",
+        // borderRight: "1px solid black",
+      }}
+    >
+      Frs/Frz
+    </Text>
+    <Text
+      style={{
+        width:  !isPrice ? "54%" : "42%",
         fontSize: 10,
         textAlign: "center",
         alignSelf: "center",
@@ -237,11 +248,25 @@ const TableRows = ({ items, isPrice }) =>
           paddingLeft: 2,
           paddingTop: 5,
           paddingLeft: 2,
-          width: "9%",
+          width: "7%",
           borderRight: "1px solid black",
         }}
       >
         {item.ppcItem}
+        
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          textAlign: "left",
+          paddingLeft: 2,
+          paddingTop: 5,
+          paddingLeft: 2,
+          width: "5%",
+          borderRight: "1px solid black",
+        }}
+      >
+        {item.fresh}
       </Text>
       <Text
         style={{
@@ -250,7 +275,7 @@ const TableRows = ({ items, isPrice }) =>
           paddingLeft: 2,
           paddingRight: 2,
           paddingTop: 5,
-          width: !isPrice ? "59%" : "47%",
+          width: !isPrice ? "54%" : "42%",
           borderRight: "1px solid black",
         }}
       >

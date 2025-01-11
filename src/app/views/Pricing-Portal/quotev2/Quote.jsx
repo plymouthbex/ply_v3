@@ -959,7 +959,7 @@ export default function BuildCustomPriceBook() {
                     />
                   </Box>
 
-                  <Stack direction="row" justifyContent="end" gap={2} mb={1}>
+                  {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}>
                     <Button
                       disabled={isSubmitting}
                       variant="contained"
@@ -984,7 +984,7 @@ export default function BuildCustomPriceBook() {
                     >
                       Clear Filters
                     </Button>
-                  </Stack>
+                  </Stack> */}
 
                   <Box
                     sx={{
@@ -1063,7 +1063,57 @@ export default function BuildCustomPriceBook() {
                       }}
                       slots={{
                         loadingOverlay: LinearProgress,
-                        toolbar: CustomToolbar,
+                        toolbar: () => {
+                          return (
+                            <GridToolbarContainer
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                width: "100%",
+                                padding: "10px",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "row",
+                                  justifyContent: "flex-end",
+                                  alignItems: "center",
+                                  gap: 2,
+                                  width: "100%",
+                                }}
+                              >
+                                <GridToolbarQuickFilter />
+                                {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}> */}
+                                <Button
+                                  disabled={isSubmitting}
+                                  variant="contained"
+                                  color="info"
+                                  type="submit"
+                                >
+                                  Apply Filters & Save
+                                </Button>
+
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  disabled={
+                                    params.mode == "copy"
+                                      ? true
+                                      : getQuoteHeaderData.RecordID &&
+                                        getQuoteFilterItemData.length > 0
+                                      ? false
+                                      : true
+                                  }
+                                  onClick={() => setIsClear(true)}
+                                >
+                                  Clear Filters
+                                </Button>
+                                {/* </Stack> */}
+                              </Box>
+                            </GridToolbarContainer>
+                          );
+                        },
                       }}
                       rowHeight={30}
                       rows={getQuoteFilterItemData}

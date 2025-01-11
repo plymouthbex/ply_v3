@@ -39,6 +39,7 @@ import CoverPageComponent from "app/components/PDFCoverPage";
 import {
   getCustomerViewPriceCustomBook,
   getCustomerViewPriceFullBook,
+  mailSend,
   viewPricePdfGenrationg,
 } from "app/redux/slice/priceListSlice";
 import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
@@ -51,6 +52,7 @@ import LoadingApiDialog, {
 } from "app/components/LoadindgDialog";
 import { CustomerCustomPriceDocument } from "app/components/Template/pdfs/CustomerCustomPriceBook";
 import { CustomerFullPriceDocument } from "app/components/Template/pdfs/CustomerFullPriceBook";
+import toast from "react-hot-toast";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -127,9 +129,7 @@ const ViewPriceBook = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleMailNavigate = () => {
-    navigate("/sent-mail");
-  };
+
 
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const theme = useTheme();
@@ -180,7 +180,9 @@ const ViewPriceBook = () => {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN) ${formatDateLong(sunday)} TO (SAT) ${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week (SUN) ${formatDateLong(
+        sunday
+      )} TO (SAT) ${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -200,6 +202,25 @@ const ViewPriceBook = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const handleMailNavigate = () => {
+    if (!selectedCustomerOptions) {
+      setIsCustomer("Please Choose Customer");
+
+      setTimeout(() => {
+        setIsCustomer(null);
+      }, 1000);
+      return;
+    }
+    navigate("./send-mail/:vpb",{state:{
+      customernumber:selectedCustomerOptions.Code,
+      fppdf: selectPriceListtype === "FP" ? true : false,
+      fpexcel: selectPriceListtype === "FP" ? true : false,
+      cppdf: selectPriceListtype === "CP" ? true : false,
+      cpexcel: selectPriceListtype === "CP" ? true : false,
+      FromDate:sunday,
+      ToDate:saturday
+    }});
+  };
   const getPriceListCustomerFull = (priceListOutType) => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
@@ -289,7 +310,7 @@ const ViewPriceBook = () => {
                       Type: "SUCCESS",
                       loading: false,
                       message:
-                      "Price book successfully created! Please wait while it is automatically downloaded.",
+                        "Price book successfully created! Please wait while it is automatically downloaded.",
                     })
                   );
                   setTimeout(() => {
@@ -314,15 +335,6 @@ const ViewPriceBook = () => {
             );
 
             const blob = await instance.toBlob();
-            const jsonObject = {
-              type: blob.type, // MIME type of the Blob
-              size: blob.size, // Size of the Blob in bytes
-          };
-          
-          // Convert the JSON object to a JSON string
-          const jsonString = JSON.stringify(jsonObject);
-          
-          console.log("🚀 ~ Blob Metadata as JSON:", jsonString);
             const url = URL.createObjectURL(blob);
 
             if (priceListOutType === "PDF") {
@@ -513,6 +525,7 @@ const ViewPriceBook = () => {
             );
 
             const blob = await instance.toBlob();
+
             const url = URL.createObjectURL(blob);
 
             if (priceListOutType === "PDF") {
@@ -762,7 +775,11 @@ const ViewPriceBook = () => {
                 value={selectedCustomerOptions}
                 onChange={handleSelectionCustomerChange}
                 label="Customer"
-                url={`${process.env.REACT_APP_BASE_URL}Customer/GetCustomer?CompanyCode=${user.companyCode}&Type=${selectPriceListtype=="CP" ? "Custom": "Full"}`}
+                url={`${
+                  process.env.REACT_APP_BASE_URL
+                }Customer/GetCustomer?CompanyCode=${user.companyCode}&Type=${
+                  selectPriceListtype == "CP" ? "Custom" : "Full"
+                }`}
               />
 
               <Box></Box>

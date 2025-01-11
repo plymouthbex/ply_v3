@@ -98,7 +98,7 @@ export const getCustomerCustomViewPriceList = createAsyncThunk(
 export const getCustomerViewPriceFullBook = createAsyncThunk(
   "view-price-book/customer-price-full-book", // action type
   async (
-    { CompanyCode, FromDate, ToDate, CustomerNumber},
+    { CompanyCode, FromDate, ToDate, CustomerNumber },
     { rejectWithValue }
   ) => {
     try {
@@ -118,11 +118,10 @@ export const getCustomerViewPriceFullBook = createAsyncThunk(
   }
 );
 
-
 export const getCustomerViewPriceCustomBook = createAsyncThunk(
   "view-price-book/customer-price-custom-book", // action type
   async (
-    { CompanyCode, FromDate, ToDate, CustomerNumber,filterparameters },
+    { CompanyCode, FromDate, ToDate, CustomerNumber, filterparameters },
     { rejectWithValue }
   ) => {
     try {
@@ -234,7 +233,7 @@ export const getCustomerCustomPriceList = createAsyncThunk(
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
       });
-      return response.data; 
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response.data ? error.response.data.Message : error.message
@@ -327,11 +326,30 @@ export const getQuotePriceList = createAsyncThunk(
   }
 );
 
+export const mailSend = createAsyncThunk(
+  "post/mailSend", // action type
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Email/SendMail`;
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response.data ? error.response.data.Message : error.message
+      );
+    }
+  }
+);
+
 const priceListSlice = createSlice({
   name: "priceList",
   initialState,
   reducers: {
-     genricPriceBookPdfGenrationg: (state, action) => {
+    genricPriceBookPdfGenrationg: (state, action) => {
       if (action.payload.Type === "LOADING") {
         // state.genricPriceBookIsPdfButton = false;
         state.genricPriceBookIsPdfGenrating = action.payload.loading;
@@ -357,7 +375,6 @@ const priceListSlice = createSlice({
         state.genricPriceBookIsPdfGenrating = action.payload.loading;
         state.genricPriceBookPdfGenratingMsg = action.payload.message;
         state.genricPriceBookIsPdfError = action.payload.error;
-
       }
       if (action.payload.Type === "RESET") {
         state.genricPriceBookIsPdfGenrating = false;
@@ -544,7 +561,7 @@ export const {
   setDelayedOpenLoadingBuildCustom,
   setDelayedOpenLoadingQuote,
   resetStatePriceList,
-  quoteClearState
+  quoteClearState,
 } = priceListSlice.actions;
 
 // A thunk to handle the delayed status update

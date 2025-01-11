@@ -161,11 +161,11 @@ export default function JwtLogin() {
                       helperText={touched.email && errors.email}
                       error={Boolean(errors.email && touched.email)}
                       sx={{ mb: 3 }}
-                      autoComplete="new-email"
+                      autoComplete="off"
                     />
 
                     <TextField
-                    autoComplete="new-password"
+               autoComplete="off"
                       fullWidth
                       size="small"
                       name="password"

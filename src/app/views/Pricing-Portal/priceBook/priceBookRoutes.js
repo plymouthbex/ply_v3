@@ -4,10 +4,12 @@ const ViewPriceBook=Loadable(lazy(()=>import('./viewPriceBook')));
 // const BuildCustomPriceBook = Loadable(lazy(() => import('./BuildCustomPriceBook')));
 const RunPriceBook=Loadable(lazy(()=>import('./runPriceBook')));
 const EditRunPriceBook=Loadable(lazy(()=>import('./EditRunPriceBook')));
-
+const SendMail=Loadable(lazy(()=>import('../Mail/mail')));
 
 const priceBookRoutes = [
   { path: '/pages/pricing-portal/view-price-book', element: <ViewPriceBook /> },
+  { path: '/pages/pricing-portal/view-price-book/send-mail/:id', element: <SendMail /> },
+
   { path: '/favorite/pages/pricing-portal/view-price-book', element: <ViewPriceBook /> },
   { path: '/pages/pricing-portal/run-price-book', element: <RunPriceBook /> },  
   { path: '/favorite/pages/pricing-portal/run-price-book', element: <RunPriceBook /> },  

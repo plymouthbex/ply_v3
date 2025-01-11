@@ -173,9 +173,9 @@ export default function BuildCustomPriceBook() {
     (state) => state.getSlice.getQuoteFilterItemError
   );
 
-    const rowProspect = useSelector(
-      (state) => state.getSlice.getQuoteProspectData
-    );
+  const rowProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectData
+  );
 
   const getQuteFiltStatus = useSelector(
     (state) => state.getSlice.getQuteFiltStatus
@@ -225,9 +225,9 @@ export default function BuildCustomPriceBook() {
   const [isNextWeek, setIsNextWeek] = useState(false);
   useEffect(() => {
     dispatch(quoteClearState());
-     dispatch(
-            getProspectListData({ data: { Type: "Customer", UserID: user.id } })
-          );
+    dispatch(
+      getProspectListData({ data: { Type: "Customer", UserID: user.id } })
+    );
     dispatch(
       getQuoteItemsAndFilters({
         data: {
@@ -372,51 +372,57 @@ export default function BuildCustomPriceBook() {
     },
   ];
 
-  function CustomToolbar() {
-    return (
-      <GridToolbarContainer
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          padding: "10px",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            width: "100%",
-          }}
-        >
-          <GridToolbarQuickFilter />
-          {/* <FormikCustomAutocompleteMultiAdHocItems
-            errors={isItemExistsError}
-            helper={isItemExistsError && "please select item!"}
-            name="adHocItem"
-            id="adHocItem"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Ad Hoc Item"
-            url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
-          />
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            type="reset"
-            startIcon={<Add size="small" />}
-            disabled={params.mode == "copy" ? true : false}
-          >
-            Ad Hoc Item
-          </Button> */}
-        </Box>
-      </GridToolbarContainer>
-    );
-  }
+  // function CustomToolbar() {
+  //   return (
+  //     <GridToolbarContainer
+  //       sx={{
+  //         display: "flex",
+  //         flexDirection: "column",
+  //         width: "100%",
+  //         padding: "10px",
+  //       }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           display: "flex",
+  //           flexDirection: "row",
+  //           justifyContent: "flex-end",
+  //           alignItems: "center",
+  //           gap: 2,
+  //           width: "100%",
+  //         }}
+  //       >
+  //         <GridToolbarQuickFilter />
+  //         {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}> */}
+  //         <Button
+  //           disabled={isSubmitting}
+  //           variant="contained"
+  //           color="info"
+  //           type="submit"
+  //         >
+  //           Apply Filters & Save
+  //         </Button>
+
+  //         <Button
+  //           variant="contained"
+  //           color="info"
+  //           disabled={
+  //             params.mode == "copy"
+  //               ? true
+  //               : getQuoteHeaderData.RecordID &&
+  //                 getQuoteFilterItemData.length > 0
+  //               ? false
+  //               : true
+  //           }
+  //           onClick={() => setIsClear(true)}
+  //         >
+  //           Clear Filters
+  //         </Button>
+  //         {/* </Stack> */}
+  //       </Box>
+  //     </GridToolbarContainer>
+  //   );
+  // }
 
   async function adHocItem(values) {
     if (addPriceListData) {
@@ -918,13 +924,13 @@ export default function BuildCustomPriceBook() {
                       onChange={handleChange}
                       onFocus={() => setSubmitting(true)}
                       onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
-
                       required
                       InputLabelProps={{
                         sx: {
                           "& .MuiInputLabel-asterisk": { color: "red" },
                         },
                       }}
+                      autoComplete="off"
                     />
 
                     <FormikCustomAutocompleteCustomer
@@ -958,7 +964,8 @@ export default function BuildCustomPriceBook() {
                           ? `Price Book Level ${values.customer.PriceLevel}`
                           : ""
                       }
-                     disabled={true}
+                      disabled={true}
+                      autoComplete="off"
                     />
                     {/* <Autocomplete
                       fullWidth
@@ -1005,6 +1012,7 @@ export default function BuildCustomPriceBook() {
                           "& .MuiInputLabel-asterisk": { color: "red" },
                         },
                       }}
+                      autoComplete="off"
                     />
                   </Box>
                   <Box
@@ -1034,7 +1042,6 @@ export default function BuildCustomPriceBook() {
                       justifyContent={"flex-end"}
                       gap={2}
                     >
-                      
                       {errors.filters && (
                         <div style={{ color: "red" }}>{errors.filters}</div>
                       )}
@@ -1128,33 +1135,6 @@ export default function BuildCustomPriceBook() {
                     />
                   </Box>
 
-                  <Stack direction="row" justifyContent="end" gap={2} mb={1}>
-                    <Button
-                      disabled={isSubmitting}
-                      variant="contained"
-                      color="info"
-                      type="submit"
-                    >
-                      Apply Filters & Save
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      color="info"
-                      disabled={
-                        params.mode == "copy"
-                          ? true
-                          : getQuoteHeaderData.RecordID &&
-                            getQuoteFilterItemData.length > 0
-                          ? false
-                          : true
-                      }
-                      onClick={() => setIsClear(true)}
-                    >
-                      Clear Filters
-                    </Button>
-                  </Stack>
-
                   <Box
                     sx={{
                       height: 400,
@@ -1232,7 +1212,57 @@ export default function BuildCustomPriceBook() {
                       }}
                       slots={{
                         loadingOverlay: LinearProgress,
-                        toolbar: CustomToolbar,
+                        toolbar: () => {
+                          return (
+                            <GridToolbarContainer
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                width: "100%",
+                                padding: "10px",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "row",
+                                  justifyContent: "flex-end",
+                                  alignItems: "center",
+                                  gap: 2,
+                                  width: "100%",
+                                }}
+                              >
+                                <GridToolbarQuickFilter />
+                                {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}> */}
+                                <Button
+                                  disabled={isSubmitting}
+                                  variant="contained"
+                                  color="info"
+                                  type="submit"
+                                >
+                                  Apply Filters & Save
+                                </Button>
+
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  disabled={
+                                    params.mode == "copy"
+                                      ? true
+                                      : getQuoteHeaderData.RecordID &&
+                                        getQuoteFilterItemData.length > 0
+                                      ? false
+                                      : true
+                                  }
+                                  onClick={() => setIsClear(true)}
+                                >
+                                  Clear Filters
+                                </Button>
+                                {/* </Stack> */}
+                              </Box>
+                            </GridToolbarContainer>
+                          );
+                        },
                       }}
                       rowHeight={30}
                       rows={getQuoteFilterItemData}
@@ -1442,8 +1472,7 @@ export default function BuildCustomPriceBook() {
                     }
                   />
 
-
-                     <PriceGroupAlertApiDialog
+                  <PriceGroupAlertApiDialog
                     logo={`data:image/png;base64,${user.logo}`}
                     open={isPrintGroupOpen}
                     error={true}
@@ -1472,7 +1501,7 @@ export default function BuildCustomPriceBook() {
                           }}
                           sx={{ height: 25 }}
                         >
-                         Edit
+                          Edit
                         </Button>
                         <Button
                           variant="contained"
@@ -1482,7 +1511,7 @@ export default function BuildCustomPriceBook() {
                             setFieldValue("pricelistName", "");
                             SetIsPrintGroupOpen(false);
                           }}
-                          sx={{ height: 25 ,ml:1}}
+                          sx={{ height: 25, ml: 1 }}
                         >
                           Try Another
                         </Button>
