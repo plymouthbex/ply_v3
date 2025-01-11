@@ -193,7 +193,7 @@ export const FormikCustomSelectCompany = ({
       },
     }}  >{label}</InputLabel>
       <Select
-        value={value || ''}
+        value={value}
         onChange={onChange}
         label={label}
         displayEmpty

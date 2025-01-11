@@ -64,6 +64,7 @@ import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import Loading from "app/components/AppLoading";
+import { FormikCustomAutocompleteMulti } from "app/components/FormikAutocomplete";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -207,6 +208,7 @@ const PriceListEdit = () => {
                 navigate("./item-attributes/edit", {
                   state: {
                     id: state.id,
+                    recordID:param.row.RecordId,
                     itemNumber: param.row.Item_Number,
                     itemDesc: param.row.Item_Description,
                     priceListID: priceListHeaderData.PriceListID,
@@ -236,6 +238,7 @@ const PriceListEdit = () => {
                   navigate("./item-attributes/delete", {
                     state: {
                       id: state.id,
+                      recordID:param.row.RecordId,
                       itemNumber: param.row.Item_Number,
                       itemDesc: param.row.Item_Description,
                       priceListID: priceListHeaderData.PriceListID,
@@ -266,6 +269,7 @@ const PriceListEdit = () => {
                   navigate("./item-attributes/delete", {
                     state: {
                       id: state.id,
+                      recordID:param.row.RecordId,
                       itemNumber: param.row.Item_Number,
                       itemDesc: param.row.Item_Description,
                       priceListID: priceListHeaderData.PriceListID,
@@ -402,9 +406,14 @@ const PriceListEdit = () => {
             dispatch(priceListConditionsPost({ data: filterData }));
             setOpenAlert(true);
           }
+          // if(params.mode === "edit"){
+          //   // dispatch(priceListConditionsPost({ data: filterData }));
+          //   setOpenAlert(true);
+          // }
+
 
         } else {
-          if(params.mode === "add"){
+          if(params.mode === "add"  ){
             setOpenAlert(true);
             setPostError(true);
           }
@@ -506,7 +515,7 @@ const PriceListEdit = () => {
 
     try {
       dispatch(getPriceListFilterData(filterData));
-      priceListSaveFn(values)
+      priceListSaveFn(values,)
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -812,7 +821,7 @@ const PriceListEdit = () => {
                       variant="contained"
                       color="info"
                       size="small"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || params.mode === "edit"}
                       startIcon={
                         params.mode === "delete" ? (
                           <DeleteIcon color="error" size="small" />
@@ -1053,7 +1062,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="brandInExData"
                         id="brandInExData"
                         value={values.brandInExData}
@@ -1095,7 +1104,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="commodityInExData"
                         id="commodityInExData"
                         value={values.commodityInExData}
@@ -1137,7 +1146,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="altClassInExData"
                         id="altClassInExData"
                         value={values.altClassInExData}
@@ -1179,7 +1188,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="vendorInExData"
                         id="vendorInExData"
                         value={values.vendorInExData}
@@ -1222,7 +1231,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
 
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="frshForzInExData"
                         id="frshForzInExData"
                         value={values.frshForzInExData}
@@ -1264,7 +1273,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="SecondClassInExData"
                         id="SecondClassInExData"
                         value={values.SecondClassInExData}
@@ -1306,7 +1315,7 @@ const PriceListEdit = () => {
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocomplete
+                      <FormikCustomAutocompleteMulti
                         name="classIDInExData"
                         id="classIDInExData"
                         value={values.classIDInExData}

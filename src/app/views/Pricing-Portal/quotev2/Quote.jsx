@@ -187,7 +187,8 @@ export default function BuildCustomPriceBook() {
   );
 
   const handleMailNavigate = () => {
-    navigate("/sent-mail", { state: { screenName: "Quote" } });
+    toast.error("Under Construction");
+    // navigate("/sent-mail", { state: { screenName: "Quote" } });
   };
 
   //======================= SELECT PRICE LIST ===================================//
@@ -327,36 +328,33 @@ export default function BuildCustomPriceBook() {
               Edit
             </Button> */}
 
-            
-              <Button
-                sx={{
-                  height: 25,
-                  ml: 1,
-                }}
-                color="info"
-                variant="contained"
-                size="small"
-                // onClick={() =>
-                //   navigate("./item-attributes/delete", {
-                //     state: {
-                //       headerID: getQuoteHeaderData.RecordID,
-                //       RecordID: param.row.RecordId,
-                //       itemNumber: param.row.Item_Number,
-                //       itemDesc: param.row.Item_Description,
-                //     },
-                //   })
-                // }
+            <Button
+              sx={{
+                height: 25,
+                ml: 1,
+              }}
+              color="info"
+              variant="contained"
+              size="small"
+              // onClick={() =>
+              //   navigate("./item-attributes/delete", {
+              //     state: {
+              //       headerID: getQuoteHeaderData.RecordID,
+              //       RecordID: param.row.RecordId,
+              //       itemNumber: param.row.Item_Number,
+              //       itemDesc: param.row.Item_Description,
+              //     },
+              //   })
+              // }
 
-                onClick={()=>{
-                  setDeleteID(param.row.RecordId)
-                  setIsRemoveItem(true)
-                }}
-                
-                startIcon={<DeleteIcon size="small" />}
-              >
-                Remove
-              </Button>
-          
+              onClick={() => {
+                setDeleteID(param.row.RecordId);
+                setIsRemoveItem(true);
+              }}
+              startIcon={<DeleteIcon size="small" />}
+            >
+              Remove
+            </Button>
           </>
         );
       },
@@ -483,7 +481,7 @@ export default function BuildCustomPriceBook() {
         Provider: getQuoteHeaderData.Provider,
         Salesrepresentative: getQuoteHeaderData.Salesrepresentative,
         PriceLevel: getQuoteHeaderData.PriceLevel,
-        CustomerName:"",
+        CustomerName: "",
         CustomerNumber: "",
       };
 
@@ -534,7 +532,7 @@ export default function BuildCustomPriceBook() {
             Value: JSON.stringify(values.classID),
           },
           PriceListID: values.PriceLists,
-          AdHocItem:values.adHocItems,
+          AdHocItem: values.adHocItems,
         };
         dispatch(getQuoteFilterData(filterData));
         setOpenAlert(true);
@@ -601,8 +599,8 @@ export default function BuildCustomPriceBook() {
       quotationRecordID: getQuoteHeaderData.RecordID.toString(),
       filterType: "Q",
       itemNo: "",
-      printSequence: '',
-      printItem:"",
+      printSequence: "",
+      printItem: "",
       comment: "",
     };
 
@@ -615,11 +613,11 @@ export default function BuildCustomPriceBook() {
       );
       setPostError6(false);
       setOpenAlert6(true);
-      setDeleteID(0)
+      setDeleteID(0);
     } else {
       setOpenAlert6(true);
       setPostError6(true);
-      setDeleteID(0)
+      setDeleteID(0);
     }
   };
   return (
@@ -641,7 +639,9 @@ export default function BuildCustomPriceBook() {
             color="info"
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1,{state:{headerID:state.headerID}})}
+            onClick={() =>
+              navigate(-1, { state: { headerID: state.headerID } })
+            }
           >
             Back
           </Button>
@@ -701,9 +701,7 @@ export default function BuildCustomPriceBook() {
             setFieldValue,
             setSubmitting,
           }) => (
-            <form
-              onSubmit={handleSubmit}
-            >
+            <form onSubmit={handleSubmit}>
               <Box>
                 <SimpleCard>
                   <Box
@@ -825,7 +823,7 @@ export default function BuildCustomPriceBook() {
                     gridTemplateColumns="repeat(2, minmax(0, 1fr))"
                     sx={{
                       "& > div": {
-                        gridColumn: isNonMobile ? undefined : "span 4",
+                        gridColumn: isNonMobile ? undefined : "span 2",
                       },
                     }}
                   >
@@ -927,9 +925,17 @@ export default function BuildCustomPriceBook() {
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
                     />
 
-                    
-
-                    <Divider sx={{gridColumn:"span 2", borderBottomWidth: 2, borderColor: 'info.main'}} />
+                    {/* <Divider sx={{gridColumn:"span 2", borderBottomWidth: 2, borderColor: 'info.main'}} /> */}
+                    <Typography
+                      sx={{
+                        gridColumn: "span 2",
+                        fontFamily: "inherit",
+                        fontWeight: "600",
+                        marginLeft: 1,
+                      }}
+                    >
+                      Price List
+                    </Typography>
                     <FormikCustomAutocompleteMultiPriceList
                       name="PriceLists"
                       id="PriceLists"
@@ -938,7 +944,7 @@ export default function BuildCustomPriceBook() {
                         setFieldValue("PriceLists", newValue)
                       }
                       label="Price Lists"
-                      url={ `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${user.companyID}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${user.companyID}`}
                     />
 
                     <FormikCustomAutocompleteMultiAdHocItems
@@ -981,101 +987,80 @@ export default function BuildCustomPriceBook() {
                   </Stack>
 
                   <Box
-                    sx={{ 
-                    
-                              height: 400, 
-                    
-                              "& .MuiDataGrid-root": { 
-                    
-                                border: "none", 
-                    
-                              }, 
-                    
-                              "& .name-column--cell": { 
-                    
-                                color: theme.palette.info.contrastText, 
-                    
-                              }, 
-                    
-                              "& .MuiDataGrid-columnHeaders": { 
-                    
-                                backgroundColor: theme.palette.info.main, 
-                    
-                                color: theme.palette.info.contrastText, 
-                    
-                                fontWeight: "bold", 
-                    
-                                fontSize: theme.typography.subtitle2.fontSize, 
-                    
-                              }, 
-                    
-                              "& .MuiDataGrid-virtualScroller": { 
-                    
-                                backgroundColor: theme.palette.info.light, 
-                    
-                              }, 
-                    
-                              "& .MuiDataGrid-footerContainer": { 
-                    
-                                borderTop: "none", 
-                    
-                                backgroundColor: theme.palette.info.main, 
-                    
-                                color: theme.palette.info.contrastText, 
-                    
-                              }, 
-                    
-                              "& .MuiCheckbox-root": { 
-                    
-                                color: "black !important", 
-                    
-                              }, 
-                    
-                              "& .MuiCheckbox-root.Mui-checked": { 
-                    
-                                color: "black !important", 
-                    
-                              }, 
-                    
-                              "& .MuiDataGrid-row:nth-of-type(even)": { 
-                    
-                                backgroundColor: theme.palette.action.hover, 
-                    
-                              }, 
-                    
-                              "& .MuiDataGrid-row:nth-of-type(odd)": { 
-                    
-                                backgroundColor: theme.palette.background.default, 
-                    
-                              }, 
-                    
-                              "& .MuiDataGrid-row.Mui-selected:hover": { 
-                    
-                                backgroundColor: `${theme.palette.action.selected} !important`, 
-                    
-                              }, "& .MuiTablePagination-root": {
-                                  color: "white !important", // Ensuring white text color for the pagination
-                                }, 
-                            
-                                "& .MuiTablePagination-root .MuiTypography-root": {
-                                  color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                                }, 
-                            
-                                "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                                  color: "white !important", // Ensuring white icons for pagination
-                                },
-                    
-                            }} 
+                    sx={{
+                      height: 400,
+
+                      "& .MuiDataGrid-root": {
+                        border: "none",
+                      },
+
+                      "& .name-column--cell": {
+                        color: theme.palette.info.contrastText,
+                      },
+
+                      "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: theme.palette.info.main,
+
+                        color: theme.palette.info.contrastText,
+
+                        fontWeight: "bold",
+
+                        fontSize: theme.typography.subtitle2.fontSize,
+                      },
+
+                      "& .MuiDataGrid-virtualScroller": {
+                        backgroundColor: theme.palette.info.light,
+                      },
+
+                      "& .MuiDataGrid-footerContainer": {
+                        borderTop: "none",
+
+                        backgroundColor: theme.palette.info.main,
+
+                        color: theme.palette.info.contrastText,
+                      },
+
+                      "& .MuiCheckbox-root": {
+                        color: "black !important",
+                      },
+
+                      "& .MuiCheckbox-root.Mui-checked": {
+                        color: "black !important",
+                      },
+
+                      "& .MuiDataGrid-row:nth-of-type(even)": {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+
+                      "& .MuiDataGrid-row:nth-of-type(odd)": {
+                        backgroundColor: theme.palette.background.default,
+                      },
+
+                      "& .MuiDataGrid-row.Mui-selected:hover": {
+                        backgroundColor: `${theme.palette.action.selected} !important`,
+                      },
+                      "& .MuiTablePagination-root": {
+                        color: "white !important", // Ensuring white text color for the pagination
+                      },
+
+                      "& .MuiTablePagination-root .MuiTypography-root": {
+                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                      },
+
+                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                        color: "white !important", // Ensuring white icons for pagination
+                      },
+                    }}
                   >
                     <DataGrid
-                    columnHeaderHeight={dataGridHeaderFooterHeight}
-                               sx={{
-                                 // This is to override the default height of the footer row
-                                 '& .MuiDataGrid-footerContainer': {
-                                     height: dataGridHeaderFooterHeight,
-                                     minHeight: dataGridHeaderFooterHeight,
-                                 },
-                               }}
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      sx={{
+                        // This is to override the default height of the footer row
+                        "& .MuiDataGrid-footerContainer": {
+                          height: dataGridHeaderFooterHeight,
+                          minHeight: dataGridHeaderFooterHeight,
+                        },
+                      }}
                       slots={{
                         loadingOverlay: LinearProgress,
                         toolbar: CustomToolbar,
@@ -1323,7 +1308,7 @@ export default function BuildCustomPriceBook() {
                   key={23131}
                   open={openAlert6}
                   error={postError6}
-                  message={"Item Deleted Successfully"}
+                  message={"Item removed and Quote saved successfully"}
                   Actions={
                     <Box
                       sx={{

@@ -56,6 +56,7 @@ import {
 import {
   addQuoteItemData,
   getBuildPriceBookData,
+  getProspectListData,
   getQuoteBookData,
   getQuoteFilterData,
   getQuoteItemsAndFilters,
@@ -172,20 +173,20 @@ export default function BuildCustomPriceBook() {
     (state) => state.getSlice.getQuoteFilterItemError
   );
 
+    const rowProspect = useSelector(
+      (state) => state.getSlice.getQuoteProspectData
+    );
+
   const getQuteFiltStatus = useSelector(
     (state) => state.getSlice.getQuteFiltStatus
   );
   const getQuteFiltData = useSelector(
     (state) => state.getSlice.getQuteFiltData
   );
-  console.log("🚀 ~ BuildCustomPriceBook ~ getQuteFiltData:", getQuteFiltData);
   const getQuoteHeaderData = useSelector(
     (state) => state.getSlice.getQuoteHeaderData
   );
-  console.log(
-    "🚀 ~ BuildCustomPriceBook ~ getQuoteHeaderData:",
-    getQuoteHeaderData
-  );
+
   const getQuteFiltLoading = useSelector(
     (state) => state.getSlice.getQuteFiltLoading
   );
@@ -194,7 +195,8 @@ export default function BuildCustomPriceBook() {
   );
 
   const handleMailNavigate = () => {
-    navigate("/sent-mail", { state: { screenName: "Quote" } });
+    toast.error("Under Construction");
+    // navigate("/sent-mail", { state: { screenName: "Quote" } });
   };
 
   //======================= SELECT PRICE LIST ===================================//
@@ -223,6 +225,9 @@ export default function BuildCustomPriceBook() {
   const [isNextWeek, setIsNextWeek] = useState(false);
   useEffect(() => {
     dispatch(quoteClearState());
+     dispatch(
+            getProspectListData({ data: { Type: "Customer", UserID: user.id } })
+          );
     dispatch(
       getQuoteItemsAndFilters({
         data: {
@@ -334,36 +339,33 @@ export default function BuildCustomPriceBook() {
               Edit
             </Button> */}
 
-            
-              <Button
-                sx={{
-                  height: 25,
-                  ml: 1,
-                }}
-                color="info"
-                variant="contained"
-                size="small"
-                // onClick={() =>
-                //   navigate("./item-attributes/delete", {
-                //     state: {
-                //       headerID: getQuoteHeaderData.RecordID,
-                //       RecordID: param.row.RecordId,
-                //       itemNumber: param.row.Item_Number,
-                //       itemDesc: param.row.Item_Description,
-                //     },
-                //   })
-                // }
+            <Button
+              sx={{
+                height: 25,
+                ml: 1,
+              }}
+              color="info"
+              variant="contained"
+              size="small"
+              // onClick={() =>
+              //   navigate("./item-attributes/delete", {
+              //     state: {
+              //       headerID: getQuoteHeaderData.RecordID,
+              //       RecordID: param.row.RecordId,
+              //       itemNumber: param.row.Item_Number,
+              //       itemDesc: param.row.Item_Description,
+              //     },
+              //   })
+              // }
 
-                onClick={()=>{
-                  setDeleteID(param.row.RecordId)
-                  setIsRemoveItem(true)
-                }}
-                
-                startIcon={<DeleteIcon size="small" />}
-              >
-                Remove
-              </Button>
-          
+              onClick={() => {
+                setDeleteID(param.row.RecordId);
+                setIsRemoveItem(true);
+              }}
+              startIcon={<DeleteIcon size="small" />}
+            >
+              Remove
+            </Button>
           </>
         );
       },
@@ -489,7 +491,7 @@ export default function BuildCustomPriceBook() {
         Mobile: "",
         Provider: "",
         Salesrepresentative: values.salesRepName,
-        PriceLevel: values.customer?values.customer.PriceLevel:"",
+        PriceLevel: values.customer ? values.customer.PriceLevel : "",
         CustomerName: values.customer ? values.customer.CustomerName : "",
         CustomerNumber: values.customer ? values.customer.Code : "",
       };
@@ -541,7 +543,7 @@ export default function BuildCustomPriceBook() {
             Value: JSON.stringify(values.classID),
           },
           PriceLists: [],
-          AdHocItem:values.adHocItems,
+          AdHocItem: values.adHocItems,
         };
         dispatch(getQuoteFilterData(filterData));
 
@@ -626,8 +628,8 @@ export default function BuildCustomPriceBook() {
       quotationRecordID: getQuoteHeaderData.RecordID.toString(),
       filterType: "Q",
       itemNo: "",
-      printSequence: '',
-      printItem:"",
+      printSequence: "",
+      printItem: "",
       comment: "",
     };
 
@@ -640,11 +642,28 @@ export default function BuildCustomPriceBook() {
       );
       setPostError6(false);
       setOpenAlert6(true);
-      setDeleteID(0)
+      setDeleteID(0);
     } else {
       setOpenAlert6(true);
       setPostError6(true);
-      setDeleteID(0)
+      setDeleteID(0);
+    }
+  };
+  const [isPrintGroupOpen, SetIsPrintGroupOpen] = useState(false);
+  const [printGroupID, setPrintGroupID] = useState(0);
+  const isPriceListIDExists = (e, setSubmitting) => {
+    const inputValue = e.target.value.trim();
+    const isPricelist = rowProspect.some(
+      (item) => item.Description === inputValue
+    );
+    if (isPricelist) {
+      const pricelistID = rowProspect.find(
+        (item) => item.Description === inputValue
+      );
+      setPrintGroupID(pricelistID.RecordID);
+      SetIsPrintGroupOpen(true);
+    } else {
+      setSubmitting(false);
     }
   };
   return (
@@ -661,15 +680,17 @@ export default function BuildCustomPriceBook() {
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
-          {/* <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </Button> */}
+          {(params.mode === "copy" || params.mode === "view") && (
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              startIcon={<ArrowBackIcon size="small" />}
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -688,7 +709,8 @@ export default function BuildCustomPriceBook() {
               ? {
                   Code: getQuoteHeaderData.CustomerNumber,
                   Name: `${getQuoteHeaderData.CustomerNumber} || ${getQuoteHeaderData.CustomerName}`,
-                  CustomerName: getQuoteHeaderData.CustomerName,PriceLevel:getQuoteHeaderData.PriceLevel
+                  CustomerName: getQuoteHeaderData.CustomerName,
+                  PriceLevel: getQuoteHeaderData.PriceLevel,
                 }
               : null,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
@@ -892,8 +914,11 @@ export default function BuildCustomPriceBook() {
                       size="small"
                       sx={{ gridColumn: "span 1" }}
                       value={values.pricelistName}
+                      disabled={params.mode === "view"}
                       onChange={handleChange}
-                      onBlur={handleBlur}
+                      onFocus={() => setSubmitting(true)}
+                      onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
+
                       required
                       InputLabelProps={{
                         sx: {
@@ -928,8 +953,12 @@ export default function BuildCustomPriceBook() {
                       sx={{ gridColumn: "span 1" }}
                       id="priceBookLevel"
                       name="priceBookLevel"
-                      value={ values.customer?`Price Book Level ${values.customer.PriceLevel}`:""}
-                      inputProps={{ readOnly: true }}
+                      value={
+                        values.customer
+                          ? `Price Book Level ${values.customer.PriceLevel}`
+                          : ""
+                      }
+                     disabled={true}
                     />
                     {/* <Autocomplete
                       fullWidth
@@ -1005,7 +1034,7 @@ export default function BuildCustomPriceBook() {
                       justifyContent={"flex-end"}
                       gap={2}
                     >
-                      {" "}
+                      
                       {errors.filters && (
                         <div style={{ color: "red" }}>{errors.filters}</div>
                       )}
@@ -1127,101 +1156,80 @@ export default function BuildCustomPriceBook() {
                   </Stack>
 
                   <Box
-                   sx={{ 
-                   
-                             height: 400, 
-                   
-                             "& .MuiDataGrid-root": { 
-                   
-                               border: "none", 
-                   
-                             }, 
-                   
-                             "& .name-column--cell": { 
-                   
-                               color: theme.palette.info.contrastText, 
-                   
-                             }, 
-                   
-                             "& .MuiDataGrid-columnHeaders": { 
-                   
-                               backgroundColor: theme.palette.info.main, 
-                   
-                               color: theme.palette.info.contrastText, 
-                   
-                               fontWeight: "bold", 
-                   
-                               fontSize: theme.typography.subtitle2.fontSize, 
-                   
-                             }, 
-                   
-                             "& .MuiDataGrid-virtualScroller": { 
-                   
-                               backgroundColor: theme.palette.info.light, 
-                   
-                             }, 
-                   
-                             "& .MuiDataGrid-footerContainer": { 
-                   
-                               borderTop: "none", 
-                   
-                               backgroundColor: theme.palette.info.main, 
-                   
-                               color: theme.palette.info.contrastText, 
-                   
-                             }, 
-                   
-                             "& .MuiCheckbox-root": { 
-                   
-                               color: "black !important", 
-                   
-                             }, 
-                   
-                             "& .MuiCheckbox-root.Mui-checked": { 
-                   
-                               color: "black !important", 
-                   
-                             }, 
-                   
-                             "& .MuiDataGrid-row:nth-of-type(even)": { 
-                   
-                               backgroundColor: theme.palette.action.hover, 
-                   
-                             }, 
-                   
-                             "& .MuiDataGrid-row:nth-of-type(odd)": { 
-                   
-                               backgroundColor: theme.palette.background.default, 
-                   
-                             }, 
-                   
-                             "& .MuiDataGrid-row.Mui-selected:hover": { 
-                   
-                               backgroundColor: `${theme.palette.action.selected} !important`, 
-                   
-                             }, "& .MuiTablePagination-root": {
-                                 color: "white !important", // Ensuring white text color for the pagination
-                               }, 
-                           
-                               "& .MuiTablePagination-root .MuiTypography-root": {
-                                 color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                               }, 
-                           
-                               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                                 color: "white !important", // Ensuring white icons for pagination
-                               },
-                   
-                           }} 
+                    sx={{
+                      height: 400,
+
+                      "& .MuiDataGrid-root": {
+                        border: "none",
+                      },
+
+                      "& .name-column--cell": {
+                        color: theme.palette.info.contrastText,
+                      },
+
+                      "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: theme.palette.info.main,
+
+                        color: theme.palette.info.contrastText,
+
+                        fontWeight: "bold",
+
+                        fontSize: theme.typography.subtitle2.fontSize,
+                      },
+
+                      "& .MuiDataGrid-virtualScroller": {
+                        backgroundColor: theme.palette.info.light,
+                      },
+
+                      "& .MuiDataGrid-footerContainer": {
+                        borderTop: "none",
+
+                        backgroundColor: theme.palette.info.main,
+
+                        color: theme.palette.info.contrastText,
+                      },
+
+                      "& .MuiCheckbox-root": {
+                        color: "black !important",
+                      },
+
+                      "& .MuiCheckbox-root.Mui-checked": {
+                        color: "black !important",
+                      },
+
+                      "& .MuiDataGrid-row:nth-of-type(even)": {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+
+                      "& .MuiDataGrid-row:nth-of-type(odd)": {
+                        backgroundColor: theme.palette.background.default,
+                      },
+
+                      "& .MuiDataGrid-row.Mui-selected:hover": {
+                        backgroundColor: `${theme.palette.action.selected} !important`,
+                      },
+                      "& .MuiTablePagination-root": {
+                        color: "white !important", // Ensuring white text color for the pagination
+                      },
+
+                      "& .MuiTablePagination-root .MuiTypography-root": {
+                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                      },
+
+                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                        color: "white !important", // Ensuring white icons for pagination
+                      },
+                    }}
                   >
                     <DataGrid
-                     columnHeaderHeight={dataGridHeaderFooterHeight}
-                               sx={{
-                                 // This is to override the default height of the footer row
-                                 '& .MuiDataGrid-footerContainer': {
-                                     height: dataGridHeaderFooterHeight,
-                                     minHeight: dataGridHeaderFooterHeight,
-                                 },
-                               }}
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      sx={{
+                        // This is to override the default height of the footer row
+                        "& .MuiDataGrid-footerContainer": {
+                          height: dataGridHeaderFooterHeight,
+                          minHeight: dataGridHeaderFooterHeight,
+                        },
+                      }}
                       slots={{
                         loadingOverlay: LinearProgress,
                         toolbar: CustomToolbar,
@@ -1434,6 +1442,53 @@ export default function BuildCustomPriceBook() {
                     }
                   />
 
+
+                     <PriceGroupAlertApiDialog
+                    logo={`data:image/png;base64,${user.logo}`}
+                    open={isPrintGroupOpen}
+                    error={true}
+                    message={"Oops! This Price List  is already in use."}
+                    Actions={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            dispatch(
+                              getQuoteItemsAndFilters({
+                                data: {
+                                  RecordID: printGroupID,
+                                },
+                              })
+                            );
+                            SetIsPrintGroupOpen(false);
+                          }}
+                          sx={{ height: 25 }}
+                        >
+                         Edit
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          onClick={() => {
+                            setFieldValue("pricelistName", "");
+                            SetIsPrintGroupOpen(false);
+                          }}
+                          sx={{ height: 25 ,ml:1}}
+                        >
+                          Try Another
+                        </Button>
+                      </Box>
+                    }
+                  />
                   <PriceGroupAlertApiDialog
                     logo={`data:image/png;base64,${user.logo}`}
                     open={openAlert3}
@@ -1475,7 +1530,7 @@ export default function BuildCustomPriceBook() {
                   key={23131}
                   open={openAlert6}
                   error={postError6}
-                  message={"Item Deleted Successfully"}
+                  message={"Item removed and Quote saved successfully"}
                   Actions={
                     <Box
                       sx={{

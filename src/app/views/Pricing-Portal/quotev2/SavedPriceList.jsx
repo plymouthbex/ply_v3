@@ -31,6 +31,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { getProspectListData } from "app/redux/slice/getSlice";
+import { useState } from "react";
+import { deleteQuote } from "app/redux/slice/postSlice";
+import { PriceGroupAlertApiDialog, QuoteTempAlertApiDialog } from "app/components/LoadindgDialog";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -54,14 +57,24 @@ const SavedPriceList = () => {
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
-  const rowProspect = useSelector((state) => state.getSlice.getQuoteProspectData)
-  const statusProspect = useSelector((state) => state.getSlice.getQuoteProspectStatus)
-  const loadingProspect = useSelector((state) => state.getSlice.getQuoteProspectLoading)
-  const errorProspect = useSelector((state) => state.getSlice.getQuoteProspectError)
+  const rowProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectData
+  );
+  const statusProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectStatus
+  );
+  const loadingProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectLoading
+  );
+  const errorProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectError
+  );
 
-  useEffect(()=>{
-    dispatch(getProspectListData({data:{Type:"Customer",UserID:user.id,}}))
-  },[])
+  useEffect(() => {
+    dispatch(
+      getProspectListData({ data: { Type: "Customer", UserID: user.id } })
+    );
+  }, []);
   //=======================API_CALL===================================//
 
   // ********************* COLUMN AND ROWS ********************* //
@@ -75,22 +88,23 @@ const SavedPriceList = () => {
       hide: true,
     },
     {
+      headerName: "Price List Name",
+      field: "Description",
+      minWidth: 300,
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
       headerName: "Customer Name",
       field: "CustomerName",
-      flex:1,
+      flex: 1,
       minWidth: 170,
       align: "left",
       headerAlign: "left",
       hide: true,
     },
-    // {
-    //   headerName: "Description",
-    //   field: "Name",
-    //   minWidth: 300,
-    //   align: "left",
-    //   headerAlign: "left",
-    //   hide: true,
-    // },
+
     {
       field: "Action",
       headerName: "Action",
@@ -108,38 +122,27 @@ const SavedPriceList = () => {
             <Button
               sx={{
                 height: 25,
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
               }}
               variant="contained"
-              color="secondary"
+              color="info"
               size="small"
               //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
                 navigate("/pages/pricing-portal/build-price-list/copy", {
                   state: {
                     headerID: params.row.RecordID,
-
                   },
                 });
               }}
             >
-              Copy Price List
+              Copy
             </Button>
             <Button
               sx={{
                 height: 25,
-                color: theme.palette.secondary.contrastText,
-                bgcolor: theme.palette.secondary.light,
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.light, // Custom hover color
-                },
               }}
               variant="contained"
-              color="secondary"
+              color="info"
               size="small"
               //   startIcon={<DeleteIcon color="error" size="small" />}
               onClick={() => {
@@ -150,15 +153,28 @@ const SavedPriceList = () => {
                 });
               }}
             >
-              View Price List
+              View
+            </Button>
+
+            <Button
+              sx={{
+                height: 25,
+              }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setDeleteID(params.row.RecordID);
+                setIsRemoveItem(true);
+              }}
+            >
+              Delete
             </Button>
           </div>
         );
       },
     },
   ];
-
-
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -206,6 +222,26 @@ const SavedPriceList = () => {
     );
   }
 
+  const [isRemoveItem, setIsRemoveItem] = useState(false);
+  const [openAlert6, setOpenAlert6] = useState(false);
+  const [postError6, setPostError6] = useState(false);
+  const [deleteID, setDeleteID] = useState(0);
+  const itemDeleteFn = async (id) => {
+    const response = await dispatch(deleteQuote({ id: deleteID }));
+    if (response.payload.status === "Y") {
+      setPostError6(false);
+      setOpenAlert6(true);
+      setDeleteID(0);
+      dispatch(
+        getProspectListData({ data: { Type: "Customer", UserID: user.id } })
+      );
+    } else {
+      setOpenAlert6(true);
+      setPostError6(true);
+      setDeleteID(0);
+    }
+  };
+
   return (
     <Container>
       <div
@@ -218,7 +254,7 @@ const SavedPriceList = () => {
       >
         <Breadcrumb
           routeSegments={[
-            { name: "Templates", path:"/pages/pricing-portal/templates" },
+            { name: "Templates", path: "/pages/pricing-portal/templates" },
             { name: "Saved Price List" },
           ]}
         />
@@ -270,14 +306,14 @@ const SavedPriceList = () => {
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
@@ -290,10 +326,10 @@ const SavedPriceList = () => {
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
             }}
-            rowHeight={30}
-            pageSizeOptions={[20, 50, 100]}
+            rowHeight={dataGridRowHeight}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}
@@ -307,6 +343,79 @@ const SavedPriceList = () => {
             }}
           />
         </Box>
+        <PriceGroupAlertApiDialog
+          logo={`data:image/png;base64,${user.logo}`}
+          key={23131}
+          open={openAlert6}
+          error={postError6}
+          message={
+            postError6
+              ? "Price List not deleted! and Please retry"
+              : "Price List deleted successfully"
+          }
+          Actions={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setOpenAlert6(false);
+                }}
+                sx={{ height: 25 }}
+              >
+                Close
+              </Button>
+            </Box>
+          }
+        />
+
+        <QuoteTempAlertApiDialog
+          logo={`data:image/png;base64,${user.logo}`}
+          open={isRemoveItem}
+          //  tittle={values.itemDescription}
+          error={true}
+          message={`Are you sure you want to delete this price list?`}
+          Actions={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+              <Button
+                sx={{ mr: 1, height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setIsRemoveItem(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                sx={{ height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  itemDeleteFn();
+                  setIsRemoveItem(false);
+                }}
+              >
+                Confirm
+              </Button>
+            </Box>
+          }
+        />
       </Paper>
     </Container>
   );

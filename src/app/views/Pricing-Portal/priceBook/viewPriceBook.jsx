@@ -314,6 +314,15 @@ const ViewPriceBook = () => {
             );
 
             const blob = await instance.toBlob();
+            const jsonObject = {
+              type: blob.type, // MIME type of the Blob
+              size: blob.size, // Size of the Blob in bytes
+          };
+          
+          // Convert the JSON object to a JSON string
+          const jsonString = JSON.stringify(jsonObject);
+          
+          console.log("🚀 ~ Blob Metadata as JSON:", jsonString);
             const url = URL.createObjectURL(blob);
 
             if (priceListOutType === "PDF") {

@@ -93,6 +93,7 @@ export function FormikCustomAutocompleteMulti({
       }}
       size="small"
       multiple={multiple}
+      fullWidth
       limitTags={2}
       open={open}
       onOpen={() => setOpen(true)}
