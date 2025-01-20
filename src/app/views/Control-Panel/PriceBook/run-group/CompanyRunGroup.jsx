@@ -15,14 +15,19 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight,  dataGridPageSize,
-  dataGridpageSizeOptions,dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-import VisibilityIcon from "@mui/icons-material/Visibility"
+import VisibilityIcon from "@mui/icons-material/Visibility";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -38,43 +43,23 @@ const CompanyRunGroup = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
-const companyRows=useSelector((state)=>state.listview.comapnyListViewData);
-const loading = useSelector((state) => state.listview.loading);
+  const companyRows = useSelector(
+    (state) => state.listview.comapnyListViewData
+  );
+  const loading = useSelector((state) => state.listview.loading);
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    {
-      headerName: "Company Code",
-      field: "CompanyCode",
-      width: "150",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+
     {
       headerName: "Company Name",
       field: "CompanyName",
-      width: "170",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
-    {
-      headerName: "Email",
-      field: "EmailId",
-      width: "250",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
-    {
-      headerName: "Address",
-      field: "Address",
-      width: "300",
+      minWidth: 200,
+      flex: 1,
       align: "left",
       headerAlign: "left",
       hide: true,
@@ -93,20 +78,19 @@ const loading = useSelector((state) => state.listview.loading);
       renderCell: (params) => {
         return (
           <div>
-            <Tooltip title="List Of Run Group">
-  <IconButton
-    color="black"
-    size="small"
-    onClick={() =>
-      navigate("/pages/control-panel/run-group", {
-        state: { companyID: params.row.RecordID },
-      })
-    }
-  >
-    <VisibilityIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
-
+            <Tooltip title="List Of Price Book Group">
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() =>
+                  navigate("/pages/control-panel/run-group", {
+                    state: { CompanyCode: params.row.CompanyCode },
+                  })
+                }
+              >
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         );
       },
@@ -114,9 +98,7 @@ const loading = useSelector((state) => state.listview.loading);
   ];
   useEffect(() => {
     dispatch(getCompanyListView());
-   
   }, [dispatch]);
-  
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -164,7 +146,7 @@ const loading = useSelector((state) => state.listview.loading);
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "CP-Price Book" }, { name: "Company" }]}
+          routeSegments={[{ name: "Control Panel" }, { name: "Company" }]}
         />
       </div>
 
@@ -221,28 +203,29 @@ const loading = useSelector((state) => state.listview.loading);
 
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
-            },"& .MuiTablePagination-root": {
+            },
+            "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
           }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,

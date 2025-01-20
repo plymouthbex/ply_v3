@@ -3,10 +3,10 @@ import axios from "axios";
 const initialState = {
   priceTemplistRowData: [],
   priceTemplistColumnData: [],
-    viewDirectoryRowData:[],
-    viewDirectoryColumnData:[],
-    getLocationRowData:[],
-    getLocationColumnData:[],
+  viewDirectoryRowData: [],
+  viewDirectoryColumnData: [],
+  getLocationRowData: [],
+  getLocationColumnData: [],
   priceTemploading: false,
   priceTempstatus: "idle", // 'idle' | 'loading' 'suceeded' | 'failed
   priceTemperror: null,
@@ -22,14 +22,11 @@ const initialState = {
   runbGrpRowData: [],
   runGrpError: null,
 
-
-  runGrpProcessingMsg:"",
-  runGrpProcessedData:[],
-
-
+  runGrpProcessingMsg: "",
+  runGrpProcessedData: [],
 
   //=========================CONTROL-PANEL=======================================//
-  
+
   itemListViewData: [],
   itemTemploading: false,
   itemTempstatus: "idle",
@@ -37,7 +34,6 @@ const initialState = {
   priceListViewData: [],
   priceListloading: false,
   priceListstatus: "idle",
-
 
   rungroupListViewData: [],
   rungroupTemploading: false,
@@ -49,22 +45,21 @@ const initialState = {
   customerTemploading: false,
   customerTempstatus: "idle",
 
-//Company//
-comapnyListViewData:[],
-//Application//
-applicationListViewData:[],
-//USER//
-userListViewData:[],
-//USERGROUP//
-userGroupListViewData:[],
-userGroupCompanyListViewData:[],
+  //Company//
+  comapnyListViewData: [],
+  //Application//
+  applicationListViewData: [],
+  //USER//
+  userListViewData: [],
+  //USERGROUP//
+  userGroupListViewData: [],
+  userGroupCompanyListViewData: [],
 
-
-//configureComapny//
-configureComapnyListViewData:[],
-configureCustomerListViewData:[],
-configureAddressListViewData:[],
-configureContactListViewData:[],
+  //configureComapny//
+  configureComapnyListViewData: [],
+  configureCustomerListViewData: [],
+  configureAddressListViewData: [],
+  configureContactListViewData: [],
 };
 
 export const fetchListviewPriveTemplate = createAsyncThunk(
@@ -105,39 +100,43 @@ export const fetchListviewRunGroup = createAsyncThunk(
   }
 );
 
-  export const fetchViewDirectory = createAsyncThunk(
-    'listview/viewDirectory', // action type
-    async ({CompanyCode}, { rejectWithValue }) => {
-      try {
-        const URL = `${process.env.REACT_APP_BASE_URL}${CompanyCode}`
-        const response = await axios.get(URL, {
-          headers: {
-            'Authorization': process.env.REACT_APP_API_TOKEN, 
-          }
-        });
-        return response.data; // return the response data
-      } catch (error) {
-        return rejectWithValue(error.response ? error.response.data : error.message);
-      }
+export const fetchViewDirectory = createAsyncThunk(
+  "listview/viewDirectory", // action type
+  async ({ CompanyCode }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}${CompanyCode}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
     }
-  );
+  }
+);
 
-  export const fetchGetLocation = createAsyncThunk(
-    'listview/customerInfo', // action type
-    async ({RecordID}, { rejectWithValue }) => {
-      try {
-        const URL = `${process.env.REACT_APP_BASE_URL}${RecordID}`
-        const response = await axios.get(URL, {
-          headers: {
-            'Authorization': process.env.REACT_APP_API_TOKEN, 
-          }
-        });
-        return response.data; // return the response data
-      } catch (error) {
-        return rejectWithValue(error.response ? error.response.data : error.message);
-      }
+export const fetchGetLocation = createAsyncThunk(
+  "listview/customerInfo", // action type
+  async ({ RecordID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}${RecordID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
     }
-  );
+  }
+);
 
 //   PriceBookDirectory/GetContactLocation?RecordId=1
 export const getLocalListview = createAsyncThunk(
@@ -167,7 +166,7 @@ export const getItemListView = createAsyncThunk(
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
       });
-      return response.data; 
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response ? error.response.data : error.message
@@ -177,15 +176,15 @@ export const getItemListView = createAsyncThunk(
 );
 export const getPriceListView = createAsyncThunk(
   "listview/priceList", // action type
-  async ({ID}, { rejectWithValue }) => {
+  async ({ ID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${ID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
       });
-      return response.data; 
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response ? error.response.data : error.message
@@ -198,7 +197,7 @@ export const getRunGroupListView = createAsyncThunk(
   "listview/RunGroup", // action type
   async ({ ID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GpRunGroupList?CompanyRecordID=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GpRunGroupList?CompanyCode=${ID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -387,7 +386,7 @@ export const getConfigureCompanyListView = createAsyncThunk(
 //=====================Configure Company-ListView=================================//
 export const getConfigureCustomerListView = createAsyncThunk(
   "listview/ConfigureCustomer", // action type
-  async ({ID}, { rejectWithValue }) => {
+  async ({ ID }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CS&CompanyRecordID=${ID}`;
       const response = await axios.get(URL, {
@@ -408,7 +407,7 @@ export const getConfigureCustomerListView = createAsyncThunk(
 //=====================Configure Company-ListView=================================//
 export const getConfigureAddressListView = createAsyncThunk(
   "listview/ConfigureAddress", // action type
-  async ({ID,CustomerID}, { rejectWithValue }) => {
+  async ({ ID, CustomerID }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=AD&CompanyRecordID=${ID}&CustomerNumber=${CustomerID}`;
       const response = await axios.get(URL, {
@@ -429,7 +428,7 @@ export const getConfigureAddressListView = createAsyncThunk(
 //=====================Configure Company-ListView=================================//
 export const getConfigureContactListView = createAsyncThunk(
   "listview/ConfigureContact", // action type
-  async ({ID,CustomerID,AddressID}, { rejectWithValue }) => {
+  async ({ ID, CustomerID, AddressID }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CT&CompanyRecordID=${ID}&CustomerNumber=${CustomerID}&AddresCode=${AddressID}`;
       const response = await axios.get(URL, {
@@ -457,17 +456,26 @@ const listviewSlice = createSlice({
         row.id === id ? { ...row, [field]: !row[field] } : row
       );
 
-      state.runbGrpRowData = updatedRow
+      state.runbGrpRowData = updatedRow;
     },
-    runGrpMsgUpdate:(state, action) => {
-      state.runGrpProcessingMsg = action.payload
+
+    onCheckboxChangeCustomer: (state, action) => {
+      const { id, rows, field } = action.payload;
+      const updatedRow = state.configureCustomerListViewData.map((row) =>
+        row.RecordID === id ? { ...row, [field]: !row[field] } : row
+      );
+
+      state.configureCustomerListViewData = updatedRow;
     },
-    runGrpProcessedDataUpdate:(state, action) => {
-      state.runGrpProcessedData = action.payload
+    runGrpMsgUpdate: (state, action) => {
+      state.runGrpProcessingMsg = action.payload;
     },
-    runGrpRowDataUpdate:(state, action) => {
-      state.runbGrpRowData = action.payload
-    }
+    runGrpProcessedDataUpdate: (state, action) => {
+      state.runGrpProcessedData = action.payload;
+    },
+    runGrpRowDataUpdate: (state, action) => {
+      state.runbGrpRowData = action.payload;
+    },
   },
   extraReducers(builder) {
     builder
@@ -507,40 +515,40 @@ const listviewSlice = createSlice({
         state.error = action.error.message;
       })
 
-        .addCase(fetchViewDirectory.pending, (state, action) => {
-            state.priceTempstatus = 'loading'
-            state.priceTemploading = true
-            state.viewDirectoryColumnData = []
-            state.viewDirectoryRowData = []
-        })
-        .addCase(fetchViewDirectory.fulfilled, (state, action) => {
-            state.priceTempstatus = 'succeeded'
-            state.priceTemploading = false
-            state.viewDirectoryColumnData = action.payload.columns
-            state.viewDirectoryRowData =  action.payload.rows
-        })
-        .addCase(fetchViewDirectory.rejected, (state, action) => {
-            state.priceTempstatus = 'failed'
-            state.priceTemploading = false
-            state.error = action.error.message
-        })
-        .addCase(fetchGetLocation.pending, (state, action) => {
-            state.priceTempstatus = 'loading'
-            state.priceTemploading = true
-            state.getLocationColumnData = []
-            state.getLocationRowData = []
-        })
-        .addCase(fetchGetLocation.fulfilled, (state, action) => {
-            state.priceTempstatus = 'succeeded'
-            state.priceTemploading = false
-            state.getLocationColumnData = action.payload.columns
-            state.getLocationRowData =  action.payload.rows
-        })
-        .addCase(fetchGetLocation.rejected, (state, action) => {
-            state.priceTempstatus = 'failed'
-            state.priceTemploading = false
-            state.error = action.error.message
-        })
+      .addCase(fetchViewDirectory.pending, (state, action) => {
+        state.priceTempstatus = "loading";
+        state.priceTemploading = true;
+        state.viewDirectoryColumnData = [];
+        state.viewDirectoryRowData = [];
+      })
+      .addCase(fetchViewDirectory.fulfilled, (state, action) => {
+        state.priceTempstatus = "succeeded";
+        state.priceTemploading = false;
+        state.viewDirectoryColumnData = action.payload.columns;
+        state.viewDirectoryRowData = action.payload.rows;
+      })
+      .addCase(fetchViewDirectory.rejected, (state, action) => {
+        state.priceTempstatus = "failed";
+        state.priceTemploading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchGetLocation.pending, (state, action) => {
+        state.priceTempstatus = "loading";
+        state.priceTemploading = true;
+        state.getLocationColumnData = [];
+        state.getLocationRowData = [];
+      })
+      .addCase(fetchGetLocation.fulfilled, (state, action) => {
+        state.priceTempstatus = "succeeded";
+        state.priceTemploading = false;
+        state.getLocationColumnData = action.payload.columns;
+        state.getLocationRowData = action.payload.rows;
+      })
+      .addCase(fetchGetLocation.rejected, (state, action) => {
+        state.priceTempstatus = "failed";
+        state.priceTemploading = false;
+        state.error = action.error.message;
+      })
       .addCase(getLocalListview.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
@@ -625,7 +633,7 @@ const listviewSlice = createSlice({
         state.printGroupTemploading = false;
         state.error = action.error.message;
       })
-      
+
       .addCase(getCustomerListView.pending, (state, action) => {
         state.customerTempstatus = "loading";
         state.customerTemploading = true;
@@ -641,7 +649,7 @@ const listviewSlice = createSlice({
         state.customerTemploading = false;
         state.error = action.error.message;
       })
-      //==========================Company=================================//      
+      //==========================Company=================================//
       .addCase(getCompanyListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
@@ -657,7 +665,7 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      //==========================Application=================================//      
+      //==========================Application=================================//
       .addCase(getApplicationListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
@@ -673,7 +681,7 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      //==========================USER=================================//      
+      //==========================USER=================================//
       .addCase(getUserListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
@@ -689,8 +697,8 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-       //==========================USERGROUP=================================//      
-       .addCase(getUserGroupListView.pending, (state, action) => {
+      //==========================USERGROUP=================================//
+      .addCase(getUserGroupListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
         state.userGroupListViewData = [];
@@ -705,8 +713,8 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-       //==========================USERGROUP=================================//      
-       .addCase(getUserGroupCompanyListView.pending, (state, action) => {
+      //==========================USERGROUP=================================//
+      .addCase(getUserGroupCompanyListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
         state.userGroupCompanyListViewData = [];
@@ -721,8 +729,8 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-       //==========================Configure Company=================================//      
-       .addCase(getConfigureCompanyListView.pending, (state, action) => {
+      //==========================Configure Company=================================//
+      .addCase(getConfigureCompanyListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
         state.configureComapnyListViewData = [];
@@ -737,24 +745,24 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-        //==========================Configure Customer=================================//      
-        .addCase(getConfigureCustomerListView.pending, (state, action) => {
-          state.status = "loading";
-          state.loading = true;
-          state.configureCustomerListViewData = [];
-        })
-        .addCase(getConfigureCustomerListView.fulfilled, (state, action) => {
-          state.status = "succeeded";
-          state.loading = false;
-          state.configureCustomerListViewData = action.payload.data;
-        })
-        .addCase(getConfigureCustomerListView.rejected, (state, action) => {
-          state.status = "failed";
-          state.loading = false;
-          state.error = action.error.message;
-        })
-          //==========================Configure Address=================================//      
-       .addCase(getConfigureAddressListView.pending, (state, action) => {
+      //==========================Configure Customer=================================//
+      .addCase(getConfigureCustomerListView.pending, (state, action) => {
+        state.status = "loading";
+        state.loading = true;
+        state.configureCustomerListViewData = [];
+      })
+      .addCase(getConfigureCustomerListView.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.loading = false;
+        state.configureCustomerListViewData = action.payload.data;
+      })
+      .addCase(getConfigureCustomerListView.rejected, (state, action) => {
+        state.status = "failed";
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      //==========================Configure Address=================================//
+      .addCase(getConfigureAddressListView.pending, (state, action) => {
         state.status = "loading";
         state.loading = true;
         state.configureAddressListViewData = [];
@@ -769,24 +777,30 @@ const listviewSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-        //==========================Configure Contact=================================//      
-        .addCase(getConfigureContactListView.pending, (state, action) => {
-          state.status = "loading";
-          state.loading = true;
-          state.configureContactListViewData = [];
-        })
-        .addCase(getConfigureContactListView.fulfilled, (state, action) => {
-          state.status = "succeeded";
-          state.loading = false;
-          state.configureContactListViewData = action.payload.data;
-        })
-        .addCase(getConfigureContactListView.rejected, (state, action) => {
-          state.status = "failed";
-          state.loading = false;
-          state.error = action.error.message;
-        })
+      //==========================Configure Contact=================================//
+      .addCase(getConfigureContactListView.pending, (state, action) => {
+        state.status = "loading";
+        state.loading = true;
+        state.configureContactListViewData = [];
+      })
+      .addCase(getConfigureContactListView.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.loading = false;
+        state.configureContactListViewData = action.payload.data;
+      })
+      .addCase(getConfigureContactListView.rejected, (state, action) => {
+        state.status = "failed";
+        state.loading = false;
+        state.error = action.error.message;
+      });
   },
 });
 
-export const { onCheckboxChange,runGrpMsgUpdate, runGrpProcessedDataUpdate,runGrpRowDataUpdate } = listviewSlice.actions;
+export const {
+  onCheckboxChange,
+  onCheckboxChangeCustomer,
+  runGrpMsgUpdate,
+  runGrpProcessedDataUpdate,
+  runGrpRowDataUpdate,
+} = listviewSlice.actions;
 export default listviewSlice.reducer;

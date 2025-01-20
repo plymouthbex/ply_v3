@@ -56,6 +56,215 @@ ListboxComponent.propTypes = {
   children: PropTypes.node,
 };
 
+
+export function CusListRunGrpOptimizedAutocomplete({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  errors,
+  helper,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+        maxWidth:500,minWidth:450
+      }}
+      size="small"
+      multiple={multiple}
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.CustomerNumber === value.CustomerNumber}
+      getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox
+            size="small"
+            sx={{ marginLeft: -1 }}
+            checked={selected}
+          />
+          {`${option.CustomerNumber} || ${option.CustomerName}`}
+          </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          error={errors}
+          helperText={helper}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+// export const CusListRunGrpOptimizedAutocomplete = ({
+//   value = [],
+//   onChange,
+//   label ="",
+//   url,
+//   errors,
+//   helper,
+//   height = 20,
+//   multiple = true,
+//   ...props
+// }) => {
+//   const [options, setOptions] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await axios.get(url, {
+//           headers: {
+//             Authorization: process.env.REACT_APP_API_TOKEN,
+//           },
+//         });
+//         setOptions(response.data.data || []); // Assuming API response has `Data` array
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//         setOptions([]);
+//         setError("Failed to load. Please try again.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, [url]);
+
+//   return (
+//     <Autocomplete
+//       sx={{
+//         "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+//      maxWidth:500,minWidth:450
+//       }}
+//       size="small"
+//       multiple={multiple}
+//       fullWidth
+//       limitTags={2}
+//       value={value}
+//       onChange={onChange}
+//       options={options}
+//       isOptionEqualToValue={(option, value) => option.CustomerNumber === value.CustomerNumber}
+//       getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+//       // disableCloseOnSelect
+//       disableListWrap
+//       loading={loading}
+//       ListboxComponent={ListboxComponent}
+
+//       renderOption={(props, option, { selected }) => (
+//         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+//           <Checkbox
+//             size="small"
+//             sx={{ marginLeft: -1 }}
+//             checked={selected}
+//           />
+//           {`${option.CustomerNumber} || ${option.CustomerName}`}
+//         </li>
+//       )}
+//       renderInput={(params) => (
+//         <TextField
+//           {...params}
+//           label={label}
+//           error={!!error ||errors}
+//           helperText={error ||helper}
+//           InputProps={{
+//             ...params.InputProps,
+//             endAdornment: (
+//               <>
+//                 {loading && <CircularProgress color="inherit" size={20} />}
+//                 {params.InputProps.endAdornment}
+//               </>
+//             ),
+//           }}
+//         />
+//       )}
+//       {...props}
+//     />
+//   );
+//   // return (
+//   //   <Autocomplete
+  
+//   //     size="small"
+//   //     limitTags={1}
+//   //     sx={{maxWidth:500,minWidth:450}}
+//   //     options={options}
+//   //     loading={loading}
+//   //     value={value}
+//   //     isOptionEqualToValue={(option, value) => option.CustomerNumber === value.CustomerNumber}
+//   //     onChange={(event, newValue) => onChange(newValue)}
+//   //     getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+//   //     ListboxComponent={ListboxComponent} // Custom listbox component
+//   //     renderInput={(params) => (
+//   //       <TextField
+//   //         {...params}
+//   //         label={props.label || "Select Options"}
+//   //         error={!!error ||errors}
+//   //         helperText={error ||helper}
+//   //         InputProps={{
+//   //           ...params.InputProps,
+//   //           endAdornment: (
+//   //             <>
+//   //               {loading ? (
+//   //                 <CircularProgress color="inherit" size={20} />
+//   //               ) : null}
+//   //               {params.InputProps.endAdornment}
+//   //             </>
+//   //           ),
+//   //         }}
+//   //       />
+//   //     )}
+//   //     {...props}
+//   //   />
+//   // );
+// };
+
 export function FormikCustomAutocompleteMulti({
   value = [],
   onChange,

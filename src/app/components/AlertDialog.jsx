@@ -7,6 +7,7 @@ import {
   Typography,
   Box,
   styled,
+  useMediaQuery,
 } from "@mui/material";
 
 const FlexBox = styled(Box)(() => ({
@@ -32,93 +33,107 @@ const JustifyBox = styled(FlexBox)(() => ({
   flexDirection: "column",
   gap: "10px",
 }));
-const AlertDialog = ({ open, onClose, message = "", error = false,Actions }) => {
+const AlertDialog = ({
+  logo = "/assets/images/logo.png",
+  open,
+  message = "",
+  error = false,
+  Actions,
+}) => {
+  const isNonMobile = useMediaQuery("(min-width:600px)");
   return (
     <Dialog open={open}>
       <DialogContent
         sx={{
+          width: isNonMobile ? 450 : "80vw",
+          minHeight: 160,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          overflow: "hidden",
+          padding: "10px 10px",
+          justifyContent: "space-between",
+          overflowX: "hidden",
         }}
       >
-        <JustifyBox p={2}>
-          <img
-            src="/assets/images/logo.png"
-            // width="150px"
-            height={"60px"}
-            alt=""
-          />
-          <Typography
-            sx={{
-              textAlign: "center",
-              color: "#dd2c00",
-              fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.75rem" },
-            }}
-          ></Typography>
+        <JustifyBox p={1}>
+          <img src={logo} height={"50px"} alt="" />
         </JustifyBox>
-        {error ? (
-          <Typography color="error">{`Please Fill The Data`}</Typography>
-        ) : (
-          <Typography
-            alignItems={"center"}
-            textAlign={"center"}
-            variant="h6"
-            sx={{ color: "#164D50" }}
-          >
-            {message}
-          </Typography>
-        )}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            height: 30,
+            width: "100%",
+            overflowY: "scroll",
+            scrollbarWidth: "none",
+          }}
+        >
+          {error ? (
+            <Typography
+              variant="h6"
+              color="error"
+              alignItems={"center"}
+              textAlign={"center"}
+              sx={{ fontSize: isNonMobile ? 17 : 12 }}
+            >{`${message}`}</Typography>
+          ) : (
+            <Typography
+              variant="h6"
+              alignItems={"center"}
+              textAlign={"center"}
+              sx={{ color: "#164D50", fontSize: isNonMobile ? 17 : 12 }}
+            >
+              {message}
+            </Typography>
+          )}
+        </Box>
+        {Actions}
       </DialogContent>
-     {Actions}
     </Dialog>
   );
 };
 
 export default AlertDialog;
 
-
-
-export const MessageAlertDialog = ({ open, onClose, message = "",tittle ='', error = false,Actions }) => {
+export const MessageAlertDialog = ({
+  logo = "/assets/images/logo.png",
+  open,
+  message = "",
+  error = false,
+  Actions,
+  tittle,
+}) => {
+  const isNonMobile = useMediaQuery("(min-width:600px)");
   return (
-    <Dialog open={open} >
+    <Dialog open={open}>
       <DialogContent
         sx={{
+          width: isNonMobile ? 450 : "80vw",
+          minHeight: 160,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minWidth:300
+          overflow: "hidden",
+          padding: "10px 10px",
+          justifyContent: "space-between",
+          overflowX: "hidden",
         }}
       >
-        <JustifyBox p={2}>
-
-          <img
-            src="/assets/images/logo.png"
-            // width="150px"
-            height={"60px"}
-            alt=""
-          />
-        <Typography
-            sx={{
-              textAlign: "center",
-              color: "#dd2c00",
-              fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.75rem" },
-            }}
-          >{tittle}</Typography>
+        <JustifyBox p={1}>
+          <img src={logo} height={"50px"} alt="" />
         </JustifyBox>
 
-          <Typography
-            alignItems={"center"}
-            textAlign={"center"}
-            variant="h6"
-            // sx={{ color: "#164D50" }}
-          >
-            {message}
-          </Typography>
+        <Typography
+          variant="h6"
+          color={error ? "error":"black"}
+          alignItems={"center"}
+          textAlign={"center"}
+          sx={{ fontSize: isNonMobile ? 17 : 12 }}
+        >
+          {message}
+        </Typography>
+        {Actions}
       </DialogContent>
-     {Actions}
     </Dialog>
   );
 };

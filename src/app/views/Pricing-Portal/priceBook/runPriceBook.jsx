@@ -679,6 +679,9 @@ export default function RunPriceBook() {
                 })
               ).then((fpResData) => {
                 if (fpResData.payload.length > 0) {
+                  dispatch(
+                    runGrpMsgUpdate(`Full PDF for ${row.customer}...`)
+                  );
                   const excelBlobfp = exportToExcelBuildFullPriceBookBlob({
                     excelData: fpResData.payload,
                     date: formatedDate,
@@ -711,7 +714,7 @@ export default function RunPriceBook() {
                       ...row,
                       blobfp: blob,
                       excelBlobfp,
-                      fileName: `${user.company}_${row.customer.replace(
+                      fileName1: `${user.company}_${row.customer.replace(
                         /\.$/,
                         ""
                       )}_FPB_${sunday} TO ${saturday}`,
@@ -738,6 +741,9 @@ export default function RunPriceBook() {
                 })
               ).then((cpResData) => {
                 if (cpResData.payload.length > 0) {
+                  dispatch(
+                    runGrpMsgUpdate(`Custom PDF for ${row.customer}...`)
+                  );
                   const excelBlobcp = exportToExcelBuildCustomPriceBookBlob({
                     excelData: cpResData.payload,
                     date: formatedDate,
@@ -775,7 +781,7 @@ export default function RunPriceBook() {
                       ...row,
                       blobcp: blob,
                       excelBlobcp,
-                      fileName: `${user.company}_${row.customer.replace(
+                      fileName2: `${user.company}_${row.customer.replace(
                         /\.$/,
                         ""
                       )}_CPB_${sunday} TO ${saturday}`,

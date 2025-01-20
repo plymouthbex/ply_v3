@@ -29,6 +29,7 @@ import {
   PutAdHocItem,
 } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import useAuth from "app/hooks/useAuth";
 // import { AlertDialog } from "@toolpad/core";
 
 // ********************** STYLED COMPONENTS ********************** //
@@ -47,6 +48,7 @@ const Container = styled("div")(({ theme }) => ({
 // ********************** ITEM ATTRIBUTES EDIT SCREEN  ********************** //
 const ItemAttributesEdit = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
+  const { user } = useAuth();
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const dispatch = useDispatch();
@@ -71,7 +73,11 @@ const ItemAttributesEdit = () => {
   // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
     dispatch(
-      getPriceListItemGet({  itemNumber: itemNumber, id: state.id,RecordID:state.recordID })
+      getPriceListItemGet({
+        itemNumber: itemNumber,
+        id: state.id,
+        RecordID: state.recordID,
+      })
     );
   }, []);
 
@@ -79,7 +85,7 @@ const ItemAttributesEdit = () => {
   const [postError1, setPostError1] = useState(false);
   const itemSaveFn = async (values) => {
     const data = {
-      RecordID:state.recordID,
+      RecordID: state.recordID,
       priceListID: state.priceListID,
       quotationRecordID: "0",
       filterType: "PL",
@@ -102,7 +108,7 @@ const ItemAttributesEdit = () => {
   const [postError2, setPostError2] = useState(false);
   const itemDeleteFn = async (values) => {
     const data = {
-      RecordID:state.recordID,
+      RecordID: state.recordID,
       priceListID: `${state.priceListID}`,
       quotationRecordID: "0",
       filterType: "PL",
@@ -163,7 +169,10 @@ const ItemAttributesEdit = () => {
               <Breadcrumb
                 routeSegments={[
                   { name: "CP-Price Book" },
-                  { name: "Price List", path: "/pages/control-panel/price-list" },
+                  {
+                    name: "Price List",
+                    path: "/pages/control-panel/price-list",
+                  },
                   {
                     name: `${params.mode} Price List Detail`,
                     path: -1,
@@ -423,16 +432,24 @@ const ItemAttributesEdit = () => {
                   </Stack>
                 </Box>
                 <AlertDialog
+                  logo={`data:image/png;base64,${user.logo}`}
                   key={23131}
                   open={openAlert1}
                   error={postError1}
-                  message={"Item Saved Successfully!"}
+                  message={postError1 ?"Error while saving and please retry":"Item Saved Successfully"}
                   Actions={
-                    <DialogActions>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
                       <Button
                         variant="contained"
                         color="info"
                         size="small"
+                        sx={{ mr: 1, height: 25 }}
                         onClick={() => {
                           navigate(-1);
                         }}
@@ -443,23 +460,32 @@ const ItemAttributesEdit = () => {
                         variant="contained"
                         color="info"
                         size="small"
+                        sx={{ mr: 1, height: 25 }}
                         onClick={() => {
                           setOpenAlert1(false);
                         }}
                       >
                         Close
                       </Button>
-                    </DialogActions>
+                    </Box>
                   }
                 />
 
                 <AlertDialog
                   key={23131}
+                  logo={`data:image/png;base64,${user.logo}`}
                   open={openAlert2}
                   error={postError2}
-                  message={"Item Deleted Successfully!"}
+                  message={postError2 ?"Error while Deleting and please retry":"Item Deleted Successfully"}
+                  // message={"Item Deleted Successfully"}
                   Actions={
-                    <DialogActions>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
                       <Button
                         variant="contained"
                         color="info"
@@ -467,6 +493,7 @@ const ItemAttributesEdit = () => {
                         onClick={() => {
                           navigate(-1);
                         }}
+                        sx={{ mr: 1, height: 25 }}
                       >
                         Back
                       </Button>
@@ -477,20 +504,28 @@ const ItemAttributesEdit = () => {
                         onClick={() => {
                           setOpenAlert2(false);
                         }}
+                        sx={{ mr: 1, height: 25 }}
                       >
                         Close
                       </Button>
-                    </DialogActions>
+                    </Box>
                   }
                 />
 
                 <MessageAlertDialog
                   open={isRemoveItem}
-                  tittle={values.itemDescription}
-                  message={`Are you sure you want to remove Item ?`}
+                  logo={`data:image/png;base64,${user.logo}`}
+                  message={`Are you sure you want to remove Item ${values.itemDescription}?`}
                   Actions={
-                    <DialogActions>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
                       <Button
+                        sx={{ mr: 1, height: 25 }}
                         variant="contained"
                         color="info"
                         size="small"
@@ -502,6 +537,7 @@ const ItemAttributesEdit = () => {
                         Yes
                       </Button>
                       <Button
+                        sx={{ mr: 1, height: 25 }}
                         variant="contained"
                         color="info"
                         size="small"
@@ -511,7 +547,7 @@ const ItemAttributesEdit = () => {
                       >
                         No
                       </Button>
-                    </DialogActions>
+                    </Box>
                   }
                 />
               </Paper>

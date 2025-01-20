@@ -356,23 +356,22 @@ export default function BuildCustomPriceBook() {
               Remove
             </Button> */}
             <Tooltip title="Remove">
-            <IconButton
-  sx={{
-    height: 25,
-    ml: 1,
-  }}
-  color="error"
-  variant="contained"
-  size="small"
-  onClick={() => {
-    setDeleteID(param.row.RecordId);
-    setIsRemoveItem(true);
-  }}
->
-  <DeleteIcon size="small" />
-</IconButton>
-</Tooltip>
-
+              <IconButton
+                sx={{
+                  height: 25,
+                  ml: 1,
+                }}
+                color="error"
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setDeleteID(param.row.RecordId);
+                  setIsRemoveItem(true);
+                }}
+              >
+                <DeleteIcon size="small" />
+              </IconButton>
+            </Tooltip>
           </>
         );
       },
@@ -658,7 +657,7 @@ export default function BuildCustomPriceBook() {
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
             onClick={() =>
-              navigate(-1, { state: { headerID: state.headerID } })
+              navigate("/pages/pricing-portal/new-quote/new", {state: { headerID: state.headerID } })
             }
           >
             Back

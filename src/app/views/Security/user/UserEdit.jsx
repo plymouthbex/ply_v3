@@ -16,7 +16,8 @@ import {
   DialogContent,
   Dialog,
   FormControl,
-  Typography,LinearProgress
+  Typography,
+  LinearProgress,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import Avatar from "@mui/material/Avatar";
@@ -47,7 +48,13 @@ import {
 import useAuth from "app/hooks/useAuth";
 import { deleteUserData, userPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
-import { convertHexToRGB, dataGridHeaderFooterHeight, dataGridRowHeight,dataGridpageSizeOptions,dataGridPageSize } from "app/utils/constant";
+import {
+  convertHexToRGB,
+  dataGridHeaderFooterHeight,
+  dataGridRowHeight,
+  dataGridpageSizeOptions,
+  dataGridPageSize,
+} from "app/utils/constant";
 import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
 import { Publish } from "@mui/icons-material";
 import { useDropzone } from "react-dropzone";
@@ -109,11 +116,11 @@ const validationSchema = Yup.object({
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Confirm Password is required"),
-    defaultCompany: Yup.object({
-      RecordID: Yup.string().required("RecordID is required"),
-      Code: Yup.string().required("Code is required"),
-      Name: Yup.string().required("Name is required"),
-    }).required("Default Company is required"),
+  defaultCompany: Yup.object({
+    RecordID: Yup.string().required("RecordID is required"),
+    Code: Yup.string().required("Code is required"),
+    Name: Yup.string().required("Name is required"),
+  }).required("Default Company is required"),
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -128,7 +135,6 @@ const UserEdit = () => {
   const state = location.state;
   const { user } = useAuth();
 
- 
   // ******************** LOCAL STATE ******************** //
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -136,7 +142,7 @@ const UserEdit = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
 
-const[OpenUser,setOpenUser]=useState(false);
+  const [OpenUser, setOpenUser] = useState(false);
 
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.userFormData);
@@ -146,9 +152,8 @@ const[OpenUser,setOpenUser]=useState(false);
 
   const error = useSelector((state) => state.getSlice.userError);
 
-
-   //==================================================================//
-   const columns = [
+  //==================================================================//
+  const columns = [
     {
       headerName: "Run Group",
       field: "RunGroupCode",
@@ -173,7 +178,6 @@ const[OpenUser,setOpenUser]=useState(false);
     //   headerAlign: "left",
     //   hide: false,
     // },
-   
   ];
 
   const rows = [
@@ -238,23 +242,23 @@ const[OpenUser,setOpenUser]=useState(false);
       Disable: "N",
     },
   ];
-   let UG = null;
-   let name=null;
- 
-   if (data.UserGroup && typeof data.UserGroup === 'string') {
-     try {
-       UG = JSON.parse(data.UserGroup);
-       name=UG.Name
-     } catch (error) {
-       console.error("Error parsing UserGroup:", error);
-     }
-   } else {
-     console.error("data.UserGroup is not a valid string:", data.UserGroup);
-   }
-   
-   console.log("🚀 ~ UserEdit ~ UG:", name);
-   const [UserName, setSelectUserName] = useState(name);
-   console.log("🚀 ~ UserEdit ~ UserName:", UserName)
+  let UG = null;
+  let name = null;
+
+  if (data.UserGroup && typeof data.UserGroup === "string") {
+    try {
+      UG = JSON.parse(data.UserGroup);
+      name = UG.Name;
+    } catch (error) {
+      console.error("Error parsing UserGroup:", error);
+    }
+  } else {
+    console.error("data.UserGroup is not a valid string:", data.UserGroup);
+  }
+
+  console.log("🚀 ~ UserEdit ~ UG:", name);
+  const [UserName, setSelectUserName] = useState(name);
+  console.log("🚀 ~ UserEdit ~ UserName:", UserName);
   ///===========API CALL GET============================//
   useEffect(() => {
     dispatch(getUserData({ ID: state.ID }));
@@ -292,7 +296,7 @@ const[OpenUser,setOpenUser]=useState(false);
       setOpenDialog(true);
     }
 
-    let images
+    let images;
     if (previewImages1.length > 0) {
       const image = previewImages1[0]["preview"];
       images = image.split(",");
@@ -305,11 +309,13 @@ const[OpenUser,setOpenUser]=useState(false);
       passwordChanged = 1;
     }
 
-    if (UserName === "User" && (!values.runGroup || values.runGroup.length === 0)) {
+    if (
+      UserName === "User" &&
+      (!values.runGroup || values.runGroup.length === 0)
+    ) {
       setOpenUser(true);
     } else {
       userData = {
-     
         recordID: data.RecordID,
         firstname: values.firstname,
         lastname: values.lastname,
@@ -322,19 +328,20 @@ const[OpenUser,setOpenUser]=useState(false);
         userGroup: JSON.stringify(values.userGroup),
         rungroup: JSON.stringify(values.runGroup),
         company: JSON.stringify(values.defaultCompany),
-        UserProfileImage: previewImages1.length > 0 ? images[1] : data.UserProfileImage,
-        IsPasswordChanged:data.Password === values.password ?  0 : 1
+        UserProfileImage:
+          previewImages1.length > 0 ? images[1] : data.UserProfileImage,
+        IsPasswordChanged: data.Password === values.password ? 0 : 1,
       };
       console.log("🚀 ~ HandleSave ~ userData:", userData);
-    // return;
-    const response = await dispatch(userPost({ userData }));
-    if (response.payload.status === "Y") {
-      setOpenAlert(true);
-    } else {
-      setOpenAlert(true);
-      setPostError(true);
+      // return;
+      const response = await dispatch(userPost({ userData }));
+      if (response.payload.status === "Y") {
+        setOpenAlert(true);
+      } else {
+        setOpenAlert(true);
+        setPostError(true);
+      }
     }
-  }
   };
 
   // ******************** DELETE ******************** //
@@ -376,9 +383,6 @@ const[OpenUser,setOpenUser]=useState(false);
           }}
         >
           <GridToolbarQuickFilter />
-
-      
-
         </Box>
       </GridToolbarContainer>
     );
@@ -473,7 +477,11 @@ const[OpenUser,setOpenUser]=useState(false);
                     padding: "10px",
                   }}
                 >
-                   <Stack sx={{ gridColumn: "span 2" }} gap={"20px"} direction={"column"}>
+                  <Stack
+                    sx={{ gridColumn: "span 2" }}
+                    gap={"20px"}
+                    direction={"column"}
+                  >
                     <TextField
                       fullWidth
                       variant="outlined"
@@ -487,7 +495,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                        autoComplete="off"
+                      autoComplete="off"
                       value={values.email}
                       disabled={params?.mode === "delete"}
                       onChange={handleChange}
@@ -502,7 +510,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       id="firstname"
                       name="firstname"
                       label="First Name"
-                        autoComplete="off"
+                      autoComplete="off"
                       required
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
@@ -523,7 +531,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       id="lastname"
                       name="lastname"
                       label="Last Name"
-                        autoComplete="off"
+                      autoComplete="off"
                       size="small"
                       sx={{ gridColumn: "span 2" }}
                       disabled={params?.mode === "delete"}
@@ -547,7 +555,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                        autoComplete="off"
+                      autoComplete="off"
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -559,7 +567,7 @@ const[OpenUser,setOpenUser]=useState(false);
                       fullWidth
                       variant="outlined"
                       type="password"
-                        autoComplete="off"
+                      autoComplete="off"
                       id="confirmpassword"
                       name="confirmpassword"
                       label="Confirm Password"
@@ -571,7 +579,8 @@ const[OpenUser,setOpenUser]=useState(false);
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={
-                        touched.confirmpassword && Boolean(errors.confirmpassword)
+                        touched.confirmpassword &&
+                        Boolean(errors.confirmpassword)
                       }
                       helperText={
                         touched.confirmpassword && errors.confirmpassword
@@ -580,10 +589,8 @@ const[OpenUser,setOpenUser]=useState(false);
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                     />
-                 
-                 
 
-                  {/* <TextField
+                    {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -604,7 +611,7 @@ const[OpenUser,setOpenUser]=useState(false);
                     helperText={touched.code && errors.code}
                   /> */}
 
-                  {/* <TextField
+                    {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -620,7 +627,7 @@ const[OpenUser,setOpenUser]=useState(false);
                     error={touched.mobilenumber && Boolean(errors.mobilenumber)}
                     helperText={touched.mobilenumber && errors.mobilenumber}
                   /> */}
-                  {/* <TextField
+                    {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="email"
@@ -641,8 +648,7 @@ const[OpenUser,setOpenUser]=useState(false);
                     helperText={touched.email && errors.email}
                   /> */}
 
-
-                  {/* <TextField
+                    {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -658,75 +664,76 @@ const[OpenUser,setOpenUser]=useState(false);
                     error={touched.sequence && Boolean(errors.sequence)}
                     helperText={touched.sequence && errors.sequence}
                   /> */}
-                  <FormikUserGroupOptimizedAutocomplete
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                    }
-                    name="userGroup"
-                    id="userGroup"
-                    value={values.userGroup}
-                    onChange={(event, newValue) => {
-                      setFieldValue("userGroup", newValue)
-                      // Ensure that newValue is defined before accessing properties
-    if (newValue) {
-      setSelectUserName(newValue.Name);  // Accessing the Name of the selected user group
-        // Assuming newValue has an ID property for the user ID
-    } else {
-      setSelectUserName(null);           // Handle case where no value is selected
-              // Handle case where no value is selected
-    }// Handle null cases gracefully
-                    }}
-                    label="User Group"
-                    url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
-                  />
- <FormikRungroupOptimizedAutocomplete
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                        ? true
-                        : false
-                    }
-                    name="runGroup"
-                    id="runGroup"
-                    value={values.runGroup}
-                    onChange={(event, newValue) =>
-                      setFieldValue("runGroup", newValue)
-                    }
-                    label="Default Price Book Group"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
-                  />
-                        <FormikCompanyOptimizedAutocomplete
-        sx={{ gridColumn: "span 2" }}
-        disabled={params.mode === "delete" || params.mode === "view"}
-       
-        name="defaultCompany"
-        id="defaultCompany"
-        value={values.defaultCompany}
-        onChange={(event, newValue) =>
-          setFieldValue("defaultCompany", newValue)
-        }
-        required
-        label="Default Company"
-        url={`${process.env.REACT_APP_BASE_URL}Company`}
-      />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        size="small"
-                        id="disable"
-                        name="disable"
-                        checked={values.disable}
-                        onChange={handleChange}
-                        sx={{ height: "10px" }}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
-                        }
-                      />
-                    }
-                    label="Disable"
-                  />
-                   </Stack>
+                    <FormikUserGroupOptimizedAutocomplete
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      name="userGroup"
+                      id="userGroup"
+                      value={values.userGroup}
+                      onChange={(event, newValue) => {
+                        setFieldValue("userGroup", newValue);
+                        // Ensure that newValue is defined before accessing properties
+                        if (newValue) {
+                          setSelectUserName(newValue.Name); // Accessing the Name of the selected user group
+                          // Assuming newValue has an ID property for the user ID
+                        } else {
+                          setSelectUserName(null); // Handle case where no value is selected
+                          // Handle case where no value is selected
+                        } // Handle null cases gracefully
+                      }}
+                      label="User Group"
+                      url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
+                    />
+                    <FormikRungroupOptimizedAutocomplete
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                          ? true
+                          : false
+                      }
+                      name="runGroup"
+                      id="runGroup"
+                      value={values.runGroup}
+                      onChange={(event, newValue) =>
+                        setFieldValue("runGroup", newValue)
+                      }
+                      label="Default Price Book Group"
+                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+                    />
+                    <FormikCompanyOptimizedAutocomplete
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      name="defaultCompany"
+                      id="defaultCompany"
+                      value={values.defaultCompany}
+                      onChange={(event, newValue) =>
+                        setFieldValue("defaultCompany", newValue)
+                      }
+                      required
+                      label="Default Company"
+                      url={`${process.env.REACT_APP_BASE_URL}Company`}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size="small"
+                          id="disable"
+                          name="disable"
+                          checked={values.disable}
+                          onChange={handleChange}
+                          sx={{ height: "10px" }}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                          }
+                        />
+                      }
+                      label="Disable"
+                    />
+                  </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
                     <CardContent>
                       <Stack spacing={2} sx={{ alignItems: "center" }}>
@@ -745,7 +752,6 @@ const[OpenUser,setOpenUser]=useState(false);
                             {values.firstname} {values.lastname}
                           </Typography>
                         </Stack>
-
                       </Stack>
                     </CardContent>
                     <Divider />
@@ -768,102 +774,104 @@ const[OpenUser,setOpenUser]=useState(false);
                     </CardActions>
                   </Card>
                 </Box>
-                <Box
-                                      sx={{
-                                        height: 400,
-                                        gridColumn: "span 4",
-                                        "& .MuiDataGrid-root": {
-                                          border: "none",
-                                        },
-                                        "& .MuiDataGrid-cell": {
-                                          borderBottom: "none",
-                                        },
-                                        "& .name-column--cell": {
-                                          color: theme.palette.info.contrastText,
-                                        },
-                                        "& .MuiDataGrid-columnHeaders": {
-                                          backgroundColor: theme.palette.info.main,
-                                          color: theme.palette.info.contrastText,
-                                          fontWeight: "bold",
-                                          fontSize: theme.typography.subtitle2.fontSize,
-                                        },
-                                        "& .MuiDataGrid-virtualScroller": {
-                                          backgroundColor: theme.palette.info.light,
-                                        },
-                                        "& .MuiDataGrid-footerContainer": {
-                                          borderTop: "none",
-                                          backgroundColor: theme.palette.info.main,
-                                          color: theme.palette.info.contrastText,
-                                        },
-                                        "& .MuiCheckbox-root": {
-                                          color: "black !important",
-                                        },
-                  
-                                        "& .MuiCheckbox-root.Mui-checked": {
-                                          color: "black !important",
-                                        },
-                                        "& .MuiDataGrid-row:nth-of-type(even)": {
-                                          backgroundColor: theme.palette.action.hover,
-                                        },
-                                        "& .MuiDataGrid-row:nth-of-type(odd)": {
-                                          backgroundColor: theme.palette.background.default,
-                                        },
-                  
-                                        "& .MuiDataGrid-row.Mui-selected:hover": {
-                                          backgroundColor: `${theme.palette.action.selected} !important`,
-                                        },"& .MuiTablePagination-root": {
-                                color: "white !important", // Ensuring white text color for the pagination
-                              }, 
-                          
-                              "& .MuiTablePagination-root .MuiTypography-root": {
-                                color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                              }, 
-                          
-                              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                                color: "white !important", // Ensuring white icons for pagination
-                              },
-                                      }}
-                                    >
-                                      <DataGrid
-                                       columnHeaderHeight={dataGridHeaderFooterHeight}
-                                       sx={{
-                                         // This is to override the default height of the footer row
-                                         '& .MuiDataGrid-footerContainer': {
-                                             height: dataGridHeaderFooterHeight,
-                                             minHeight: dataGridHeaderFooterHeight,
-                                         },
-                                       }}
-                                        slots={{
-                                          loadingOverlay: LinearProgress,
-                                          toolbar: CustomToolbar,
-                                        }}
-                                        rowHeight={dataGridRowHeight}
-                                        rows={rows}
-                                        columns={columns}
-                                        disableSelectionOnClick
-                                        disableRowSelectionOnClick
-                                        getRowId={(row) => row.RunGroupCode}
-                                        initialState={{
-                                          pagination: {
-                                            paginationModel: { pageSize: dataGridPageSize },
-                                          },
-                                        }}
-                                        pageSizeOptions={dataGridpageSizeOptions}
-                                        columnVisibilityModel={{
-                                          item_key: false,
-                                        }}
-                                        disableColumnFilter
-                                        disableColumnSelector
-                                        disableDensitySelector
-                                        slotProps={{
-                                          toolbar: {
-                                            showQuickFilter: true,
-                                          },
-                                        }}
-                                      />
-                                      </Box>
+                {/* <Box
+                  sx={{
+                    height: 400,
+                    gridColumn: "span 4",
+                    "& .MuiDataGrid-root": {
+                      border: "none",
+                    },
+                    "& .MuiDataGrid-cell": {
+                      borderBottom: "none",
+                    },
+                    "& .name-column--cell": {
+                      color: theme.palette.info.contrastText,
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      backgroundColor: theme.palette.info.main,
+                      color: theme.palette.info.contrastText,
+                      fontWeight: "bold",
+                      fontSize: theme.typography.subtitle2.fontSize,
+                    },
+                    "& .MuiDataGrid-virtualScroller": {
+                      backgroundColor: theme.palette.info.light,
+                    },
+                    "& .MuiDataGrid-footerContainer": {
+                      borderTop: "none",
+                      backgroundColor: theme.palette.info.main,
+                      color: theme.palette.info.contrastText,
+                    },
+                    "& .MuiCheckbox-root": {
+                      color: "black !important",
+                    },
+
+                    "& .MuiCheckbox-root.Mui-checked": {
+                      color: "black !important",
+                    },
+                    "& .MuiDataGrid-row:nth-of-type(even)": {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                    "& .MuiDataGrid-row:nth-of-type(odd)": {
+                      backgroundColor: theme.palette.background.default,
+                    },
+
+                    "& .MuiDataGrid-row.Mui-selected:hover": {
+                      backgroundColor: `${theme.palette.action.selected} !important`,
+                    },
+                    "& .MuiTablePagination-root": {
+                      color: "white !important", // Ensuring white text color for the pagination
+                    },
+
+                    "& .MuiTablePagination-root .MuiTypography-root": {
+                      color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                    },
+
+                    "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                      color: "white !important", // Ensuring white icons for pagination
+                    },
+                  }}
+                >
+                  <DataGrid
+                    columnHeaderHeight={dataGridHeaderFooterHeight}
+                    sx={{
+                      // This is to override the default height of the footer row
+                      "& .MuiDataGrid-footerContainer": {
+                        height: dataGridHeaderFooterHeight,
+                        minHeight: dataGridHeaderFooterHeight,
+                      },
+                    }}
+                    slots={{
+                      loadingOverlay: LinearProgress,
+                      toolbar: CustomToolbar,
+                    }}
+                    rowHeight={dataGridRowHeight}
+                    rows={rows}
+                    columns={columns}
+                    disableSelectionOnClick
+                    disableRowSelectionOnClick
+                    getRowId={(row) => row.RunGroupCode}
+                    initialState={{
+                      pagination: {
+                        paginationModel: { pageSize: dataGridPageSize },
+                      },
+                    }}
+                    pageSizeOptions={dataGridpageSizeOptions}
+                    columnVisibilityModel={{
+                      item_key: false,
+                    }}
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    slotProps={{
+                      toolbar: {
+                        showQuickFilter: true,
+                      },
+                    }}
+                  />
+                </Box> */}
               </Paper>
               <MessageAlertDialog
+               logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 tittle={"Delete"}
                 message={`Are you sure you want to delete?`}
@@ -895,19 +903,19 @@ const[OpenUser,setOpenUser]=useState(false);
                   </DialogActions>
                 }
               />
-               <MessageAlertDialog
+              <MessageAlertDialog
+               logo={`data:image/png;base64,${user.logo}`}
                 open={OpenUser}
                 // tittle={"ALERT"}
                 message={`Please select the price book group.`}
                 Actions={
                   <DialogActions>
-                   
                     <Button
                       variant="contained"
                       color="info"
                       size="small"
                       onClick={() => {
-                       setOpenUser(false);
+                        setOpenUser(false);
                         // setSubmitting(false);
                       }}
                       autoFocus
@@ -920,20 +928,21 @@ const[OpenUser,setOpenUser]=useState(false);
             </form>
           )}
         </Formik>
-        
       ) : (
         false
       )}
-     
+
       <AlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
+          postError ? "Something went wrong and please retry":
           params.mode === "add"
             ? "User added successfully"
             : params.mode === "delete"
-              ? "User Deleted Successfully"
-              : "User updated successfully"
+            ? "User Deleted Successfully"
+            : "User updated successfully"
         }
         Actions={
           params.mode === "add" ? (
@@ -952,7 +961,7 @@ const[OpenUser,setOpenUser]=useState(false);
                 size="small"
                 onClick={() => {
                   dispatch(getUserData({ ID: 0 }));
-                  setPreviewImages1([])
+                  setPreviewImages1([]);
                   setOpenAlert(false);
                 }}
                 autoFocus

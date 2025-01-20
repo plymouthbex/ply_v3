@@ -38,7 +38,6 @@ import { runGroupDelete, runGroupPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import { getRunGroupListView } from "app/redux/slice/listviewSlice";
 import lodash from "lodash";
-import { CusListRunGrpOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
 
 // ********************** ICONS ********************** //
 import SaveIcon from "@mui/icons-material/Save";
@@ -46,6 +45,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Add } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useAuth from "app/hooks/useAuth";
+import { CusListRunGrpOptimizedAutocomplete } from "app/components/FormikAutocomplete";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -69,10 +69,9 @@ const RunGroupEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state;
-  console.log("🚀 ~ RunGroupEdit ~ state:", state)
   const dispatch = useDispatch();
-  const {user}=useAuth();
- 
+  const { user } = useAuth();
+
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -80,14 +79,15 @@ const RunGroupEdit = () => {
   const [RunGroupID, setRunGroupID] = useState(0);
   const [isDelete, setIsDelete] = useState(false);
   const [isCustomerListExists, setIsCustomerListExists] = useState(false);
-  const [isCustomerListExistsError, setIsCustomerListExistsError] =useState(false);
+  const [isCustomerListExistsError, setIsCustomerListExistsError] =
+    useState(false);
   const [isRemoveCustomer, setIsRemoveCustomer] = useState(false);
   const [removeCustomerID, setremoveCustomerID] = useState(0);
   const [removeCustomerdDesc, setremoveCustomerDesc] = useState("");
 
-  const [addCustomerListData, setAddCustomerListData] = useState(null);
+  const [addCustomerListData, setAddCustomerListData] = useState([]);
 
-  const handleSelectionAddCustomerListData = (newValue) => {
+  const handleSelectionAddCustomerListData = (e, newValue) => {
     setAddCustomerListData(newValue);
   };
   // ********************** REDUX STATE ********************** //
@@ -136,27 +136,26 @@ const RunGroupEdit = () => {
       renderCell: (param) => {
         return (
           <Tooltip title="Remove Customer">
-  <IconButton
-    color="error"
-    size="small"
-    disabled={params.mode === "delete" || params.mode === "view"}
-    onClick={() => {
-      setremoveCustomerID(param.row.RecordID);
-      setremoveCustomerDesc(param.row.CustomerName);
-      setIsRemoveCustomer(true);
-    }}
-  >
-    <DeleteIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
-
+            <IconButton
+              color="error"
+              size="small"
+              disabled={params.mode === "delete" || params.mode === "view"}
+              onClick={() => {
+                setremoveCustomerID(param.row.CustomerNumber);
+                setremoveCustomerDesc(param.row.CustomerName);
+                setIsRemoveCustomer(true);
+              }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         );
       },
     },
   ];
 
-  // ********************** TOOLBAR ********************** //
-  function CustomToolbar() {
+  const CustomToolbar = React.memo(() => {
+    console.log("Toolbar rendered"); // To check re-renders
     return (
       <GridToolbarContainer
         sx={{
@@ -179,11 +178,9 @@ const RunGroupEdit = () => {
           }}
         >
           <GridToolbarQuickFilter sx={{ width: 400 }} />
-          <CusListRunGrpOptimizedAutocomplete
+          {/* <CusListRunGrpOptimizedAutocomplete
             errors={isCustomerListExistsError}
-            helper={
-              isCustomerListExistsError && "Please select customer!"
-            }
+            helper={isCustomerListExistsError && "Please select customer!"}
             disabled={params.mode === "delete" || params.mode === "view"}
             name="customerPriceList"
             id="customerPriceList"
@@ -191,39 +188,42 @@ const RunGroupEdit = () => {
             onChange={handleSelectionAddCustomerListData}
             label="Customer"
             url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
-          />
-          <Tooltip title="Add Customer">
-  <IconButton
-    color="black"
-    size="small"
-    disabled={params.mode === "delete"}
-    onClick={() => {
-      if (addCustomerListData) {
-        const isItem = [...getRows, ...filteredSelectedItems].some(
-          (item) =>
-            lodash.isEqual(item.RecordID, addCustomerListData.RecordID)
-        );
-        if (isItem) {
-          setIsCustomerListExists(true);
-          setTimeout(() => {
-            setIsCustomerListExists(false);
-            setAddCustomerListData(null);
-          }, 5000);
-          return;
-        }
-        dispatch(runGroupAddedItem(addCustomerListData));
-        setAddCustomerListData(null);
-      } else {
-        setIsCustomerListExistsError(true);
-        setTimeout(() => {
-          setIsCustomerListExistsError(false);
-        }, 2000);
-      }
-    }}
-  >
-    <Add fontSize="small" />
-  </IconButton>
-</Tooltip>
+          /> */}
+          {/* <Tooltip title="Add Customers">
+            <IconButton
+              color="black"
+              size="small"
+              disabled={params.mode === "delete"}
+              onClick={() => {
+                if (addCustomerListData) {
+                  // const isItem = [...getRows, ...filteredSelectedItems].some(
+                  //   (item) =>
+                  //     lodash.isEqual(
+                  //       item.RecordID,
+                  //       addCustomerListData.RecordID
+                  //     )
+                  // );
+                  // if (isItem) {
+                  //   setIsCustomerListExists(true);
+                  //   setTimeout(() => {
+                  //     setIsCustomerListExists(false);
+                  //     setAddCustomerListData(null);
+                  //   }, 5000);
+                  //   return;
+                  // }
+                  dispatch(runGroupAddedItem(addCustomerListData));
+                  setAddCustomerListData([]);
+                } else {
+                  setIsCustomerListExistsError(true);
+                  setTimeout(() => {
+                    setIsCustomerListExistsError(false);
+                  }, 2000);
+                }
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip> */}
 
           {/* <Button
             variant="contained"
@@ -260,7 +260,114 @@ const RunGroupEdit = () => {
         </Box>
       </GridToolbarContainer>
     );
-  }
+  });
+  // ********************** TOOLBAR ********************** //
+  // function CustomToolbar() {
+  //   return (
+  //     <GridToolbarContainer
+  //       sx={{
+  //         display: "flex",
+  //         flexDirection: "row",
+  //         justifyContent: "flex-end",
+  //         width: "100%",
+  //         padding: "5px",
+  //       }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           display: "flex",
+  //           flexDirection: isNonMobile ? "row" : "column",
+  //           justifyContent: "flex-end",
+  //           alignItems: "center",
+  //           gap: 2,
+  //           paddingX: 2,
+  //           width: "100%",
+  //         }}
+  //       >
+  //         <GridToolbarQuickFilter sx={{ width: 400 }} />
+  //         <CusListRunGrpOptimizedAutocomplete
+  //           errors={isCustomerListExistsError}
+  //           helper={isCustomerListExistsError && "Please select customer!"}
+  //           disabled={params.mode === "delete" || params.mode === "view"}
+  //           name="customerPriceList"
+  //           id="customerPriceList"
+  //           value={addCustomerListData}
+  //           onChange={handleSelectionAddCustomerListData}
+  //           label="Customer"
+  //           url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
+  //         />
+  //         <Tooltip title="Add Customer">
+  //           <IconButton
+  //             color="black"
+  //             size="small"
+  //             disabled={params.mode === "delete"}
+  //             onClick={() => {
+  //               if (addCustomerListData) {
+  //                 const isItem = [...getRows, ...filteredSelectedItems].some(
+  //                   (item) =>
+  //                     lodash.isEqual(
+  //                       item.RecordID,
+  //                       addCustomerListData.RecordID
+  //                     )
+  //                 );
+  //                 if (isItem) {
+  //                   setIsCustomerListExists(true);
+  //                   setTimeout(() => {
+  //                     setIsCustomerListExists(false);
+  //                     setAddCustomerListData(null);
+  //                   }, 5000);
+  //                   return;
+  //                 }
+  //                 dispatch(runGroupAddedItem(addCustomerListData));
+  //                 setAddCustomerListData(null);
+  //               } else {
+  //                 setIsCustomerListExistsError(true);
+  //                 setTimeout(() => {
+  //                   setIsCustomerListExistsError(false);
+  //                 }, 2000);
+  //               }
+  //             }}
+  //           >
+  //             <Add fontSize="small" />
+  //           </IconButton>
+  //         </Tooltip>
+
+  //         {/* <Button
+  //           variant="contained"
+  //           color="info"
+  //           size="small"
+  //           startIcon={<Add fontSize="small" />}
+  //           disabled={params.mode === "delete" ? true : false}
+  //           onClick={() => {
+  //             if (addCustomerListData) {
+  //               const isItem = [...getRows, ...filteredSelectedItems].some(
+  //                 (item) =>
+  //                   lodash.isEqual(item.RecordID, addCustomerListData.RecordID)
+  //               );
+  //               if (isItem) {
+  //                 setIsCustomerListExists(true);
+  //                 setTimeout(() => {
+  //                   setIsCustomerListExists(false);
+  //                   setAddCustomerListData(null);
+  //                 }, 5000);
+  //                 return;
+  //               }
+  //               dispatch(runGroupAddedItem(addCustomerListData));
+  //               setAddCustomerListData(null);
+  //             } else {
+  //               setIsCustomerListExistsError(true);
+  //               setTimeout(() => {
+  //                 setIsCustomerListExistsError(false);
+  //               }, 2000);
+  //             }
+  //           }}
+  //         >
+  //           Add
+  //         </Button> */}
+  //       </Box>
+  //     </GridToolbarContainer>
+  //   );
+  // }
 
   const runGroupSaveFn = async (values, setSubmitting) => {
     const postData = {
@@ -268,16 +375,21 @@ const RunGroupEdit = () => {
       code: values.runGroupCode,
       name: values.runGroupName,
       sortorder: values.sortOrder,
-      companyRecordID:user.companyID,
+      companyCode: state.CompanyCode,
       disable: "N",
       lastModifiedDate: "",
       RunGroupList: [...getRows, ...filteredSelectedItems],
     };
     try {
       const response = await dispatch(runGroupPost({ rData: postData }));
+      console.log("🚀 ~ runGroupSaveFn ~ response:", response)
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
+        if(params.mode === "add"){
+
+          dispatch(getRunGroupData({ id: response.payload.RecordID }));
+        }
       } else {
         setOpenAlert(true);
         setPostError(true);
@@ -343,9 +455,16 @@ const RunGroupEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "CP-Price Book" },
-                    { name: "Run Group", path: "/pages/control-panel/run-group" },
-                    { name: `${params.mode} Run Group` },
+                    { name: "Control Panel" },
+                    {
+                      name: "Company",
+                      path: "/pages/control-panel/company-run-group",
+                    },
+                    {
+                      name: "Price Book Group",
+                      path: -1,
+                    },
+                    { name: `${params.mode} Price Book Group` },
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
@@ -396,14 +515,14 @@ const RunGroupEdit = () => {
                     type="text"
                     id="runGroupCode"
                     name="runGroupCode"
-                    label="Run Group"
+                    label="Name"
                     value={values.runGroupCode}
                     onChange={handleChange}
                     required
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
-                     autoComplete="off"
+                    autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 1" }}
                     disabled={params.mode === "delete" ? true : false}
@@ -416,21 +535,73 @@ const RunGroupEdit = () => {
                     type="text"
                     id="runGroupName"
                     name="runGroupName"
-                    label="Run Group Description"
+                    label="Description"
                     value={values.runGroupName}
                     onChange={handleChange}
                     required
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
-                     autoComplete="off"
+                    autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 1" }}
                     disabled={params.mode === "delete" ? true : false}
                     //   error={!!touched.runGroupName && !!errors.runGroupName}
                     //   helperText={touched.runGroupName && errors.runGroupName}
                   />
-                  <TextField
+                  <CusListRunGrpOptimizedAutocomplete
+                  sx={{ gridColumn: "span 1" }}
+                    errors={isCustomerListExistsError}
+                    helper={
+                      isCustomerListExistsError && "Please select customer!"
+                    }
+                    disabled={
+                      params.mode === "delete" || params.mode === "view"
+                    }
+                    name="customerPriceList"
+                    id="customerPriceList"
+                    value={addCustomerListData}
+                    onChange={handleSelectionAddCustomerListData}
+                    label="Customers"
+                    url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
+                  />
+                    <Tooltip title="Add Customers">
+            <IconButton
+             sx={{width:50,gridColumn:"span 1"}}
+              color="black"
+              size="small"
+              disabled={params.mode === "delete"}
+              onClick={() => {
+                if (addCustomerListData) {
+                  // const isItem = [...getRows, ...filteredSelectedItems].some(
+                  //   (item) =>
+                  //     lodash.isEqual(
+                  //       item.RecordID,
+                  //       addCustomerListData.RecordID
+                  //     )
+                  // );
+                  // if (isItem) {
+                  //   setIsCustomerListExists(true);
+                  //   setTimeout(() => {
+                  //     setIsCustomerListExists(false);
+                  //     setAddCustomerListData(null);
+                  //   }, 5000);
+                  //   return;
+                  // }
+                  dispatch(runGroupAddedItem(addCustomerListData));
+                  setAddCustomerListData([]);
+                } else {
+                  setIsCustomerListExistsError(true);
+                  setTimeout(() => {
+                    setIsCustomerListExistsError(false);
+                  }, 2000);
+                }
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -439,13 +610,13 @@ const RunGroupEdit = () => {
                     label="Sequence"
                     value={values.sortOrder}
                     onChange={handleChange}
-                     autoComplete="off"
+                    autoComplete="off"
                     size="small"
                     sx={{ gridColumn: "span 1" }}
                     disabled={params.mode === "delete" ? true : false}
                     //   error={!!touched.sortOrder && !!errors.sortOrder}
                     //   helperText={touched.sortOrder && errors.sortOrder}
-                  />
+                  /> */}
                   <Box
                     sx={{
                       height: 400,
@@ -489,28 +660,29 @@ const RunGroupEdit = () => {
 
                       "& .MuiDataGrid-row.Mui-selected:hover": {
                         backgroundColor: `${theme.palette.action.selected} !important`,
-                      },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                      },
+                      "& .MuiTablePagination-root": {
+                        color: "white !important", // Ensuring white text color for the pagination
+                      },
+
+                      "& .MuiTablePagination-root .MuiTypography-root": {
+                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                      },
+
+                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                        color: "white !important", // Ensuring white icons for pagination
+                      },
                     }}
                   >
                     <DataGrid
-                     columnHeaderHeight={dataGridHeaderFooterHeight}
-                     sx={{
-                       // This is to override the default height of the footer row
-                       '& .MuiDataGrid-footerContainer': {
-                           height: dataGridHeaderFooterHeight,
-                           minHeight: dataGridHeaderFooterHeight,
-                       },
-                     }}
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      sx={{
+                        // This is to override the default height of the footer row
+                        "& .MuiDataGrid-footerContainer": {
+                          height: dataGridHeaderFooterHeight,
+                          minHeight: dataGridHeaderFooterHeight,
+                        },
+                      }}
                       slots={{
                         loadingOverlay: LinearProgress,
                         toolbar: CustomToolbar,
@@ -544,12 +716,20 @@ const RunGroupEdit = () => {
               </Paper>
 
               <MessageAlertDialog
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 tittle={values.runGroupCode}
-                message={`Are you sure you want to delete Run Group?`}
+                message={`Are you sure you want to delete Price Book Group?`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -561,6 +741,7 @@ const RunGroupEdit = () => {
                       Yes
                     </Button>
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -572,17 +753,25 @@ const RunGroupEdit = () => {
                     >
                       No
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
 
               <MessageAlertDialog
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isRemoveCustomer}
                 tittle={removeCustomerdDesc}
-                message={`Are you sure you want to remove the customers?`}
+                message={`Are you sure you want to remove the customer?`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -601,6 +790,7 @@ const RunGroupEdit = () => {
                       Yes
                     </Button>
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -612,7 +802,7 @@ const RunGroupEdit = () => {
                     >
                       No
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
             </form>
@@ -622,80 +812,61 @@ const RunGroupEdit = () => {
         false
       )}
       <AlertDialog
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
-          params.mode === "add"
-            ? "RunGroup added successfully"
+          postError
+            ? "Something went wrong and please retry"
+            : params.mode === "add"
+            ? "Price Book Group added successfully"
             : params.mode === "delete"
-              ? "RunGroup deleted Successfully"
-              : "RunGroup updated successfully"
+            ? "Price Book Group deleted Successfully"
+            : "Price Book Group updated successfully"
         }
         Actions={
-          params.mode === "add" ? (
-            <DialogActions>
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {
-                  navigate("/pages/control-panel/run-group"
-                    ,
-                    {
-                      state:{
-                    ID:state.companyID
-                  }
-                }
-              );
-                  // dispatch(clearPrintListState())
-                }}
-              >
-                Back to Run Group
-              </Button>
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {
-                  dispatch(getRunGroupData({ id: 0 }));
-                  setOpenAlert(false);
-                }}
-                autoFocus
-              >
-                Add New Run Group
-              </Button>
-            </DialogActions>
-          ) : (
-            <DialogActions>
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => navigate("/pages/control-panel/run-group",
-                  {
-                    state:{
-                      companyID:state.companyID
-                }
-              })}
-              >
-                Back to Run Group
-              </Button>
-            </DialogActions>
-          )
+          <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            width: "100%",
+          }}
+        >
+          <Button
+            variant="contained"
+            sx={{ mr: 1, height: 25 }}
+            color="info"
+            size="small"
+            onClick={() => {
+              setOpenAlert(false);
+            }}
+          >
+            close
+          </Button>
+
+        </Box>
         }
       />
 
       <MessageAlertDialog
+        logo={`data:image/png;base64,${user.logo}`}
         open={isCustomerListExists}
         tittle={
           addCustomerListData
             ? addCustomerListData.CustomerName
             : "Please select customer!"
         }
-        message={"Oops! This customer is already exists in run group."}
+        message={"Oops! This customer is already exists in Price Book group."}
         Actions={
-          <DialogActions>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
             <Button
+              sx={{ mr: 1, height: 25 }}
               variant="contained"
               color="info"
               size="small"
@@ -706,7 +877,7 @@ const RunGroupEdit = () => {
             >
               Close
             </Button>
-          </DialogActions>
+          </Box>
         }
       />
     </Container>

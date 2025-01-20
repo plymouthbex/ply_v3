@@ -21,6 +21,9 @@ import {
   DialogActions,
   Tooltip,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import {
   DataGrid,
@@ -33,7 +36,7 @@ import {
   dataGridPageSize,
   dataGridpageSizeOptions,
   dataGridRowHeight,
-  dataGridHeaderFooterHeight
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 import { RefreshOutlined } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -54,7 +57,8 @@ import {
 } from "app/components/SingleAutocompletelist";
 import { PostAdHocItem } from "app/redux/slice/postSlice";
 import AlertDialog from "app/components/AlertDialog";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import useAuth from "app/hooks/useAuth";
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -68,6 +72,7 @@ const Container = styled("div")(({ theme }) => ({
 // ********************** ITEMS SCREEN LISTVIEW ********************** //
 const ItemList = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
+  const { user } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -167,16 +172,15 @@ const ItemList = () => {
       width: 200,
       renderCell: (params) => (
         <div style={{ display: "flex", gap: "10px" }}>
-        <Tooltip title="More">
-          <IconButton
-            onClick={() => handleRowClick(params)}
-            sx={{ height: 30, width: 30 }}
-          >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </div>
-      
+          <Tooltip title="More">
+            <IconButton
+              onClick={() => handleRowClick(params)}
+              sx={{ height: 30, width: 30 }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
       ),
     },
   ];
@@ -212,13 +216,13 @@ const ItemList = () => {
           <GridToolbarQuickFilter />
 
           <Tooltip title="Refresh">
-    <IconButton
-      onClick={() => toast.error("Under construction...")}
-      sx={{ height: 30, width: 30 }}
-    >
-      <RefreshOutlined fontSize="small" />
-    </IconButton>
-  </Tooltip>
+            <IconButton
+              onClick={() => toast.error("Under construction...")}
+              sx={{ height: 30, width: 30 }}
+            >
+              <RefreshOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
           {/* <Button
             variant="contained"
             color="info"
@@ -238,6 +242,24 @@ const ItemList = () => {
           >
             Create Price List
           </Button> */}
+          <FormControl fullWidth size="small">
+            <InputLabel id="demo-simple-select-label">
+            Item Type
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              // value={values.serviceProvider}
+              // onChange={handleChange}
+              // onBlur={handleBlur}
+              id="serviceProvider"
+              name="serviceProvider"
+              label="Price Book Type"
+            >
+              <MenuItem value={"AT&T"}>Zero Price Items</MenuItem>
+              <MenuItem value={"V"}>Contract Items</MenuItem>
+              <MenuItem value={"TM"}>Non-Contract Items</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
       </GridToolbarContainer>
     );
@@ -323,17 +345,18 @@ const ItemList = () => {
                 // },
                 "& .MuiDataGrid-row.Mui-selected:hover": {
                   backgroundColor: `${theme.palette.action.selected} !important`,
-                },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                },
+                "& .MuiTablePagination-root": {
+                  color: "white !important", // Ensuring white text color for the pagination
+                },
+
+                "& .MuiTablePagination-root .MuiTypography-root": {
+                  color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                },
+
+                "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                  color: "white !important", // Ensuring white icons for pagination
+                },
               }}
             >
               <DataGrid
@@ -344,9 +367,9 @@ const ItemList = () => {
                 columnHeaderHeight={dataGridHeaderFooterHeight}
                 sx={{
                   // This is to override the default height of the footer row
-                  '& .MuiDataGrid-footerContainer': {
-                      height: dataGridHeaderFooterHeight,
-                      minHeight: dataGridHeaderFooterHeight,
+                  "& .MuiDataGrid-footerContainer": {
+                    height: dataGridHeaderFooterHeight,
+                    minHeight: dataGridHeaderFooterHeight,
                   },
                 }}
                 rowHeight={dataGridRowHeight}
@@ -416,7 +439,7 @@ const ItemList = () => {
                 id="priceList"
                 value={addPriceListData}
                 onChange={handleSelectionAddPriceListData}
-                label="Price List"
+                label="Select Existing Price List"
                 companyID={companyID} // Pass companyID to the component
                 url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${companyID}`}
                 onOpen={handleOpen} // Trigger handleOpen when autocomplete opens
@@ -498,13 +521,26 @@ const ItemList = () => {
             </TableContainer>
           </Stack>
         </Box>
+
         <AlertDialog
-          key={23131}
+          key={48}
+          logo={`data:image/png;base64,${user.logo}`}
           open={openAlert1}
           error={postError1}
-          message={"Item saved successfully!"}
+          message={
+            postError1
+              ? "Error while Deleting and please retry"
+              : "Item Deleted Successfully"
+          }
+          // message={"Item Deleted Successfully"}
           Actions={
-            <DialogActions>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
               <Button
                 variant="contained"
                 color="info"
@@ -515,10 +551,11 @@ const ItemList = () => {
                   setRowSelectionModelRows([]);
                   setAddPriceListData(null);
                 }}
+                sx={{ mr: 1, height: 25 }}
               >
                 Close
               </Button>
-            </DialogActions>
+            </Box>
           }
         />
       </Paper>

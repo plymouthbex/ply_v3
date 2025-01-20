@@ -58,6 +58,7 @@ import {
 } from "app/redux/slice/listviewSlice";
 import { deleteUserGroupData, userGroupPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import useAuth from "app/hooks/useAuth";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -93,6 +94,7 @@ const validationSchema = Yup.object({
 
 // ******************** Price List Edit SCREEN  ******************** //
 const UserGroupEdit = () => {
+  const { user } = useAuth()
   // ******************** HOOKS AND CONSTANTS ******************** //
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -415,7 +417,7 @@ const UserGroupEdit = () => {
                   <TextField
                     fullWidth
                     variant="outlined"
-                      autoComplete="off"
+                    autoComplete="off"
                     type="text"
                     id="userGroupName"
                     name="userGroupName"
@@ -466,7 +468,7 @@ const UserGroupEdit = () => {
                       <MenuItem value={"SYSTEMADMIN"}>System Admin</MenuItem>
                     </Select>
                   </FormControl> */}
-                  
+
                   <Stack
                     sx={{ gridColumn: "span 2" }}
                     direction="column"
@@ -583,16 +585,16 @@ const UserGroupEdit = () => {
                           backgroundColor: `${theme.palette.action.selected} !important`,
                         },
                         "& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                          color: "white !important", // Ensuring white text color for the pagination
+                        },
+
+                        "& .MuiTablePagination-root .MuiTypography-root": {
+                          color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                        },
+
+                        "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                          color: "white !important", // Ensuring white icons for pagination
+                        },
                       }}
                     >
                       <DataGrid
@@ -603,9 +605,9 @@ const UserGroupEdit = () => {
                         columnHeaderHeight={dataGridHeaderFooterHeight}
                         sx={{
                           // This is to override the default height of the footer row
-                          '& .MuiDataGrid-footerContainer': {
-                              height: dataGridHeaderFooterHeight,
-                              minHeight: dataGridHeaderFooterHeight,
+                          "& .MuiDataGrid-footerContainer": {
+                            height: dataGridHeaderFooterHeight,
+                            minHeight: dataGridHeaderFooterHeight,
                           },
                         }}
                         rowHeight={dataGridRowHeight}
@@ -710,17 +712,18 @@ const UserGroupEdit = () => {
 
                         "& .MuiDataGrid-row.Mui-selected:hover": {
                           backgroundColor: `${theme.palette.action.selected} !important`,
-                        },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                        },
+                        "& .MuiTablePagination-root": {
+                          color: "white !important", // Ensuring white text color for the pagination
+                        },
+
+                        "& .MuiTablePagination-root .MuiTypography-root": {
+                          color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                        },
+
+                        "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                          color: "white !important", // Ensuring white icons for pagination
+                        },
                       }}
                     >
                       <DataGrid
@@ -731,15 +734,28 @@ const UserGroupEdit = () => {
                         columnHeaderHeight={dataGridHeaderFooterHeight}
                         sx={{
                           // This is to override the default height of the footer row
-                          '& .MuiDataGrid-footerContainer': {
-                              height: dataGridHeaderFooterHeight,
-                              minHeight: dataGridHeaderFooterHeight,
+                          "& .MuiDataGrid-footerContainer": {
+                            height: dataGridHeaderFooterHeight,
+                            minHeight: dataGridHeaderFooterHeight,
                           },
                         }}
                         rowHeight={dataGridRowHeight}
                         // rows={data.ApplicationAccess}
-                        rows={values.type === "USER" ?data.ApplicationAccess.filter((value) => value.User === 1 ) :values.type === "ADMIN" ?data.ApplicationAccess.filter((value) => value.Admin === 1 ): values.type === "SYSTEMADMIN" ?data.ApplicationAccess.filter((value) => value.SystemAdmin === 1 ):[]}
-
+                        rows={
+                          values.type === "USER"
+                            ? data.ApplicationAccess.filter(
+                                (value) => value.User === 1
+                              )
+                            : values.type === "ADMIN"
+                            ? data.ApplicationAccess.filter(
+                                (value) => value.Admin === 1
+                              )
+                            : values.type === "SYSTEMADMIN"
+                            ? data.ApplicationAccess.filter(
+                                (value) => value.SystemAdmin === 1
+                              )
+                            : []
+                        }
                         columns={Appcolumns}
                         checkboxSelection
                         // checkboxSelection={mode !== "delete"}
@@ -792,13 +808,20 @@ const UserGroupEdit = () => {
         false
       )}
       <MessageAlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={isDelete}
-        tittle={"Delete"}
         message={`Are you sure you want to delete?`}
         Actions={
-          <DialogActions>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
             <Button
               variant="contained"
+              sx={{ mr: 1, height: 25 }}
               color="info"
               size="small"
               onClick={() => {
@@ -809,6 +832,7 @@ const UserGroupEdit = () => {
               Yes
             </Button>
             <Button
+              sx={{ mr: 1, height: 25 }}
               variant="contained"
               color="info"
               size="small"
@@ -816,27 +840,36 @@ const UserGroupEdit = () => {
                 setIsDelete(false);
                 // setSubmitting(false);
               }}
-              autoFocus
             >
               No
             </Button>
-          </DialogActions>
+          </Box>
         }
       />
       <AlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
-          params.mode === "add"
+          postError
+            ? "Something went wrong and please retry"
+            : params.mode === "add"
             ? "User Group added successfully"
             : params.mode === "delete"
-              ? "User Group Deleted Successfully"
-              : "User Group updated successfully"
+            ? "User Group Deleted Successfully"
+            : "User Group updated successfully"
         }
         Actions={
           params.mode === "add" ? (
-            <DialogActions>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -845,6 +878,7 @@ const UserGroupEdit = () => {
                 Back to UserGroup
               </Button>
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -856,10 +890,17 @@ const UserGroupEdit = () => {
               >
                 Add New UserGroup
               </Button>
-            </DialogActions>
+            </Box>
           ) : (
-            <DialogActions>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -867,7 +908,7 @@ const UserGroupEdit = () => {
               >
                 Back to UserGroup
               </Button>
-            </DialogActions>
+            </Box>
           )
         }
       />

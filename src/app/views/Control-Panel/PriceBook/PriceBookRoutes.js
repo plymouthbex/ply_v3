@@ -30,6 +30,8 @@ const Customer = Loadable(lazy(() => import('./Customer/customerListView')));
 const Address=Loadable(lazy(() => import('./Customer/Address/addressListview')));
 const Contacts=Loadable(lazy(() => import('./Customer/Contact/contactListview')));
 const ConfigureCustomerEdit=Loadable(lazy(() => import('./Customer/Configure/configureEdit')));
+const ContactEdit=Loadable(lazy(() => import('./Customer/Configure/ContactEdit')));
+const ConfigureContactEdit=Loadable(lazy(() => import('./Customer/Configure/ConfigContactEdit')));
 const ConfigureCompanyEdit=Loadable(lazy(() => import('./Company/ConfigureCompanyEdit')));
 const Items=Loadable(lazy(() => import('./Price-List-Items/priceListItemss')));
 const ConfigureItemAttributesEdit=Loadable(lazy(() => import('./Price-List-Items/configureItemAttributes')));
@@ -65,6 +67,8 @@ const controlPanelRoutes = [
   { path: '/pages/control-panel/configure-price-book/customer/address', element: <Address /> },
   { path: '/pages/control-panel/configure-price-book/customer/contact', element: <Contacts /> },
   { path: '/pages/control-panel/configure-price-book/customer/:mode/configureEdit', element: <ConfigureCustomerEdit /> },
+  { path: '/pages/control-panel/configure-price-book/customer/configure-contact', element: <ConfigureContactEdit /> },
+  { path: '/pages/control-panel/configure-price-book/customer/configure-contact/:mode', element: <ContactEdit /> },
   { path: '/pages/control-panel/configure-price-book/configure-company-edit/:mode', element: <ConfigureCompanyEdit /> },
   { path: '/pages/control-panel/configure-price-book/price-list-items/:mode', element: <Items /> },
   { path: '/pages/control-panel/configure-price-book/price-list-items/configure-items/:itemMode', element: <ConfigureItemAttributesEdit /> },

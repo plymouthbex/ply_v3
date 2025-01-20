@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   Typography,
   IconButton,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -19,7 +19,11 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
@@ -41,109 +45,113 @@ const Contact = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-    const isNonMobile = useMediaQuery("(min-width:600px)");
-    const location =useLocation();
-    const State=location.state;
-    console.log("🚀 ~ Contact ~ State:", State)
-const dispatch=useDispatch();
+  const isNonMobile = useMediaQuery("(min-width:600px)");
+  const location = useLocation();
+  const State = location.state;
+  console.log("🚀 ~ Contact ~ State:", State);
+  const dispatch = useDispatch();
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
   const contactrRows = useSelector(
     (state) => state.listview.configureContactListViewData
   );
-  console.log("🚀 ~ Company ~ contactrRows:", contactrRows)
+  console.log("🚀 ~ Company ~ contactrRows:", contactrRows);
 
- 
   useEffect(() => {
-    dispatch(getConfigureContactListView({ID:State.address.company.RecordID,CustomerID:State.address.Code,AddressID:State.Code}));
-    
+    dispatch(
+      getConfigureContactListView({
+        ID: State.address.company.RecordID,
+        CustomerID: State.address.Code,
+        AddressID: State.Code,
+      })
+    );
   }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
-   const columns = [
-      {
-        headerName: "Email",
-        field: "EmailId",
-        width: "150",
-        align: "left",
-        headerAlign: "left",
-        hide: true,
+  const columns = [
+    {
+      headerName: "Email",
+      field: "EmailId",
+      width: "150",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
+      headerName: "Phone",
+      field: "Phone",
+      width: "170",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
+      headerName: "Contact Person Name",
+      field: "ContactName",
+      width: "170",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
+      field: "Action",
+      headerName: "Action",
+      minWidth: 100,
+      flex: 1,
+      sortable: false,
+      headerAlign: "center",
+      filterable: false,
+      disableColumnMenu: true,
+      disableExport: true,
+      align: "center",
+      renderCell: (params) => {
+        return (
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Tooltip title="Edit Communication">
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() => {
+                  navigate(
+                    "/pages/control-panel/configure-price-book/customer/edit-Contact/configureEdit",
+                    {
+                      state: {
+                        RecordID: params.row.RecordID,
+                        Configure: State,
+                      },
+                    }
+                  );
+                }}
+              >
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </div>
+        );
       },
-      {
-        headerName: "Phone",
-        field: "Phone",
-        width: "170",
-        align: "left",
-        headerAlign: "left",
-        hide: true,
-      },
-      {
-          headerName: "Contact Person Name",
-          field: "ContactName",
-          width: "170",
-          align: "left",
-          headerAlign: "left",
-          hide: true,
-        },
-      {
-        field: "Action",
-        headerName: "Action",
-        minWidth: 100,
-        flex: 1,
-        sortable: false,
-        headerAlign: "center",
-        filterable: false,
-        disableColumnMenu: true,
-        disableExport: true,
-        align: "center",
-        renderCell: (params) => {
-          return (
-              <div style={{ display: "flex", gap: "8px" }}>
-              
-              <Tooltip title="Edit Communication">
-  <IconButton
-    color="black"
-    size="small"
-    onClick={() => {
-      navigate("/pages/control-panel/configure-price-book/customer/edit-Contact/configureEdit", {
-        state: {
-          RecordID: params.row.RecordID,
-          Configure: State,
-        },
-      });
-    }}
-  >
-    <ModeEditOutlineIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
+    },
+  ];
 
-            </div>
-            
-          );
-        },
-      },
-    ];
-  
-    const rows = [
-      {
-        RecordID:1,
-         email:"Taylor@gmail.com",
-         phone:"20667663210055",
-         contactName:"Taylor"
-      },
-      {
-        RecordID:2,
-          email:"smith@gmail.com",
-          phone:"2244356789",
-          contactName:"Smith"
-      },
-      {
-        RecordID:3,
-          email:"kabilan@gmail.com",
-          phone:"6382262524214",
-          contactName:"Kabilan"
-      },
-    ];
+  const rows = [
+    {
+      RecordID: 1,
+      email: "Taylor@gmail.com",
+      phone: "20667663210055",
+      contactName: "Taylor",
+    },
+    {
+      RecordID: 2,
+      email: "smith@gmail.com",
+      phone: "2244356789",
+      contactName: "Smith",
+    },
+    {
+      RecordID: 3,
+      email: "kabilan@gmail.com",
+      phone: "6382262524214",
+      contactName: "Kabilan",
+    },
+  ];
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -157,41 +165,52 @@ const dispatch=useDispatch();
           // padding: 2,
         }}
       >
-       <Box
-  sx={{
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start", // Align to the left
-    alignItems: "center",
-    gap: 1 // Space between items
-  }}
->
-  <Typography fontSize={"16px"}>
-    <Typography component="span" fontSize={"16px"} fontWeight="bold">
-      Company:
-    </Typography>
-    {`${State.address.company.Code} || ${State.address.company.Name}`}
-    <Typography component="span" fontWeight="bold" fontSize={"18px"}>{`  >>    `}</Typography>
-  </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-start", // Align to the left
+            alignItems: "center",
+            gap: 1, // Space between items
+          }}
+        >
+          <Typography fontSize={"16px"}>
+            <Typography component="span" fontSize={"16px"} fontWeight="bold">
+              Company:
+            </Typography>
+            {`${State.address.company.Code} || ${State.address.company.Name}`}
+            <Typography
+              component="span"
+              fontWeight="bold"
+              fontSize={"18px"}
+            >{`  >>    `}</Typography>
+          </Typography>
 
-  <Typography fontSize={"16px"}>
-    <Typography component="span" fontSize={"16px"} fontWeight="bold">
-      Customer:
-    </Typography>
-    {`${State.address.Code} || ${State.address.Name}`}
-    <Typography component="span" fontWeight="bold" fontSize={"16px"}>{` >> `}</Typography>
-  </Typography>
+          <Typography fontSize={"16px"}>
+            <Typography component="span" fontSize={"16px"} fontWeight="bold">
+              Customer:
+            </Typography>
+            {`${State.address.Code} || ${State.address.Name}`}
+            <Typography
+              component="span"
+              fontWeight="bold"
+              fontSize={"16px"}
+            >{` >> `}</Typography>
+          </Typography>
 
-  <Typography fontSize={"16px"}>
-    <Typography component="span" fontSize={"16px"} fontWeight="bold">
-    Address:
-    </Typography>
-    {`${State.Code} || ${State.Name}`}
-    <Typography component="span" fontWeight="bold" fontSize={"16px"}></Typography>
-  </Typography>
-</Box>
+          <Typography fontSize={"16px"}>
+            <Typography component="span" fontSize={"16px"} fontWeight="bold">
+              Address:
+            </Typography>
+            {`${State.Code} || ${State.Name}`}
+            <Typography
+              component="span"
+              fontWeight="bold"
+              fontSize={"16px"}
+            ></Typography>
+          </Typography>
+        </Box>
 
-  
         <Box
           sx={{
             display: "flex",
@@ -199,167 +218,164 @@ const dispatch=useDispatch();
             gap: 2,
           }}
         >
-            <GridToolbarQuickFilter />
-            <Tooltip title="Add Contact">
-  <IconButton
-    color="info"
-    size="small"
-    onClick={() => {
-      navigate("/pages/control-panel/configure-price-book/customer/add-Contact/configureEdit", {
-        state: {
-          RecordID: 0,
-          Configure: State,
-        },
-      });
-    }}
-  >
-    <Add fontSize="small" />
-  </IconButton>
-</Tooltip>
-
-        
+          <GridToolbarQuickFilter />
+          <Tooltip title="Add Contact">
+            <IconButton
+              color="info"
+              size="small"
+              onClick={() => {
+                navigate(
+                  "/pages/control-panel/configure-price-book/customer/add-Contact/configureEdit",
+                  {
+                    state: {
+                      RecordID: 0,
+                      Configure: State,
+                    },
+                  }
+                );
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
       </GridToolbarContainer>
     );
   }
-  
 
   return (
     <Container>
-       <div className="breadcrumb" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-       <Breadcrumb
-                 routeSegments={[{ name: "Configure Price Book Type", path: "/pages/control-panel/configure-price-book/company"  },
-                    { name: "Customer",path:"/pages/control-panel/configure-price-book/customer" } ,
-                    { name: "Address" ,path:"/pages/control-panel/configure-price-book/customer/address"},
-                {name:"Contacts"}]}
-                    
-               />
-               <Stack direction="row" gap={1}>
-    <Button
-      variant="contained"
-      color="info"
-      size="small"
-      startIcon={<ArrowBackIcon size="small" />}
-      onClick={() => navigate(-1)}
-    >
-      Back
-    </Button>
-  </Stack>
+      <div
+        className="breadcrumb"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        <Breadcrumb
+          routeSegments={[
+            {
+              name: "Configure Price Book Type",
+              path: "/pages/control-panel/configure-price-book/company",
+            },
+            {
+              name: "Customer",
+              path: "/pages/control-panel/configure-price-book/customer",
+            },
+            {
+              name: "Address",
+              path: "/pages/control-panel/configure-price-book/customer/address",
+            },
+            { name: "Contacts" },
+          ]}
+        />
+        <Stack direction="row" gap={1}>
+          <Button
+            variant="contained"
+            color="info"
+            size="small"
+            startIcon={<ArrowBackIcon size="small" />}
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </Button>
+        </Stack>
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
-          <Box
-                        display="grid"
-                        gap="20px"
-                        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                        sx={{
-                          "& > div": {
-                            gridColumn: isNonMobile ? undefined : "span 4",
-                          },
-                          padding: "10px",
-                        }}
-                      >
-                        {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}> */}
-                        {/* <Typography fontSize={"16px"} fontWeight={"bold"}>Customer:123456||TestCustomer</Typography> */}
-                        {/* <Typography fontSize={"16px"} fontWeight={"bold"}>Address:BILLING||123 Jedi Lane SW || Suite 66</Typography> */}
-                          {/* </Stack> */}
-                          </Box>
         <Box
-         sx={{ 
+          display="grid"
+          gap="20px"
+          gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+          sx={{
+            "& > div": {
+              gridColumn: isNonMobile ? undefined : "span 4",
+            },
+            padding: "10px",
+          }}
+        >
+          {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}> */}
+          {/* <Typography fontSize={"16px"} fontWeight={"bold"}>Customer:123456||TestCustomer</Typography> */}
+          {/* <Typography fontSize={"16px"} fontWeight={"bold"}>Address:BILLING||123 Jedi Lane SW || Suite 66</Typography> */}
+          {/* </Stack> */}
+        </Box>
+        <Box
+          sx={{
+            height: dataGridHeight,
 
-          height: dataGridHeight, 
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
 
-          "& .MuiDataGrid-root": { 
+            "& .name-column--cell": {
+              color: theme.palette.info.contrastText,
+            },
 
-            border: "none", 
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: theme.palette.info.main,
 
-          }, 
+              color: theme.palette.info.contrastText,
 
-          "& .name-column--cell": { 
+              fontWeight: "bold",
 
-            color: theme.palette.info.contrastText, 
+              fontSize: theme.typography.subtitle2.fontSize,
+            },
 
-          }, 
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: theme.palette.info.light,
+            },
 
-          "& .MuiDataGrid-columnHeaders": { 
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
 
-            backgroundColor: theme.palette.info.main, 
+              backgroundColor: theme.palette.info.main,
 
-            color: theme.palette.info.contrastText, 
+              color: theme.palette.info.contrastText,
+            },
 
-            fontWeight: "bold", 
+            "& .MuiCheckbox-root": {
+              color: "black !important",
+            },
 
-            fontSize: theme.typography.subtitle2.fontSize, 
+            "& .MuiCheckbox-root.Mui-checked": {
+              color: "black !important",
+            },
 
-          }, 
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: theme.palette.action.hover,
+            },
 
-          "& .MuiDataGrid-virtualScroller": { 
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
+            },
 
-            backgroundColor: theme.palette.info.light, 
-
-          }, 
-
-          "& .MuiDataGrid-footerContainer": { 
-
-            borderTop: "none", 
-
-            backgroundColor: theme.palette.info.main, 
-
-            color: theme.palette.info.contrastText, 
-
-          }, 
-
-          "& .MuiCheckbox-root": { 
-
-            color: "black !important", 
-
-          }, 
-
-          "& .MuiCheckbox-root.Mui-checked": { 
-
-            color: "black !important", 
-
-          }, 
-
-          "& .MuiDataGrid-row:nth-of-type(even)": { 
-
-            backgroundColor: theme.palette.action.hover, 
-
-          }, 
-
-          "& .MuiDataGrid-row:nth-of-type(odd)": { 
-
-            backgroundColor: theme.palette.background.default, 
-
-          }, 
-
-          "& .MuiDataGrid-row.Mui-selected:hover": { 
-
-            backgroundColor: `${theme.palette.action.selected} !important`, 
-
-          },"& .MuiTablePagination-root": {
+            "& .MuiDataGrid-row.Mui-selected:hover": {
+              backgroundColor: `${theme.palette.action.selected} !important`,
+            },
+            "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
-            }, 
-
-        }} 
+            },
+          }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height:dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
@@ -367,7 +383,6 @@ const dispatch=useDispatch();
             rowHeight={dataGridRowHeight}
             rows={contactrRows}
             columns={columns}
-            
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}

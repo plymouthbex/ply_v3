@@ -26,6 +26,7 @@ import { values } from "lodash";
 import AlertDialog from "app/components/AlertDialog";
 import { applicationPost } from "app/redux/slice/postSlice";
 import toast from "react-hot-toast";
+import useAuth from "app/hooks/useAuth";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -58,6 +59,7 @@ const validationSchema = Yup.object({
 // ******************** Price List Edit SCREEN  ******************** //
 const ApplicationEdit = () => {
   // ******************** HOOKS AND CONSTANTS ******************** //
+  const { user } = useAuth()
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const params = useParams();
   const navigate = useNavigate();
@@ -331,9 +333,11 @@ const ApplicationEdit = () => {
         false
       )}
       <AlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
+          postError ? "Something went wrong and please retry":
           params.mode === "add"
             ? "Application added successfully"
             : params.mode === "delete"

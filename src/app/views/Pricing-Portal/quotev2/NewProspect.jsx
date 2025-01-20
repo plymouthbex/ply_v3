@@ -32,6 +32,7 @@ import {
   getConfigPriceBookCompany,
   getProspectContractItems,
   getProspectInfoData,
+  getProspectListData,
   getQuoteBookData,
   quoteClearState2,
 } from "app/redux/slice/getSlice";
@@ -78,7 +79,14 @@ const NewProspect = () => {
     (state) => state.getSlice.getQuoteProspectInfoError
   );
 
+  const rowProspect = useSelector(
+    (state) => state.getSlice.getQuoteProspectData
+  );
+
   useEffect(() => {
+    dispatch(
+      getProspectListData({ data: { Type: "Prospect", UserID: user.id } })
+    );
     dispatch(
       getProspectInfoData({
         data: { RecordID: state.headerID ? state.headerID : 0 },
@@ -96,7 +104,7 @@ const NewProspect = () => {
 
   const handleSave = async (values, setSubmitting) => {
     const data = {
-      RecordID: 0,
+      RecordID: params.mode === "copy" ? 0 : getQuoteProspectInfoData.RecordID,
       CompanyCode: values.company ? values.company : "",
       UserID: user.id,
       FromDate: "",
@@ -124,7 +132,7 @@ const NewProspect = () => {
 
       setTimeout(() => {
         navigate(
-          params.mode === ""
+          params.mode === "copy"
             ? "/pages/pricing-portal/new-quote/new/build-quote"
             : "./build-quote",
           { state: { headerID: response.payload.RecordId } }
@@ -144,7 +152,36 @@ const NewProspect = () => {
     }
   };
 
-  const priceBookLevel1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const priceBookLevel1 = [6, 7, 8, 9];
+  const priceBookLevel2 = [8, 9];
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email("Invalid email format")
+      .max(30, "Email must be at most 30 characters"),
+    address1: Yup.string()
+      .min(3, "Address must be at least 3 characters")
+      .max(50, "Address must be at most 50 characters"),
+    mobile: Yup.string().matches(
+      /^\(\d{3}\) \d{3}-\d{4}$/,
+      "Phone number must be in the format (XXX) XXX-XXXX"
+    ),
+  });
+
+  const [isPrintGroupOpen, SetIsPrintGroupOpen] = useState(false);
+  const [printGroupID, setPrintGroupID] = useState(0);
+  const isPriceListIDExists = (e, setSubmitting) => {
+    const inputValue = e.target.value.trim();
+    const isPricelist = rowProspect.some(
+      (item) => item.Name === inputValue
+    );
+    if (isPricelist) {
+      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
+      setPrintGroupID(pricelistID.RecordID);
+      SetIsPrintGroupOpen(true);
+    } else {
+      setSubmitting(false);
+    }
+  };
   return (
     <Container>
       {getQuoteProspectInfoStatus === "fulfilled" &&
@@ -170,6 +207,7 @@ const NewProspect = () => {
               ? getQuoteProspectInfoData.PriceLevel
               : null,
           }}
+          validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
@@ -186,6 +224,7 @@ const NewProspect = () => {
             values,
             handleSubmit,
             setFieldValue,
+            setSubmitting,
           }) => (
             <form onSubmit={handleSubmit}>
               <div
@@ -272,7 +311,8 @@ const NewProspect = () => {
                     }}
                     value={values.name}
                     onChange={handleChange}
-                    onBlur={handleBlur}
+                    onFocus={() => setSubmitting(true)}
+                    onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
                     error={!!touched.name && !!errors.name}
                     helperText={touched.name && errors.name}
                     autoComplete="off"
@@ -303,6 +343,8 @@ const NewProspect = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     autoComplete="off"
+                    error={!!touched.address1 && !!errors.address1}
+                    helperText={touched.address1 && errors.address1}
                   />
                   <TextField
                     fullWidth
@@ -345,6 +387,8 @@ const NewProspect = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     autoComplete="off"
+                    error={!!touched.zip && !!errors.zip}
+                    helperText={touched.zip && errors.zip}
                   />
 
                   {/* <TextField
@@ -376,8 +420,12 @@ const NewProspect = () => {
                       fullWidth
                       id="priceBookLevel"
                       name="priceBookLevel"
-                      options={priceBookLevel1}
-                      getOptionLabel={(option) => `Price Book Level ${option}`}
+                      options={
+                        values.company == "PM"
+                          ? priceBookLevel1
+                          : priceBookLevel2
+                      }
+                      getOptionLabel={(option) => `Level ${option}`}
                       value={values.priceBookLevel}
                       onChange={(event, newValue) =>
                         handleChange({
@@ -419,6 +467,8 @@ const NewProspect = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     autoComplete="off"
+                    error={!!touched.mobile && !!errors.mobile}
+                    helperText={touched.mobile && errors.mobile}
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -443,12 +493,6 @@ const NewProspect = () => {
                     </Select>
                   </FormControl>
                   <TextField
-                    required
-                    InputLabelProps={{
-                      sx: {
-                        "& .MuiInputLabel-asterisk": { color: "red" },
-                      },
-                    }}
                     fullWidth
                     variant="outlined"
                     type="email"
@@ -460,7 +504,7 @@ const NewProspect = () => {
                     value={values.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={touched.email && Boolean(errors.email)}
+                    error={!!touched.email && !!errors.email}
                     helperText={touched.email && errors.email}
                     autoComplete="off"
                   />
@@ -476,6 +520,7 @@ const NewProspect = () => {
                       variant="contained"
                       color="info"
                       size="small"
+                      disabled={isSubmitting}
                       endIcon={<ArrowForwardIcon />}
                       sx={{ padding: "8px 16px" }}
                       type="submit"
@@ -488,6 +533,52 @@ const NewProspect = () => {
                   </Box>
                 </Box>
               </Paper>
+              <PriceGroupAlertApiDialog
+                logo={`data:image/png;base64,${user.logo}`}
+                open={isPrintGroupOpen}
+                error={true}
+                message={"Oops! This Name is already in use."}
+                Actions={
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      onClick={() => {
+                        dispatch(
+                          getProspectInfoData({
+                            data: {
+                              RecordID: printGroupID,
+                            },
+                          })
+                        );
+                        SetIsPrintGroupOpen(false);
+                      }}
+                      sx={{ height: 25 }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      onClick={() => {
+                        setFieldValue("name", "");
+                        SetIsPrintGroupOpen(false);
+                      }}
+                      sx={{ height: 25, ml: 1 }}
+                    >
+                      Try Another
+                    </Button>
+                  </Box>
+                }
+              />
             </form>
           )}
         </Formik>
@@ -503,6 +594,7 @@ const NewProspect = () => {
         loading={genricPriceBookIsPdfGenrating}
         error={genricPriceBookIsPdfError}
       /> */}
+
       <PriceGroupAlertApiDialog
         open={openAlert}
         error={postError}

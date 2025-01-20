@@ -68,7 +68,7 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
     theme.palette.text.primary
   )}, 0.3)`,
   "&:hover": {
-    background: `rgb(${convertHexToRGB(
+    background: `rgb(${convertHexToRGB( 
       theme.palette.text.primary
     )}, 0.2) !important`,
   },
@@ -731,7 +731,7 @@ const CompanyEdit = () => {
                   >
                     <Typography fontSize={"14px"}>Full Price Book</Typography>
                     <SettingsLogo previewImages={previewImages1} />
-                    {user.role === "ADMIN" && (
+                    {user.role != "USER" && (
                       <DropZone {...dropzoneProps1.getRootProps()}>
                         <input
                           {...dropzoneProps1.getInputProps({
@@ -765,7 +765,7 @@ const CompanyEdit = () => {
                       Customer Custom Price Book
                     </Typography>
                     <SettingsLogo previewImages={previewImages2} />
-                    {user.role === "ADMIN" && (
+                    {user.role != "USER" && (
                       <DropZone {...dropzoneProps2.getRootProps()}>
                         <input
                           {...dropzoneProps2.getInputProps({
@@ -799,7 +799,7 @@ const CompanyEdit = () => {
                       Customer Full Price Book
                     </Typography>
                     <SettingsLogo previewImages={previewImages3} />
-                    {user.role === "ADMIN" && (
+                    {user.role != "USER" && (
                       <DropZone {...dropzoneProps3.getRootProps()}>
                         <input
                           {...dropzoneProps3.getInputProps({
@@ -829,9 +829,11 @@ const CompanyEdit = () => {
         false
       )}
       <AlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
+          postError ? "Something went wrong and please retry":
           params.mode === "add"
             ? "Company added successfully"
             : params.mode === "delete"

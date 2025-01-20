@@ -15,12 +15,21 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight ,dataGridHeaderFooterHeight} from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import { getCompanyListView, getConfigureCompanyListView } from "app/redux/slice/listviewSlice";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import {
+  getCompanyListView,
+  getConfigureCompanyListView,
+} from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { clearConfigurePriceList } from "app/redux/slice/getSlice";
 
@@ -39,30 +48,22 @@ const Company = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-const dispatch =useDispatch();
+  const dispatch = useDispatch();
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
-const companyRows=useSelector((state)=>state.listview.configureComapnyListViewData);
-console.log("🚀 ~ Company ~ companyRows:", companyRows)
-
-
+  const companyRows = useSelector(
+    (state) => state.listview.configureComapnyListViewData
+  );
+  console.log("🚀 ~ Company ~ companyRows:", companyRows);
 
   //***************************API-CALL************************************ */
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(getConfigureCompanyListView());
     dispatch(clearConfigurePriceList());
-  },[dispatch])
+  }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    {
-      headerName: "Company Code",
-      field: "CompanyCode",
-      width: "150",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
     {
       headerName: "Company Name",
       field: "CompanyName",
@@ -71,7 +72,7 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
       headerAlign: "left",
       hide: true,
     },
-  
+
     {
       field: "Action",
       headerName: "Action",
@@ -86,46 +87,49 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <Tooltip title="Customer Price Book">
+                <IconButton
+                  color="black"
+                  size="small"
+                  onClick={() => {
+                    navigate(
+                      "/pages/control-panel/configure-price-book/customer",
+                      {
+                        state: {
+                          RecordID: params.row.CompanyID,
+                          Code: params.row.CompanyCode,
+                          Name: params.row.CompanyName,
+                        },
+                      }
+                    );
+                  }}
+                >
+                  <ListAltIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
 
-<div style={{ display: "flex", gap: "10px" }}>
-  <Tooltip title="Customer List">
-    <IconButton
-      color="black"
-      size="small"
-      onClick={() => {
-        navigate("/pages/control-panel/configure-price-book/customer", {
-          state: {
-            RecordID: params.row.CompanyID,
-            Code: params.row.CompanyCode,
-            Name: params.row.CompanyName,
-          },
-        });
-      }}
-    >
-      <ListAltIcon fontSize="small" />
-    </IconButton>
-  </Tooltip>
-
-  <Tooltip title="Configure Price Book">
-    <IconButton
-      color="black"
-      size="small"
-      onClick={() => {
-        navigate("/pages/control-panel/configure-price-book/configure-company-edit/edit", {
-          state: {
-            RecordID: params.row.RecordID,
-            Code: params.row.CompanyCode,
-            Name: params.row.CompanyName,
-          },
-        });
-      }}
-    >
-      <ModeEditOutlineIcon fontSize="small" />
-    </IconButton>
-  </Tooltip>
-</div>
-
-            
+              <Tooltip title="Configure Company Price List">
+                <IconButton
+                  color="black"
+                  size="small"
+                  onClick={() => {
+                    navigate(
+                      "/pages/control-panel/configure-price-book/configure-company-edit/edit",
+                      {
+                        state: {
+                          RecordID: params.row.RecordID,
+                          Code: params.row.CompanyCode,
+                          Name: params.row.CompanyName,
+                        },
+                      }
+                    );
+                  }}
+                >
+                  <ModeEditOutlineIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
           </div>
         );
       },
@@ -197,107 +201,89 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Configure Price Book Type" }, { name: "Company" }]}
+          routeSegments={[
+            { name: "Configure Price Book Type" },
+            { name: "Company" },
+          ]}
         />
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
-         sx={{ 
+          sx={{
+            height: dataGridHeight,
 
-          height: dataGridHeight, 
+            "& .MuiDataGrid-root": {
+              border: "none",
+            },
 
-          "& .MuiDataGrid-root": { 
+            "& .name-column--cell": {
+              color: theme.palette.info.contrastText,
+            },
 
-            border: "none", 
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: theme.palette.info.main,
 
-          }, 
+              color: theme.palette.info.contrastText,
 
-          "& .name-column--cell": { 
+              fontWeight: "bold",
 
-            color: theme.palette.info.contrastText, 
+              fontSize: theme.typography.subtitle2.fontSize,
+            },
 
-          }, 
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: theme.palette.info.light,
+            },
 
-          "& .MuiDataGrid-columnHeaders": { 
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
 
-            backgroundColor: theme.palette.info.main, 
+              backgroundColor: theme.palette.info.main,
 
-            color: theme.palette.info.contrastText, 
+              color: theme.palette.info.contrastText,
+            },
 
-            fontWeight: "bold", 
+            "& .MuiCheckbox-root": {
+              color: "black !important",
+            },
 
-            fontSize: theme.typography.subtitle2.fontSize, 
+            "& .MuiCheckbox-root.Mui-checked": {
+              color: "black !important",
+            },
 
-          }, 
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: theme.palette.action.hover,
+            },
 
-          "& .MuiDataGrid-virtualScroller": { 
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
+            },
 
-            backgroundColor: theme.palette.info.light, 
-
-          }, 
-
-          "& .MuiDataGrid-footerContainer": { 
-
-            borderTop: "none", 
-
-            backgroundColor: theme.palette.info.main, 
-
-            color: theme.palette.info.contrastText, 
-
-          }, 
-
-          "& .MuiCheckbox-root": { 
-
-            color: "black !important", 
-
-          }, 
-
-          "& .MuiCheckbox-root.Mui-checked": { 
-
-            color: "black !important", 
-
-          }, 
-
-          "& .MuiDataGrid-row:nth-of-type(even)": { 
-
-            backgroundColor: theme.palette.action.hover, 
-
-          }, 
-
-          "& .MuiDataGrid-row:nth-of-type(odd)": { 
-
-            backgroundColor: theme.palette.background.default, 
-
-          }, 
-
-          "& .MuiDataGrid-row.Mui-selected:hover": { 
-
-            backgroundColor: `${theme.palette.action.selected} !important`, 
-
-          }, "& .MuiTablePagination-root": {
+            "& .MuiDataGrid-row.Mui-selected:hover": {
+              backgroundColor: `${theme.palette.action.selected} !important`,
+            },
+            "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
-
-        }} 
+          }}
         >
           <DataGrid
-           columnHeaderHeight={dataGridHeaderFooterHeight}
-           sx={{
-             // This is to override the default height of the footer row
-             '& .MuiDataGrid-footerContainer': {
-                 height: dataGridHeaderFooterHeight,
-                 minHeight: dataGridHeaderFooterHeight,
-             },
-           }}
+            columnHeaderHeight={dataGridHeaderFooterHeight}
+            sx={{
+              // This is to override the default height of the footer row
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+              },
+            }}
             slots={{
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
@@ -305,14 +291,13 @@ console.log("🚀 ~ Company ~ companyRows:", companyRows)
             rowHeight={dataGridRowHeight}
             rows={companyRows}
             columns={columns}
-        
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.CompanyCode}
             initialState={{
-                          pagination: { paginationModel: { pageSize: dataGridPageSize } },
-                        }}
-                        pageSizeOptions={dataGridpageSizeOptions}
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
+            }}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               CompanyCode: true,
             }}

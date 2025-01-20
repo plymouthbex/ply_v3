@@ -45,7 +45,10 @@ import { Add } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { deletePrintGroupData, postPrintGroupData } from "app/redux/slice/postSlice";
+import {
+  deletePrintGroupData,
+  postPrintGroupData,
+} from "app/redux/slice/postSlice";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -146,21 +149,20 @@ const PrintGroupEdit = () => {
       renderCell: (param) => {
         return (
           <Box>
-           <Tooltip title="Remove">
-  <IconButton
-    color="error"
-    size="small"
-    disabled={params.mode === "delete" || params.mode === "view"}
-    onClick={() => {
-      setremovePriceListID(param.row.RecordID);
-      setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
-      setIsRemovePriceList(true);
-    }}
-  >
-    <DeleteIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
-
+            <Tooltip title="Remove">
+              <IconButton
+                color="error"
+                size="small"
+                disabled={params.mode === "delete" || params.mode === "view"}
+                onClick={() => {
+                  setremovePriceListID(param.row.RecordID);
+                  setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
+                  setIsRemovePriceList(true);
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
         );
       },
@@ -200,39 +202,39 @@ const PrintGroupEdit = () => {
             label="Add Price List"
             url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
           />
-<Tooltip title="Add">
-  <IconButton
-    color="black"
-    sx={{height:25}}
-    size="small"
-    disabled={params.mode === "delete" || params.mode === "view"}
-    onClick={() => {
-      if (addPriceListData) {
-        const isItem = [...getRows, ...filteredSelectedItems].some(
-          (item) =>
-            lodash.isEqual(item.RecordID, addPriceListData.RecordID)
-        );
-        if (isItem) {
-          setIsPriceListExists(true);
-          setTimeout(() => {
-            setIsPriceListExists(false);
-            setAddPriceListData(null);
-          }, 5000);
-          return;
-        }
-        dispatch(printGroupAddedItem(addPriceListData));
-        setAddPriceListData(null);
-      } else {
-        setIsPriceListExistsError(true);
-        setTimeout(() => {
-          setIsPriceListExistsError(false);
-        }, 2000);
-      }
-    }}
-  >
-    <Add fontSize="small" />
-  </IconButton>
-</Tooltip>
+          <Tooltip title="Add">
+            <IconButton
+              color="black"
+              sx={{ height: 25 }}
+              size="small"
+              disabled={params.mode === "delete" || params.mode === "view"}
+              onClick={() => {
+                if (addPriceListData) {
+                  const isItem = [...getRows, ...filteredSelectedItems].some(
+                    (item) =>
+                      lodash.isEqual(item.RecordID, addPriceListData.RecordID)
+                  );
+                  if (isItem) {
+                    setIsPriceListExists(true);
+                    setTimeout(() => {
+                      setIsPriceListExists(false);
+                      setAddPriceListData(null);
+                    }, 5000);
+                    return;
+                  }
+                  dispatch(printGroupAddedItem(addPriceListData));
+                  setAddPriceListData(null);
+                } else {
+                  setIsPriceListExistsError(true);
+                  setTimeout(() => {
+                    setIsPriceListExistsError(false);
+                  }, 2000);
+                }
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
           {/* <Button
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -300,6 +302,7 @@ const PrintGroupEdit = () => {
       groupName: values.groupName,
       sortorder: values.SortOrder,
       disable: "N",
+      Headeronly:false,
       printList: [...getRows, ...filteredSelectedItems],
     };
     try {
@@ -370,8 +373,11 @@ const PrintGroupEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "CP-Price Book" },
-                    { name: "Price Book Category", path: "/pages/control-panel/print-group" },
+                    { name: "Control Panel" },
+                    {
+                      name: "Price Book Category",
+                      path: "/pages/control-panel/print-group",
+                    },
                     {
                       name: `${params.mode} Price Book Category`,
                     },
@@ -441,10 +447,10 @@ const PrintGroupEdit = () => {
                       onBlur={(e) => isPrintGroupExists(e, setSubmitting)}
                       value={values.groupCode}
                       required
-                       autoComplete="off"
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
+                      autoComplete="off"
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
                       // error={!!touched.groupCode && !!errors.groupCode}
                       // helperText={touched.groupCode && errors.groupCode}
                     />
@@ -460,10 +466,10 @@ const PrintGroupEdit = () => {
                       value={values.groupName}
                       disabled={params?.mode === "delete"}
                       required
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                     autoComplete="off"
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
+                      autoComplete="off"
                       // error={!!touched.groupName && !!errors.groupName}
                       // helperText={touched.groupName && errors.groupName}
                     />
@@ -524,28 +530,29 @@ const PrintGroupEdit = () => {
 
                     "& .MuiDataGrid-row.Mui-selected:hover": {
                       backgroundColor: `${theme.palette.action.selected} !important`,
-                    },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                    },
+                    "& .MuiTablePagination-root": {
+                      color: "white !important", // Ensuring white text color for the pagination
+                    },
+
+                    "& .MuiTablePagination-root .MuiTypography-root": {
+                      color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                    },
+
+                    "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                      color: "white !important", // Ensuring white icons for pagination
+                    },
                   }}
                 >
                   <DataGrid
-                   columnHeaderHeight={dataGridHeaderFooterHeight}
-                   sx={{
-                     // This is to override the default height of the footer row
-                     '& .MuiDataGrid-footerContainer': {
-                         height: dataGridHeaderFooterHeight,
-                         minHeight: dataGridHeaderFooterHeight,
-                     },
-                   }}
+                    columnHeaderHeight={dataGridHeaderFooterHeight}
+                    sx={{
+                      // This is to override the default height of the footer row
+                      "& .MuiDataGrid-footerContainer": {
+                        height: dataGridHeaderFooterHeight,
+                        minHeight: dataGridHeaderFooterHeight,
+                      },
+                    }}
                     slots={{
                       loadingOverlay: LinearProgress,
                       toolbar: CustomToolbar,
@@ -577,19 +584,30 @@ const PrintGroupEdit = () => {
                 </Box>
               </Paper>
               <MessageAlertDialog
+               logo={`data:image/png;base64,${user.logo}`}
                 open={isPrintGroupOpen}
                 tittle={values.groupCode}
-                message={"Oops! This print group is already in use."}
+                message={`Oops!${values.groupCode} This print group is already in use.`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
                       onClick={() => {
-                        navigate("/pages/control-panel/print-group/print-group-detail/edit", {
-                          state: { id: printGroupID },
-                        });
+                        navigate(
+                          "/pages/control-panel/print-group/print-group-detail/edit",
+                          {
+                            state: { id: printGroupID },
+                          }
+                        );
                         dispatch(getprintGroupData({ id: printGroupID }));
                         SetIsPrintGroupOpen(false);
                       }}
@@ -608,17 +626,25 @@ const PrintGroupEdit = () => {
                     >
                       Try Another
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
 
               <MessageAlertDialog
+               logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
-                tittle={values.groupCode}
+                // tittle={values.groupCode}
                 message={`Are you sure you want to delete Print Group?`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -630,6 +656,7 @@ const PrintGroupEdit = () => {
                       Yes
                     </Button>
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -641,18 +668,26 @@ const PrintGroupEdit = () => {
                     >
                       No
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
 
               <MessageAlertDialog
+               logo={`data:image/png;base64,${user.logo}`}
                 open={isRemovePriceList}
                 tittle={removePriceListdDesc}
-                message={`Are you sure you want to remove Price List ?`}
+                message={`Are you sure you want to remove Price List ${removePriceListdDesc} ?`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
                       variant="contained"
+                      sx={{ mr: 1, height: 25 }}
                       color="info"
                       size="small"
                       onClick={() => {
@@ -671,6 +706,7 @@ const PrintGroupEdit = () => {
                     </Button>
                     <Button
                       variant="contained"
+                      sx={{ mr: 1, height: 25 }}
                       color="info"
                       size="small"
                       onClick={() => {
@@ -681,7 +717,7 @@ const PrintGroupEdit = () => {
                     >
                       No
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
             </form>
@@ -692,19 +728,29 @@ const PrintGroupEdit = () => {
       )}
 
       <AlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
-          params.mode === "add"
+          postError
+            ? "Something went wrong and please retry"
+            : params.mode === "add"
             ? "Price Book Categories added successfully"
             : params.mode === "delete"
-              ? "Price Book Categories Releived Successfully"
-              : "Price Book Categories updated successfully"
+            ? "Price Book Categories Releived Successfully"
+            : "Price Book Categories updated successfully"
         }
         Actions={
           params.mode === "add" ? (
-            <DialogActions>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -715,6 +761,7 @@ const PrintGroupEdit = () => {
                 Back to Price Book Categories
               </Button>
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -727,10 +774,17 @@ const PrintGroupEdit = () => {
               >
                 Add New Price Book Categories
               </Button>
-            </DialogActions>
+            </Box>
           ) : (
-            <DialogActions>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -738,12 +792,13 @@ const PrintGroupEdit = () => {
               >
                 Back to Price Book Categories
               </Button>
-            </DialogActions>
+            </Box>
           )
         }
       />
 
       <MessageAlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
         open={isPriceListExists}
         tittle={
           addPriceListData
@@ -752,9 +807,16 @@ const PrintGroupEdit = () => {
         }
         message={"Oops! This price list is already exists in print group."}
         Actions={
-          <DialogActions>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
             <Button
               variant="contained"
+              sx={{ mr: 1, height: 25 }}
               color="info"
               size="small"
               onClick={() => {
@@ -764,7 +826,7 @@ const PrintGroupEdit = () => {
             >
               Close
             </Button>
-          </DialogActions>
+          </Box>
         }
       />
     </Container>

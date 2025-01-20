@@ -161,7 +161,7 @@ const TableHeader = ({ isPrice }) => (
     </Text>
     <Text
       style={{
-        width:  !isPrice ? "54%" : "42%",
+        width: !isPrice ? "54%" : "42%",
         fontSize: 10,
         textAlign: "center",
         alignSelf: "center",
@@ -204,7 +204,7 @@ const TableHeader = ({ isPrice }) => (
 
     <Text
       style={{
-        width: "4%",
+        width: "5%",
         fontSize: 10,
         textAlign: "center",
         alignSelf: "center",
@@ -253,7 +253,6 @@ const TableRows = ({ items, isPrice }) =>
         }}
       >
         {item.ppcItem}
-        
       </Text>
       <Text
         style={{
@@ -326,7 +325,7 @@ const TableRows = ({ items, isPrice }) =>
           textAlign: "left",
           paddingLeft: 2,
           paddingTop: 5,
-          width: "4%",
+          width: "5%",
           borderRight: "1px solid black",
         }}
       >
@@ -356,7 +355,7 @@ const PriceListPage = ({
             )}
             <Text style={[styles.header, { fontSize: 14, padding: 10 }]}>
               {items2.priceList}
-               {/* ({items2.printGroup}) */}
+              {/* ({items2.printGroup}) */}
             </Text>
             <TableHeader isPrice={isPrice} />
             <TableRows items={items2.items || []} isPrice={isPrice} />{" "}
@@ -418,7 +417,7 @@ export const CustomerFullPriceDocument = ({
 
   data.forEach((item) => {
     const isNewPriceList = currentPriceList !== item.priceList;
-    
+
     const isSpaceInsufficient =
       remainingHeight <
       (isNewPriceList
@@ -436,15 +435,13 @@ export const CustomerFullPriceDocument = ({
           priceList: currentPriceList,
           items: currentPageTableItems,
         });
-            
 
         currentPageTableItems = [];
         remainingHeight -= priceListCaption + tableHeaderHeight; // Reset for next list
-
       }
 
       // Add page if space runs out
-      if (remainingHeight  < rowHeight) {
+      if (remainingHeight < rowHeight) {
         pages.push({
           pageIndex: currentPageIndex,
           items: currentPageItems,
@@ -455,8 +452,7 @@ export const CustomerFullPriceDocument = ({
       }
     }
 
-
-    if(isNewPriceList || isSpaceInsufficient){
+    if (isNewPriceList || isSpaceInsufficient) {
       currentPrintGroupTable = item.printGroup;
     }
 
@@ -464,7 +460,7 @@ export const CustomerFullPriceDocument = ({
     if (isNewPriceList) {
       currentPriceList = item.priceList;
       if (currentPrintGroup !== item.printGroupSeq) {
-        remainingHeight -= printGroupCaption
+        remainingHeight -= printGroupCaption;
         tableContent.push({
           ProdCateName: item.printGroup,
           pageNumber: currentPageIndex,
@@ -477,7 +473,7 @@ export const CustomerFullPriceDocument = ({
     currentPageTableItems.push(item);
     remainingHeight -= rowHeight;
   });
- 
+
   // Add any remaining items and pages
   if (currentPageTableItems.length > 0) {
     currentPageItems.push({

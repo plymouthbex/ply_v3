@@ -31,7 +31,10 @@ import { Add, RefreshOutlined } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPriceListView, getPrintGroupListView } from "app/redux/slice/listviewSlice";
+import {
+  getPriceListView,
+  getPrintGroupListView,
+} from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clearPriceListState,
@@ -41,7 +44,13 @@ import {
   customerListSelectedItems,
 } from "app/redux/slice/getSlice";
 import toast from "react-hot-toast";
-import { CustomerPriceListOptimizedAutocomplete, PriceListOptimizedAutocomplete, PrintGroupOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
+import {
+  CustomerPriceListOptimizedAutocomplete,
+  FormikCustomSelectCompany,
+  FormikCustomSelectCompanyPriceList,
+  PriceListOptimizedAutocomplete,
+  PrintGroupOptimizedAutocomplete,
+} from "app/components/SingleAutocompletelist";
 import useAuth from "app/hooks/useAuth";
 
 // ********************** STYLED COMPONENTS ********************** //
@@ -56,16 +65,14 @@ const Container = styled("div")(({ theme }) => ({
 
 // ********************** ITEMS SCREEN LISTVIEW ********************** //
 const PriceList = () => {
-
   // ********************** HOOKS AND CONSTANTS ********************** //
   const theme = useTheme();
   const naviate = useNavigate();
   const dispatch = useDispatch();
-  const location=useLocation();
-  const state=location.state;
-  console.log("🚀 ~ PriceList ~ state:", state)
-  const {user}=useAuth();
-
+  const location = useLocation();
+  const state = location.state;
+  console.log("🚀 ~ PriceList ~ state:", state);
+  const { user } = useAuth();
 
   // ********************** LOCAL STATE ********************** //
 
@@ -74,7 +81,6 @@ const PriceList = () => {
   const handlePrintSelectedData = (newValue) => {
     setPrintSelectedData(newValue);
   };
-
 
   const [customerSelectData, setCustomerSelectData] = useState(null);
 
@@ -120,51 +126,58 @@ const PriceList = () => {
       align: "center",
       renderCell: (params) => {
         return (
-      
-            <div style={{ display: "flex", gap: "10px" }}>
-  <Tooltip title="Edit">
-    <IconButton
-      onClick={() => {
-        naviate("/pages/control-panel/price-list/price-list-detail/edit", {
-          state: { id: params.row.PRICELISTID, company: state },
-        });
-      }}
-      style={{ color: "secondary" }}
-      sx={{ height: 30, width: 30 }}
-    >
-      <ModeEditOutlineIcon fontSize="small" />
-    </IconButton>
-  </Tooltip>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Tooltip title="Edit">
+              <IconButton
+                onClick={() => {
+                  naviate(
+                    "/pages/control-panel/price-list/price-list-detail/edit",
+                    {
+                      state: { id: params.row.PRICELISTID, companyCode: companyID },
+                    }
+                  );
+                }}
+                style={{ color: "secondary" }}
+                sx={{ height: 30, width: 30 }}
+              >
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-  <Tooltip title="Delete">
-    <IconButton
-      onClick={() => {
-        naviate("/pages/control-panel/price-list/price-list-detail/delete", {
-          state: { id: params.row.PRICELISTID, company: state },
-        });
-      }}
-      style={{ color: "secondary" }}
-      sx={{ height: 30, width: 30 }}
-    >
-      <DeleteIcon fontSize="small" color="error" />
-    </IconButton>
-  </Tooltip>
+            <Tooltip title="Delete">
+              <IconButton
+                onClick={() => {
+                  naviate(
+                    "/pages/control-panel/price-list/price-list-detail/delete",
+                    {
+                      state: { id: params.row.PRICELISTID, companyCode: companyID },
+                    }
+                  );
+                }}
+                style={{ color: "secondary" }}
+                sx={{ height: 30, width: 30 }}
+              >
+                <DeleteIcon fontSize="small" color="error" />
+              </IconButton>
+            </Tooltip>
 
-  <Tooltip title="View Items">
-    <IconButton
-      onClick={() => {
-        naviate("/pages/control-panel/price-list/price-list-detail/view", {
-          state: { id: params.row.PRICELISTID, company: state },
-        });
-      }}
-      style={{ color: "secondary" }}
-      sx={{ height: 30, width: 30 }}
-    >
-      <VisibilityIcon fontSize="small" />
-    </IconButton>
-  </Tooltip>
-</div>
-
+            <Tooltip title="View Items">
+              <IconButton
+                onClick={() => {
+                  naviate(
+                    "/pages/control-panel/price-list/price-list-detail/view",
+                    {
+                      state: { id: params.row.PRICELISTID, companyCode: companyID },
+                    }
+                  );
+                }}
+                style={{ color: "secondary" }}
+                sx={{ height: 30, width: 30 }}
+              >
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </div>
         );
       },
     },
@@ -172,8 +185,9 @@ const PriceList = () => {
 
   // ********************** TOOLBAR ********************** //
 
+  const [companyID, setCompanyID] = useState(user.companyCode);
   useEffect(() => {
-    dispatch(getPriceListView({ID:state.ID}));
+    dispatch(getPriceListView({ ID: companyID }));
     dispatch(getPrintGroupListView());
     dispatch(clearPriceListState());
     dispatch(clearPrintGroupState());
@@ -186,7 +200,7 @@ const PriceList = () => {
         sx={{
           display: "flex",
           flexDirection: "row",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           width: "100%",
           padding: 2,
         }}
@@ -195,75 +209,69 @@ const PriceList = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
             gap: 2,
             paddingX: 2,
+            width: "100%",
           }}
         >
-          <GridToolbarQuickFilter />
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add fontSize="small" />}
-            onClick={() => {
-              naviate("/pages/control-panel/price-list/price-list-detail/add", {
-                state: { id: 0,
-                  company:state,
-                 },
-              });
+          <FormikCustomSelectCompanyPriceList
+            name="company"
+            id="company"
+            // sx={{ gridColumn: "span 2" }}
+            multiple={false}
+            // disabled={user.role == "USER"}
+            value={companyID}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+              dispatch(getPriceListView({ ID: e.target.value }));
             }}
-          >
-            Create Price List
-          </Button>
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add fontSize="small" />}
-            onClick={() => {
-              if (rowSelectionModelRows.length === 0) {
-                return toast.error("Please Select a Price List Items");
-              }
-              try {
-                dispatch(printGroupSelectedItems(rowSelectionModelRows));
-
+            label="Company"
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+          />
+          <Box sx={{display:"flex",flexDirection:'row',gap:2}}>
+            <GridToolbarQuickFilter />
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              startIcon={<Add fontSize="small" />}
+              onClick={() => {
                 naviate(
-                  "/pages/control-panel/print-group/print-group-detail/add",
+                  "/pages/control-panel/price-list/price-list-detail/add",
                   {
-                    state: { id: 0 ,
-                      company:state,
-                    },
+                    state: { id: 0, companyCode: companyID },
                   }
                 );
-              } catch (e) {}
-            }}
-          >
-            Create New Category
-          </Button>
-          {/* <Button
-            variant="contained"
-            color="info"
-            size="small"
-            onClick={() => {
-              if (rowSelectionModelRows.length === 0) {
-                return toast.error("Please Select Price List items");
-              }
-              try {
-                dispatch(priceListSelectedCustomer(rowSelectionModelRows));
+              }}
+            >
+              Create Price List
+            </Button>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              startIcon={<Add fontSize="small" />}
+              onClick={() => {
+                // if (rowSelectionModelRows.length === 0) {
+                //   return toast.error("Please Select a Price List Items");
+                // }
+                try {
+                  dispatch(printGroupSelectedItems(rowSelectionModelRows));
 
-                naviate(
-                  "/pages/customer-price-lists/customer-price-lists-detail/add",
-                  {
-                    state: { ID: 0 },
-                  }
-                );
-              } catch (e) {}
-            }}
-          >
-            Create Customer Price Lists
-          </Button> */}
+                  naviate(
+                    "/pages/control-panel/print-group/print-group-detail/add",
+                    {
+                      state: { id: 0, company: companyID },
+                    }
+                  );
+                } catch (e) {}
+              }}
+            >
+              Create New Category
+            </Button>
+          </Box>
         </Box>
       </GridToolbarContainer>
     );
@@ -273,7 +281,12 @@ const PriceList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Company",path:"/pages/control-panel/company-price-list" }, { name: "Price List" }]}
+          routeSegments={[
+            {
+              name: "Control Panel",
+            },
+            { name: "Price List" },
+          ]}
         />
       </div>
 
@@ -316,28 +329,29 @@ const PriceList = () => {
               },
               "& .MuiDataGrid-row.Mui-selected:hover": {
                 backgroundColor: `${theme.palette.action.selected} !important`,
-              },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+              },
+              "& .MuiTablePagination-root": {
+                color: "white !important", // Ensuring white text color for the pagination
+              },
+
+              "& .MuiTablePagination-root .MuiTypography-root": {
+                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+              },
+
+              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                color: "white !important", // Ensuring white icons for pagination
+              },
             }}
           >
             <DataGrid
-             columnHeaderHeight={dataGridHeaderFooterHeight}
-             sx={{
-               // This is to override the default height of the footer row
-               '& .MuiDataGrid-footerContainer': {
-                   height: dataGridHeaderFooterHeight,
-                   minHeight: dataGridHeaderFooterHeight,
-               },
-             }}
+              columnHeaderHeight={dataGridHeaderFooterHeight}
+              sx={{
+                // This is to override the default height of the footer row
+                "& .MuiDataGrid-footerContainer": {
+                  height: dataGridHeaderFooterHeight,
+                  minHeight: dataGridHeaderFooterHeight,
+                },
+              }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: CustomToolbar,
@@ -375,98 +389,98 @@ const PriceList = () => {
               rowSelectionModel={rowSelectionModel}
             />
           </Box>
-          <Stack  direction="row" gap={3}>
-
-          
-          <TableContainer
-            component={Paper}
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              padding: 2,
-              gap: 2,
-             
-            }}
-          >
-            <PrintGroupOptimizedAutocomplete
-             sx={{maxWidth:300}}
-              fullWidth
-              name="printGroup"
-              id="printGroup"
-              value={printSelectedData}
-              onChange={handlePrintSelectedData}
-              label="Price Book Category"
-              url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList`}
-            />
-            <Button
-              variant="contained"
-              color="info"
-              size="small"
-              
-              onClick={() => {
-                if (!printSelectedData) {
-                  return toast.error("Please Select a Print Group ");
-                }
-                if (rowSelectionModelRows.length === 0) {
-              
-                  return toast.error("Please Select a Price List");
-                }
-                try {
-                  dispatch(printGroupSelectedItems(rowSelectionModelRows));
-
-                  naviate("/pages/control-panel/print-group/print-group-detail/edit", {
-                    state: { id: printSelectedData.RecordID },
-                  });
-                } catch (e) {}
+          <Stack direction="row" gap={3}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                padding: 2,
+                gap: 2,
               }}
             >
-              Add Price List To Price Book Category
-            </Button>
-          </TableContainer>
-          <TableContainer
-            component={Paper}
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              padding: 2,
-              gap: 2,
-              // maxWidth: 300,
-            }}
-          >
-            <CustomerPriceListOptimizedAutocomplete
-            sx={{maxWidth:300}}
-              fullWidth
-              name="customerPriceList"
-              id="customerPriceList"
-              value={customerSelectData}
-              onChange={handleCustomerSelectData}
-              label="Customer Price Lists"
-              url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
-            />
-            <Button
-              variant="contained"
-              color="info"
-              size="small"
-              onClick={() => {
-                if (!customerSelectData) {
-                  return toast.error("Please Select a Customer");
-                }
-                if (rowSelectionModelRows.length === 0) {
+              <PrintGroupOptimizedAutocomplete
+                sx={{ maxWidth: 300 }}
+                fullWidth
+                name="printGroup"
+                id="printGroup"
+                value={printSelectedData}
+                onChange={handlePrintSelectedData}
+                label="Price Book Category"
+                url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList`}
+              />
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  if (!printSelectedData) {
+                    return toast.error("Please Select a Print Group ");
+                  }
+                  if (rowSelectionModelRows.length === 0) {
+                    return toast.error("Please Select a Price List");
+                  }
+                  try {
+                    dispatch(printGroupSelectedItems(rowSelectionModelRows));
 
-                  return toast.error("Please Select a Price List");
-                }
-                try {
-                  dispatch(customerListSelectedItems(rowSelectionModelRows));
-
-                  naviate("/pages/control-panel/customer-price-lists/customer-price-lists-detail/edit", {
-                    state: { id: customerSelectData.CustomerNumber},
-                  });
-                } catch (e) {}
+                    naviate(
+                      "/pages/control-panel/print-group/print-group-detail/edit",
+                      {
+                        state: { id: printSelectedData.RecordID },
+                      }
+                    );
+                  } catch (e) {}
+                }}
+              >
+                Add Price List To Price Book Category
+              </Button>
+            </TableContainer>
+            <TableContainer
+              component={Paper}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                padding: 2,
+                gap: 2,
+                // maxWidth: 300,
               }}
             >
-              Add Price List To Customer
-            </Button>
-          </TableContainer>
+              <CustomerPriceListOptimizedAutocomplete
+                sx={{ maxWidth: 300 }}
+                fullWidth
+                name="customerPriceList"
+                id="customerPriceList"
+                value={customerSelectData}
+                onChange={handleCustomerSelectData}
+                label="Customer Price Lists"
+                url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
+              />
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  if (!customerSelectData) {
+                    return toast.error("Please Select a Customer");
+                  }
+                  if (rowSelectionModelRows.length === 0) {
+                    return toast.error("Please Select a Price List");
+                  }
+                  try {
+                    dispatch(customerListSelectedItems(rowSelectionModelRows));
+
+                    naviate(
+                      "/pages/control-panel/customer-price-lists/customer-price-lists-detail/edit",
+                      {
+                        state: { id: customerSelectData.CustomerNumber },
+                      }
+                    );
+                  } catch (e) {}
+                }}
+              >
+                Add Price List To Customer
+              </Button>
+            </TableContainer>
           </Stack>
         </Stack>
       </Paper>

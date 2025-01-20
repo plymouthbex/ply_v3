@@ -201,98 +201,98 @@ const PriceListEdit = () => {
         return (
           <>
             <Tooltip title="Edit">
-            <IconButton
-              sx={{ height: 25 }}
-              variant="contained"
-              color="black"
-              size="small"
-              // onClick={() => handleRowClick(params)}
-              onClick={() =>
-                navigate("./item-attributes/edit", {
-                  state: {
-                    id: state.id,
-                    recordID:param.row.RecordId,
-                    itemNumber: param.row.Item_Number,
-                    itemDesc: param.row.Item_Description,
-                    priceListID: priceListHeaderData.PriceListID,
-                    priceListDesc: priceListHeaderData.PricelistDesc,
-                  },
-                })
-              }
-              // startIcon={<ModeEditOutlineIcon size="small" />}
-              disabled={
-                params.mode === "delete" || params.mode === "view"
-                  ? true
-                  : false
-              }
-            >
-              <ModeEditOutlineIcon size="small" />
-            </IconButton>
+              <IconButton
+                sx={{ height: 25 }}
+                variant="contained"
+                color="black"
+                size="small"
+                // onClick={() => handleRowClick(params)}
+                onClick={() =>
+                  navigate("./item-attributes/edit", {
+                    state: {
+                      id: state.id,
+                      recordID: param.row.RecordId,
+                      itemNumber: param.row.Item_Number,
+                      itemDesc: param.row.Item_Description,
+                      priceListID: priceListHeaderData.PriceListID,
+                      priceListDesc: priceListHeaderData.PricelistDesc,
+                    },
+                  })
+                }
+                // startIcon={<ModeEditOutlineIcon size="small" />}
+                disabled={
+                  params.mode === "delete" || params.mode === "view"
+                    ? true
+                    : false
+                }
+              >
+                <ModeEditOutlineIcon size="small" />
+              </IconButton>
             </Tooltip>
             {showGridData === 3 ? (
               <Tooltip title="Delete">
-              <IconButton
-                sx={{ height: 25, marginLeft: 2 }}
-                variant="contained"
-                color="error"
-                size="small"
-                onClick={() => {
-                  // setRemoveItemID(param.row.Item_Number);
-                  // setRemoveItemDesc(param.row.Item_Description);
-                  // setIsRemoveItem(true);
-                  navigate("./item-attributes/delete", {
-                    state: {
-                      id: state.id,
-                      recordID:param.row.RecordId,
-                      itemNumber: param.row.Item_Number,
-                      itemDesc: param.row.Item_Description,
-                      priceListID: priceListHeaderData.PriceListID,
-                      priceListDesc: priceListHeaderData.PricelistDesc,
-                    },
-                  });
-                }}
-                // startIcon={<DeleteIcon size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                <DeleteIcon size="small" />
-              </IconButton>
+                <IconButton
+                  sx={{ height: 25, marginLeft: 2 }}
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  onClick={() => {
+                    // setRemoveItemID(param.row.Item_Number);
+                    // setRemoveItemDesc(param.row.Item_Description);
+                    // setIsRemoveItem(true);
+                    navigate("./item-attributes/delete", {
+                      state: {
+                        id: state.id,
+                        recordID: param.row.RecordId,
+                        itemNumber: param.row.Item_Number,
+                        itemDesc: param.row.Item_Description,
+                        priceListID: priceListHeaderData.PriceListID,
+                        priceListDesc: priceListHeaderData.PricelistDesc,
+                      },
+                    });
+                  }}
+                  // startIcon={<DeleteIcon size="small" />}
+                  disabled={
+                    params.mode === "delete" || params.mode === "view"
+                      ? true
+                      : false
+                  }
+                >
+                  <DeleteIcon size="small" />
+                </IconButton>
               </Tooltip>
             ) : showGridData === 0 && param.row.showAction ? (
               <Tooltip title="Remove">
-              <IconButton
-                sx={{ height: 25, marginLeft: 2 }}
-                variant="contained"
-                color="error"
-                size="small"
-                onClick={() => {
-                  // setRemoveItemID(param.row.Item_Number);
-                  // setRemoveItemDesc(param.row.Item_Description);
-                  // setIsRemoveItem(true);
+                <IconButton
+                  sx={{ height: 25, marginLeft: 2 }}
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  onClick={() => {
+                    // setRemoveItemID(param.row.Item_Number);
+                    // setRemoveItemDesc(param.row.Item_Description);
+                    // setIsRemoveItem(true);
 
-                  navigate("./item-attributes/delete", {
-                    state: {
-                      id: state.id,
-                      recordID:param.row.RecordId,
-                      itemNumber: param.row.Item_Number,
-                      itemDesc: param.row.Item_Description,
-                      priceListID: priceListHeaderData.PriceListID,
-                      priceListDesc: priceListHeaderData.PricelistDesc,
-                    },
-                  });
-                }}
-                // startIcon={<DeleteIcon size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                <DeleteIcon size="small" />
-              </IconButton>
+                    navigate("./item-attributes/delete", {
+                      state: {
+                        id: state.id,
+                        recordID: param.row.RecordId,
+                        itemNumber: param.row.Item_Number,
+                        itemDesc: param.row.Item_Description,
+                        priceListID: priceListHeaderData.PriceListID,
+                        priceListDesc: priceListHeaderData.PricelistDesc,
+                      },
+                    });
+                  }}
+                  // startIcon={<DeleteIcon size="small" />}
+                  disabled={
+                    params.mode === "delete" || params.mode === "view"
+                      ? true
+                      : false
+                  }
+                >
+                  <DeleteIcon size="small" />
+                </IconButton>
               </Tooltip>
             ) : (
               false
@@ -316,8 +316,10 @@ const PriceListEdit = () => {
       setSubmitting(false);
     }
   };
-  const priceListSaveFn = async (values, setSubmitting,isDerct = false) => {
+  const priceListSaveFn = async (values, setSubmitting, isDerct = false) => {
     const filterData = {
+      filterType: "PL",
+      headerRecordID: "",
       Brand: {
         PriceListID: values.priceListID,
         Attribute: "Brand",
@@ -391,7 +393,7 @@ const PriceListEdit = () => {
             pricelistDesc: values.priceListDescription,
             buyer: JSON.stringify(values.buyer),
             createdBy: values.createdBy,
-            companyCode: state.company.Code,
+            companyCode: state.companyCode,
             forcePageBreak: values.forcePageBreak ? "Y" : "N",
             overridesequence: values.overrideSeq ? "Y" : "N",
             customer: JSON.stringify(values.propCustomer),
@@ -410,22 +412,27 @@ const PriceListEdit = () => {
           //   })
           // );
 
-          if(params.mode === "add"){
+          if (params.mode === "add") {
             dispatch(priceListConditionsPost({ data: filterData }));
+            dispatch(getPriceListFilterData(filterData));
             setOpenAlert(true);
+            navigate(
+              "/pages/control-panel/price-list/price-list-detail/edit",
+              {
+                state: { id: response.payload.PriceListID, companyCode: state.companyCode },
+              }
+            );
           }
+
           // if(params.mode === "edit"){
           //   // dispatch(priceListConditionsPost({ data: filterData }));
           //   setOpenAlert(true);
           // }
-
-
         } else {
-          if(params.mode === "add"  ){
+          if (params.mode === "add") {
             setOpenAlert(true);
             setPostError(true);
           }
-        
         }
       });
       setSubmitting(false);
@@ -523,7 +530,7 @@ const PriceListEdit = () => {
 
     try {
       dispatch(getPriceListFilterData(filterData));
-      priceListSaveFn(values,)
+      // priceListSaveFn(values);
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -537,7 +544,7 @@ const PriceListEdit = () => {
     if (params.mode === "edit" || params.mode === "view") {
       setShowGridData(0);
     } else setShowGridData(3);
-  }, [state.id]);
+  }, [loaction.key]);
 
   const [openAlert1, setOpenAlert1] = useState(false);
   const [postError1, setPostError1] = useState(false);
@@ -579,7 +586,7 @@ const PriceListEdit = () => {
             <MenuItem value={3}>Ad Hoc</MenuItem>
           </TextField>
         </Box>
-        {showGridData === 3  && (
+        {showGridData === 3 && (
           <Box
             sx={{
               display: "flex",
@@ -606,85 +613,90 @@ const PriceListEdit = () => {
               url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
             />
 
-            {state.id ?<Button
-              variant="contained"
-              color="info"
-              size="small"
-              onClick={async () => {
-                if (addPriceListData) {
-                  const isItem = [...selectedRows, ...addedRows].some((item) =>
-                    lodash.isEqual(
-                      item.Item_Number,
-                      addPriceListData.Item_Number
-                    )
-                  );
-                  if (isItem) {
-                    setIsItemExists(true);
-                    setTimeout(() => {
-                      setIsItemExists(false);
-                      setAddPriceListData(null);
-                    }, 5000);
-                    return;
-                  }
+            {state.id ? (
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={async () => {
+                  if (addPriceListData) {
+                    const isItem = [...selectedRows, ...addedRows].some(
+                      (item) =>
+                        lodash.isEqual(
+                          item.Item_Number,
+                          addPriceListData.Item_Number
+                        )
+                    );
+                    if (isItem) {
+                      setIsItemExists(true);
+                      setTimeout(() => {
+                        setIsItemExists(false);
+                        setAddPriceListData(null);
+                      }, 5000);
+                      return;
+                    }
 
-                  const response = await dispatch(
-                    PostAdHocItem({
-                      idata: {
-                        priceListID: priceListHeaderData.PriceListID,
-                        quotationRecordID: "0",
-                        filterType: "PL",
-                        itemNo: addPriceListData.Item_Number,
-                        itemDescription: addPriceListData.Item_Description,
-                      },
-                    })
-                  );
-                  if (response.payload.status === "Y") {
-                    setOpenAlert1(true);
-                    dispatch(
-                      priceListAddedItems({
-                        ...addPriceListData,
-                        AdHocItem: "Y",
+                    const response = await dispatch(
+                      PostAdHocItem({
+                        idata: {
+                          priceListID: priceListHeaderData.PriceListID,
+                          quotationRecordID: "0",
+                          filterType: "PL",
+                          itemNo: addPriceListData.Item_Number,
+                          itemDescription: addPriceListData.Item_Description,
+                        },
                       })
                     );
-                    setAddPriceListData(null);
+                    if (response.payload.status === "Y") {
+                      setOpenAlert1(true);
+                      dispatch(
+                        priceListAddedItems({
+                          ...addPriceListData,
+                          AdHocItem: "Y",
+                        })
+                      );
+                      setAddPriceListData(null);
+                    } else {
+                      setOpenAlert1(true);
+                      setPostError1(true);
+                    }
                   } else {
-                    setOpenAlert1(true);
-                    setPostError1(true);
-                  }
-                } else {
-                  console.log(
-                    "🚀 ~ file: PriceListEdit.jsx ~ line 442 ~ CustomToolbar ~ addPriceListData",
-                    addPriceListData
-                  );
+                    console.log(
+                      "🚀 ~ file: PriceListEdit.jsx ~ line 442 ~ CustomToolbar ~ addPriceListData",
+                      addPriceListData
+                    );
 
-                  setIsItemExistsError(true);
-                  setTimeout(() => {
-                    setIsItemExistsError(false);
-                  }, 2000);
+                    setIsItemExistsError(true);
+                    setTimeout(() => {
+                      setIsItemExistsError(false);
+                    }, 2000);
+                  }
+                }}
+                startIcon={<Add size="small" />}
+                disabled={
+                  params.mode === "delete" || params.mode === "view"
+                    ? true
+                    : false
                 }
-              }}
-              startIcon={<Add size="small" />}
-              disabled={
-                params.mode === "delete" || params.mode === "view"
-                  ? true
-                  : false
-              }
-            >
-              Ad Hoc Item
-            </Button>:<Button
-              variant="contained"
-              color="info"
-              size="small"
-              type="submit"
-              startIcon={<Add size="small" />}
-              disabled={
-                params.mode === "delete" || params.mode === "view"
-                  ? true
-                  : false
-              }
-            >
-              Ad Hoc Item
-            </Button>}
+              >
+                Ad Hoc Item
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                type="submit"
+                startIcon={<Add size="small" />}
+                disabled={
+                  params.mode === "delete" || params.mode === "view"
+                    ? true
+                    : false
+                }
+              >
+                Ad Hoc Item
+              </Button>
+            )}
           </Box>
         )}
       </GridToolbarContainer>
@@ -716,7 +728,7 @@ const PriceListEdit = () => {
       setFieldValue("frshForzInExData", []);
       setFieldValue("SecondClassInExData", []);
       setFieldValue("classIDInExData", []);
-      dispatch(clreatFilterAndItems())
+      dispatch(clreatFilterAndItems());
       setOpenAlert2(true);
     } else {
       setOpenAlert2(true);
@@ -818,8 +830,11 @@ const PriceListEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "CP-Price Book" },
-                    { name: "Price List", path: "/pages/price-list" },
+                    { name: "Control Panel" },
+                    {
+                      name: "Price List",
+                      path: "/pages/control-panel/price-list",
+                    },
                     { name: `${params.mode} Price List` },
                   ]}
                 />
@@ -888,7 +903,7 @@ const PriceListEdit = () => {
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                       autoComplete="off"
+                      autoComplete="off"
                       size="small"
                       //   error={!!touched.priceListID && !!errors.priceListID}
                       //   helperText={touched.priceListID && errors.priceListID}
@@ -908,7 +923,7 @@ const PriceListEdit = () => {
                       name="priceListDescription"
                       label="Price List Description"
                       value={values.priceListDescription}
-                       autoComplete="off"
+                      autoComplete="off"
                       onChange={handleChange}
                       onBlur={handleBlur}
                       size="small"
@@ -1010,7 +1025,7 @@ const PriceListEdit = () => {
                       name="comments"
                       label="Comments"
                       value={values.comments}
-                       autoComplete="off"
+                      autoComplete="off"
                       onChange={handleChange}
                       onBlur={handleBlur}
                       size="small"
@@ -1346,63 +1361,71 @@ const PriceListEdit = () => {
                     </Stack>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
-                      {state.id ? <Button
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        startIcon={<CheckIcon size="small" />}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
-                            ? true
-                            : false
-                        }
-                        onClick={() => getFilteredData(values)}
-                      >
-                        Apply Filters & Save
-                      </Button> :<Button
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        startIcon={<CheckIcon size="small" />}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
-                            ? true
-                            : false
-                        }
-                        type="submit"
-                      >
-                        Apply Filters & Save
-                      </Button> }
-                      
-                      {state.id ? <Button
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        startIcon={<ClearIcon size="small" />}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
-                            ? true
-                            : false
-                        }
-                        onClick={() => {
-                          setIsRemoveItem(true);
-                        }}
-                      >
-                        Clear Filters
-                      </Button>:<Button
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        startIcon={<ClearIcon size="small" />}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
-                            ? true
-                            : false
-                        }
-                       type="submit"
-                      >
-                        Clear Filters
-                      </Button>}
+                      {state.id ? (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<CheckIcon size="small" />}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                              ? true
+                              : false
+                          }
+                          onClick={() => getFilteredData(values)}
+                        >
+                          Apply Filters & Save
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<CheckIcon size="small" />}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                              ? true
+                              : false
+                          }
+                          type="submit"
+                        >
+                          Apply Filters & Save
+                        </Button>
+                      )}
+
+                      {state.id ? (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<ClearIcon size="small" />}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                              ? true
+                              : false
+                          }
+                          onClick={() => {
+                            setIsRemoveItem(true);
+                          }}
+                        >
+                          Clear Filters
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<ClearIcon size="small" />}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                              ? true
+                              : false
+                          }
+                          type="submit"
+                        >
+                          Clear Filters
+                        </Button>
+                      )}
                     </Stack>
                   </Stack>
                   <Box
@@ -1443,28 +1466,29 @@ const PriceListEdit = () => {
                       // Prevent selected row background color from changing on hover
                       "& .MuiDataGrid-row.Mui-selected:hover": {
                         backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
-                      },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+                      },
+                      "& .MuiTablePagination-root": {
+                        color: "white !important", // Ensuring white text color for the pagination
+                      },
+
+                      "& .MuiTablePagination-root .MuiTypography-root": {
+                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                      },
+
+                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                        color: "white !important", // Ensuring white icons for pagination
+                      },
                     }}
                   >
                     <DataGrid
-                     columnHeaderHeight={dataGridHeaderFooterHeight}
-                     sx={{
-                       // This is to override the default height of the footer row
-                       '& .MuiDataGrid-footerContainer': {
-                           height:dataGridHeaderFooterHeight,
-                           minHeight: dataGridHeaderFooterHeight,
-                       },
-                     }}
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      sx={{
+                        // This is to override the default height of the footer row
+                        "& .MuiDataGrid-footerContainer": {
+                          height: dataGridHeaderFooterHeight,
+                          minHeight: dataGridHeaderFooterHeight,
+                        },
+                      }}
                       key={showGridData}
                       slots={{
                         loadingOverlay: LinearProgress,
@@ -1475,8 +1499,8 @@ const PriceListEdit = () => {
                         showGridData === 0
                           ? [...priceListItemsData, ...allSelAddItems]
                           : showGridData === 1
-                            ? priceListItemsData
-                            : [...filteredSelectedItems, ...addedRows]
+                          ? priceListItemsData
+                          : [...filteredSelectedItems, ...addedRows]
                       }
                       columns={columns}
                       loading={priceListItemLoading}
@@ -1509,18 +1533,29 @@ const PriceListEdit = () => {
 
               <MessageAlertDialog
                 open={isPriceListOpen}
-                tittle={values.priceListID}
-                message={"Oops! This Price List ID is already in use."}
+                logo={`data:image/png;base64,${user.logo}`}
+                error={true}
+                message={`Oops! This Price List ID is already in use.`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
                       onClick={() => {
-                        navigate("/pages/price-list/price-list-detail/edit", {
-                          state: { id: values.priceListID },
-                        });
+                        navigate(
+                          "/pages/control-panel/price-list/price-list-detail/edit",
+                          {
+                            state: { id: values.priceListID },
+                          }
+                        );
                         dispatch(getPriceListData({ id: values.priceListID }));
                         SetIsPriceListOpen(false);
                       }}
@@ -1528,6 +1563,7 @@ const PriceListEdit = () => {
                       Edit
                     </Button>
                     <Button
+                      sx={{ mr: 1, height: 25 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -1539,16 +1575,23 @@ const PriceListEdit = () => {
                     >
                       Try Another
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
 
               <MessageAlertDialog
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 tittle={values.priceListID}
-                message={`Are you sure you want to delete Price List ?`}
+                message={`Are you sure you want to delete Price List ${values.priceListID}?`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
                       variant="contained"
                       color="info"
@@ -1572,32 +1615,31 @@ const PriceListEdit = () => {
                     >
                       No
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
               <MessageAlertDialog
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isRemoveItem}
                 tittle={""}
                 message={`Are you sure you want to Clear Filter and Item ?`}
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
                       variant="contained"
                       color="info"
                       size="small"
                       onClick={() => {
-                        // dispatch(
-                        //   priceListDeletedItem({
-                        //     Item_Number: removeItemID,
-                        //     priceListAddedData: addedRows,
-                        //     priceListSelectedData: selectedRows,
-                        //   })
-                        // );
                         clearFilter(setFieldValue);
                         setIsRemoveItem(false);
-                        // setRemoveItemID("");
-                        // setRemoveItemDesc("");
                       }}
+                      sx={{ mr: 1, height: 25 }}
                     >
                       Yes
                     </Button>
@@ -1610,13 +1652,15 @@ const PriceListEdit = () => {
                         // setRemoveItemID("");
                         // setRemoveItemDesc("");
                       }}
+                      sx={{ mr: 1, height: 25 }}
                     >
                       No
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
               <MessageAlertDialog
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isItemExists}
                 tittle={
                   addPriceListData
@@ -1625,11 +1669,17 @@ const PriceListEdit = () => {
                 }
                 message={
                   addPriceListData
-                    ? "Oops! This item is already exists in price list."
+                    ? `Oops! ${addPriceListData.Item_Description} This item is already exists in price list.`
                     : ""
                 }
                 Actions={
-                  <DialogActions>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                    }}
+                  >
                     <Button
                       variant="contained"
                       color="info"
@@ -1641,41 +1691,52 @@ const PriceListEdit = () => {
                     >
                       Close
                     </Button>
-                  </DialogActions>
+                  </Box>
                 }
               />
             </form>
           )}
         </Formik>
       )}
+
       <AlertDialog
+        key={23131}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
-          params.mode === "add"
+          postError
+            ? "Error! while saving please retry"
+            : params.mode === "add"
             ? "Price List added successfully"
             : params.mode === "delete"
-              ? "Pricel List deleted successfully"
-              : "Price List updated successfully"
+            ? "Pricel List deleted successfully"
+            : "Price List updated successfully"
         }
         Actions={
           params.mode === "add" ? (
-            <DialogActions>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/price-list", {
-                    state: { ID: state.company.ID },
-                  });
-                  dispatch(clearPriceListState());
+                  // navigate(-1);
+                  // dispatch(clearPriceListState());
                   setOpenAlert(false);
                 }}
               >
-                Back To Price List
+                Close
               </Button>
               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
@@ -1688,36 +1749,65 @@ const PriceListEdit = () => {
               >
                 Add New Price List
               </Button>
-            </DialogActions>
+            </Box>
           ) : (
-            <DialogActions>
-              <Button
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+               <Button
+                sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/price-list", {
-                    state: { ID: state.company.ID },
-                  });
+                  // navigate(-1);
+                  // dispatch(clearPriceListState());
+                  setOpenAlert(false);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                sx={{ mr: 1, height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  navigate(-1);
                   dispatch(clearPriceListState());
                   setOpenAlert(false);
                 }}
               >
                 Back To Price List
               </Button>
-            </DialogActions>
+            </Box>
           )
         }
       />
+
       <AlertDialog
-        key={23131}
+        key={85963}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert1}
         error={postError1}
         message={
-          postError1 ? "Somthing Went Wrong" : "AddHoc Item Added Successfully!"
+          postError1
+            ? "Error while saving and please retry"
+            : "AddHoc Item Added Successfully"
         }
+        // message={"Item Deleted Successfully"}
         Actions={
-          <DialogActions>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
             <Button
               variant="contained"
               color="info"
@@ -1725,24 +1815,32 @@ const PriceListEdit = () => {
               onClick={() => {
                 setOpenAlert1(false);
               }}
+              sx={{ mr: 1, height: 25 }}
             >
               Close
             </Button>
-          </DialogActions>
+          </Box>
         }
       />
 
       <AlertDialog
-        key={27841}
+        key={5826}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert2}
         error={postError2}
         message={
-          postError1
-            ? "Somthing Went Wrong"
-            : "Filters And Items Cleared Successfully!"
+          postError2
+            ? "Somthing Went Wrong and please retry"
+            : "Filters And Items Cleared Successfully"
         }
         Actions={
-          <DialogActions>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
             <Button
               variant="contained"
               color="info"
@@ -1750,13 +1848,14 @@ const PriceListEdit = () => {
               onClick={() => {
                 setOpenAlert2(false);
               }}
+              sx={{ mr: 1, height: 25 }}
             >
               Close
             </Button>
-          </DialogActions>
+          </Box>
         }
       />
-      
+
       {/* {getLoading &&<Box sx={{display:'flex',flexGrow:1}}> <Loading/></Box>} */}
     </Container>
   );

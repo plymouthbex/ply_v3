@@ -253,6 +253,7 @@ export default function EditRunPriceBook() {
         >
           {params.row.fppdf ? (
             <Tooltip title="PDF" placement="top">
+
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
                 download={params.row.fileName1}
@@ -326,7 +327,7 @@ export default function EditRunPriceBook() {
           alignItems={"flex-end"}
           justifyContent={"center"}
         >
-          {params.row.cppdf  ? (
+          {params.row.cppdf ? (
             <Tooltip title="PDF" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
@@ -358,7 +359,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.cppdf  ? (
+          {params.row.cppdf ? (
             <Tooltip title="Print" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.warning.main}
@@ -375,7 +376,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.cppdf || params.row.cpexcel  ? (
+          {params.row.cppdf || params.row.cpexcel ? (
             <Tooltip title="Mail" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
@@ -478,28 +479,30 @@ export default function EditRunPriceBook() {
               },
               "& .MuiCheckbox-root": {
                 color: "primary",
-              },"& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+              },
+              "& .MuiTablePagination-root": {
+                color: "white !important", // Ensuring white text color for the pagination
+              },
+
+              "& .MuiTablePagination-root .MuiTypography-root": {
+                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+              },
+
+              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                color: "white !important", // Ensuring white icons for pagination
+              },
             }}
           >
             <DataGrid
               columnHeaderHeight={dataGridHeaderFooterHeight}
-                        sx={{
-                          // This is to override the default height of the footer row
-                          '& .MuiDataGrid-footerContainer': {
-                              height: dataGridHeaderFooterHeight,
-                              minHeight: dataGridHeaderFooterHeight,
-                          },
-                      height: "500px" }}
+              sx={{
+                // This is to override the default height of the footer row
+                "& .MuiDataGrid-footerContainer": {
+                  height: dataGridHeaderFooterHeight,
+                  minHeight: dataGridHeaderFooterHeight,
+                },
+                height: "500px",
+              }}
               slots={{
                 loadingOverlay: LinearProgress,
                 toolbar: secondaryCustomToolbar,

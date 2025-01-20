@@ -100,7 +100,7 @@ import {
   FormikCustomAutocompleteMultiAdHocItems,
 } from "app/components/FormikAutocomplete";
 import { dataGridHeaderFooterHeight } from "app/utils/constant";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from "@mui/icons-material/Visibility";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -340,19 +340,19 @@ export default function BuildCustomPriceBook() {
               Edit
             </Button> */}
             <Tooltip title="Remove Item">
-  <IconButton
-    color="error"
-    size="small"
-    onClick={() => {
-      setDeleteID(param.row.RecordId);
-      setIsRemoveItem(true);
-    }}
-  >
-    <DeleteIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
+              <IconButton
+                color="error"
+                size="small"
+                onClick={() => {
+                  setDeleteID(param.row.RecordId);
+                  setIsRemoveItem(true);
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-{/* 
+            {/* 
             <Button
               sx={{
                 height: 25,

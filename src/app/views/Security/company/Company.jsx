@@ -108,13 +108,13 @@ const Company = () => {
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Edit">
+            <Tooltip title="Mail Config">
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="black"
                 onClick={() => {
                   navigate("/pages/security/company/mail", {
-                    state: { Name: params.row.CompanyName },
+                    state: { id: params.row.RecordID },
                   });
                 }}
               >

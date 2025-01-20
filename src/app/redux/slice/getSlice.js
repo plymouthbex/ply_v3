@@ -106,6 +106,7 @@ const initialState = {
 
   configurePriceListAddedData: [],
   configurePriceListGetData: [],
+  configurePriceListContactData:[],
   configurePriceListSelectData: [],
 
   getQuoteProspectData: [],
@@ -132,6 +133,17 @@ const initialState = {
   getQuteFiltStatus: "idle",
   getQuteFiltLoading: false,
   getQuteFiltError: null,
+
+
+  getMailConfigData: {},
+  getMailConfigLoading: false,
+  getMailConfigStatus: "idle",
+  getMailConfigError: null,
+
+  getConfigContactData: {},
+  getConfigContactLoading: false,
+  getConfigContactStatus: "idle",
+  getConfigContactError: null,
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -569,6 +581,47 @@ export const getQuoteItemsAndFiltersget3 = createAsyncThunk(
 );
 
 
+export const getmailConfig = createAsyncThunk(
+  "get/getmailConfig", // action type
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/GetEmailTemplate`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const getConfigContact = createAsyncThunk(
+  "get/getConfigContact", // action type
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookContact/GetPriceBookcontact`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
 
 const getSlice = createSlice({
   name: "getSlice",
@@ -681,18 +734,26 @@ const getSlice = createSlice({
       state.runGroupAddedData = action.payload;
     },
     runGroupAddedItem: (state, action) => {
-      state.runGroupAddedData.push(action.payload);
+      console.log("🚀 ~ action:", action)
+      action.payload.forEach(newItem => {
+        const exists = [...state.runGroupAddedData,...state.runGroupGetData].some(existingItem => existingItem.CustomerNumber === newItem.CustomerNumber);
+        console.log("🚀 ~ state.runGroupAddedDat:", state.runGroupAddedData)
+        console.log("🚀 ~ exists:", exists)
+        if (!exists) {
+          state.runGroupAddedData.push(newItem);
+        }
+      });
     },
     runGroupDeletedItem: (state, action) => {
       let id = action.payload.id;
       let runGroupAddedData = action.payload.runGroupAddedData;
 
       state.runGroupAddedData = runGroupAddedData.filter(
-        (row) => row.RecordID != id
+        (row) => row.CustomerNumber != id
       );
 
       const rowIndex1 = state.runGroupGetData.findIndex(
-        (row) => row.RecordID === id
+        (row) => row.CustomerNumber === id
       );
 
       if (rowIndex1 !== -1) {
@@ -775,6 +836,37 @@ const getSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    .addCase(getConfigContact.pending, (state) => {
+      state.getConfigContactData = {};
+      state.getConfigContactLoading = true;
+      state.getConfigContactStatus = "pending";
+    })
+    .addCase(getConfigContact.fulfilled, (state, action) => {
+      state.getConfigContactData = action.payload.data;
+      state.getConfigContactLoading = false;
+      state.getConfigContactStatus = "fulfilled";
+    })
+    .addCase(getConfigContact.rejected, (state, action) => {
+      state.getConfigContactError = action.error.message;
+      state.getConfigContactLoading = false;
+      state.getConfigContactStatus = "rejected";
+    })
+    .addCase(getmailConfig.pending, (state) => {
+      state.getMailConfigData = {};
+      state.getMailConfigLoading = true;
+      state.getMailConfigStatus = "pending";
+    })
+    .addCase(getmailConfig.fulfilled, (state, action) => {
+
+      state.getMailConfigData = action.payload.data;
+      state.getMailConfigLoading = false;
+      state.getMailConfigStatus = "fulfilled";
+    })
+    .addCase(getmailConfig.rejected, (state, action) => {
+      state.getMailConfigError = action.error.message;
+      state.getMailConfigLoading = false;
+      state.getMailConfigStatus = "rejected";
+    })
       // ITEMS
       .addCase(fetchgGetAItems.pending, (state) => {
         state.status = "loading";
@@ -1066,12 +1158,16 @@ const getSlice = createSlice({
       .addCase(getConfigPriceBook.pending, (state) => {
         state.getconfigureStatus = "pending";
         state.getconfigureLoading = true;
+        state.getconfigureData = {};
+        state.configurePriceListGetData = [];
+        state.configurePriceListContactData = [];
       })
       .addCase(getConfigPriceBook.fulfilled, (state, action) => {
         state.getconfigureStatus = "fulfilled";
         state.getconfigureLoading = false;
         state.getconfigureData = action.payload.data;
         state.configurePriceListGetData = action.payload.data.PriceList;
+        state.configurePriceListContactData = action.payload.data.Contacts;
       })
       .addCase(getConfigPriceBook.rejected, (state, action) => {
         state.getconfigureStatus = "rejected";

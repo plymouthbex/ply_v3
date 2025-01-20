@@ -1058,6 +1058,89 @@ export const deleteQuote = createAsyncThunk(
     }
   }
 );
+export const postConfigContact = createAsyncThunk(
+  "post/postConfigContact", // Action type string
+  async ( data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookContact/PostPriceBookcontact`;
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const putConfigContact = createAsyncThunk(
+  "post/putConfigContact", // Action type string
+  async ( data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookContact/UpdatePriceBookcontact`;
+      const response = await axios.put(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+// export const deleteConfigContact = createAsyncThunk(
+//   "post/deleteConfigContact", // Action type string
+//   async (data, { rejectWithValue }) => {
+//     try {
+//       const URL = `${process.env.REACT_APP_BASE_URL}PriceBookContact/DeletePriceBookcontact`;
+//       const response = await axios.delete(URL, data, {
+//         headers: {
+//           Authorization: process.env.REACT_APP_API_TOKEN,
+//           "Content-Type": "application/json",
+//         },
+//         params:data
+//       });
+//       return response.data; // return the response data
+//     } catch (error) {
+//       return rejectWithValue(
+//         error.response ? error.response.data : error.message
+//       );
+//     }
+//   }
+// );
+
+
+export const deleteConfigContact = createAsyncThunk(
+  "deleteConfigContact/DELETE",
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookContact/DeletePriceBookcontact`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 const postData = createSlice({
   name: "postData",
   initialState,

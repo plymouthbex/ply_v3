@@ -53,7 +53,7 @@ const RunGroup = () => {
   // ********************** REDUX STATE ********************** //
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getRunGroupListView({ ID: state.companyID }));
+    dispatch(getRunGroupListView({ ID: state.CompanyCode }));
     dispatch(clearRunGroupState());
   }, [dispatch]);
   const loading = useSelector((state) => state.listview.rungroupTemploading);
@@ -64,7 +64,7 @@ const RunGroup = () => {
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
-      headerName: "Run Group",
+      headerName: "Name",
       field: "RunGroupCode",
       width: "170",
       align: "left",
@@ -72,7 +72,7 @@ const RunGroup = () => {
       hide: false,
     },
     {
-      headerName: "Run Group Description",
+      headerName: "Description",
       field: "RunGroupName",
       width: "200",
       align: "left",
@@ -107,7 +107,7 @@ const RunGroup = () => {
                 size="small"
                 onClick={() => {
                   navigate("/pages/control-panel/run-group/run-group-getail/edit", {
-                    state: { ID: params.row.RecordID, companyID: state.companyID },
+                    state: { ID: params.row.RecordID, CompanyCode: state.CompanyCode },
                   });
                 }}
                 disabled={params.mode === "delete" || params.mode === "view"}
@@ -137,68 +137,6 @@ const RunGroup = () => {
     },
   ];
 
-  const rows = [
-    {
-      RunGroupCode: "RG1001",
-      RunGroupName: "SHEPARD",
-      SortOrder: 1,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1002",
-      RunGroupName: "DAVE",
-      SortOrder: 2,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1003",
-      RunGroupName: "BOB",
-      SortOrder: 3,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1004",
-      RunGroupName: "CAYTIE",
-      SortOrder: 4,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1005",
-      RunGroupName: "KRISTJAN",
-      SortOrder: 5,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1006",
-      RunGroupName: "LEAH",
-      SortOrder: 6,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1007",
-      RunGroupName: "TONY",
-      SortOrder: 7,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1008",
-      RunGroupName: "PAC",
-      SortOrder: 8,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1009",
-      RunGroupName: "SALES",
-      SortOrder: 9,
-      Disable: "N",
-    },
-    {
-      RunGroupCode: "RG1010",
-      RunGroupName: "HOSS",
-      SortOrder: 10,
-      Disable: "N",
-    },
-  ];
 
   // ********************** TOOLBAR ********************** //
 
@@ -225,13 +163,13 @@ const RunGroup = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Add Run Group">
+          <Tooltip title="Add Price Book Group">
             <IconButton
               color="black"
               size="small"
               onClick={() => {
                 navigate("/pages/control-panel/run-group/run-group-getail/add", {
-                  state: { ID: 0 },
+                  state: { ID: 0,CompanyCode: state.CompanyCode },
                 });
               }}
             >
@@ -248,7 +186,7 @@ const RunGroup = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Company", path: "/pages/company-run-group" }, { name: "Run Group" }]}
+          routeSegments={[{ name: "Control Panel" },{ name: "Company", path: "/pages/control-panel/company-run-group" }, { name: "Price Book Group" }]}
         // ,path:"/pages/company-run-group" 
         />
       </div>

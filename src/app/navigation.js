@@ -77,7 +77,7 @@ export const navigations = [
   },
 
   {
-    name: "CP-Price Book",
+    name: "Control Panel",
     icon: <FolderIcon fontSize="small" />,
     role: authRoles.admin,
     children: [
@@ -90,8 +90,8 @@ export const navigations = [
         role: authRoles.admin,
       },
       {
-        name: " Price List",
-        path: "/pages/control-panel/company-price-list",
+        name: "Price List",
+        path: "/pages/control-panel/price-list",
         iconText: "P",
         accessID: "CP002",
         icon: <DescriptionIcon fontSize="small" />,
@@ -108,7 +108,7 @@ export const navigations = [
       },
 
       {
-        name: "Run Group",
+        name: "Price Book Group",
         path: "/pages/control-panel/company-run-group",
         iconText: "R",
         accessID: "CP004",
