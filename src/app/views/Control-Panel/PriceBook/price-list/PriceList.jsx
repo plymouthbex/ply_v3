@@ -232,19 +232,11 @@ const PriceList = () => {
           />
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
   <GridToolbarQuickFilter />
-  <Button
-    variant="contained"
-    color="info"
+  <Tooltip title="Create Price List">
+  <IconButton
+    
     size="small"
-    startIcon={
-      <Add
-        fontSize="small"
-        sx={{
-          color: "#174c4f", // Set the icon color
-          fontWeight: "bold", // Make it bold (some icons reflect this via SVG paths)
-        }}
-      />
-    }
+    
     onClick={() => {
       naviate(
         "/pages/control-panel/price-list/price-list-detail/add",
@@ -254,11 +246,19 @@ const PriceList = () => {
       );
     }}
   >
-    Create Price List
-  </Button>
+    <Add
+      fontSize="small"
+      sx={{
+        color: "#174c4f", // Set the icon color
+       
+      }}
+    />
+  </IconButton>
+</Tooltip>
 
 
-            <Button
+
+            {/* <IconButton
               variant="contained"
               color="info"
               size="small"
@@ -286,7 +286,7 @@ const PriceList = () => {
               }}
             >
               Create New Category
-            </Button>
+            </IconButton> */}
           </Box>
         </Box>
       </GridToolbarContainer>
