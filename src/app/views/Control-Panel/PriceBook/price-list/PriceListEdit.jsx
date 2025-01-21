@@ -391,12 +391,12 @@ const PriceListEdit = () => {
             recordId: priceListHeaderData.RecordId,
             priceListID: values.priceListID,
             pricelistDesc: values.priceListDescription,
-            buyer: JSON.stringify(values.buyer),
+            buyer: values.buyer ? JSON.stringify(values.buyer) : null,
             createdBy: values.createdBy,
             companyCode: state.companyCode,
-            forcePageBreak: "N",
+            forcePageBreak:  "N",
             overridesequence:  "N",
-            customer: JSON.stringify(values.propCustomer),
+            customer:values.propCustomer ? JSON.stringify(values.propCustomer) : null,
             comments: values.comments,
             createdDate: values.createdDateTime,
             modifyDate: values.lastModifiedDateTime,
@@ -412,9 +412,9 @@ const PriceListEdit = () => {
           //   })
           // );
 
+          // dispatch(priceListConditionsPost({ data: filterData }));
+          dispatch(getPriceListFilterData(filterData));
           if (params.mode === "add") {
-            dispatch(priceListConditionsPost({ data: filterData }));
-            dispatch(getPriceListFilterData(filterData));
             setOpenAlert(true);
             navigate(
               "/pages/control-panel/price-list/price-list-detail/edit",
@@ -435,7 +435,7 @@ const PriceListEdit = () => {
           }
         }
       });
-      setSubmitting(false);
+      // setSubmitting(false);
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -610,7 +610,7 @@ const PriceListEdit = () => {
               value={addPriceListData}
               onChange={handleSelectionAddPriceListData}
               label="Ad Hoc Item"
-              url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
+              url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type='C'`}
             />
 
             {state.id ? (
@@ -661,11 +661,6 @@ const PriceListEdit = () => {
                       setPostError1(true);
                     }
                   } else {
-                    console.log(
-                      "🚀 ~ file: PriceListEdit.jsx ~ line 442 ~ CustomToolbar ~ addPriceListData",
-                      addPriceListData
-                    );
-
                     setIsItemExistsError(true);
                     setTimeout(() => {
                       setIsItemExistsError(false);
@@ -826,7 +821,7 @@ const PriceListEdit = () => {
             setFieldValue,
             setSubmitting,
           }) => (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} onChange={() => setSubmitting(false)}>
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
@@ -839,22 +834,20 @@ const PriceListEdit = () => {
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  {params.mode !== "view" && (
+                  {params.mode == "delete" && (
                     <Button
                       variant="contained"
                       color="info"
                       size="small"
-                      disabled={isSubmitting || params.mode === "edit"}
+                      disabled={isSubmitting }
                       startIcon={
-                        params.mode === "delete" ? (
+                     
                           <DeleteIcon color="error" size="small" />
-                        ) : (
-                          <SaveIcon size="small" />
-                        )
+                      
                       }
                       type="submit"
                     >
-                      {params.mode === "delete" ? "Confirm" : "Save"}
+                       Confirm
                     </Button>
                   )}
                   <Button
@@ -863,7 +856,7 @@ const PriceListEdit = () => {
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
                     onClick={() => {
-                      navigate(-1);
+                      navigate("/pages/control-panel/price-list");
                     }}
                   >
                     Back
@@ -1057,6 +1050,7 @@ const PriceListEdit = () => {
                     sx={{ gridColumn: "span 1" }}
                     direction={"column"}
                     gap={1}
+                 
                   >
                     <Stack direction="row" gap={13} height={44}>
                       <Typography sx={{ marginLeft: 2 }} variant="h6">
@@ -1092,9 +1086,7 @@ const PriceListEdit = () => {
                         name="brandInExData"
                         id="brandInExData"
                         value={values.brandInExData}
-                        onChange={(event, newValue) =>
-                          setFieldValue("brandInExData", newValue)
-                        }
+                        onChange={(event, newValue) =>{setFieldValue("brandInExData", newValue);setSubmitting(false)}}
                         label="Brand"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
                         disabled={
@@ -1134,8 +1126,10 @@ const PriceListEdit = () => {
                         name="commodityInExData"
                         id="commodityInExData"
                         value={values.commodityInExData}
-                        onChange={(event, newValue) =>
+                        onChange={(event, newValue) =>{
                           setFieldValue("commodityInExData", newValue)
+                          setSubmitting(false)
+                        }
                         }
                         label="Commodity"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
@@ -1176,8 +1170,10 @@ const PriceListEdit = () => {
                         name="altClassInExData"
                         id="altClassInExData"
                         value={values.altClassInExData}
-                        onChange={(event, newValue) =>
+                        onChange={(event, newValue) =>{
                           setFieldValue("altClassInExData", newValue)
+                          setSubmitting(false)
+                        }
                         }
                         label="Alternate Class"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
@@ -1218,8 +1214,10 @@ const PriceListEdit = () => {
                         name="vendorInExData"
                         id="vendorInExData"
                         value={values.vendorInExData}
-                        onChange={(event, newValue) =>
+                        onChange={(event, newValue) =>{
                           setFieldValue("vendorInExData", newValue)
+                          setSubmitting(false)
+                        }
                         }
                         label="Vendor"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
@@ -1261,8 +1259,10 @@ const PriceListEdit = () => {
                         name="frshForzInExData"
                         id="frshForzInExData"
                         value={values.frshForzInExData}
-                        onChange={(event, newValue) =>
+                        onChange={(event, newValue) =>{
                           setFieldValue("frshForzInExData", newValue)
+                          setSubmitting(false)
+                        }
                         }
                         label="Fs/Fz"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
@@ -1303,8 +1303,10 @@ const PriceListEdit = () => {
                         name="SecondClassInExData"
                         id="SecondClassInExData"
                         value={values.SecondClassInExData}
-                        onChange={(event, newValue) =>
+                        onChange={(event, newValue) =>{
                           setFieldValue("SecondClassInExData", newValue)
+                          setSubmitting(false)
+                        }
                         }
                         label="Secondary Class"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
@@ -1345,8 +1347,10 @@ const PriceListEdit = () => {
                         name="classIDInExData"
                         id="classIDInExData"
                         value={values.classIDInExData}
-                        onChange={(event, newValue) =>
+                        onChange={(event, newValue) =>{
                           setFieldValue("classIDInExData", newValue)
+                          setSubmitting(false)
+                        }
                         }
                         label="ClassID"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
@@ -1361,38 +1365,18 @@ const PriceListEdit = () => {
                     </Stack>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
-                      {state.id ? (
+                   
                         <Button
                           variant="contained"
                           color="info"
                           size="small"
                           startIcon={<CheckIcon size="small" />}
-                          disabled={
-                            params.mode === "delete" || params.mode === "view"
-                              ? true
-                              : false
-                          }
-                          onClick={() => getFilteredData(values)}
-                        >
-                          Apply Filters & Save
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          color="info"
-                          size="small"
-                          startIcon={<CheckIcon size="small" />}
-                          disabled={
-                            params.mode === "delete" || params.mode === "view"
-                              ? true
-                              : false
-                          }
+                          disabled={isSubmitting }
                           type="submit"
                         >
                           Apply Filters & Save
                         </Button>
-                      )}
-
+                     
                       {state.id ? (
                         <Button
                           variant="contained"
@@ -1708,10 +1692,10 @@ const PriceListEdit = () => {
           postError
             ? "Error! while saving please retry"
             : params.mode === "add"
-            ? "Price List added successfully"
+            ? "Price List saved successfully"
             : params.mode === "delete"
             ? "Pricel List deleted successfully"
-            : "Price List updated successfully"
+            : "Price List saved successfully"
         }
         Actions={
           params.mode === "add" ? (

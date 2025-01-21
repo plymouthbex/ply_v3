@@ -48,11 +48,13 @@ import {
   exportToExcelFullPriceBookV1,
 } from "app/components/Template/Excel";
 import LoadingApiDialog, {
+  PriceGroupAlertApiDialog,
   ViewPriceLoadingApiDialog,
 } from "app/components/LoadindgDialog";
 import { CustomerCustomPriceDocument } from "app/components/Template/pdfs/CustomerCustomPriceBook";
 import { CustomerFullPriceDocument } from "app/components/Template/pdfs/CustomerFullPriceBook";
 import toast from "react-hot-toast";
+import { runGroupMailData } from "app/redux/slice/postSlice";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -128,8 +130,6 @@ const formatDateLong = (date) => {
 const ViewPriceBook = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-
 
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const theme = useTheme();
@@ -212,16 +212,62 @@ const ViewPriceBook = () => {
       }, 1000);
       return;
     }
-    navigate("./send-mail/:vpb",{state:{
-      customernumber:selectedCustomerOptions.Code,
-      fppdf: selectPriceListtype === "FP" ? true : false,
-      fpexcel: selectPriceListtype === "FP" ? true : false,
-      cppdf: selectPriceListtype === "CP" ? true : false,
-      cpexcel: selectPriceListtype === "CP" ? true : false,
-      FromDate:sunday,
-      ToDate:saturday
-    }});
+    navigate("./send-mail/:vpb", {
+      state: {
+        customernumber: selectedCustomerOptions.Code,
+        fppdf: selectPriceListtype === "FP" ? true : false,
+        fpexcel: selectPriceListtype === "FP" ? true : false,
+        cppdf: selectPriceListtype === "CP" ? true : false,
+        cpexcel: selectPriceListtype === "CP" ? true : false,
+        FromDate: sunday,
+        ToDate: saturday,
+      },
+    });
   };
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
+  const fnRunGrpEmailProcess = async () => {
+    if (!selectedCustomerOptions) {
+      setIsCustomer("Please Choose Customer");
+
+      setTimeout(() => {
+        setIsCustomer(null);
+      }, 1000);
+      return;
+    }
+    const data = [
+      {
+        CustomerNumber: selectedCustomerOptions.Code,
+        FullPriceBookPdf: selectPriceListtype === "FP" ? "1" : "0",
+        FullPriceBookExcel: selectPriceListtype === "FP" ? "1" : "0",
+        CustomPriceBooPdf: selectPriceListtype === "CP" ? "1" : "0",
+        CustomPriceBookExcel: selectPriceListtype === "CP" ? "1" : "0",
+        FromDate: sunday,
+        ToDate: saturday,
+        UserID: user.id,
+        CompnayID:user.companyID,
+        CompanyCode: user.companyCode,
+        TemplateID: "",
+      },
+    ];
+    console.log("🚀 ~ data ~ data:", data);
+
+    try {
+      const response = await dispatch(runGroupMailData({ data }));
+
+      if (response.payload.status === "Y") {
+        setOpenAlert(true);
+      } else {
+        setOpenAlert(true);
+        setPostError(true);
+      }
+    } catch (error) {
+      setOpenAlert(true);
+      setPostError(true);
+      console.error("Error during HandleSave:", error);
+    }
+  };
+
   const getPriceListCustomerFull = (priceListOutType) => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
@@ -724,7 +770,7 @@ const ViewPriceBook = () => {
                   <CustomIconButton
                     bgcolor={theme.palette.error.main}
                     aria-label="mail"
-                    onClick={handleMailNavigate}
+                    onClick={fnRunGrpEmailProcess}
                   >
                     <IoIosMailOpen style={{ fontSize: "21px" }} />
                   </CustomIconButton>
@@ -842,6 +888,42 @@ const ViewPriceBook = () => {
           </Stack>
         </SimpleCard>
       </Box>
+       <PriceGroupAlertApiDialog
+                  open={openAlert}
+                  error={postError}
+                  message={
+                    postError
+                      ? "An error occurred while sending the email. Please retry."
+                      : "Customer will receive their Price Book shortly"
+                  }
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+      
+                        justifyContent: "flex-end",
+      
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setOpenAlert(false);
+      
+                          setTimeout(() => {
+                            setPostError(false);
+                          }, 1000);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
+                />
       <ViewPriceLoadingApiDialog
         logo={`data:image/png;base64,${user.logo}`}
         tittle={
