@@ -191,6 +191,26 @@ export const getPriceListData = createAsyncThunk(
   }
 );
 
+
+export const getPriceListData2 = createAsyncThunk(
+  "getPriceListData2/GET",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceList?PricelistId=${id}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 export const getPriceListFilterData = createAsyncThunk(
   "priceListFilter/POST",
   async (data, { rejectWithValue }) => {
@@ -966,6 +986,11 @@ const getSlice = createSlice({
         state.priceListMessage = action.error.message;
         state.priceListLoading = false;
         state.priceListError = true;
+      })
+
+      .addCase(getPriceListData2.fulfilled, (state, action) => {
+        state.priceListItemsData = action.payload.data.itemData;
+        state.priceListAddedData = action.payload.data.addHocItems;
       })
 
       // PRINT GROUP

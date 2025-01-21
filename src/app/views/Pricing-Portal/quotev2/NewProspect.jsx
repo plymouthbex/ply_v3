@@ -103,6 +103,14 @@ const NewProspect = () => {
   // //=============================SAVE==================================//
 
   const handleSave = async (values, setSubmitting) => {
+    const inputValue = values.name.trim();
+    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    if (isPricelist) {
+      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
+      setPrintGroupID(pricelistID.RecordID);
+      SetIsPrintGroupOpen(true);
+      return
+    } 
     const data = {
       RecordID: params.mode === "copy" ? 0 : getQuoteProspectInfoData.RecordID,
       CompanyCode: values.company ? values.company : "",
@@ -571,6 +579,7 @@ const NewProspect = () => {
                       onClick={() => {
                         setFieldValue("name", "");
                         SetIsPrintGroupOpen(false);
+                        setSubmitting(false)
                       }}
                       sx={{ height: 25, ml: 1 }}
                     >

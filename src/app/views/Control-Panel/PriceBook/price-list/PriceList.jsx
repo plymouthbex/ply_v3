@@ -516,7 +516,7 @@ function CustomToolbar() {
                 Add Price List To Price Book Category
               </Button>
             </TableContainer>
-            <TableContainer
+            {/* <TableContainer
               component={Paper}
               sx={{
                 display: "flex",
@@ -561,7 +561,7 @@ function CustomToolbar() {
               >
                 Add Price List To Customer
               </Button>
-            </TableContainer>
+            </TableContainer> */}
           </Stack>
         </Stack>
       </Paper>

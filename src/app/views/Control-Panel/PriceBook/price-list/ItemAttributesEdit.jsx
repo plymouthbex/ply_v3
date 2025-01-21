@@ -515,7 +515,8 @@ const ItemAttributesEdit = () => {
                 <MessageAlertDialog
                   open={isRemoveItem}
                   logo={`data:image/png;base64,${user.logo}`}
-                  message={`Are you sure you want to remove Item ${values.itemDescription}?`}
+                  message={`Are you sure you want to remove Item ?`}
+                  // message={`Are you sure you want to remove Item ${values.itemDescription}?`}
                   Actions={
                     <Box
                       sx={{

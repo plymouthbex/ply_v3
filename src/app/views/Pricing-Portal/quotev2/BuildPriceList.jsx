@@ -493,6 +493,18 @@ export default function BuildCustomPriceBook() {
   const [postError, setPostError] = useState(false);
 
   const getFilteredDataAndSave = async (values, setSubmitting) => {
+    const inputValue = values.pricelistName.trim();
+    const isPricelist = rowProspect.some(
+      (item) => item.Name === inputValue
+    );
+    if (isPricelist) {
+      const pricelistID = rowProspect.find(
+        (item) => item.Name === inputValue
+      );
+      setPrintGroupID(pricelistID.RecordID);
+      SetIsPrintGroupOpen(true);
+      return
+    }
     try {
       const data = {
         RecordID: params.mode == "copy" ? 0 : getQuoteHeaderData.RecordID,
@@ -500,8 +512,8 @@ export default function BuildCustomPriceBook() {
         UserID: user.id,
         FromDate: sunday,
         ToDate: saturday,
-        Description: values.pricelistName,
-        Name: "",
+        Description:"" ,
+        Name: values.pricelistName,
         Address1: "",
         Address2: "",
         City: "",
@@ -674,11 +686,11 @@ export default function BuildCustomPriceBook() {
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
     const isPricelist = rowProspect.some(
-      (item) => item.Description === inputValue
+      (item) => item.Name === inputValue
     );
     if (isPricelist) {
       const pricelistID = rowProspect.find(
-        (item) => item.Description === inputValue
+        (item) => item.Name === inputValue
       );
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
@@ -720,7 +732,7 @@ export default function BuildCustomPriceBook() {
             company: getQuoteHeaderData.CompanyCode
               ? getQuoteHeaderData.CompanyCode
               : user.companyCode,
-            pricelistName: getQuoteHeaderData.Description,
+            pricelistName: getQuoteHeaderData.Name,
             salesRepName: getQuoteHeaderData.Salesrepresentative,
             priceBookLevel: getQuoteHeaderData.PriceLevel
               ? getQuoteHeaderData.PriceLevel
@@ -1421,7 +1433,7 @@ export default function BuildCustomPriceBook() {
                     open={openAlert2}
                     error={postError2}
                     message={
-                      postError2 ? "Something Went Wrong" : "Saved Successfully"
+                      postError2 ? "Something Went Wrong and please try again" : "Saved Successfully"
                     }
                     Actions={
                       <Box
@@ -1456,7 +1468,7 @@ export default function BuildCustomPriceBook() {
                     error={postError4}
                     message={
                       postError4
-                        ? "Something Went Wrong"
+                        ? "Something went wrong and please try again"
                         : "Filters And Items Cleared Successfully"
                     }
                     Actions={
@@ -1538,7 +1550,7 @@ export default function BuildCustomPriceBook() {
                     error={postError3}
                     message={
                       postError3
-                        ? "Something Went Wrong"
+                        ? "Something went wrong and please try again"
                         : "Item Added Successfully"
                     }
                     Actions={
