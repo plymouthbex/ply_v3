@@ -145,17 +145,13 @@ const PriceListEdit = () => {
   const filteredSelectedItems = selectedRows.filter(
     (selectedItem) => !addItemsSet.has(selectedItem.Item_Number)
   );
-  console.log(
-    "🚀 ~ PriceListEdit ~ filteredSelectedItems:",
-    filteredSelectedItems
-  );
+
 
   const allSelAddItems = [...filteredSelectedItems, ...addedRows].map(
     (item) => {
       return { ...item, Item_Number: `@${item.Item_Number}`, showAction: true };
     }
   );
-  console.log("🚀 ~ PriceListEdit ~ allSelAddItems:", allSelAddItems);
   // ********************** COLUMN AND ROWS ********************** //
 
   const columns = [
@@ -620,7 +616,7 @@ const PriceListEdit = () => {
                 size="small"
                 onClick={async () => {
                   if (addPriceListData) {
-                    const isItem = [...selectedRows, ...addedRows].some(
+                    const isItem = [...priceListItemsData,...selectedRows, ...addedRows].some(
                       (item) =>
                         lodash.isEqual(
                           item.Item_Number,
@@ -639,11 +635,11 @@ const PriceListEdit = () => {
                     const response = await dispatch(
                       PostAdHocItem({
                         idata: {
-                          priceListID: priceListHeaderData.PriceListID,
-                          quotationRecordID: "0",
-                          filterType: "PL",
-                          itemNo: addPriceListData.Item_Number,
-                          itemDescription: addPriceListData.Item_Description,
+                          PriceListID: priceListHeaderData.PriceListID,
+                          QuotationRecordID: "0",
+                          FilterType: "PL",
+                          ItemNo: addPriceListData.Item_Number,
+                          ItemDescription: addPriceListData.Item_Description,
                         },
                       })
                     );
@@ -1651,9 +1647,10 @@ const PriceListEdit = () => {
                     ? addPriceListData.Item_Description
                     : "Please select an item!"
                 }
+                error={true}
                 message={
                   addPriceListData
-                    ? `Oops! ${addPriceListData.Item_Description} This item is already exists in price list.`
+                    ? `Oops! This item is already exists in price list.`
                     : ""
                 }
                 Actions={

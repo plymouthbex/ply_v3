@@ -72,9 +72,7 @@ const ApplicationEdit = () => {
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.applicationFormData);
   const status = useSelector((state) => state.getSlice.applicationStatus);
-  console.log("🚀 ~ ApplicationEdit ~ status:", status);
   const error = useSelector((state) => state.getSlice.applicationError);
-  console.log("🚀 ~ ApplicationEdit ~ error:", error);
 
   useEffect(() => {
     dispatch(getApplicationData({ ID: state.ID }));
@@ -92,14 +90,13 @@ const ApplicationEdit = () => {
       SystemAdmin: values.systemAdmin ? 1 : 0,
       disable: values.disable ? "Y" : "N",
     };
-    console.log("🚀 ~ handleSave ~ appData:", appData);
     const response = await dispatch(applicationPost({ appData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
     } else {
       setOpenAlert(true);
       setPostError(true);
-      toast.error("Error occurred while saving data");
+      // toast.error("Error occurred while saving data");
     }
   };
   return (

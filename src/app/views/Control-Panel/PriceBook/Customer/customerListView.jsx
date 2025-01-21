@@ -120,7 +120,8 @@ const Customer = () => {
         <div>
           <Checkbox
             checked={params.row.FullPriceBookExcel}
-            onChange={() => {
+            onChange={(e) => {
+              handleSave({...params.row,FullPriceBookExcel:e.target.checked ? "1" : "0"})
               dispatch(
                 onCheckboxChangeCustomer({
                   id: params.row.RecordID,
@@ -138,7 +139,8 @@ const Customer = () => {
           Excel
           <Checkbox
           checked={params.row.FullPriceBookPdf}
-          onChange={() => {
+          onChange={(e) => {
+            handleSave({...params.row,FullPriceBookPdf:e.target.checked ? "1" : "0"})
             dispatch(
               onCheckboxChangeCustomer({
                 id: params.row.RecordID,
@@ -172,12 +174,14 @@ const Customer = () => {
         <div>
           <Checkbox
           checked={params.row.CustomPriceBookExcel}
-          onChange={() => {
+          onChange={(e) => {
+            handleSave({...params.row,CustomPriceBookExcel:e.target.checked ? "1" : "0"})
             dispatch(
               onCheckboxChangeCustomer({
                 id: params.row.RecordID,
                 field: "CustomPriceBookExcel",
               })
+
             );
           }}
             sx={{
@@ -190,7 +194,8 @@ const Customer = () => {
           Excel
           <Checkbox
           checked={params.row.CustomPriceBookPdf}
-          onChange={() => {
+          onChange={(e) => {
+            handleSave({...params.row,CustomPriceBookPdf:e.target.checked ? "1" : "0"})
             dispatch(
               onCheckboxChangeCustomer({
                 id: params.row.RecordID,
@@ -223,11 +228,11 @@ const Customer = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <Tooltip title="Confirm">
+            {/* <Tooltip title="Confirm">
               <IconButton color="black" size="small" onClick={() => { handleSave(params.row)}}>
                 <CheckIcon />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             <Tooltip title="Contacts">
               <IconButton
@@ -304,10 +309,10 @@ const Customer = () => {
 
     const response = await dispatch(postConfigureCompany({ Cdata: data1 }));
     if (response.payload.status === "Y") {
-      setOpenAlert(true);
+      // setOpenAlert(true);
     } else {
-      setOpenAlert(true);
-      setPostError(true);
+      // setOpenAlert(true);
+      // setPostError(true);
       // toast.error("Error occurred while saving data");
     }
   };

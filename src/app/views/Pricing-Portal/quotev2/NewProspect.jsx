@@ -171,9 +171,7 @@ const NewProspect = () => {
   const [printGroupID, setPrintGroupID] = useState(0);
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
-    const isPricelist = rowProspect.some(
-      (item) => item.Name === inputValue
-    );
+    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
     if (isPricelist) {
       const pricelistID = rowProspect.find((item) => item.Name === inputValue);
       setPrintGroupID(pricelistID.RecordID);

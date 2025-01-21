@@ -380,6 +380,10 @@ export default function RunPriceBook() {
         CustomPriceBookExcel: v.cpexcel ? "1" : "0",
         FromDate: sunday,
         ToDate: saturday,
+        UserID: user.id,
+        CompnayID:user.companyID,
+        CompanyCode: user.companyCode,
+        TemplateID: "",
       }));
     console.log("🚀 ~ data ~ data:", data);
 

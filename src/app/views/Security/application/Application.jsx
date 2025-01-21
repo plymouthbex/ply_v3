@@ -5,7 +5,10 @@ import {
   Paper,
   Button,
   styled,
-  useTheme,Tooltip,IconButton
+  useTheme,
+  Tooltip,
+  IconButton,
+  Checkbox,
 } from "@mui/material";
 import {
   DataGrid,
@@ -13,12 +16,23 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight,dataGridpageSizeOptions ,dataGridPageSize,dataGridHeaderFooterHeight} from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridRowHeight,
+  dataGridpageSizeOptions,
+  dataGridPageSize,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getApplicationListView } from "app/redux/slice/listviewSlice";
+import {
+  getApplicationListView,
+  onCheckboxChangeCustomer,
+  onCheckboxChangeMenu,
+} from "app/redux/slice/listviewSlice";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import { applicationPost } from "app/redux/slice/postSlice";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -34,12 +48,12 @@ const Application = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
-  const rows =useSelector((state)=>state.listview.applicationListViewData);
-  console.log("🚀 ~ Application ~ rows:", rows)
+  const rows = useSelector((state) => state.listview.applicationListViewData);
+  console.log("🚀 ~ Application ~ rows:", rows);
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     // {
@@ -73,20 +87,97 @@ const dispatch=useDispatch();
       renderCell: (params) => {
         return (
           <div>
-            <Tooltip title="Edit">
-  <IconButton
-    color="black"
-    size="small"
-    onClick={() => {
-      navigate("/pages/security/application-edit-detail/edit", {
-        state: { ID: params.row.RecordID },
-      });
-    }}
-  >
-    <ModeEditOutlineIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
+            <Checkbox
+              checked={Boolean(params.row.SystemAdmin)}
+              onChange={(e) => {
+                // handleSave({
+                //   ...params.row,
+                //   CustomPriceBookExcel: e.target.checked ? "1" : "0",
+                // });
+                dispatch(
+                  applicationPost({
+                    appData: {
+                      ...params.row,
+                      SystemAdmin: e.target.checked ? 1 : 0,
+                    },
+                  })
+                );
+                dispatch(
+                  onCheckboxChangeMenu({
+                    id: params.row.RecordID,
+                    field: "SystemAdmin",
+                  })
+                );
+              }}
+              sx={{
+                color: "#174c4f",
+                "&.Mui-checked": {
+                  color: "#174c4f",
+                },
+              }}
+            />
+            System Admin
 
+            <Checkbox
+              checked={Boolean(params.row.Admin)}
+              onChange={(e) => {
+                // handleSave({
+                //   ...params.row,
+                //   CustomPriceBookExcel: e.target.checked ? "1" : "0",
+                // });
+                dispatch(
+                  applicationPost({
+                    appData: {
+                      ...params.row,
+                      Admin: e.target.checked ? 1 : 0,
+                    },
+                  })
+                );
+                dispatch(
+                  onCheckboxChangeMenu({
+                    id: params.row.RecordID,
+                    field: "Admin",
+                  })
+                );
+              }}
+              sx={{
+                color: "#174c4f",
+                "&.Mui-checked": {
+                  color: "#174c4f",
+                },
+              }}
+            />
+            Admin
+            <Checkbox
+              checked={Boolean(params.row.User)}
+              onChange={(e) => {
+                // handleSave({
+                //   ...params.row,
+                //   CustomPriceBookExcel: e.target.checked ? "1" : "0",
+                // });
+                dispatch(
+                  applicationPost({
+                    appData: {
+                      ...params.row,
+                      User: e.target.checked ? 1 : 0,
+                    },
+                  })
+                );
+                dispatch(
+                  onCheckboxChangeMenu({
+                    id: params.row.RecordID,
+                    field: "User",
+                  })
+                );
+              }}
+              sx={{
+                color: "#174c4f",
+                "&.Mui-checked": {
+                  color: "#174c4f",
+                },
+              }}
+            />
+            User
             {/* <Button
               sx={{ height: 25 }}
               variant="contained"
@@ -106,12 +197,10 @@ const dispatch=useDispatch();
     },
   ];
 
-
-//================API-CALL====================//
-useEffect(() => {
-  dispatch(getApplicationListView());
- 
-}, [dispatch]);
+  //================API-CALL====================//
+  useEffect(() => {
+    dispatch(getApplicationListView());
+  }, [dispatch]);
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
     return (
@@ -136,17 +225,19 @@ useEffect(() => {
         >
           <GridToolbarQuickFilter />
           <Tooltip title="Add">
-  <IconButton
-   sx={{ height: 25 }}
-    color="black"
-    size="small"
-    onClick={() => {
-      navigate("/pages/security/application-edit-detail/add", { state: { ID: 0 } });
-    }}
-  >
-    <Add fontSize="small" />
-  </IconButton>
-</Tooltip>
+            <IconButton
+              sx={{ height: 25 }}
+              color="black"
+              size="small"
+              onClick={() => {
+                navigate("/pages/security/application-edit-detail/add", {
+                  state: { ID: 0 },
+                });
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
           {/* <Button
             variant="contained"
@@ -167,9 +258,7 @@ useEffect(() => {
   return (
     <Container>
       <div className="breadcrumb">
-        <Breadcrumb
-          routeSegments={[{ name: "Security" }, { name: "Menu" }]}
-        />
+        <Breadcrumb routeSegments={[{ name: "Security" }, { name: "Menu" }]} />
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
@@ -225,14 +314,15 @@ useEffect(() => {
 
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
-            },"& .MuiTablePagination-root": {
+            },
+            "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
@@ -246,9 +336,9 @@ useEffect(() => {
             columnHeaderHeight={dataGridHeaderFooterHeight}
             sx={{
               // This is to override the default height of the footer row
-              '& .MuiDataGrid-footerContainer': {
-                  height: dataGridHeaderFooterHeight,
-                  minHeight: dataGridHeaderFooterHeight,
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
               },
             }}
             rowHeight={dataGridRowHeight}
@@ -283,23 +373,6 @@ useEffect(() => {
 };
 
 export default Application;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React, { useEffect } from "react";
 // import {
@@ -489,14 +562,14 @@ export default Application;
 //       const RecordID = Math.floor(Math.random() * 1000); // Generate unique ID for the new row
 //       setRows((oldRows) => [
 //         ...oldRows,
-//         { 
-//           RecordID, 
-//           ApplicationCode: '', 
-//           ApplicationName: '', 
-//           Admin: 0, 
-//           User: 0, 
-//           SystemAdmin: 0, 
-//           isNew: true 
+//         {
+//           RecordID,
+//           ApplicationCode: '',
+//           ApplicationName: '',
+//           Admin: 0,
+//           User: 0,
+//           SystemAdmin: 0,
+//           isNew: true
 //         },
 //       ]);
 //       setRowModesModel((oldModel) => ({
@@ -504,14 +577,14 @@ export default Application;
 //         [RecordID]: { mode: GridRowModes.Edit, fieldToFocus: 'ApplicationCode' },
 //       }));
 //     };
-  
+
 //     return (
 //       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
 //         Add New Row
 //       </Button>
 //     );
 //   }
-  
+
 //   const handleCheckboxChange = (event, recordID, field) => {
 //     const value = event.target.checked ? 1 : 0;
 //     setCheckboxValues((prevState) => ({
@@ -535,7 +608,7 @@ export default Application;
 //     try {
 //       // Get the current checkbox values for the row
 //       const currentValues = checkboxValues[recordID] || {};
-  
+
 //       // Prepare appData with values from the row
 //       const appData = {
 //         recordID: recordID,
@@ -545,22 +618,22 @@ export default Application;
 //         Admin: currentValues.Admin ?? 0, // Default to 0 if undefined
 //         SystemAdmin: currentValues.SystemAdmin ?? 0, // Default to 0 if undefined
 //       };
-  
+
 //       // Log the appData to the console for debugging
 //       console.log("appData:", appData);
-  
+
 //       // Dispatch the action to save data via Redux (assumed action: applicationPost)
 //       const response = await dispatch(applicationPost({ appData }));
-  
+
 //       // Check the response payload status
 //       if (response.payload.status === "Y") {
 //        toast.success("Updated SuccesFully") ;
 //        dispatch(getApplicationListView());// Success, open success alert
 //       } else {
-       
+
 //         toast.error("Error occurred while saving data"); // Show error message with toast
 //       }
-  
+
 //       // Set the row mode to view after saving
 //       setRowModesModel({
 //         ...rowModesModel,
@@ -569,13 +642,11 @@ export default Application;
 //     } catch (error) {
 //       // Handle any errors that occurred during the save process
 //       console.error("Error saving data:", error);
-      
+
 //       toast.error("An error occurred while processing the request"); // Display error toast
 //     }
 //   };
-  
 
-    
 //   const handleDeleteClick = (recordID) => () => {
 //     setRows(rows.filter((row) => row.RecordID !== recordID));
 //   };
@@ -648,7 +719,7 @@ export default Application;
 //             components={{
 //               Toolbar: () => <EditToolbar setRows={setRows} setRowModesModel={setRowModesModel} />
 //             }}
-          
+
 //             onRowEditCommit={(params) => {
 //               handleEditClick
 //             }}
@@ -659,6 +730,4 @@ export default Application;
 //   );
 // };
 
-
 // export default Application;
-
