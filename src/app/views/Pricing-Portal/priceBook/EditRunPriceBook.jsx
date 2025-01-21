@@ -24,17 +24,15 @@ import {
 import React from "react";
 import { Breadcrumb, SimpleCard } from "app/components";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useEffect, useState } from "react";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import SendIcon from "@mui/icons-material/Send";
+
 import {
   DataGrid,
   GridToolbar,
   GridToolbarContainer,
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SiMicrosoftexcel } from "react-icons/si";
 import { FaFilePdf } from "react-icons/fa6";
 import { IoIosMailOpen } from "react-icons/io";
@@ -43,6 +41,9 @@ import { themeColors } from "app/components/baseTheme/themeColors";
 import useSettings from "app/hooks/useSettings";
 import { useNavigate } from "react-router-dom";
 import { dataGridHeaderFooterHeight } from "app/utils/constant";
+import { runGroupMailData } from "app/redux/slice/postSlice";
+import useAuth from "app/hooks/useAuth";
+import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -53,10 +54,6 @@ const Container = styled("div")(({ theme }) => ({
   },
 }));
 
-const IMG = styled("img")(() => ({
-  width: "100%",
-  overflow: "hidden",
-}));
 const CustomIconButton = styled(IconButton)(({ theme, bgcolor }) => ({
   backgroundColor: bgcolor,
   color: "white",
@@ -67,65 +64,14 @@ const CustomIconButton = styled(IconButton)(({ theme, bgcolor }) => ({
   },
 }));
 
-function downloadPdfUsingFetch(url) {
-  fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.blob(); // Convert response to Blob
-    })
-    .then((blob) => {
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.setAttribute("download", "file.pdf"); // Suggest a file name
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl); // Clean up
-    })
-    .catch((error) =>
-      console.error("There was an error downloading the PDF:", error)
-    );
-}
-
-const handleOpenType = (type) => {
-  if (type === "PDF") {
-    // URL of the PDF file
-    const pdfUrl =
-      "https://plymouth.beyondexs.com/uploads/Custom%20Price%20List%20Claus%20Meats.pdf";
-    // Open the PDF in a new tab
-    window.open(pdfUrl, "_blank");
-  }
-
-  if (type === "EXCEL") {
-    // URL of the PDF file
-    const pdfUrl =
-      "https://plymouth.beyondexs.com/uploads/Custom Price List Claus Meats.xlsx";
-    // Open the PDF in a new tab
-    window.open(pdfUrl, "_blank");
-  }
-  if (type === "PRINT") {
-    // URL of the PDF file
-    const pdfUrl = "https://example.com/your-pdf-file.pdf";
-    // Open the PDF in a new tab
-    window.open(pdfUrl, "_blank");
-  }
-  if (type === "MAIL") {
-    // URL of the PDF file
-    const pdfUrl = "https://example.com/your-pdf-file.pdf";
-    // Open the PDF in a new tab
-    window.open(pdfUrl, "_blank");
-  }
-};
-
 export default function EditRunPriceBook() {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const theme = useTheme();
   const isLoading = useSelector((state) => state.listview.loading);
   const colors = themeColors;
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const dispatch = useDispatch();
 
   const runGrpProcessedData = useSelector(
     (state) => state.listview.runGrpProcessedData
@@ -135,9 +81,6 @@ export default function EditRunPriceBook() {
     runGrpProcessedData
   );
 
-  const handleMailNavigate = () => {
-    navigate("/sent-mail");
-  };
   //=================================TOOLBAR=====================================//
   function secondaryCustomToolbar() {
     return (
@@ -194,45 +137,39 @@ export default function EditRunPriceBook() {
       </GridToolbarContainer>
     );
   }
-  //================================COLUMNS AND ROWS==========================================//
-  const initialRows = [
-    {
-      id: 1,
-      customer: "Acme Poultry",
-      fp: true,
-      cp: true,
-      excel: true,
-      pdf: true,
-      checked: true,
-    },
-    {
-      id: 4,
-      customer: "Azteca",
-      fp: false,
-      cp: true,
-      excel: true,
-      pdf: false,
-      checked: true,
-    },
-    {
-      id: 7,
-      customer: "Coro Foods",
-      fp: true,
-      cp: false,
-      excel: false,
-      pdf: true,
-      checked: true,
-    },
-  ];
 
-  const [rows, setRows] = useState(initialRows);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
+  const fnRunGrpEmailProcess = async (value) => {
+    const data = [
+      {
+        CustomerNumber: value.customernumber,
+        FullPriceBookPdf: value.fppdf ? "1" : "0",
+        FullPriceBookExcel: value.fpexcel ? "1" : "0",
+        CustomPriceBooPdf: value.cppdf ? "1" : "0",
+        CustomPriceBookExcel: value.cpexcel ? "1" : "0",
+        FromDate: value.sunday,
+        ToDate: value.saturday,
+        UserID: user.id,
+        CompnayID: user.companyID,
+        CompanyCode: user.companyCode,
+        TemplateID: "",
+      },
+    ];
+    try {
+      const response = await dispatch(runGroupMailData({ data }));
 
-  const handleCheckboxChange = (id, field) => {
-    setRows((prevRows) =>
-      prevRows.map((row) =>
-        row.id === id ? { ...row, [field]: !row[field] } : row
-      )
-    );
+      if (response.payload.status === "Y") {
+        setOpenAlert(true);
+      } else {
+        setOpenAlert(true);
+        setPostError(true);
+      }
+    } catch (error) {
+      setOpenAlert(true);
+      setPostError(true);
+      console.error("Error during HandleSave:", error);
+    }
   };
 
   const columns = [
@@ -253,7 +190,6 @@ export default function EditRunPriceBook() {
         >
           {params.row.fppdf ? (
             <Tooltip title="PDF" placement="top">
-
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
                 download={params.row.fileName1}
@@ -306,7 +242,7 @@ export default function EditRunPriceBook() {
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
                 aria-label="mail"
-                onClick={handleMailNavigate}
+                onClick={() => fnRunGrpEmailProcess(params.row)}
               >
                 <IoIosMailOpen style={{ fontSize: "15px" }} />
               </CustomIconButton>
@@ -381,7 +317,7 @@ export default function EditRunPriceBook() {
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
                 aria-label="mail"
-                onClick={handleMailNavigate}
+                onClick={() => fnRunGrpEmailProcess(params.row)}
               >
                 <IoIosMailOpen style={{ fontSize: "15px" }} />
               </CustomIconButton>
@@ -538,6 +474,42 @@ export default function EditRunPriceBook() {
         </Box>
         <Stack direction="row" justifyContent="end" marginTop={2}></Stack>
       </SimpleCard>
+      <PriceGroupAlertApiDialog
+        open={openAlert}
+        error={postError}
+        message={
+          postError
+            ? "An error occurred while sending the email. Please retry."
+            : "Customer will receive their Price Book shortly"
+        }
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+
+              justifyContent: "flex-end",
+
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
+
+                setTimeout(() => {
+                  setPostError(false);
+                }, 1000);
+              }}
+              sx={{ height: 25 }}
+            >
+              Close
+            </Button>
+          </Box>
+        }
+      />
     </Container>
   );
 }

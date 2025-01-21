@@ -81,14 +81,14 @@ const ApplicationEdit = () => {
   //==============================SAVE===================================//
   const handleSave = async (values) => {
     const appData = {
-      recordID: data.RecordID,
-      applicationCode: values.code,
-      applicationName: values.name,
-      sortOrder: values.sequence,
+      RecordID: data.RecordID,
+      ApplicationCode: values.code,
+      ApplicationName: values.name,
+      SortOrder: values.sequence,
       User: values.user ? 1 : 0,
       Admin: values.admin ? 1 : 0,
       SystemAdmin: values.systemAdmin ? 1 : 0,
-      disable: values.disable ? "Y" : "N",
+      Disable: values.disable ? "Y" : "N",
     };
     const response = await dispatch(applicationPost({ appData }));
     if (response.payload.status === "Y") {

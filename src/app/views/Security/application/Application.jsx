@@ -97,8 +97,15 @@ const Application = () => {
                 dispatch(
                   applicationPost({
                     appData: {
-                      ...params.row,
+
+                      RecordID: params.row.RecordID,
+                      ApplicationCode: params.row.ApplicationCode,
+                      ApplicationName: params.row.ApplicationName,
+                      SortOrder: params.row.SortOrder,
+                      User: params.row.User ? 1 : 0,
+                      Admin: params.row.Admin ? 1 : 0,
                       SystemAdmin: e.target.checked ? 1 : 0,
+                      Disable: params.row.Disable === "Y" ? "Y" : "N",
                     },
                   })
                 );
@@ -127,9 +134,15 @@ const Application = () => {
                 // });
                 dispatch(
                   applicationPost({
-                    appData: {
-                      ...params.row,
+                    appData: {                   
+                      RecordID: params.row.RecordID,
+                      ApplicationCode: params.row.ApplicationCode,
+                      ApplicationName: params.row.ApplicationName,
+                      SortOrder: params.row.SortOrder,
+                      User: params.row.User ? 1 : 0,
                       Admin: e.target.checked ? 1 : 0,
+                      SystemAdmin: params.row.SystemAdmin ? 1 : 0,
+                      Disable: params.row.Disable 
                     },
                   })
                 );
@@ -158,8 +171,14 @@ const Application = () => {
                 dispatch(
                   applicationPost({
                     appData: {
-                      ...params.row,
+                      RecordID: params.row.RecordID,
+                      ApplicationCode: params.row.ApplicationCode,
+                      ApplicationName: params.row.ApplicationName,
+                      SortOrder: params.row.SortOrder,
                       User: e.target.checked ? 1 : 0,
+                      Admin: params.row.Admin ? 1 : 0,
+                      SystemAdmin: params.row.SystemAdmin ? 1 : 0,
+                      Disable: params.row.Disable 
                     },
                   })
                 );

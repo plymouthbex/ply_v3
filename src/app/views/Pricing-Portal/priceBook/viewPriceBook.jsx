@@ -245,7 +245,7 @@ const ViewPriceBook = () => {
         FromDate: sunday,
         ToDate: saturday,
         UserID: user.id,
-        CompnayID:user.companyID,
+        CompnayID: user.companyID,
         CompanyCode: user.companyCode,
         TemplateID: "",
       },
@@ -888,42 +888,42 @@ const ViewPriceBook = () => {
           </Stack>
         </SimpleCard>
       </Box>
-       <PriceGroupAlertApiDialog
-                  open={openAlert}
-                  error={postError}
-                  message={
-                    postError
-                      ? "An error occurred while sending the email. Please retry."
-                      : "Customer will receive their Price Book shortly"
-                  }
-                  Actions={
-                    <Box
-                      sx={{
-                        display: "flex",
-      
-                        justifyContent: "flex-end",
-      
-                        width: "100%",
-                      }}
-                    >
-                      <Button
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        onClick={() => {
-                          setOpenAlert(false);
-      
-                          setTimeout(() => {
-                            setPostError(false);
-                          }, 1000);
-                        }}
-                        sx={{ height: 25 }}
-                      >
-                        Close
-                      </Button>
-                    </Box>
-                  }
-                />
+      <PriceGroupAlertApiDialog
+        open={openAlert}
+        error={postError}
+        message={
+          postError
+            ? "An error occurred while sending the email. Please retry."
+            : "Customer will receive their Price Book shortly"
+        }
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+
+              justifyContent: "flex-end",
+
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
+
+                setTimeout(() => {
+                  setPostError(false);
+                }, 1000);
+              }}
+              sx={{ height: 25 }}
+            >
+              Close
+            </Button>
+          </Box>
+        }
+      />
       <ViewPriceLoadingApiDialog
         logo={`data:image/png;base64,${user.logo}`}
         tittle={

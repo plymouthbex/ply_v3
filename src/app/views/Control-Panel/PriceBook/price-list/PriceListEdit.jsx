@@ -1777,7 +1777,7 @@ const PriceListEdit = () => {
         error={postError1}
         message={
           postError1
-            ? "Error while saving and please retry"
+            ? "Error while saving and please try again"
             : "AddHoc Item Added Successfully"
         }
         // message={"Item Deleted Successfully"}

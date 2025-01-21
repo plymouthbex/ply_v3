@@ -143,7 +143,6 @@ export default function RunPriceBook() {
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
-  console.log("🚀 ~ RunPriceBook ~ runGrpRows:", runGrpRows);
   const runGrpProcessingMsg = useSelector(
     (state) => state.listview.runGrpProcessingMsg
   );
@@ -682,6 +681,7 @@ export default function RunPriceBook() {
                   CustomerNumber: row.customernumber,
                 })
               ).then((fpResData) => {
+                console.log("🚀 ~ ).then ~ fpResData:", fpResData)
                 if (fpResData.payload.length > 0) {
                   dispatch(
                     runGrpMsgUpdate(`Full PDF for ${row.customer}...`)
@@ -722,6 +722,8 @@ export default function RunPriceBook() {
                         /\.$/,
                         ""
                       )}_FPB_${sunday} TO ${saturday}`,
+                      sunday,
+                      saturday
                     }));
                 }
                 return null; // Invalid `fp`
@@ -744,6 +746,7 @@ export default function RunPriceBook() {
                   filterparameters: "",
                 })
               ).then((cpResData) => {
+                console.log("🚀 ~ ).then ~ cpResData:", cpResData)
                 if (cpResData.payload.length > 0) {
                   dispatch(
                     runGrpMsgUpdate(`Custom PDF for ${row.customer}...`)
@@ -789,6 +792,8 @@ export default function RunPriceBook() {
                         /\.$/,
                         ""
                       )}_CPB_${sunday} TO ${saturday}`,
+                      sunday,
+                      saturday
                     }));
                 }
                 return null; // Invalid `cp`
@@ -798,6 +803,7 @@ export default function RunPriceBook() {
             }
 
             if (promisesForRow.length > 0) {
+              console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow)
               return Promise.all(promisesForRow).then((results) => {
                 // Merge results into a single object
                 const finalResult = results.reduce((acc, result) => {
@@ -829,6 +835,7 @@ export default function RunPriceBook() {
           )
           .catch(reject);
       } catch (error) {
+        console.log("🚀 ~ processData ~ error:", error)
         reject(error);
       }
     });
