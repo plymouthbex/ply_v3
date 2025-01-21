@@ -161,8 +161,8 @@ const ItemList = () => {
     {
       headerName: "Item Description",
       field: "Item_Description",
-      minWidth: 400,
-      flex:1,
+      width: "400",
+      // flex:1,
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -172,7 +172,7 @@ const ItemList = () => {
       headerName: "Info",
       width: 100,
       renderCell: (params) => (
-        <div style={{ display: "flex", gap: "10px" }}>
+        // <div style={{ display: "flex", gap: "10px" }}>
           <Tooltip title="More">
             <IconButton
               onClick={() => handleRowClick(params)}
@@ -181,7 +181,7 @@ const ItemList = () => {
               <MoreVertIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-        </div>
+        // </div>
       ),
     },
   ];

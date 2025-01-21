@@ -254,7 +254,7 @@ const Application = () => {
                 });
               }}
             >
-              <Add fontSize="small" />
+              <Add sx={{fontSize:30,color: theme.palette.success.main,}}  />
             </IconButton>
           </Tooltip>
 

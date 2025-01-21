@@ -232,7 +232,10 @@ const PrintGroupEdit = () => {
                 }
               }}
             >
-              <Add fontSize="small" />
+              <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
             </IconButton>
           </Tooltip>
 
@@ -375,11 +378,11 @@ const PrintGroupEdit = () => {
                   routeSegments={[
                     { name: "Control Panel" },
                     {
-                      name: "Price Book Category",
+                      name: "Categories",
                       path: "/pages/control-panel/print-group",
                     },
                     {
-                      name: `${params.mode} Price Book Category`,
+                      name: `${params.mode}Categories`,
                     },
                   ]}
                 />

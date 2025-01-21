@@ -1,3 +1,5 @@
+import { light } from "@mui/material/styles/createPalette";
+
 const textLight = {
     primary: 'rgba(52, 49, 76, 1)',
     secondary: 'rgba(52, 49, 76, 0.54)',

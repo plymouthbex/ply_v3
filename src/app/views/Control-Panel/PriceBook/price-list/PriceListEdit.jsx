@@ -678,7 +678,7 @@ const PriceListEdit = () => {
                 color="info"
                 size="small"
                 type="submit"
-                startIcon={<Add size="small" />}
+                startIcon={<Add size="small"/>}
                 disabled={
                   params.mode === "delete" || params.mode === "view"
                     ? true
