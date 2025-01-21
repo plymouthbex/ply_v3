@@ -144,7 +144,10 @@ useEffect(() => {
       navigate("/pages/security/application-edit-detail/add", { state: { ID: 0 } });
     }}
   >
-    <Add fontSize="small" />
+    <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
   </IconButton>
 </Tooltip>
 

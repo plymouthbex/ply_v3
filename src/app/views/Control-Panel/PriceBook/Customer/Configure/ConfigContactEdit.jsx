@@ -216,7 +216,10 @@ const ConfigureContactEdit = () => {
                   );
               }}
             >
-              <Add />
+              <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
             </IconButton>
           </Tooltip>
         </Box>

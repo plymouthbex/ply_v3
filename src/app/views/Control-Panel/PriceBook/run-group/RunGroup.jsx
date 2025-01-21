@@ -173,7 +173,10 @@ const RunGroup = () => {
                 });
               }}
             >
-              <Add fontSize="small" />
+              <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
             </IconButton>
           </Tooltip>
 

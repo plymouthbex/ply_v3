@@ -194,104 +194,169 @@ const PriceList = () => {
     dispatch(clearCustomerListState());
   }, [dispatch]);
 
-  function CustomToolbar() {
-    return (
-      <GridToolbarContainer
+//   function CustomToolbar() {
+//     return (
+//       <GridToolbarContainer
+//         sx={{
+//           display: "flex",
+//           flexDirection: "row",
+//           justifyContent: "space-between",
+//           width: "100%",
+//           padding: 2,
+//         }}
+//       >
+//         <Box
+//           sx={{
+//             display: "flex",
+//             flexDirection: "row",
+//             justifyContent: "space-between",
+//             alignItems: "center",
+//             gap: 2,
+//             paddingX: 2,
+//             width: "100%",
+//           }}
+//         >
+//           <FormikCustomSelectCompanyPriceList
+//             name="company"
+//             id="company"
+//             // sx={{ gridColumn: "span 2" }}
+//             multiple={false}
+//             // disabled={user.role == "USER"}
+//             value={companyID}
+//             onChange={(e) => {
+//               setCompanyID(e.target.value);
+//               dispatch(getPriceListView({ ID: e.target.value }));
+//             }}
+//             label="Company"
+//             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+//           />
+//           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+//   <GridToolbarQuickFilter />
+//   {/* <Tooltip title="Create Price List"> */}
+//   <Tooltip title="Create Price List">
+//   <IconButton
+//     color="info"
+//     // size="medium"
+//     sx={{ height: 50, width: 50 }}
+//     onClick={() => {
+//       naviate(
+//         "/pages/control-panel/price-list/price-list-detail/add",
+//         {
+//           state: { id: 0, companyCode: companyID },
+//         }
+//       );
+//     }}
+//   >
+//     <Add
+//       sx={{
+//         color: "#174c4f", 
+//       }}
+//     />
+//   </IconButton>
+// </Tooltip>
+
+
+
+
+//             {/* <IconButton
+//               variant="contained"
+//               color="info"
+//               size="small"
+//               startIcon={ <Add
+//                 fontSize="small"
+//                 sx={{
+//                   color: "#174c4f", // Set the icon color
+//                   fontWeight: "bold", // Make it bold (some icons reflect this via SVG paths)
+//                 }}
+//               />}
+//               onClick={() => {
+//                 // if (rowSelectionModelRows.length === 0) {
+//                 //   return toast.error("Please Select a Price List Items");
+//                 // }
+//                 try {
+//                   dispatch(printGroupSelectedItems(rowSelectionModelRows));
+
+//                   naviate(
+//                     "/pages/control-panel/print-group/print-group-detail/add",
+//                     {
+//                       state: { id: 0, company: companyID },
+//                     }
+//                   );
+//                 } catch (e) {}
+//               }}
+//             >
+//               Create New Category
+//             </IconButton> */}
+//           </Box>
+//         </Box>
+//       </GridToolbarContainer>
+//     );
+//   }
+function CustomToolbar() {
+  return (
+    <GridToolbarContainer
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        padding: 2,
+      }}
+    >
+      <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
+          alignItems: "center",
+          gap: 2,
+          paddingX: 2,
           width: "100%",
-          padding: 2,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 2,
-            paddingX: 2,
-            width: "100%",
+        <FormikCustomSelectCompanyPriceList
+          name="company"
+          id="company"
+          multiple={false}
+          value={companyID}
+          onChange={(e) => {
+            setCompanyID(e.target.value);
+            dispatch(getPriceListView({ ID: e.target.value }));
           }}
-        >
-          <FormikCustomSelectCompanyPriceList
-            name="company"
-            id="company"
-            // sx={{ gridColumn: "span 2" }}
-            multiple={false}
-            // disabled={user.role == "USER"}
-            value={companyID}
-            onChange={(e) => {
-              setCompanyID(e.target.value);
-              dispatch(getPriceListView({ ID: e.target.value }));
-            }}
-            label="Company"
-            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-          />
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-  <GridToolbarQuickFilter />
-  <Tooltip title="Create Price List">
-  <IconButton
-    
-    size="small"
-    
-    onClick={() => {
-      naviate(
-        "/pages/control-panel/price-list/price-list-detail/add",
-        {
-          state: { id: 0, companyCode: companyID },
-        }
-      );
-    }}
-  >
-    <Add
-      fontSize="small"
-      sx={{
-        color: "#174c4f", // Set the icon color
-       
-      }}
-    />
-  </IconButton>
-</Tooltip>
-
-
-
-            {/* <IconButton
-              variant="contained"
+          label="Company"
+          url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+        />
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <GridToolbarQuickFilter />
+          <Tooltip title="Create Price List">
+            <IconButton
               color="info"
-              size="small"
-              startIcon={ <Add
-                fontSize="small"
-                sx={{
-                  color: "#174c4f", // Set the icon color
-                  fontWeight: "bold", // Make it bold (some icons reflect this via SVG paths)
-                }}
-              />}
+              // sx={{
+              //   height: 50, // Increased button height
+              //   width: 50,  // Increased button width
+              // }}
               onClick={() => {
-                // if (rowSelectionModelRows.length === 0) {
-                //   return toast.error("Please Select a Price List Items");
-                // }
-                try {
-                  dispatch(printGroupSelectedItems(rowSelectionModelRows));
-
-                  naviate(
-                    "/pages/control-panel/print-group/print-group-detail/add",
-                    {
-                      state: { id: 0, company: companyID },
-                    }
-                  );
-                } catch (e) {}
+                naviate(
+                  "/pages/control-panel/price-list/price-list-detail/add",
+                  {
+                    state: { id: 0, companyCode: companyID },
+                  }
+                );
               }}
             >
-              Create New Category
-            </IconButton> */}
-          </Box>
+              <Add
+                sx={{
+                  fontSize:30, // Increased icon size
+                  color: theme.palette.success.main,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
         </Box>
-      </GridToolbarContainer>
-    );
-  }
+      </Box>
+    </GridToolbarContainer>
+  );
+}
 
   return (
     <Container>

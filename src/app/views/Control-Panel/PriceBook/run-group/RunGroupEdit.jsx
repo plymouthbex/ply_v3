@@ -565,11 +565,12 @@ const RunGroupEdit = () => {
                     label="Customers"
                     url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
                   />
-                    <Tooltip title="Add Customers">
-            <IconButton
-             sx={{width:50,gridColumn:"span 1"}}
-              color="black"
-              size="small"
+                   
+            <Button
+             sx={{width:150, gridColumn:"span 1"}}
+             variant="contained"
+             color="info"
+             size="small"
               disabled={params.mode === "delete"}
               onClick={() => {
                 if (addCustomerListData) {
@@ -597,10 +598,11 @@ const RunGroupEdit = () => {
                   }, 2000);
                 }
               }}
+              startIcon={ <Add  size="small"/>}
             >
-              <Add fontSize="small" />
-            </IconButton>
-          </Tooltip>
+             Add Customers
+            </Button>
+          
                   {/* <TextField
                     fullWidth
                     variant="outlined"

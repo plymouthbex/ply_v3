@@ -190,7 +190,10 @@ const PrintGroup = () => {
                 );
               }}
             >
-              <Add fontSize="small" />
+              <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
             </IconButton>
           </Tooltip>
 
@@ -251,7 +254,7 @@ const PrintGroup = () => {
         <Breadcrumb
           routeSegments={[
             { name: "Control Panel" },
-            { name: "Price Book Categories" },
+            { name: "Categories" },
           ]}
         />
       </div>
