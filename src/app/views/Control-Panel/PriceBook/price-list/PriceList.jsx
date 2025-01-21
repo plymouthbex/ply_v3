@@ -230,29 +230,45 @@ const PriceList = () => {
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
           />
-          <Box sx={{display:"flex",flexDirection:'row',gap:2}}>
-            <GridToolbarQuickFilter />
-            <Button
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+  <GridToolbarQuickFilter />
+  <Tooltip title="Create Price List">
+  <IconButton
+    
+    size="small"
+    
+    onClick={() => {
+      naviate(
+        "/pages/control-panel/price-list/price-list-detail/add",
+        {
+          state: { id: 0, companyCode: companyID },
+        }
+      );
+    }}
+  >
+    <Add
+      fontSize="small"
+      sx={{
+        color: "#174c4f", // Set the icon color
+       
+      }}
+    />
+  </IconButton>
+</Tooltip>
+
+
+
+            {/* <IconButton
               variant="contained"
               color="info"
               size="small"
-              startIcon={<Add fontSize="small" />}
-              onClick={() => {
-                naviate(
-                  "/pages/control-panel/price-list/price-list-detail/add",
-                  {
-                    state: { id: 0, companyCode: companyID },
-                  }
-                );
-              }}
-            >
-              Create Price List
-            </Button>
-            <Button
-              variant="contained"
-              color="info"
-              size="small"
-              startIcon={<Add fontSize="small" />}
+              startIcon={ <Add
+                fontSize="small"
+                sx={{
+                  color: "#174c4f", // Set the icon color
+                  fontWeight: "bold", // Make it bold (some icons reflect this via SVG paths)
+                }}
+              />}
               onClick={() => {
                 // if (rowSelectionModelRows.length === 0) {
                 //   return toast.error("Please Select a Price List Items");
@@ -270,7 +286,7 @@ const PriceList = () => {
               }}
             >
               Create New Category
-            </Button>
+            </IconButton> */}
           </Box>
         </Box>
       </GridToolbarContainer>

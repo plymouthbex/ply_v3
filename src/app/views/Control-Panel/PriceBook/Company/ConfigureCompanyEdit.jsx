@@ -577,7 +577,7 @@ const ConfigureCompanyEdit = () => {
                         label="EXCEL"
                       />
                     </Stack>
-                    <FormControlLabel
+                    {/* <FormControlLabel
                       control={
                         <Checkbox
                           size="small"
@@ -589,7 +589,7 @@ const ConfigureCompanyEdit = () => {
                         />
                       }
                       label="Disable"
-                    />
+                    /> */}
                   </Stack>
                   {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
                   <Box

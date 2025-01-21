@@ -165,6 +165,7 @@ const ViewPriceBook = () => {
 
   const handleSelectionPriceTypeChange = (e) => {
     setSelectPriceListType(e.target.value);
+    setSelectedCustomerOptions(null);
   };
 
   const getWeekDates = () => {
@@ -328,7 +329,7 @@ const ViewPriceBook = () => {
                 data={response.payload}
                 coverPageData={{
                   logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  subtitle1: "Price list for",
+                  subtitle1: "Price Book for",
                   subtitle2:
                     selectPriceListtype === "FP"
                       ? `${
@@ -845,7 +846,7 @@ const ViewPriceBook = () => {
               <CoverPageComponent
                 data={{
                   logo: `data:image/png;base64,${user.homePagelogo}`,
-                  subtitle1: "Price list for",
+                  subtitle1: "Price Book for",
                   subtitle2:
                     selectPriceListtype === "FP"
                       ? "Customer Full Pricelist"

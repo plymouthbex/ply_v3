@@ -99,7 +99,7 @@ export const navigations = [
       },
 
       {
-        name: "Price Book Categories",
+        name: "Categories",
         path: "/pages/control-panel/print-group",
         iconText: "P",
         accessID: "CP003",

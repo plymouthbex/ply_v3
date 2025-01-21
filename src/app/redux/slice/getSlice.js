@@ -144,6 +144,13 @@ const initialState = {
   getConfigContactLoading: false,
   getConfigContactStatus: "idle",
   getConfigContactError: null,
+
+
+
+  mailStatus: "idle",
+  mailError: null,
+  mailLoading: false,
+  mailData: {},
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -621,7 +628,24 @@ export const getConfigContact = createAsyncThunk(
   }
 );
 
-
+export const getCompanyMailConfig = createAsyncThunk(
+  "get/getCompanyMailConfig", // action type
+  async ({ ID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/GetEmailTemplate?CompanyID=${ID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 
 const getSlice = createSlice({
   name: "getSlice",
@@ -1214,6 +1238,22 @@ const getSlice = createSlice({
       })
       .addCase(getQuoteItemsAndFiltersget3.fulfilled, (state, action) => {
         state.getQuoteFilterItemData = action.payload.data.itemData;
+      })
+
+       //COMPANY--MAIL
+       .addCase(getCompanyMailConfig.pending, (state) => {
+        state.mailStatus = "pending";
+        state.mailLoading = true;
+      })
+      .addCase(getCompanyMailConfig.fulfilled, (state, action) => {
+        state.mailStatus = "fulfilled";
+        state.mailLoading = false;
+        state.mailData = action.payload.data;
+      })
+      .addCase(getCompanyMailConfig.rejected, (state, action) => {
+        state.mailStatus = "rejected";
+        state.mailLoading = false;
+        state.mailError = true;
       })
 
   },

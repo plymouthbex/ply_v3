@@ -259,7 +259,7 @@ const ItemList = () => {
               name="serviceProvider"
               label="Item Type"
             >
-              <MenuItem value={"Z"}>Zero Price Items</MenuItem>
+              {/* <MenuItem value={"Z"}>Zero Price Items</MenuItem> */}
               <MenuItem value={"C"}>Contract Items</MenuItem>
               <MenuItem value={"N"}>Non-Contract Items</MenuItem>
             </Select>

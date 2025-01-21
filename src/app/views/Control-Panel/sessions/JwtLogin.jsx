@@ -153,7 +153,7 @@ export default function JwtLogin() {
                       size="small"
                       type="email"
                       name="email"
-                      label="User"
+                      label="Login(Valid EmailID)"
                       variant="outlined"
                       onBlur={handleBlur}
                       value={values.email}

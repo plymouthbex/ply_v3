@@ -213,7 +213,7 @@ export default function Page() {
     <strong>Phone:</strong>
   </Typography>
   <Typography variant="body2" sx={{ marginLeft: "32px" }}>
-    {"846739408674"}
+    {user.phone1}
   </Typography>
 
   {/* <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>

@@ -651,7 +651,20 @@ export default function BuildCustomPriceBook() {
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
-          <Button
+          {params.mode ==="view" ?(
+             <Button
+             variant="contained"
+             color="info"
+             size="small"
+             startIcon={<ArrowBackIcon size="small" />}
+             onClick={() =>
+               navigate("/pages/pricing-portal/saved-quote-list")
+             }
+           >
+             Back
+           </Button>
+          ):(
+            <Button
             variant="contained"
             color="info"
             size="small"
@@ -664,6 +677,8 @@ export default function BuildCustomPriceBook() {
           >
             Back
           </Button>
+          )}
+         
         </Box>
       </Box>
 

@@ -114,7 +114,7 @@ const Company = () => {
                 color="black"
                 onClick={() => {
                   navigate("/pages/security/company/mail", {
-                    state: { id: params.row.RecordID },
+                    state: { ID: params.row.RecordID },
                   });
                 }}
               >
