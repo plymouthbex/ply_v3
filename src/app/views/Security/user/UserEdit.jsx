@@ -718,6 +718,7 @@ const UserEdit = () => {
                       url={`${process.env.REACT_APP_BASE_URL}Company`}
                     />
                     <FormControlLabel
+sx={{ width:"20px"}}
                       control={
                         <Checkbox
                           size="small"
@@ -732,6 +733,7 @@ const UserEdit = () => {
                         />
                       }
                       label="Disable"
+                     
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
@@ -975,9 +977,10 @@ const UserEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/user")}
+                // onClick={() => navigate("/pages/security/user")}
+                onClick={() =>navigate("/session/signin")}
               >
-                Back to User
+                Logout
               </Button>
             </DialogActions>
           )

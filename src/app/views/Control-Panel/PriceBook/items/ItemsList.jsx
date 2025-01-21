@@ -255,7 +255,7 @@ const ItemList = () => {
               name="serviceProvider"
               label="Price Book Type"
             >
-              <MenuItem value={"AT&T"}>Zero Price Items</MenuItem>
+              {/* <MenuItem value={"AT&T"}>Zero Price Items</MenuItem> */}
               <MenuItem value={"V"}>Contract Items</MenuItem>
               <MenuItem value={"TM"}>Non-Contract Items</MenuItem>
             </Select>

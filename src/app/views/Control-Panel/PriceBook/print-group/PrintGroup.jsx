@@ -72,7 +72,7 @@ const PrintGroup = () => {
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
-      headerName: "Print Group",
+      headerName: "Category",
       field: "GroupCode",
       width: "170",
       align: "left",
@@ -80,7 +80,7 @@ const PrintGroup = () => {
       hide: false,
     },
     {
-      headerName: "Print Group Description",
+      headerName: "Description",
       field: "GroupName",
       width: "300",
       align: "left",

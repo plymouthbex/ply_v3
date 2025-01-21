@@ -1141,6 +1141,25 @@ export const deleteConfigContact = createAsyncThunk(
   }
 );
 
+export const postMailConfig = createAsyncThunk(
+  "post/postMailConfig", // Action type string
+  async ( {mData}, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/PostEmailTemplate `;
+      const response = await axios.post(URL, mData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,
