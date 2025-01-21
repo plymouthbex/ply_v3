@@ -123,6 +123,8 @@ const NewProspect = () => {
       PriceLevel: values.priceBookLevel,
       CustomerName: values.customer ? values.customer.CustomerName : "",
       CustomerNumber: values.customer ? values.customer.Code : "",
+      Type: params.mode === "copy" ? "C" : "A",
+      OldHeaderID: getQuoteProspectInfoData.RecordID,
     };
 
     const response = await dispatch(quoteInfoData({ data }));
