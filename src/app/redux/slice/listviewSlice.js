@@ -459,8 +459,17 @@ const listviewSlice = createSlice({
 
       state.runbGrpRowData = updatedRow;
     },
-
+    
     onCheckboxChangeCustomer: (state, action) => {
+      const { id, rows, field } = action.payload;
+      const updatedRow = state.applicationListViewData.map((row) =>
+        row.RecordID === id ? { ...row, [field]: !row[field] } : row
+      );
+
+      state.applicationListViewData = updatedRow;
+    },
+
+    onCheckboxChangeMenu: (state, action) => {
       const { id, rows, field } = action.payload;
       const updatedRow = state.configureCustomerListViewData.map((row) =>
         row.RecordID === id ? { ...row, [field]: !row[field] } : row
@@ -798,6 +807,7 @@ const listviewSlice = createSlice({
 });
 
 export const {
+  onCheckboxChangeMenu,
   onCheckboxChange,
   onCheckboxChangeCustomer,
   runGrpMsgUpdate,

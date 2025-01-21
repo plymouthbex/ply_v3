@@ -497,7 +497,7 @@ const ItemAttributesEdit = () => {
                       >
                         Back
                       </Button>
-                      <Button
+                      {/* <Button
                         variant="contained"
                         color="info"
                         size="small"
@@ -507,7 +507,7 @@ const ItemAttributesEdit = () => {
                         sx={{ mr: 1, height: 25 }}
                       >
                         Close
-                      </Button>
+                      </Button> */}
                     </Box>
                   }
                 />
