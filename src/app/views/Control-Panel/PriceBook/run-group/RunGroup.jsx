@@ -163,7 +163,7 @@ const RunGroup = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Add Price Book Group">
+          <Tooltip title="Create Price Book Group">
             <IconButton
               color="black"
               size="small"

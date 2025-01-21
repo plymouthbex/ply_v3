@@ -243,7 +243,7 @@ const Application = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <Tooltip title="Add">
+          <Tooltip title="Create Menu">
             <IconButton
               sx={{ height: 25 }}
               color="black"

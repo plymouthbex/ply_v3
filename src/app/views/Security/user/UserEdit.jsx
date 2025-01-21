@@ -589,7 +589,26 @@ const UserEdit = () => {
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                     />
-
+ <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="phonenumber"
+                    name="phonenumber"
+                    // required
+                    // InputLabelProps={{
+                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    // }}
+                    label="Phone"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.phonenumber}
+                    onChange={handleChange}
+                      autoComplete="off"
+                    onBlur={handleBlur}
+                    // error={touched.phonenumber && Boolean(errors.phonenumber)}
+                    // helperText={touched.phonenumber && errors.phonenumber}
+                  />
                     {/* <TextField
                     fullWidth
                     variant="outlined"
@@ -946,7 +965,7 @@ sx={{ width:"20px"}}
             ? "User Deleted Successfully"
             : "User updated successfully"
         }
-        Actions={
+        Actions = {
           params.mode === "add" ? (
             <DialogActions>
               <Button
@@ -973,18 +992,72 @@ sx={{ width:"20px"}}
             </DialogActions>
           ) : (
             <DialogActions>
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                // onClick={() => navigate("/pages/security/user")}
-                onClick={() =>navigate("/session/signin")}
-              >
-                Logout
-              </Button>
+              {user.email !== data.Email ? (
+                <Button
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => navigate("/pages/security/user")}
+                >
+                  Back to User
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => {
+                    // Add your logout logic here
+                    navigate("/session/signin")
+                  }}
+                >
+                  Logout
+                </Button>
+              )}
             </DialogActions>
           )
         }
+        
+        
+        // Actions={
+        //   params.mode === "add" ? (
+        //     <DialogActions>
+        //       <Button
+        //         variant="contained"
+        //         color="info"
+        //         size="small"
+        //         onClick={() => navigate("/pages/security/user")}
+        //       >
+        //         Back to User
+        //       </Button>
+        //       <Button
+        //         variant="contained"
+        //         color="info"
+        //         size="small"
+        //         onClick={() => {
+        //           dispatch(getUserData({ ID: 0 }));
+        //           setPreviewImages1([]);
+        //           setOpenAlert(false);
+        //         }}
+        //         autoFocus
+        //       >
+        //         Add New User
+        //       </Button>
+        //     </DialogActions>
+        //   ) : (
+        //     <DialogActions>
+        //       <Button
+        //         variant="contained"
+        //         color="info"
+        //         size="small"
+        //         onClick={() => navigate("/pages/security/user")}
+             
+        //       >
+        //         Back to user
+        //       </Button>
+        //     </DialogActions>
+        //   )
+        // }
       />
     </Container>
   );

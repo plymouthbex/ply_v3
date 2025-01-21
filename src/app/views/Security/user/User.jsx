@@ -186,7 +186,7 @@ const {user}=useAuth();
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Add">
+          <Tooltip title="Create User">
   <IconButton
     sx={{ height: 35, width: 35 }}
     color="info"
