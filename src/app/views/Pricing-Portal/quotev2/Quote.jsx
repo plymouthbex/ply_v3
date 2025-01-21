@@ -657,7 +657,9 @@ export default function BuildCustomPriceBook() {
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
             onClick={() =>
-              navigate("/pages/pricing-portal/new-quote/new", {state: { headerID: state.headerID } })
+              navigate("/pages/pricing-portal/new-quote/new", {
+                state: { headerID: state.headerID },
+              })
             }
           >
             Back
@@ -961,7 +963,7 @@ export default function BuildCustomPriceBook() {
                         setFieldValue("PriceLists", newValue)
                       }
                       label="Price Lists"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${user.companyID}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${user.companyCode}`}
                     />
 
                     <FormikCustomAutocompleteMultiAdHocItems

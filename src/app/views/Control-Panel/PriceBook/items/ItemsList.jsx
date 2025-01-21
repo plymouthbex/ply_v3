@@ -93,11 +93,11 @@ const ItemList = () => {
     alternateClass: "",
   });
 
+  const [type, setType] = useState("C");
   //======================= SELECT PRICE LIST ===================================//
   const [addPriceListData, setAddPriceListData] = useState(null);
 
   const handleSelectionAddPriceListData = (newValue) => {
-    console.log("🚀 ~ handleSelectionAddPriceListData ~ newValue:", newValue);
     setAddPriceListData(newValue);
   };
 
@@ -161,7 +161,8 @@ const ItemList = () => {
     {
       headerName: "Item Description",
       field: "Item_Description",
-      width: "400",
+      minWidth: 400,
+      flex:1,
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -169,7 +170,7 @@ const ItemList = () => {
     {
       field: "more",
       headerName: "Info",
-      width: 200,
+      width: 100,
       renderCell: (params) => (
         <div style={{ display: "flex", gap: "10px" }}>
           <Tooltip title="More">
@@ -186,7 +187,7 @@ const ItemList = () => {
   ];
 
   useEffect(() => {
-    dispatch(getItemListView());
+    dispatch(getItemListView({Type:type}));
     dispatch(getPriceListView());
     dispatch(clearPriceListState());
   }, [dispatch]);
@@ -248,16 +249,19 @@ const ItemList = () => {
             </InputLabel>
             <Select
               labelId="demo-simple-select-label"
-              // value={values.serviceProvider}
-              // onChange={handleChange}
+              value={type}
+              onChange={(e) =>{
+                setType(e.target.value)
+                dispatch(getItemListView({Type:e.target.value}));
+              }}
               // onBlur={handleBlur}
               id="serviceProvider"
               name="serviceProvider"
-              label="Price Book Type"
+              label="Item Type"
             >
-              <MenuItem value={"AT&T"}>Zero Price Items</MenuItem>
-              <MenuItem value={"V"}>Contract Items</MenuItem>
-              <MenuItem value={"TM"}>Non-Contract Items</MenuItem>
+              <MenuItem value={"Z"}>Zero Price Items</MenuItem>
+              <MenuItem value={"C"}>Contract Items</MenuItem>
+              <MenuItem value={"N"}>Non-Contract Items</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -441,7 +445,7 @@ const ItemList = () => {
                 onChange={handleSelectionAddPriceListData}
                 label="Select Existing Price List"
                 companyID={companyID} // Pass companyID to the component
-                url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyRecordID=${companyID}`}
+                url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${user.companyCode}`}
                 onOpen={handleOpen} // Trigger handleOpen when autocomplete opens
               />
               <Button

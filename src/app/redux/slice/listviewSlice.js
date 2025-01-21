@@ -158,13 +158,14 @@ export const getLocalListview = createAsyncThunk(
 //==========================================================CONTROL-PANEL=================================================//
 export const getItemListView = createAsyncThunk(
   "listview/itemList", // action type
-  async (_, { rejectWithValue }) => {
+  async (data ={Type:"C"}, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
+        params:data
       });
       return response.data;
     } catch (error) {
