@@ -230,7 +230,7 @@ const ConfigureContactEdit = () => {
 
   const columns = [
     {
-      headerName: "Contacts",
+      headerName: "Name",
       field: "FirstName",
       width: "170",
       align: "left",
@@ -238,14 +238,7 @@ const ConfigureContactEdit = () => {
       hide: true,
       renderCell: (params) => `${params.row.FirstName} ${params.row.LastName} `
     },
-    {
-      headerName: "Email",
-      field: "Email",
-      width: "150",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    
     {
       headerName: "Phone",
       field: "Phone",
@@ -254,7 +247,14 @@ const ConfigureContactEdit = () => {
       headerAlign: "left",
       hide: true,
     },
-
+    {
+      headerName: "Email",
+      field: "Email",
+      width: "200",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
     {
       field: "Action",
       headerName: "Action",

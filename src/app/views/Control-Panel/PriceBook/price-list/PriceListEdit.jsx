@@ -394,8 +394,8 @@ const PriceListEdit = () => {
             buyer: JSON.stringify(values.buyer),
             createdBy: values.createdBy,
             companyCode: state.companyCode,
-            forcePageBreak: values.forcePageBreak ? "Y" : "N",
-            overridesequence: values.overrideSeq ? "Y" : "N",
+            forcePageBreak: "N",
+            overridesequence:  "N",
             customer: JSON.stringify(values.propCustomer),
             comments: values.comments,
             createdDate: values.createdDateTime,
@@ -975,7 +975,7 @@ const PriceListEdit = () => {
                       label="Prop Customer"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetCustomer?CompanyCode=PM`}
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                       sx={{ height: 37.13 }}
                       control={
                         <Checkbox
@@ -1010,7 +1010,7 @@ const PriceListEdit = () => {
                         />
                       }
                       label="Override Seq"
-                    />
+                    /> */}
                   </Stack>
                   <Stack
                     sx={{ gridColumn: "span 1" }}
