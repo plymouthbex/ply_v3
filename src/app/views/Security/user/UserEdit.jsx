@@ -589,7 +589,26 @@ const UserEdit = () => {
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                     />
-
+ <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="phonenumber"
+                    name="phonenumber"
+                    // required
+                    // InputLabelProps={{
+                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    // }}
+                    label="Phone"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.phonenumber}
+                    onChange={handleChange}
+                      autoComplete="off"
+                    onBlur={handleBlur}
+                    // error={touched.phonenumber && Boolean(errors.phonenumber)}
+                    // helperText={touched.phonenumber && errors.phonenumber}
+                  />
                     {/* <TextField
                     fullWidth
                     variant="outlined"
