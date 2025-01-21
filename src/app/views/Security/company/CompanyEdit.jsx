@@ -515,6 +515,10 @@ const CompanyEdit = () => {
                     type="text"
                     id="phonenumber"
                     name="phonenumber"
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     label="Mobile"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
@@ -620,6 +624,7 @@ const CompanyEdit = () => {
                     helperText={touched.fax && errors.fax}
                   />
                   <FormControlLabel
+                  sx={{ width:"20px"}}
                     control={
                       <Checkbox
                         size="small"

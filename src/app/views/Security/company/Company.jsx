@@ -156,7 +156,7 @@ const Company = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Add">
+          <Tooltip title="Create Company">
             <IconButton
               color="black"
               sx={{ height: 30, width: 30 }}

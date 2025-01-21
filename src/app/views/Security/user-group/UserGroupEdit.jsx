@@ -86,7 +86,7 @@ const validationSchema = Yup.object({
   userGroupName: Yup.string()
     .min(3, "User Group Name must be at least 3 characters")
     .max(50, "User Group Name must be at most 50 characters"),
-
+    type: Yup.string().required("Role is required"),
   // sequence: Yup.string()
   //   .min(1, "Sequence must be at least 1 character")
   //   .max(15, "Sequence must be at most 15 characters"),
@@ -107,6 +107,8 @@ const UserGroupEdit = () => {
   const [postError, setPostError] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [opencompanyAlert, setOpenCompanyyAlert] = useState(false);
+  const [openAppAlert, setOpenAppAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
 
   // ******************** REDUX STATE ******************** //
@@ -252,6 +254,15 @@ const UserGroupEdit = () => {
   //=======================================SAVE================================//
 
   const HandleSave = async (values) => {
+    
+    // if (selectedRows.length === 0) {
+    //   setOpenCompanyyAlert(true);
+    //   return; // Exit the function if no rows are selected
+    // }
+    // if (selectedAppRows.length === 0) {
+    //   setOpenAppAlert(true);
+    //   return; // Exit the function if no rows are selected
+    // }
     const userGroupData = {
       recordID: data.RecordID,
       name: values.userGroupName,
@@ -364,7 +375,7 @@ const UserGroupEdit = () => {
                       )
                     }
                     type="submit"
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
                   >
                     {params.mode === "delete" ? "Confirm" : "Save"}
                   </Button>
@@ -488,11 +499,16 @@ const UserGroupEdit = () => {
                       }
                       onBlur={handleBlur}
                       disableClearable
+                      
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           label="Role"
                           size="small"
+                          required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                           error={touched.type && Boolean(errors.type)}
                           helperText={touched.type && errors.type}
                           sx={{ gridColumn: "span 2" }}
@@ -807,6 +823,60 @@ const UserGroupEdit = () => {
       ) : (
         false
       )}
+      <MessageAlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
+        open={opencompanyAlert}
+        message={`Please choose a company before saving. `}
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              sx={{ mr: 1, height: 25 }}
+              color="info"
+              size="small"
+              onClick={() => {
+               setOpenCompanyyAlert(false);
+              }}
+            >
+              Close
+            </Button>
+           
+          </Box>
+        }
+      />
+       <MessageAlertDialog
+       logo={`data:image/png;base64,${user.logo}`}
+        open={openAppAlert}
+        message={`Please choose any one of the Menu. `}
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              sx={{ mr: 1, height: 25 }}
+              color="info"
+              size="small"
+              onClick={() => {
+               setOpenAppAlert(false);
+              }}
+            >
+              Close
+            </Button>
+           
+          </Box>
+        }
+      />
       <MessageAlertDialog
        logo={`data:image/png;base64,${user.logo}`}
         open={isDelete}

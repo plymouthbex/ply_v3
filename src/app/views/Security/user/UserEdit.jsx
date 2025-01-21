@@ -946,7 +946,7 @@ sx={{ width:"20px"}}
             ? "User Deleted Successfully"
             : "User updated successfully"
         }
-        Actions={
+        Actions = {
           params.mode === "add" ? (
             <DialogActions>
               <Button
@@ -973,18 +973,72 @@ sx={{ width:"20px"}}
             </DialogActions>
           ) : (
             <DialogActions>
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                // onClick={() => navigate("/pages/security/user")}
-                onClick={() =>navigate("/session/signin")}
-              >
-                Logout
-              </Button>
+              {user.email !== data.Email ? (
+                <Button
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => navigate("/pages/security/user")}
+                >
+                  Back to User
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => {
+                    // Add your logout logic here
+                    navigate("/session/signin")
+                  }}
+                >
+                  Logout
+                </Button>
+              )}
             </DialogActions>
           )
         }
+        
+        
+        // Actions={
+        //   params.mode === "add" ? (
+        //     <DialogActions>
+        //       <Button
+        //         variant="contained"
+        //         color="info"
+        //         size="small"
+        //         onClick={() => navigate("/pages/security/user")}
+        //       >
+        //         Back to User
+        //       </Button>
+        //       <Button
+        //         variant="contained"
+        //         color="info"
+        //         size="small"
+        //         onClick={() => {
+        //           dispatch(getUserData({ ID: 0 }));
+        //           setPreviewImages1([]);
+        //           setOpenAlert(false);
+        //         }}
+        //         autoFocus
+        //       >
+        //         Add New User
+        //       </Button>
+        //     </DialogActions>
+        //   ) : (
+        //     <DialogActions>
+        //       <Button
+        //         variant="contained"
+        //         color="info"
+        //         size="small"
+        //         onClick={() => navigate("/pages/security/user")}
+             
+        //       >
+        //         Back to user
+        //       </Button>
+        //     </DialogActions>
+        //   )
+        // }
       />
     </Container>
   );
