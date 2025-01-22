@@ -1542,13 +1542,19 @@ export default function BuildCustomPriceBook() {
                           color="info"
                           size="small"
                           onClick={() => {
-                            dispatch(
-                              getQuoteItemsAndFilters({
-                                data: {
-                                  RecordID: printGroupID,
-                                },
-                              })
-                            );
+                            // dispatch(
+                            //   getQuoteItemsAndFilters({
+                            //     data: {
+                            //       RecordID: printGroupID,
+                            //     },
+                            //   })
+                            // );
+
+                            navigate("/pages/pricing-portal/build-price-list/view", {
+                              state: {
+                                headerID: printGroupID,
+                              },
+                            });
                             SetIsPrintGroupOpen(false);
                           }}
                           sx={{ height: 25 }}

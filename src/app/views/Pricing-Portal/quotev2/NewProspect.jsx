@@ -598,12 +598,16 @@ const NewProspect = () => {
                       color="info"
                       size="small"
                       onClick={() => {
-                        dispatch(
-                          getProspectInfoData({
-                            data: {
-                              RecordID: printGroupID,
-                            },
-                          })
+                        // dispatch(
+                        //   getProspectInfoData({
+                        //     data: {
+                        //       RecordID: printGroupID,
+                        //     },
+                        //   })
+                        // );
+                        navigate(
+                           "/pages/pricing-portal/new-quote/view",
+                          { state: { headerID: printGroupID } }
                         );
                         SetIsPrintGroupOpen(false);
                       }}

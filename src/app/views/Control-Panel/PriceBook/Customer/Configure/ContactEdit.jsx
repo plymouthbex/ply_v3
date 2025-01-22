@@ -606,9 +606,10 @@ const ContactEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert(false);
+                navigate(-1)
               }}
             >
-              Close
+              Back
             </Button>
           </DialogActions>
         }

@@ -133,7 +133,7 @@ const Customer = () => {
             alignItems: "center",
             gap: 2,
             paddingX: 2,
-            width:"100%"
+            width: "100%",
           }}
         >
           <FormikCustomSelectCompanyPriceList2
@@ -149,7 +149,7 @@ const Customer = () => {
             url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
           />
           <GridToolbarQuickFilter />
-          
+
           {/* <Tooltip title="Add">
             <IconButton
               color="black"
@@ -184,8 +184,8 @@ const Customer = () => {
       >
         <Breadcrumb
           routeSegments={[
-            { name: "Contact" },
-            { name: "Customer" },
+            { name: "Price Book" },
+            { name: "Contact Directory" },
           ]}
         />
       </div>
@@ -276,11 +276,10 @@ const Customer = () => {
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
-              initialState={{
-                          pagination: { paginationModel: { pageSize: dataGridPageSize } },
-                        }}
-                        
-                        pageSizeOptions={dataGridpageSizeOptions}
+            initialState={{
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
+            }}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}

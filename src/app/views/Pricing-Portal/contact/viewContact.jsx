@@ -154,9 +154,9 @@ const ContactEdit = () => {
     );
     if (response.payload.status === "Y") {
       setOpenAlert(true);
-      if (params.mode === "add") {
-        dispatch(getConfigContact({ RecordID: response.payload.RecordID }));
-      }
+      // if (params.mode === "add") {
+      //   dispatch(getConfigContact({ RecordID: response.payload.RecordID }));
+      // }
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -583,9 +583,10 @@ const ContactEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert(false);
+                navigate(-1)
               }}
             >
-              Close
+              Back
             </Button>
           </DialogActions>
         }
