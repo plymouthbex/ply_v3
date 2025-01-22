@@ -19,6 +19,8 @@ import {
   DialogActions,
   RadioGroup,
   Radio,
+  FormLabel,
+  FormControl,
 } from "@mui/material";
 import lodash from "lodash";
 import { Add } from "@mui/icons-material";
@@ -1036,6 +1038,39 @@ export default function BuildCustomPriceBook() {
                       disabled={true}
                       autoComplete="off"
                     />
+                                      <FormControl
+                    sx={{ gridColumn: "span 2" }}
+                    component="fieldset"
+                    variant="standard"
+                  >
+                    <FormLabel focused={false} component="legend">
+                      Preferred Communication
+                    </FormLabel>
+                    <Stack direction="row" gap={2}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            id="preferedMail"
+                            name="preferedMail"
+                            // checked={values.preferedMail}
+                            // onChange={handleChange}
+                          />
+                        }
+                        label="Email"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            id="preferedMobile"
+                            name="preferedMobile"
+                            // checked={values.preferedMobile}
+                            // onChange={handleChange}
+                          />
+                        }
+                        label="Mobile"
+                      />
+                    </Stack>
+                  </FormControl>
                     {/* <Autocomplete
                       fullWidth
                       disabled={user.role === "USER"}
