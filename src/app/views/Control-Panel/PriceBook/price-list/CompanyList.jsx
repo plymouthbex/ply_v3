@@ -169,7 +169,7 @@ const loading = useSelector((state) => state.listview.loading);
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "CP-Price Book" }, { name: "Company" }]}
+          routeSegments={[{ name: "Control Pannel" }, { name: "Company" }]}
         />
       </div>
 

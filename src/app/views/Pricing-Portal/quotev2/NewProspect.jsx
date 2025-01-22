@@ -236,7 +236,7 @@ const NewProspect = () => {
                 }}
               >
                 <Breadcrumb
-                  routeSegments={[{ name: "Quote" }, { name: `New Prospect` }]}
+                  routeSegments={[{ name: "Price Book" }, { name: `New Prospect` }]}
                 />
                 <Stack direction={"row"} gap={1}>
                   {params.mode === "copy" && (

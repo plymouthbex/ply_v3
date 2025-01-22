@@ -260,8 +260,8 @@ const Contact = () => {
         <Breadcrumb
           routeSegments={[
             {
-              name: "Configure Price Book Type",
-              path: "/pages/control-panel/configure-price-book/company",
+              name: "Control Panel",
+              // path: "/pages/control-panel/configure-price-book/company",
             },
             {
               name: "Customer",

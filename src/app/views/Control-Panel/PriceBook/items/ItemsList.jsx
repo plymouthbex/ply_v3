@@ -295,7 +295,7 @@ const ItemList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "CP-Price Book" }, { name: "Items" }]}
+          routeSegments={[{ name: "Control Pannel" }, { name: "Items" }]}
         />
       </div>
 

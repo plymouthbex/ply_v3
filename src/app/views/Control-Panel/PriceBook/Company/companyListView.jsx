@@ -202,7 +202,7 @@ const Company = () => {
       <div className="breadcrumb">
         <Breadcrumb
           routeSegments={[
-            { name: "Configure Price Book Type" },
+            { name: "Control Panel" },
             { name: "Company" },
           ]}
         />

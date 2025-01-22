@@ -178,7 +178,7 @@ const ItemAttributesEdit = () => {
             <div className="breadcrumb">
               <Breadcrumb
                 routeSegments={[
-                  { name: "Quote" },
+                  { name: "Price Book" },
                   {
                     name: "Build A Price List",
                     path: -1,

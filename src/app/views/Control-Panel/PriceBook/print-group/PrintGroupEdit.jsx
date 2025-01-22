@@ -382,7 +382,7 @@ const PrintGroupEdit = () => {
                       path: "/pages/control-panel/print-group",
                     },
                     {
-                      name: `${params.mode}Categories`,
+                      name: `${params.mode} Categories`,
                     },
                   ]}
                 />
