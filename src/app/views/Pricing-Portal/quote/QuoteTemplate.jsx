@@ -279,6 +279,7 @@ export default function QuoteTemplate() {
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
+            
             }}
           >
             <DataGrid

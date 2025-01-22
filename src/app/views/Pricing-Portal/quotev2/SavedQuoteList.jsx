@@ -226,6 +226,7 @@ const SavedQuoteList = () => {
       >
         <Breadcrumb
           routeSegments={[
+            { name: "Price Book" },
             { name: "Templates", path: "/pages/pricing-portal/templates" },
             { name: "Saved Quote" },
           ]}

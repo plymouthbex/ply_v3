@@ -556,18 +556,18 @@ const Settings = () => {
 
   return (
     <Container>
-      <Box className="breadcrumb">
+      {/* <Box className="breadcrumb">
         <Breadcrumb
           routeSegments={[{ name: "Profile" }, { name: "Settings" }]}
         />
-      </Box>
+      </Box> */}
 
       <Box>
         <SimpleCard>
           <Box
             display="grid"
             gap="20px"
-            margin={5}
+            margin={3}
             // height="50vh"
             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
             sx={{
@@ -576,6 +576,9 @@ const Settings = () => {
               },
             }}
           >
+         <Box sx={{ gridColumn: "span 4" }}>
+    <Typography sx={{fontSize:"16px",fontWeight:"bold"}}>Settings</Typography>
+  </Box>
             <FormControl fullWidth size="small" sx={{ gridColumn: "span 2" }}>
               <SingleAutocompleteWithDefault
                 required

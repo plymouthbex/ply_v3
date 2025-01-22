@@ -17,7 +17,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight, dataGridHeaderFooterHeight } from "app/utils/constant";
+import { dataGridHeight, dataGridRowHeight, dataGridHeaderFooterHeight, dataGridpageSizeOptions, dataGridPageSize } from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
@@ -198,7 +198,10 @@ const Customer = () => {
                 });
               }}
             >
-              <Add fontSize="small" />
+              <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
             </IconButton>
           </Tooltip>
 
@@ -226,8 +229,9 @@ const Customer = () => {
       <div className="breadcrumb" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
         <Breadcrumb
           routeSegments={[
-            { name: "Contact" },
-            { name: "Customer" },
+            { name: "Price Book" },
+            { name: "Contact Directory" },
+            
           ]}
         />
         <Stack direction="row" gap={1}>
@@ -353,10 +357,11 @@ const Customer = () => {
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
-            initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
-            }}
-            pageSizeOptions={[5, 10, 20, 25]}
+              initialState={{
+                          pagination: { paginationModel: { pageSize: dataGridPageSize } },
+                        }}
+                        
+                        pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}

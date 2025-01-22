@@ -162,7 +162,9 @@ export default function Page() {
           }) => (
             <form onSubmit={handleSubmit}>
 <Card sx={{ borderRadius: "8px", border: "2px solid black" }}>
-
+<Box sx={{ gridColumn: "span 4" }}>
+    <Typography sx={{fontSize:"20px",fontWeight:"bold" ,ml:5}}>Profile</Typography>
+  </Box>
   <CardContent>
     <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
       {/* First Stack: Profile Picture */}
