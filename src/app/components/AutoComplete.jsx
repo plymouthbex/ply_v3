@@ -177,6 +177,78 @@ export const SingleAutocomplete = ({
 };
 
 
+export const SingleAutocompleteRunGroup = ({
+  value = null,
+  onChange,
+  url,
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // Error state
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.Data); // Assuming API response has a `Data` array
+      } catch (error) {
+        setOptions([]);
+        console.error("Error fetching data:", error);
+        // setError("Failed to load. Please try again."); // Handle error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+
+
+  return (
+    <Autocomplete
+      size="small"
+      limitTags={1}
+      fullWidth
+      options={options}
+      loading={loading} // Display loading indicator
+      value={value ? value : options ? options[0] :value   } // Pass array of selected objects
+      isOptionEqualToValue={(option, value) => option.Name === value.Name}
+      onChange={(event, newValue) => onChange(newValue)} // Update selected array
+      getOptionLabel={(option) => option.Name}
+      // onChange={handleChange}
+      renderInput={(params) => (
+        <TextField
+
+          {...params}
+          label={props.label || "Select Options"} // Default label
+          error={!!error} // Show error style if there is an error
+          helperText={error} // Show error message
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
+
 
 export const SingleAutocompleteWithDefault = ({
   value = null,

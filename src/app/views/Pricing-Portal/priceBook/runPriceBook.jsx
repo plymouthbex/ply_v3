@@ -29,7 +29,7 @@ import {
   runGrpMsgUpdate,
   runGrpProcessedDataUpdate,
 } from "app/redux/slice/listviewSlice";
-import { SingleAutocomplete } from "app/components/AutoComplete";
+import { SingleAutocomplete, SingleAutocompleteRunGroup } from "app/components/AutoComplete";
 import { runGroupMailData } from "app/redux/slice/postSlice";
 import {
   getCustomerViewPriceCustomBook,
@@ -1084,7 +1084,7 @@ export default function RunPriceBook() {
               Price Book Group
             </Typography>
             <Box sx={{ width: "50%" }}>
-              <SingleAutocomplete
+              <SingleAutocompleteRunGroup
                 focused
                 fullWidth
                 required
