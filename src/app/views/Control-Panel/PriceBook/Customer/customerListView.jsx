@@ -365,6 +365,10 @@ const Customer = () => {
           routeSegments={[
             {
               name: "Control Panel",
+              // path: "/pages/control-panel/configure-price-book/company",
+            },
+            {
+              name: "Company",
               path: "/pages/control-panel/configure-price-book/company",
             },
             { name: "Customer" },
