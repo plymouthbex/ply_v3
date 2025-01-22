@@ -111,7 +111,7 @@ const validationSchema = Yup.object({
     .min(3, "User Company must be at least 3 characters")
     .max(50, "User Company must be at most 50 characters"),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
+    .min(15, "Password must be at least 15 characters")
     .required("Password is required"),
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
@@ -542,6 +542,7 @@ const UserEdit = () => {
                       helperText={touched.lastname && errors.lastname}
                     />
                     <TextField
+                    autoComplete="off"
                       fullWidth
                       variant="outlined"
                       type="password"
@@ -555,7 +556,7 @@ const UserEdit = () => {
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                      autoComplete="off"
+                      
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}

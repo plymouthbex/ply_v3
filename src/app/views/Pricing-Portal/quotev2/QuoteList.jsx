@@ -152,7 +152,7 @@ const QuoteList = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Quote" }, { name: "Templates" }]}
+          routeSegments={[{ name: "Price Book" }, { name: "Templates" }]}
         />
       </div>
 

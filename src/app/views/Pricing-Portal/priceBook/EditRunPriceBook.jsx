@@ -351,8 +351,8 @@ export default function EditRunPriceBook() {
           <Breadcrumb
             routeSegments={[
               { name: "Price Book" },
-              { name: "Price Book Group", path: -1 },
-              { name: "Send Price Book Group" },
+              { name: "Print Price Book Group", path: -1 },
+              { name: "Send Print Price Book Group" },
             ]}
           />
         </Box>

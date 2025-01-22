@@ -649,7 +649,7 @@ export default function BuildCustomPriceBook() {
       >
         <Box className="breadcrumb">
           <Breadcrumb
-            routeSegments={[{ name: "New Prospect" }, { name: "Quote" }]}
+            routeSegments={[{ name: "New Prospect" }, { name: "Price Book" }]}
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>

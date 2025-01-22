@@ -319,9 +319,9 @@ const ConfigureCompanyEdit = () => {
       classification: data.Classification,
       companyID: data.CompanyID,
       companyCode: data.CompanyCode,
-      fullPriceBookPdf: values.pdf ? "1" : "0",
-      fullPriceBookExcel: values.excel ? "1" : "0",
-      disable: values.disable ? "1" : "0",
+      fullPriceBookPdf: "0",
+      fullPriceBookExcel: "0",
+      disable: "0",
       fullPriceBookTitle: values.name,
       priceLevel: values.priceBookLevels,
     };
@@ -381,7 +381,7 @@ const ConfigureCompanyEdit = () => {
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "Configure Price Book Type" },
+                    { name: "Control Panel" },
                     {
                       name: "Company",
                       path: "/pages/control-panel/configure-price-book/company",
@@ -541,7 +541,7 @@ const ConfigureCompanyEdit = () => {
                         <MenuItem value={"TM"}>UserGroup</MenuItem>
                       </Select>
                     </FormControl> */}
-                    <Stack
+                    {/* <Stack
                       sx={{ gridColumn: "span 1" }}
                       direction="row"
                       gap={2}
@@ -579,7 +579,7 @@ const ConfigureCompanyEdit = () => {
                         }
                         label="EXCEL"
                       />
-                    </Stack>
+                    </Stack> */}
                     {/* <FormControlLabel
                       control={
                         <Checkbox

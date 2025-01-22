@@ -568,7 +568,7 @@ const PriceListItems = () => {
             <div className="breadcrumb">
               <Breadcrumb
                 routeSegments={[
-                  { name: "CP-Price Book" },
+                  { name: "Control Pannel" },
                   { name: "Price List", path: "/pages/control-panel/price-list" },
                   { name: "Price List Items" },
                 ]}

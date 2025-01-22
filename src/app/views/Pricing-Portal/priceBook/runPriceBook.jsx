@@ -996,7 +996,7 @@ export default function RunPriceBook() {
     <Container>
       <Box className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Price Book" }, { name: "Price Book Group" }]}
+          routeSegments={[{ name: "Price Book" }, { name: "Print Price Book Group" }]}
         />
       </Box>
       <SimpleCard>
