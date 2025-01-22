@@ -17,14 +17,26 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight, dataGridHeaderFooterHeight } from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useDispatch, useSelector } from "react-redux";
-import { getConfigureCustomerListView, getCustomerListView } from "app/redux/slice/listviewSlice";
+import {
+  getConfigureCustomerListView,
+  getCustomerListView,
+} from "app/redux/slice/listviewSlice";
 import useAuth from "app/hooks/useAuth";
+import {
+  FormikCustomSelectCompanyPriceList,
+  FormikCustomSelectCompanyPriceList2,
+} from "app/components/SingleAutocompletelist";
+import { useState } from "react";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -50,22 +62,14 @@ const Customer = () => {
   const customerRows = useSelector(
     (state) => state.listview.configureCustomerListViewData
   );
-
+  const [companyID, setCompanyID] = useState(user.companyID);
 
   useEffect(() => {
-    dispatch(getConfigureCustomerListView({ ID: user.companyID }));
+    dispatch(getConfigureCustomerListView({ ID: companyID }));
     // dispatch(clearCustomerListState())
   }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
-    // {
-    //   headerName: "Customer Number ",
-    //   field: "CustomerNumber",
-    //   width: 150,
-    //   align: "left",
-    //   headerAlign: "left",
-    //   hide: false,
-    // },
     {
       headerName: "Customer Name",
       field: "CustomerName",
@@ -75,43 +79,7 @@ const Customer = () => {
       headerAlign: "left",
       hide: false,
     },
-    // {
-    //   field: "Action",
-    //   headerName: "Action",
-    //   minWidth: 100,
-    //   flex: 1,
-    //   sortable: false,
-    //   headerAlign: "center",
-    //   filterable: false,
-    //   disableColumnMenu: true,
-    //   disableExport: true,
-    //   align: "center",
-    //   renderCell: (params) => {
-    //     return (
-    //         <div style={{ display: "flex", gap: "8px" }}>
 
-    //         <Button
-    //           sx={{ height: 25 }}
-    //           variant="contained"
-    //           color="secondary"
-    //           size="small"
-    //           startIcon={<ModeEditOutlineIcon size="small" />}
-    //           onClick={() => {
-    //             navigate("/pages/pricing-portal/contact/edit",{state:{
-    //               RecordID:params.row.RecordID,
-    //               Code:params.row.CustomerNumber,
-    //               Name:params.row.CustomerName,
-
-    //             }})
-    //           }}
-    //         >
-    //           Edit Contact List
-    //         </Button>
-    //       </div>
-
-    //     );
-    //   },
-    // },
     {
       field: "Action",
       headerName: "Action",
@@ -126,12 +94,12 @@ const Customer = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Edit Contact List">
+            <Tooltip title="Contacts">
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="black"
                 onClick={() => {
-                  navigate("/pages/pricing-portal/contact/edit", {
+                  navigate("/pages/pricing-portal/contact-directory/contacts", {
                     state: {
                       RecordID: params.row.RecordID,
                       Code: params.row.CustomerNumber,
@@ -146,22 +114,6 @@ const Customer = () => {
           </div>
         );
       },
-    },
-
-  ];
-
-  const rows = [
-    {
-      customerCode: 123456,
-      customerName: "Test Customer"
-    },
-    {
-      customerCode: 441204,
-      customerName: "EC Wilson"
-    },
-    {
-      customerCode: 441102,
-      customerName: "Wrays"
     },
   ];
 
@@ -181,16 +133,30 @@ const Customer = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
             gap: 2,
             paddingX: 2,
+            width:"100%"
           }}
         >
+          <FormikCustomSelectCompanyPriceList2
+            name="company"
+            id="company"
+            multiple={false}
+            value={companyID}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+              dispatch(getConfigureCustomerListView({ ID: e.target.value }));
+            }}
+            label="Company"
+            url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
+          />
           <GridToolbarQuickFilter />
-          <Tooltip title="Add">
+          
+          {/* <Tooltip title="Add">
             <IconButton
-               color="black"
+              color="black"
               sx={{ height: 35, width: 35 }}
               onClick={() => {
                 navigate("/pages/pricing-portal/contact/add", {
@@ -200,71 +166,42 @@ const Customer = () => {
             >
               <Add fontSize="small" />
             </IconButton>
-          </Tooltip>
-
-          {/* <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              navigate("/pages/pricing-portal/contact/add", {
-                state: { RecordID:0 },
-              });
-            }}
-          >
-            Add
-          </Button> */}
+          </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
   }
 
-
   return (
     <Container>
-      <div className="breadcrumb" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+      <div
+        className="breadcrumb"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
         <Breadcrumb
-          routeSegments={[
-            { name: "Contact" },
-            { name: "Customer" },
-          ]}
+          routeSegments={[{ name: "Price Book" }, { name: "Contact Directory" }]}
         />
-        <Stack direction="row" gap={1}>
-          {/* <Button
-      variant="contained"
-      color="info"
-      size="small"
-      startIcon={<ArrowBackIcon size="small" />}
-      onClick={() => navigate(-1)}
-    >
-      Back
-    </Button> */}
-
-        </Stack>
       </div>
-
 
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
           sx={{
-
             height: dataGridHeight,
 
             "& .MuiDataGrid-root": {
-
               border: "none",
-
             },
 
             "& .name-column--cell": {
-
               color: theme.palette.info.contrastText,
-
             },
 
             "& .MuiDataGrid-columnHeaders": {
-
               backgroundColor: theme.palette.info.main,
 
               color: theme.palette.info.contrastText,
@@ -272,54 +209,40 @@ const Customer = () => {
               fontWeight: "bold",
 
               fontSize: theme.typography.subtitle2.fontSize,
-
             },
 
             "& .MuiDataGrid-virtualScroller": {
-
               backgroundColor: theme.palette.info.light,
-
             },
 
             "& .MuiDataGrid-footerContainer": {
-
               borderTop: "none",
 
               backgroundColor: theme.palette.info.main,
 
               color: theme.palette.info.contrastText,
-
             },
 
             "& .MuiCheckbox-root": {
-
               color: "black !important",
-
             },
 
             "& .MuiCheckbox-root.Mui-checked": {
-
               color: "black !important",
-
             },
 
             "& .MuiDataGrid-row:nth-of-type(even)": {
-
               backgroundColor: theme.palette.action.hover,
-
             },
 
             "& .MuiDataGrid-row:nth-of-type(odd)": {
-
               backgroundColor: theme.palette.background.default,
-
             },
 
             "& .MuiDataGrid-row.Mui-selected:hover": {
-
               backgroundColor: `${theme.palette.action.selected} !important`,
-
-            }, "& .MuiTablePagination-root": {
+            },
+            "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },
 
@@ -330,14 +253,13 @@ const Customer = () => {
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
-
           }}
         >
           <DataGrid
             columnHeaderHeight={dataGridHeaderFooterHeight}
             sx={{
               // This is to override the default height of the footer row
-              '& .MuiDataGrid-footerContainer': {
+              "& .MuiDataGrid-footerContainer": {
                 height: dataGridHeaderFooterHeight,
                 minHeight: dataGridHeaderFooterHeight,
               },
@@ -349,7 +271,6 @@ const Customer = () => {
             rowHeight={dataGridRowHeight}
             rows={customerRows}
             columns={columns}
-
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}

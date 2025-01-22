@@ -10,8 +10,8 @@ const ViewContact=Loadable(lazy(()=>import('./viewContact')));
 const contactRoutes = [
   { path: '/pages/pricing-portal/contact-directory/', element: <CustomerList /> },
 
-  { path: '/pages/pricing-portal/contact/:mode', element: <Customeredit /> },
-  { path: '/pages/pricing-portal/view-contact/:mode', element: <ViewContact /> },
+  { path: '/pages/pricing-portal/contact-directory/contacts', element: <Customeredit /> },
+  { path: '/pages/pricing-portal/contact-directory/contacts/:mode', element: <ViewContact /> },
 
 ];
   

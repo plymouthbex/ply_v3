@@ -884,6 +884,7 @@ const getSlice = createSlice({
       state.getConfigContactData = {};
       state.getConfigContactLoading = true;
       state.getConfigContactStatus = "pending";
+      state.getConfigContactError = null;
     })
     .addCase(getConfigContact.fulfilled, (state, action) => {
       state.getConfigContactData = action.payload.data;

@@ -98,19 +98,19 @@ const NewProspect = () => {
   // ******************** LOCAL STATE ******************** //
 
   const [openAlert, setOpenAlert] = useState(false);
-  const [postError, setPostError] = useState(false);
+  const [postError, setPostError] = useState(null);
 
   // //=============================SAVE==================================//
 
   const handleSave = async (values, setSubmitting) => {
     const inputValue = values.name.trim();
     const isPricelist = rowProspect.some((item) => item.Name === inputValue);
-    if (isPricelist) {
+    if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
       const pricelistID = rowProspect.find((item) => item.Name === inputValue);
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
-      return
-    } 
+      return;
+    }
     const data = {
       RecordID: params.mode === "copy" ? 0 : getQuoteProspectInfoData.RecordID,
       CompanyCode: values.company ? values.company : "",
@@ -133,9 +133,12 @@ const NewProspect = () => {
       CustomerNumber: values.customer ? values.customer.Code : "",
       Type: params.mode === "copy" ? "C" : "A",
       OldHeaderID: getQuoteProspectInfoData.RecordID,
+      CurrentDate:values.prospectDate,
+      ShowPrice: false
     };
 
     const response = await dispatch(quoteInfoData({ data }));
+    console.log("🚀 ~ handleSave ~ response:", response);
 
     if (response.payload.status === "Y") {
       setOpenAlert(true);
@@ -144,7 +147,7 @@ const NewProspect = () => {
         navigate(
           params.mode === "copy"
             ? "/pages/pricing-portal/new-quote/new/build-quote"
-            : "./build-quote",
+            : "/pages/pricing-portal/new-quote/new/build-quote",
           { state: { headerID: response.payload.RecordId } }
         );
         setOpenAlert(false);
@@ -152,11 +155,11 @@ const NewProspect = () => {
       }, 2000);
     } else {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError(response.payload.message);
 
       setTimeout(() => {
         setOpenAlert(false);
-        setPostError(false);
+        setPostError(null);
         setSubmitting(false);
       }, 2000);
     }
@@ -182,13 +185,21 @@ const NewProspect = () => {
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
     const isPricelist = rowProspect.some((item) => item.Name === inputValue);
-    if (isPricelist) {
+    if (isPricelist && (params.mode === "copy" ||params.mode === "new")) {
       const pricelistID = rowProspect.find((item) => item.Name === inputValue);
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
     } else {
       setSubmitting(false);
     }
+  };
+
+  const getCurrentDateForInput = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
   };
   return (
     <Container>
@@ -214,6 +225,7 @@ const NewProspect = () => {
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
+            prospectDate: getQuoteProspectInfoData.CurrentDate || getCurrentDateForInput()
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -286,6 +298,26 @@ const NewProspect = () => {
                   />
                   <TextField
                     variant="outlined"
+                    id="prospectDate"
+                    label="Date"
+                    type="date"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    name="prospectDate"
+                    value={values.prospectDate}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    required
+                    InputLabelProps={{
+                      shrink: true, // Forces the label to shrink above the field
+                      sx: {
+                        "& .MuiInputLabel-asterisk": { color: "red" },
+                      },
+                    }}
+                    autoComplete="off"
+                  />
+                  <TextField
+                    variant="outlined"
                     id="salesRepName"
                     label="Sales Representative Name"
                     size="small"
@@ -338,6 +370,45 @@ const NewProspect = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   /> */}
+                  
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="mobile"
+                    name="mobile"
+                    label="Mobile"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.mobile}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    autoComplete="off"
+                    error={!!touched.mobile && !!errors.mobile}
+                    helperText={touched.mobile && errors.mobile}
+                  />
+                  <FormControl
+                    sx={{ gridColumn: "span 2" }}
+                    fullWidth
+                    size="small"
+                  >
+                    <InputLabel id="demo-simple-select-label">
+                      Service Provider
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      value={values.serviceProvider}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      id="serviceProvider"
+                      name="serviceProvider"
+                      label="Price Book Type"
+                    >
+                      <MenuItem value={"AT&T"}>AT&T</MenuItem>
+                      <MenuItem value={"V"}>Verizon</MenuItem>
+                      <MenuItem value={"TM"}>T-Mobile</MenuItem>
+                    </Select>
+                  </FormControl>
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -465,44 +536,6 @@ const NewProspect = () => {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    type="text"
-                    id="mobile"
-                    name="mobile"
-                    label="Mobile"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    value={values.mobile}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    autoComplete="off"
-                    error={!!touched.mobile && !!errors.mobile}
-                    helperText={touched.mobile && errors.mobile}
-                  />
-                  <FormControl
-                    sx={{ gridColumn: "span 2" }}
-                    fullWidth
-                    size="small"
-                  >
-                    <InputLabel id="demo-simple-select-label">
-                      Service Provider
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      value={values.serviceProvider}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      id="serviceProvider"
-                      name="serviceProvider"
-                      label="Price Book Type"
-                    >
-                      <MenuItem value={"AT&T"}>AT&T</MenuItem>
-                      <MenuItem value={"V"}>Verizon</MenuItem>
-                      <MenuItem value={"TM"}>T-Mobile</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    fullWidth
-                    variant="outlined"
                     type="email"
                     id="email"
                     name="email"
@@ -515,6 +548,12 @@ const NewProspect = () => {
                     error={!!touched.email && !!errors.email}
                     helperText={touched.email && errors.email}
                     autoComplete="off"
+                    required
+                    InputLabelProps={{
+                      sx: {
+                        "& .MuiInputLabel-asterisk": { color: "red" },
+                      },
+                    }}
                   />
 
                   <Box
@@ -579,7 +618,7 @@ const NewProspect = () => {
                       onClick={() => {
                         setFieldValue("name", "");
                         SetIsPrintGroupOpen(false);
-                        setSubmitting(false)
+                        setSubmitting(false);
                       }}
                       sx={{ height: 25, ml: 1 }}
                     >
@@ -607,11 +646,7 @@ const NewProspect = () => {
       <PriceGroupAlertApiDialog
         open={openAlert}
         error={postError}
-        message={
-          postError
-            ? "Something Went Wrong"
-            : "Prospect info saved successfully"
-        }
+        message={postError ? postError : "Prospect info saved successfully"}
         Actions={
           <Box
             sx={{

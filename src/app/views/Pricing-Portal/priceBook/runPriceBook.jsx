@@ -143,6 +143,7 @@ export default function RunPriceBook() {
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
+  console.log("🚀 ~ )}TO ~ runGrpRows:", runGrpRows)
   const runGrpProcessingMsg = useSelector(
     (state) => state.listview.runGrpProcessingMsg
   );
@@ -364,14 +365,13 @@ export default function RunPriceBook() {
       setPostError(true);
       return;
     }
+    console.log("🚀 ~ fnRunGrpEmailProcess ~ rowSelectionModel:", rowSelectionModel)
     const data = runGrpRows
       .filter(
         (v) =>
-          (rowSelectionModel.includes(v.id) && (v.fppdf || v.fpexcel)) ||
-          v.cppdf ||
-          v.cpexcel
-      )
+          (rowSelectionModel.includes(v.id)) && (v.fppdf || v.fpexcel || v.cppdf ||v.cpexcel))
       .map((v) => ({
+        id:v.id,
         CustomerNumber: v.customernumber,
         FullPriceBookPdf: v.fppdf ? "1" : "0",
         FullPriceBookExcel: v.fpexcel ? "1" : "0",

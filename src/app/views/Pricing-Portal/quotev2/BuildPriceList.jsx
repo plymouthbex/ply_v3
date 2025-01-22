@@ -494,16 +494,12 @@ export default function BuildCustomPriceBook() {
 
   const getFilteredDataAndSave = async (values, setSubmitting) => {
     const inputValue = values.pricelistName.trim();
-    const isPricelist = rowProspect.some(
-      (item) => item.Name === inputValue
-    );
-    if (isPricelist) {
-      const pricelistID = rowProspect.find(
-        (item) => item.Name === inputValue
-      );
+    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    if (isPricelist && (params.mode === "copy" ||params.mode === "new")) {
+      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
-      return
+      return;
     }
     try {
       const data = {
@@ -512,7 +508,7 @@ export default function BuildCustomPriceBook() {
         UserID: user.id,
         FromDate: sunday,
         ToDate: saturday,
-        Description:"" ,
+        Description: "",
         Name: values.pricelistName,
         Address1: "",
         Address2: "",
@@ -526,6 +522,9 @@ export default function BuildCustomPriceBook() {
         PriceLevel: values.customer ? values.customer.PriceLevel : "",
         CustomerName: values.customer ? values.customer.CustomerName : "",
         CustomerNumber: values.customer ? values.customer.Code : "",
+        ShowPrice: values.isShowPrice,
+        // ShowPrice: false,
+        CurrentDate: values.CurrentDate,
       };
 
       const response = await dispatch(quoteInfoData({ data }));
@@ -580,7 +579,7 @@ export default function BuildCustomPriceBook() {
         dispatch(getQuoteFilterData(filterData));
 
         if (params.mode == "copy") {
-          navigate("/pages/pricing-portal/build-price-list/new", {
+          navigate("/pages/pricing-portal/build-price-list/view", {
             state: {
               headerID: response.payload.RecordId,
             },
@@ -685,18 +684,22 @@ export default function BuildCustomPriceBook() {
   const [printGroupID, setPrintGroupID] = useState(0);
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
-    const isPricelist = rowProspect.some(
-      (item) => item.Name === inputValue
-    );
-    if (isPricelist) {
-      const pricelistID = rowProspect.find(
-        (item) => item.Name === inputValue
-      );
+    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    if (isPricelist && (params.mode === "copy" ||params.mode === "new")) {
+      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
     } else {
       setSubmitting(false);
     }
+  };
+
+  const getCurrentDateForInput = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
   };
   return (
     <Container>
@@ -745,6 +748,8 @@ export default function BuildCustomPriceBook() {
                   PriceLevel: getQuoteHeaderData.PriceLevel,
                 }
               : null,
+            isShowPrice: getQuoteHeaderData.ShowPrice,
+            CurrentDate: getQuoteHeaderData.CurrentDate || getCurrentDateForInput(),
             brand: JSON.parse(getQuteFiltData.Brand.Value),
             com: JSON.parse(getQuteFiltData.Commodity.Value),
             alt: JSON.parse(getQuteFiltData.AlternativeClass.Value),
@@ -848,8 +853,9 @@ export default function BuildCustomPriceBook() {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            // checked={isChecked} // Controlled checkbox state
-                            // onChange={handleCheckboxChange} // Update state on change
+                            name="isShowPrice"
+                            checked={values.isShowPrice} // Controlled checkbox state
+                            onChange={handleChange} // Update state on change
                             sx={{
                               color: "#174c4f",
                               "&.Mui-checked": {
@@ -937,7 +943,44 @@ export default function BuildCustomPriceBook() {
                       label="Company"
                       url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
                     />
-
+                    <TextField
+                      variant="outlined"
+                      id="CurrentDate"
+                      label="Date"
+                      type="date"
+                      size="small"
+                      sx={{ gridColumn: "span 1" }}
+                      name="CurrentDate"
+                      value={values.CurrentDate}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      InputLabelProps={{
+                        shrink: true, // Forces the label to shrink above the field
+                        sx: {
+                          "& .MuiInputLabel-asterisk": { color: "red" },
+                        },
+                      }}
+                      autoComplete="off"
+                    />
+                    <TextField
+                      variant="outlined"
+                      name="salesRepName"
+                      id="salesRepName"
+                      label="Sales Representative Name"
+                      size="small"
+                      sx={{ gridColumn: "span 1" }}
+                      value={values.salesRepName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      InputLabelProps={{
+                        sx: {
+                          "& .MuiInputLabel-asterisk": { color: "red" },
+                        },
+                      }}
+                      autoComplete="off"
+                    />
                     <TextField
                       variant="outlined"
                       name="pricelistName"
@@ -1021,25 +1064,6 @@ export default function BuildCustomPriceBook() {
                         />
                       )}
                     /> */}
-
-                    <TextField
-                      variant="outlined"
-                      name="salesRepName"
-                      id="salesRepName"
-                      label="Sales Representative Name"
-                      size="small"
-                      sx={{ gridColumn: "span 1" }}
-                      value={values.salesRepName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      required
-                      InputLabelProps={{
-                        sx: {
-                          "& .MuiInputLabel-asterisk": { color: "red" },
-                        },
-                      }}
-                      autoComplete="off"
-                    />
                   </Box>
                   <Box
                     display="grid"
@@ -1433,7 +1457,9 @@ export default function BuildCustomPriceBook() {
                     open={openAlert2}
                     error={postError2}
                     message={
-                      postError2 ? "Something Went Wrong and please try again" : "Saved Successfully"
+                      postError2
+                        ? "Something Went Wrong and please try again"
+                        : "Saved Successfully"
                     }
                     Actions={
                       <Box

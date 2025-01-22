@@ -9,7 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { VariableSizeList } from "react-window";
-import { Select, MenuItem,   FormControl, InputLabel,  } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 
 // Context for custom listbox
 const LISTBOX_PADDING = 8; // Padding around the listbox
@@ -22,7 +22,10 @@ const OuterElementType = React.forwardRef((props, ref) => {
 });
 
 // Custom Listbox component
-const ListboxComponent = React.forwardRef(function ListboxComponent(props, ref) {
+const ListboxComponent = React.forwardRef(function ListboxComponent(
+  props,
+  ref
+) {
   const { children, ...other } = props;
   const itemData = [];
   children.forEach((item) => {
@@ -75,13 +78,9 @@ ListboxComponent.propTypes = {
   children: PropTypes.node,
 };
 
-
-
-
-
 export const FormikOptimizedAutocomplete = ({
   value = null,
-  onChange = () =>{},
+  onChange = () => {},
   url,
   height = 20,
   ...props
@@ -114,7 +113,6 @@ export const FormikOptimizedAutocomplete = ({
 
   return (
     <Autocomplete
-
       size="small"
       limitTags={1}
       fullWidth
@@ -149,13 +147,12 @@ export const FormikOptimizedAutocomplete = ({
   );
 };
 
-
 export const FormikCustomSelectCompany = ({
   value = null,
   onChange = () => {},
   url,
   height = 20,
-  label = 'Select Company',
+  label = "Select Company",
   ...props
 }) => {
   const [options, setOptions] = useState([]);
@@ -185,21 +182,22 @@ export const FormikCustomSelectCompany = ({
   }, [url]);
 
   return (
-    <FormControl {...props} fullWidth error={!!error} size="small"     required 
-    >
-      <InputLabel sx={{
-      "& .MuiInputLabel-asterisk": {
-        color: "red",
-      },
-    }}  >{label}</InputLabel>
+    <FormControl {...props} fullWidth error={!!error} size="small" required>
+      <InputLabel
+        sx={{
+          "& .MuiInputLabel-asterisk": {
+            color: "red",
+          },
+        }}
+      >
+        {label}
+      </InputLabel>
       <Select
         value={value}
         onChange={onChange}
         label={label}
         displayEmpty
         {...props}
-
- 
       >
         {loading ? (
           <MenuItem disabled>
@@ -218,12 +216,12 @@ export const FormikCustomSelectCompany = ({
   );
 };
 
-export const FormikCustomSelectCompanyPriceList = ({
+export const FormikCustomSelectCompanyPriceList2 = ({
   value = null,
   onChange = () => {},
   url,
   height = 20,
-  label = 'Select Company',
+  label = "Select Company",
   ...props
 }) => {
   const [options, setOptions] = useState([]);
@@ -253,21 +251,97 @@ export const FormikCustomSelectCompanyPriceList = ({
   }, [url]);
 
   return (
-    <FormControl {...props} sx={{width:200}} error={!!error} size="small"     required 
-    >
-      <InputLabel sx={{
-      "& .MuiInputLabel-asterisk": {
-        color: "red",
-      },
-    }}  >{label}</InputLabel>
+    <FormControl {...props} sx={{ width: 200 }} error={!!error} size="small">
+      <InputLabel
+        sx={{
+          "& .MuiInputLabel-asterisk": {
+            color: "red",
+          },
+        }}
+      >
+        {label}
+      </InputLabel>
       <Select
         value={value}
         onChange={onChange}
         label={label}
         displayEmpty
         {...props}
+      >
+        {loading ? (
+          <MenuItem disabled>
+            <CircularProgress size={24} />
+          </MenuItem>
+        ) : (
+          options.map((option) => (
+            <MenuItem key={option.RecordID} value={option.RecordID}>
+              {option.Name}
+            </MenuItem>
+          ))
+        )}
+      </Select>
+      {error && <TextField helperText={error} />}
+    </FormControl>
+  );
+};
 
- 
+export const FormikCustomSelectCompanyPriceList = ({
+  value = null,
+  onChange = () => {},
+  url,
+  height = 20,
+  label = "Select Company",
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <FormControl
+      {...props}
+      sx={{ width: 200 }}
+      error={!!error}
+      size="small"
+      required
+    >
+      <InputLabel
+        sx={{
+          "& .MuiInputLabel-asterisk": {
+            color: "red",
+          },
+        }}
+      >
+        {label}
+      </InputLabel>
+      <Select
+        value={value}
+        onChange={onChange}
+        label={label}
+        displayEmpty
+        {...props}
       >
         {loading ? (
           <MenuItem disabled>
@@ -291,7 +365,7 @@ export const FormikCustomSelectCustomer = ({
   onChange = () => {},
   url,
   height = 20,
-  label = 'Select Customer',
+  label = "Select Customer",
   ...props
 }) => {
   const [options, setOptions] = useState([]);
@@ -324,7 +398,7 @@ export const FormikCustomSelectCustomer = ({
     <FormControl {...props} fullWidth error={!!error} size="small">
       <InputLabel>{label}</InputLabel>
       <Select
-        value={value || ''}
+        value={value || ""}
         onChange={onChange}
         label={label}
         displayEmpty
@@ -349,7 +423,7 @@ export const FormikCustomSelectCustomer = ({
 
 export const FormikCustomAutocompleteCustomer = ({
   value = null,
-  onChange = () =>{},
+  onChange = () => {},
   url,
   height = 20,
   required = false,
@@ -383,7 +457,6 @@ export const FormikCustomAutocompleteCustomer = ({
 
   return (
     <Autocomplete
-
       size="small"
       limitTags={1}
       fullWidth
@@ -426,7 +499,7 @@ export const FormikCustomAutocompleteCustomer = ({
 
 export const FormikCustomerPriceOptimizedAutocomplete = ({
   value = null,
-  onChange = () =>{},
+  onChange = () => {},
   url,
   height = 20,
   ...props
@@ -459,16 +532,19 @@ export const FormikCustomerPriceOptimizedAutocomplete = ({
 
   return (
     <Autocomplete
-
       size="small"
       limitTags={1}
       fullWidth
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.CustomerNumber === value.CustomerNumber}
+      isOptionEqualToValue={(option, value) =>
+        option.CustomerNumber === value.CustomerNumber
+      }
       onChange={onChange}
-      getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+      getOptionLabel={(option) =>
+        `${option.CustomerNumber} || ${option.CustomerName}`
+      }
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField
@@ -532,23 +608,24 @@ export const OptimizedAutocomplete = ({
 
   return (
     <Autocomplete
-  
       size="small"
       limitTags={1}
-      sx={{maxWidth:500,minWidth:450}}
+      sx={{ maxWidth: 500, minWidth: 450 }}
       options={options}
       loading={loading}
       value={value}
       // isOptionEqualToValue={(option, value) => option.item_key === value.item_key}
       onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => `${option.Item_Number} || ${option.Item_Description}`}
+      getOptionLabel={(option) =>
+        `${option.Item_Number} || ${option.Item_Description}`
+      }
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField
           {...params}
           label={props.label || "Select Options"}
-          error={!!error ||errors}
-          helperText={error ||helper}
+          error={!!error || errors}
+          helperText={error || helper}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
@@ -566,7 +643,6 @@ export const OptimizedAutocomplete = ({
     />
   );
 };
-
 
 // Combined Component
 export const PriceListOptimizedAutocompleteQuote = ({
@@ -594,7 +670,6 @@ export const PriceListOptimizedAutocompleteQuote = ({
         console.error("Error fetching data:", error);
         setOptions([]);
         setError("Failed to load. Please try again.");
-       
       } finally {
         setLoading(false);
         setError();
@@ -611,9 +686,13 @@ export const PriceListOptimizedAutocompleteQuote = ({
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+      isOptionEqualToValue={(option, value) =>
+        option.PRICELISTID === value.PRICELISTID
+      }
       onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      getOptionLabel={(option) =>
+        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+      }
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField
@@ -638,8 +717,6 @@ export const PriceListOptimizedAutocompleteQuote = ({
     />
   );
 };
-
-
 
 export const PriceListItemsOptimizedAutocompleteQuote = ({
   value = null,
@@ -666,7 +743,6 @@ export const PriceListItemsOptimizedAutocompleteQuote = ({
         console.error("Error fetching data:", error);
         setOptions([]);
         setError("Failed to load. Please try again.");
-       
       } finally {
         setLoading(false);
         setError();
@@ -683,9 +759,13 @@ export const PriceListItemsOptimizedAutocompleteQuote = ({
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+      isOptionEqualToValue={(option, value) =>
+        option.PRICELISTID === value.PRICELISTID
+      }
       onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      getOptionLabel={(option) =>
+        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+      }
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField
@@ -752,7 +832,6 @@ export const PriceListOptimizedAutocomplete = ({
   }, [url, companyID]);
 
   // Handle the opening of the Autocomplete dropdown
-  
 
   return (
     <Autocomplete
@@ -763,9 +842,13 @@ export const PriceListOptimizedAutocomplete = ({
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
+      isOptionEqualToValue={(option, value) =>
+        option.PRICELISTID === value.PRICELISTID
+      }
       onChange={(event, newValue) => onChange(newValue)} // Handle the value change
-      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`} // Customize label format
+      getOptionLabel={(option) =>
+        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+      } // Customize label format
       renderInput={(params) => (
         <TextField
           {...params}
@@ -785,7 +868,7 @@ export const PriceListOptimizedAutocomplete = ({
           }}
         />
       )}
-    // Trigger handleOpen when autocomplete opens
+      // Trigger handleOpen when autocomplete opens
       {...props}
     />
   );
@@ -831,7 +914,9 @@ export const PrintGroupOptimizedAutocomplete = ({
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.GroupCode === value.GroupCode}
+      isOptionEqualToValue={(option, value) =>
+        option.GroupCode === value.GroupCode
+      }
       onChange={(event, newValue) => onChange(newValue)}
       getOptionLabel={(option) => `${option.GroupCode} || ${option.GroupName}`}
       ListboxComponent={ListboxComponent} // Custom listbox component
@@ -858,7 +943,6 @@ export const PrintGroupOptimizedAutocomplete = ({
     />
   );
 };
-
 
 export const CustomerPriceListOptimizedAutocomplete = ({
   value = null,
@@ -900,9 +984,13 @@ export const CustomerPriceListOptimizedAutocomplete = ({
       options={options}
       loading={loading}
       value={value}
-      isOptionEqualToValue={(option, value) => option.CustomerName === value.CustomerName}
+      isOptionEqualToValue={(option, value) =>
+        option.CustomerName === value.CustomerName
+      }
       onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+      getOptionLabel={(option) =>
+        `${option.CustomerNumber} || ${option.CustomerName}`
+      }
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField
@@ -927,7 +1015,6 @@ export const CustomerPriceListOptimizedAutocomplete = ({
     />
   );
 };
-
 
 export const PGOptimizedAutocomplete = ({
   errors,
@@ -968,24 +1055,26 @@ export const PGOptimizedAutocomplete = ({
     <Autocomplete
       size="small"
       limitTags={1}
-      sx={{width:400}}
+      sx={{ width: 400 }}
       options={options}
       loading={loading}
       value={value}
       onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => option.GroupCode && option.GroupCode !== ''
-        ? `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION} * (${option.GroupCode})`
-        : `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      getOptionLabel={(option) =>
+        option.GroupCode && option.GroupCode !== ""
+          ? `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION} * (${option.GroupCode})`
+          : `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+      }
       isOptionEqualToValue={(option, value) =>
-        option.PRICELISTID === value.PRICELISTID 
+        option.PRICELISTID === value.PRICELISTID
       }
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField
           {...params}
           label={props.label || "Select Options"}
-          error={!!error ||errors}
-          helperText={error ||helper}
+          error={!!error || errors}
+          helperText={error || helper}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
@@ -1004,14 +1093,9 @@ export const PGOptimizedAutocomplete = ({
   );
 };
 
-
-
-
-
-
 export const FormikCompanyOptimizedAutocomplete = ({
   value = null,
-  onChange = () =>{},
+  onChange = () => {},
   url,
   height = 20,
   ...props
@@ -1044,7 +1128,6 @@ export const FormikCompanyOptimizedAutocomplete = ({
 
   return (
     <Autocomplete
-
       size="small"
       limitTags={1}
       fullWidth
@@ -1088,7 +1171,7 @@ export const FormikCompanyOptimizedAutocomplete = ({
 
 export const FormikUserGroupOptimizedAutocomplete = ({
   value = null,
-  onChange = () =>{},
+  onChange = () => {},
   url,
   height = 20,
   ...props
@@ -1121,7 +1204,6 @@ export const FormikUserGroupOptimizedAutocomplete = ({
 
   return (
     <Autocomplete
-
       size="small"
       limitTags={1}
       fullWidth
@@ -1162,7 +1244,7 @@ export const FormikUserGroupOptimizedAutocomplete = ({
 };
 export const FormikRungroupOptimizedAutocomplete = ({
   value = null,
-  onChange = () =>{},
+  onChange = () => {},
   url,
   height = 20,
   ...props
@@ -1195,7 +1277,6 @@ export const FormikRungroupOptimizedAutocomplete = ({
 
   return (
     <Autocomplete
-
       size="small"
       limitTags={1}
       fullWidth

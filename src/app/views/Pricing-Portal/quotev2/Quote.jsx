@@ -500,6 +500,8 @@ export default function BuildCustomPriceBook() {
         PriceLevel: getQuoteHeaderData.PriceLevel,
         CustomerName: "",
         CustomerNumber: "",
+        ShowPrice:values.isShowPrice,
+        CurrentDate:getQuoteHeaderData.CurrentDate,
       };
 
       const response = await dispatch(quoteInfoData({ data }));
@@ -670,7 +672,7 @@ export default function BuildCustomPriceBook() {
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
             onClick={() =>
-              navigate("/pages/pricing-portal/new-quote/new", {
+              navigate("/pages/pricing-portal/new-quote/view", {
                 state: { headerID: state.headerID },
               })
             }
@@ -694,6 +696,7 @@ export default function BuildCustomPriceBook() {
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
             PriceLists: getQuteFiltData.PriceListID,
             adHocItems: [],
+            isShowPrice:getQuoteHeaderData.ShowPrice,
           }}
           validate={(values) => {
             const errors = {};
@@ -783,8 +786,9 @@ export default function BuildCustomPriceBook() {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            // checked={isChecked} // Controlled checkbox state
-                            // onChange={handleCheckboxChange} // Update state on change
+                          name="isShowPrice"
+                            checked={values.isShowPrice} // Controlled checkbox state
+                            onChange={handleChange} // Update state on change
                             sx={{
                               color: "#174c4f",
                               "&.Mui-checked": {
