@@ -121,13 +121,13 @@ const Customer = () => {
           <Checkbox
             checked={params.row.FullPriceBookExcel}
             onChange={(e) => {
-              handleSave({...params.row,FullPriceBookExcel:e.target.checked ? "1" : "0"})
               dispatch(
                 onCheckboxChangeCustomer({
                   id: params.row.RecordID,
                   field: "FullPriceBookExcel",
                 })
               );
+              handleSave({...params.row,FullPriceBookExcel:e.target.checked })
             }}
             sx={{
               color: "#174c4f",
@@ -140,7 +140,7 @@ const Customer = () => {
           <Checkbox
           checked={params.row.FullPriceBookPdf}
           onChange={(e) => {
-            handleSave({...params.row,FullPriceBookPdf:e.target.checked ? "1" : "0"})
+            handleSave({...params.row,FullPriceBookPdf:e.target.checked })
             dispatch(
               onCheckboxChangeCustomer({
                 id: params.row.RecordID,
@@ -175,13 +175,13 @@ const Customer = () => {
           <Checkbox
           checked={params.row.CustomPriceBookExcel}
           onChange={(e) => {
-            handleSave({...params.row,CustomPriceBookExcel:e.target.checked ? "1" : "0"})
+            handleSave({...params.row,CustomPriceBookExcel:e.target.checked })
             dispatch(
               onCheckboxChangeCustomer({
                 id: params.row.RecordID,
                 field: "CustomPriceBookExcel",
               })
-
+              
             );
           }}
             sx={{
@@ -195,7 +195,7 @@ const Customer = () => {
           <Checkbox
           checked={params.row.CustomPriceBookPdf}
           onChange={(e) => {
-            handleSave({...params.row,CustomPriceBookPdf:e.target.checked ? "1" : "0"})
+            handleSave({...params.row,CustomPriceBookPdf:e.target.checked })
             dispatch(
               onCheckboxChangeCustomer({
                 id: params.row.RecordID,
@@ -285,6 +285,7 @@ const Customer = () => {
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const handleSave = async (values) => {
+    console.log("🚀 ~ handleSave ~ values:", values)
     const data1 = {
       RecordID: values.RecordID,
       Classification: "CS",

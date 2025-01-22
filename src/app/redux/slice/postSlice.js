@@ -383,7 +383,7 @@ export const quoteInfoData = createAsyncThunk(
 );
 
 export const quoteFilterAndItemPostData = createAsyncThunk(
-  "post/quoteInfoData", // Action type string
+  "post/quoteFilterAndItemPostData", // Action type string
   async ({ data, RecordId }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}Quotation/PostQuoteConditions?RecordId=${RecordId}`;
