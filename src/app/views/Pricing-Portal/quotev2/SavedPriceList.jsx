@@ -92,7 +92,7 @@ const SavedPriceList = () => {
     },
     {
       headerName: "Price List Name",
-      field: "Description",
+      field: "Name",
       minWidth: 300,
       align: "left",
       headerAlign: "left",

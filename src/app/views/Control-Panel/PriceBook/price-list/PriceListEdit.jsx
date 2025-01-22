@@ -36,6 +36,7 @@ import {
   clearPriceListState,
   clreatFilterAndItems,
   getPriceListData,
+  getPriceListData2,
   getPriceListFilterData,
   priceListAddedItems,
   priceListDeletedItem,
@@ -94,7 +95,6 @@ const PriceListEdit = () => {
   const loaction = useLocation();
   const { user } = useAuth();
   const state = loaction.state;
-  console.log("🚀 ~ PriceListEdit ~ state:", state);
 
   // ********************** LOCAL STATE ********************** //
 
@@ -128,7 +128,6 @@ const PriceListEdit = () => {
   const priceListFilterData = useSelector(
     (state) => state.getSlice.priceListFilterData
   );
-  console.log("🚀 ~ PriceListEdit ~ priceListFilterData:", priceListFilterData);
   const priceListItemsData = useSelector(
     (state) => state.getSlice.priceListItemsData
   );
@@ -225,39 +224,7 @@ const PriceListEdit = () => {
                 <ModeEditOutlineIcon size="small" />
               </IconButton>
             </Tooltip>
-            {showGridData === 3 ? (
-              <Tooltip title="Delete">
-                <IconButton
-                  sx={{ height: 25, marginLeft: 2 }}
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  onClick={() => {
-                    // setRemoveItemID(param.row.Item_Number);
-                    // setRemoveItemDesc(param.row.Item_Description);
-                    // setIsRemoveItem(true);
-                    navigate("./item-attributes/delete", {
-                      state: {
-                        id: state.id,
-                        recordID: param.row.RecordId,
-                        itemNumber: param.row.Item_Number,
-                        itemDesc: param.row.Item_Description,
-                        priceListID: priceListHeaderData.PriceListID,
-                        priceListDesc: priceListHeaderData.PricelistDesc,
-                      },
-                    });
-                  }}
-                  // startIcon={<DeleteIcon size="small" />}
-                  disabled={
-                    params.mode === "delete" || params.mode === "view"
-                      ? true
-                      : false
-                  }
-                >
-                  <DeleteIcon size="small" />
-                </IconButton>
-              </Tooltip>
-            ) : showGridData === 0 && param.row.showAction ? (
+            {param.row.AdHocItem == "Y" ? (
               <Tooltip title="Remove">
                 <IconButton
                   sx={{ height: 25, marginLeft: 2 }}
@@ -616,7 +583,7 @@ const PriceListEdit = () => {
                 size="small"
                 onClick={async () => {
                   if (addPriceListData) {
-                    const isItem = [...priceListItemsData,...selectedRows, ...addedRows].some(
+                    const isItem = [...priceListItemsData,...addedRows].some(
                       (item) =>
                         lodash.isEqual(
                           item.Item_Number,
@@ -645,12 +612,13 @@ const PriceListEdit = () => {
                     );
                     if (response.payload.status === "Y") {
                       setOpenAlert1(true);
-                      dispatch(
-                        priceListAddedItems({
-                          ...addPriceListData,
-                          AdHocItem: "Y",
-                        })
-                      );
+                      // dispatch(
+                      //   priceListAddedItems({
+                      //     ...addPriceListData,
+                      //     AdHocItem: "Y",
+                      //   })
+                      // );
+                      dispatch(getPriceListData2({ id: priceListHeaderData.PriceListID }));
                       setAddPriceListData(null);
                     } else {
                       setOpenAlert1(true);
@@ -1477,7 +1445,7 @@ const PriceListEdit = () => {
                       rowHeight={dataGridRowHeight}
                       rows={
                         showGridData === 0
-                          ? [...priceListItemsData, ...allSelAddItems]
+                          ? [...priceListItemsData, ...addedRows]
                           : showGridData === 1
                           ? priceListItemsData
                           : [...filteredSelectedItems, ...addedRows]
@@ -1563,7 +1531,8 @@ const PriceListEdit = () => {
                 logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 tittle={values.priceListID}
-                message={`Are you sure you want to delete Price List ${values.priceListID}?`}
+                // message={`Are you sure you want to delete Price List ${values.priceListID}?`}
+                message={`Are you sure you want to delete Price List ?`}
                 Actions={
                   <Box
                     sx={{
@@ -1584,6 +1553,7 @@ const PriceListEdit = () => {
                       Yes
                     </Button>
                     <Button
+                    sx={{ml:1}}
                       variant="contained"
                       color="info"
                       size="small"
@@ -1687,7 +1657,7 @@ const PriceListEdit = () => {
         error={postError}
         message={
           postError
-            ? "Error! while saving please retry"
+            ? "Error! while saving please try again"
             : params.mode === "add"
             ? "Price List saved successfully"
             : params.mode === "delete"
@@ -1739,7 +1709,7 @@ const PriceListEdit = () => {
                 width: "100%",
               }}
             >
-               <Button
+                {params.mode != "delete" &&<Button
                 sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
@@ -1751,14 +1721,14 @@ const PriceListEdit = () => {
                 }}
               >
                 Close
-              </Button>
+              </Button>}
               <Button
                 sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate(-1);
+                  navigate("/pages/control-panel/price-list");
                   dispatch(clearPriceListState());
                   setOpenAlert(false);
                 }}
@@ -1811,7 +1781,7 @@ const PriceListEdit = () => {
         error={postError2}
         message={
           postError2
-            ? "Somthing Went Wrong and please retry"
+            ? "Somthing Went Wrong and please try again"
             : "Filters And Items Cleared Successfully"
         }
         Actions={
