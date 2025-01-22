@@ -21,6 +21,8 @@ import {
   dataGridHeight,
   dataGridRowHeight,
   dataGridHeaderFooterHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
 } from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -137,7 +139,7 @@ const Customer = () => {
             alignItems: "center",
             gap: 2,
             paddingX: 2,
-            width:"100%"
+            width: "100%",
           }}
         >
           <FormikCustomSelectCompanyPriceList2
@@ -153,7 +155,7 @@ const Customer = () => {
             url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
           />
           <GridToolbarQuickFilter />
-          
+
           {/* <Tooltip title="Add">
             <IconButton
               color="black"
@@ -164,7 +166,10 @@ const Customer = () => {
                 });
               }}
             >
-              <Add fontSize="small" />
+              <Add sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }} />
             </IconButton>
           </Tooltip> */}
         </Box>
@@ -184,7 +189,10 @@ const Customer = () => {
         }}
       >
         <Breadcrumb
-          routeSegments={[{ name: "Price Book" }, { name: "Contact Directory" }]}
+          routeSegments={[
+            { name: "Price Book" },
+            { name: "Contact Directory" },
+          ]}
         />
       </div>
 
@@ -275,9 +283,9 @@ const Customer = () => {
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
             }}
-            pageSizeOptions={[5, 10, 20, 25]}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}
