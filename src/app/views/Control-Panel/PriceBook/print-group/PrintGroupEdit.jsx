@@ -637,7 +637,7 @@ const PrintGroupEdit = () => {
                logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 // tittle={values.groupCode}
-                message={`Are you sure you want to delete Print Group?`}
+                message={`Are you sure you want to delete the  Category?`}
                 Actions={
                   <Box
                     sx={{
@@ -738,10 +738,10 @@ const PrintGroupEdit = () => {
           postError
             ? "Something went wrong and please retry"
             : params.mode === "add"
-            ? "Price Book Categories added successfully"
+            ? "Categories added successfully"
             : params.mode === "delete"
-            ? "Price Book Categories Releived Successfully"
-            : "Price Book Categories updated successfully"
+            ? "Categories Releived Successfully"
+            : "Categories updated successfully"
         }
         Actions={
           params.mode === "add" ? (
@@ -761,7 +761,7 @@ const PrintGroupEdit = () => {
                   navigate("/pages/control-panel/print-group");
                 }}
               >
-                Back to Price Book Categories
+                Back to Categories
               </Button>
               <Button
                 sx={{ mr: 1, height: 25 }}
@@ -775,7 +775,7 @@ const PrintGroupEdit = () => {
                 }}
                 autoFocus
               >
-                Add New Price Book Categories
+                Add New Categories
               </Button>
             </Box>
           ) : (
@@ -793,7 +793,7 @@ const PrintGroupEdit = () => {
                 size="small"
                 onClick={() => navigate("/pages/control-panel/print-group")}
               >
-                Back to Price Book Categories
+                Back to Categories
               </Button>
             </Box>
           )

@@ -12,6 +12,9 @@ import {
   MenuItem,
   Stack,
   Autocomplete,
+  FormControlLabel,
+  Checkbox,
+  FormLabel,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -133,8 +136,8 @@ const NewProspect = () => {
       CustomerNumber: values.customer ? values.customer.Code : "",
       Type: params.mode === "copy" ? "C" : "A",
       OldHeaderID: getQuoteProspectInfoData.RecordID,
-      CurrentDate:values.prospectDate,
-      ShowPrice: false
+      CurrentDate: values.prospectDate,
+      ShowPrice: false,
     };
 
     const response = await dispatch(quoteInfoData({ data }));
@@ -185,7 +188,7 @@ const NewProspect = () => {
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
     const isPricelist = rowProspect.some((item) => item.Name === inputValue);
-    if (isPricelist && (params.mode === "copy" ||params.mode === "new")) {
+    if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
       const pricelistID = rowProspect.find((item) => item.Name === inputValue);
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
@@ -225,7 +228,8 @@ const NewProspect = () => {
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
-            prospectDate: getQuoteProspectInfoData.CurrentDate || getCurrentDateForInput()
+            prospectDate:
+              getQuoteProspectInfoData.CurrentDate || getCurrentDateForInput(),
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -256,7 +260,10 @@ const NewProspect = () => {
                 }}
               >
                 <Breadcrumb
-                  routeSegments={[{ name: "Price Book" }, { name: `New Prospect` }]}
+                  routeSegments={[
+                    { name: "Price Book" },
+                    { name: `New Prospect` },
+                  ]}
                 />
                 <Stack direction={"row"} gap={1}>
                   {params.mode === "copy" && (
@@ -370,7 +377,7 @@ const NewProspect = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   /> */}
-                  
+
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -555,7 +562,39 @@ const NewProspect = () => {
                       },
                     }}
                   />
-
+                  <FormControl
+                    sx={{ gridColumn: "span 2" }}
+                    component="fieldset"
+                    variant="standard"
+                  >
+                    <FormLabel focused={false} component="legend">
+                      Preferred Communication
+                    </FormLabel>
+                    <Stack direction="row" gap={2}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            id="preferedMail"
+                            name="preferedMail"
+                            // checked={values.preferedMail}
+                            // onChange={handleChange}
+                          />
+                        }
+                        label="Email"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            id="preferedMobile"
+                            name="preferedMobile"
+                            // checked={values.preferedMobile}
+                            // onChange={handleChange}
+                          />
+                        }
+                        label="Mobile"
+                      />
+                    </Stack>
+                  </FormControl>
                   <Box
                     sx={{
                       display: "flex",
@@ -605,10 +644,9 @@ const NewProspect = () => {
                         //     },
                         //   })
                         // );
-                        navigate(
-                           "/pages/pricing-portal/new-quote/view",
-                          { state: { headerID: printGroupID } }
-                        );
+                        navigate("/pages/pricing-portal/new-quote/view", {
+                          state: { headerID: printGroupID },
+                        });
                         SetIsPrintGroupOpen(false);
                       }}
                       sx={{ height: 25 }}

@@ -73,7 +73,7 @@ const Container = styled("div")(({ theme }) => ({
 
 const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   height: 70,
-  width: "100%",
+  width: "200px",
   cursor: "pointer",
   borderRadius: "4px",
   marginBottom: "16px",
@@ -87,6 +87,8 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
     )}, 0.2) !important`,
   },
   background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
+  // alignItems:"center",
+  // justifyItems:"center"
 }));
 
 // ******************** Validation Schema ******************** //
@@ -342,6 +344,7 @@ const UserEdit = () => {
       // return;
       const response = await dispatch(userPost({ userData }));
       if (response.payload.status === "Y") {
+        setImageList1([]);
         setOpenAlert(true);
       } else {
         setOpenAlert(true);
@@ -763,44 +766,49 @@ sx={{ width:"20px"}}
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
-                    <CardContent>
-                      <Stack spacing={2} sx={{ alignItems: "center" }}>
-                        <div>
-                          <Avatar
-                            src={
-                              previewImages1.length > 0
-                                ? previewImages1[0]["preview"]
-                                : `data:image/png;base64,${data.UserProfileImage}`
-                            }
-                            sx={{ height: "80px", width: "80px" }}
-                          />
-                        </div>
-                        <Stack spacing={1} sx={{ textAlign: "center" }}>
-                          <Typography variant="h5">
-                            {values.firstname} {values.lastname}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                    <Divider />
-                    <CardActions>
-                      <DropZone {...dropzoneProps1.getRootProps()}>
-                        <input {...dropzoneProps1.getInputProps()} />
-                        <FlexBox alignItems="center" flexDirection="column">
-                          <Publish
-                            sx={{ color: "text.secondary", fontSize: "48px" }}
-                          />
-                          {imageList1.length ? (
-                            <span>
-                              {imageList1.length} images were selected
-                            </span>
-                          ) : (
-                            <span>Upload image</span>
-                          )}
-                        </FlexBox>
-                      </DropZone>
-                    </CardActions>
-                  </Card>
+  <CardContent>
+    <Stack spacing={2} sx={{ alignItems: "center" }}>
+      <div>
+        <Avatar
+          src={
+            previewImages1.length > 0
+              ? previewImages1[0]["preview"]
+              : `data:image/png;base64,${data.UserProfileImage}`
+          }
+          sx={{ height: "80px", width: "80px" }}
+        />
+      </div>
+      <Stack spacing={1} sx={{ textAlign: "center" }}>
+        <Typography variant="h5">
+          {values.firstname} {values.lastname}
+        </Typography>
+      </Stack>
+    </Stack>
+  </CardContent>
+  <Divider />
+  
+  <CardActions
+  sx={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  <DropZone {...dropzoneProps1.getRootProps()}>
+    <input {...dropzoneProps1.getInputProps()} />
+    <FlexBox alignItems="center" flexDirection="column">
+      <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+      {imageList1.length ? (
+        <span>{imageList1.length} images were selected</span>
+      ) : (
+        <span>Upload image</span>
+      )}
+    </FlexBox>
+  </DropZone>
+</CardActions>
+
+</Card>
+
                 </Box>
                 {/* <Box
                   sx={{
@@ -990,6 +998,7 @@ sx={{ width:"20px"}}
                 onClick={() => {
                   dispatch(getUserData({ ID: 0 }));
                   setPreviewImages1([]);
+                  setImageList1([]);
                   setOpenAlert(false);
                 }}
                 autoFocus
