@@ -761,7 +761,7 @@ const PrintGroupEdit = () => {
                   navigate("/pages/control-panel/print-group");
                 }}
               >
-                Back to Price Book Categories
+                Back to Categories
               </Button>
               <Button
                 sx={{ mr: 1, height: 25 }}
@@ -775,7 +775,7 @@ const PrintGroupEdit = () => {
                 }}
                 autoFocus
               >
-                Add New Price Book Categories
+                Add New Categories
               </Button>
             </Box>
           ) : (
@@ -793,7 +793,7 @@ const PrintGroupEdit = () => {
                 size="small"
                 onClick={() => navigate("/pages/control-panel/print-group")}
               >
-                Back to Price Book Categories
+                Back to Categories
               </Button>
             </Box>
           )

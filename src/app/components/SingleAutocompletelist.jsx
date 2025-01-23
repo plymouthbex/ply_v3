@@ -801,7 +801,7 @@ export const PriceListOptimizedAutocomplete = ({
 }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error,  ] = useState(null);
 
   // Fetch data when component mounts or URL/CompanyID changes
   useEffect(() => {
@@ -809,9 +809,10 @@ export const PriceListOptimizedAutocomplete = ({
       setOptions([]); // Clear options if no companyID
       return;
     }
-
+    setLoading(null);
     const fetchData = async () => {
       setLoading(true);
+
       try {
         const response = await axios.get(url, {
           headers: {
@@ -822,7 +823,8 @@ export const PriceListOptimizedAutocomplete = ({
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
-        setError("Failed to load. Please try again.");
+        setError(error.response ? error.response.data.message: error.message);
+
       } finally {
         setLoading(false);
       }
@@ -1117,7 +1119,7 @@ export const FormikCompanyOptimizedAutocomplete = ({
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
-        setError("Failed to load. Please try again.");
+        setError(error.response ? error.response.data.message: error.message);
       } finally {
         setLoading(false);
       }

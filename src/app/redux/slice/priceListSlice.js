@@ -326,11 +326,73 @@ export const getQuotePriceList = createAsyncThunk(
   }
 );
 
+
+
+export const getQuotePdf = createAsyncThunk(
+  "get/getQuotePdf", // action type
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Email/GetQuotePdf`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const getQuoteExcel = createAsyncThunk(
+  "get/getQuoteExcel", // action type
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}Email/GetQuoteExcel`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 export const mailSend = createAsyncThunk(
   "post/mailSend", // action type
   async ({ data }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}Email/SendMail`;
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response.data ? error.response.data.Message : error.message
+      );
+    }
+  }
+);
+
+export const mailSendQuote = createAsyncThunk(
+  "post/mailSendQuote", // action type
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/PostQuotationMailQueue`;
       const response = await axios.post(URL, data, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -532,24 +594,40 @@ const priceListSlice = createSlice({
       })
 
       //  BUILD QUOTE PRICE BOOK ADDCASES
-      .addCase(getQuotePriceList.pending, (state, action) => {
+      .addCase(getQuotePdf.pending, (state, action) => {
         state.quotePriceStatus = "pending";
-        state.quotePriceMessage = "Data processing for selected customer...";
+        state.quotePriceMessage = "Generating PDF...";
         state.quotePriceLoading = true;
-        state.quotePriceOpenLoading = true;
-        state.quotePriceData = [];
+        state.quoteError = false;
       })
-      .addCase(getQuotePriceList.fulfilled, (state, action) => {
+      .addCase(getQuotePdf.fulfilled, (state, action) => {
         state.quotePriceStatus = "fulfilled";
-        state.quotePriceMessage = "Data processed successfully!";
+        state.quotePriceMessage = action.payload.message;
         state.quotePriceLoading = false;
-        state.quotePriceData = action.payload;
       })
-      .addCase(getQuotePriceList.rejected, (state, action) => {
+      .addCase(getQuotePdf.rejected, (state, action) => {
         state.quotePriceStatus = "rejected";
         state.quotePriceLoading = false;
         state.quoteError = true;
-        state.quotePriceMessage = action.error;
+        state.quotePriceMessage = action.payload.message;
+      })
+
+      .addCase(getQuoteExcel.pending, (state, action) => {
+        state.quotePriceStatus = "pending";
+        state.quotePriceMessage = "Generating Excel...";
+        state.quotePriceLoading = true;
+        state.quoteError = false;
+      })
+      .addCase(getQuoteExcel.fulfilled, (state, action) => {
+        state.quotePriceStatus = "fulfilled";
+        state.quotePriceMessage = action.payload.message;
+        state.quotePriceLoading = false;
+      })
+      .addCase(getQuoteExcel.rejected, (state, action) => {
+        state.quotePriceStatus = "rejected";
+        state.quotePriceLoading = false;
+        state.quoteError = true;
+        state.quotePriceMessage = action.payload.message;
       });
   },
 });

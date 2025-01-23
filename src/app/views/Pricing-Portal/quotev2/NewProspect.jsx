@@ -137,6 +137,8 @@ const NewProspect = () => {
       Type: params.mode === "copy" ? "C" : "A",
       OldHeaderID: getQuoteProspectInfoData.RecordID,
       CurrentDate: values.prospectDate,
+      PreferedPdf: values.PreferedPdf,
+      PreferedExcel: values.PreferedExcel,
       ShowPrice: false,
     };
 
@@ -225,6 +227,8 @@ const NewProspect = () => {
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
             customer: getQuoteProspectInfoData.CustomerNumber,
+            PreferedPdf: getQuoteProspectInfoData.PreferedPdf,
+            PreferedExcel: getQuoteProspectInfoData.PreferedExcel,
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
@@ -574,10 +578,10 @@ const NewProspect = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            id="preferedMail"
-                            name="preferedMail"
-                            // checked={values.preferedMail}
-                            // onChange={handleChange}
+                          id="PreferedPdf"
+                          name="PreferedPdf"
+                          checked={values.PreferedPdf}
+                          onChange={handleChange}
                           />
                         }
                         label="Email"
@@ -585,10 +589,10 @@ const NewProspect = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            id="preferedMobile"
-                            name="preferedMobile"
-                            // checked={values.preferedMobile}
-                            // onChange={handleChange}
+                          id="PreferedExcel"
+                          name="PreferedExcel"
+                          checked={values.PreferedExcel}
+                          onChange={handleChange}
                           />
                         }
                         label="Mobile"
