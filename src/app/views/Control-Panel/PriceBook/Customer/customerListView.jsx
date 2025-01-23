@@ -22,6 +22,8 @@ import {
   dataGridHeight,
   dataGridRowHeight,
   dataGridHeaderFooterHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
 } from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -475,9 +477,9 @@ const Customer = () => {
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
+              pagination: { paginationModel:dataGridPageSize },
             }}
-            pageSizeOptions={[5, 10, 20, 25]}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: true,
             }}

@@ -567,7 +567,7 @@ const RunGroupEdit = () => {
                   />
                    
             <Button
-             sx={{width:150, gridColumn:"span 1"}}
+             sx={{width:150,height:40, gridColumn:"span 1"}}
              variant="contained"
              color="info"
              size="small"
