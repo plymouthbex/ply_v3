@@ -84,7 +84,7 @@ const SavedPriceList = () => {
   const columns = [
     {
       headerName: "Date",
-      field: "FromDate",
+      field: "CurrentDate",
       width: "100",
       align: "left",
       headerAlign: "left",

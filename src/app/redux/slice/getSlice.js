@@ -648,6 +648,7 @@ export const getConfigContact = createAsyncThunk(
   }
 );
 
+
 export const getCompanyMailConfig = createAsyncThunk(
   "get/getCompanyMailConfig", // action type
   async ({ ID }, { rejectWithValue }) => {
@@ -778,11 +779,8 @@ const getSlice = createSlice({
       state.runGroupAddedData = action.payload;
     },
     runGroupAddedItem: (state, action) => {
-      console.log("🚀 ~ action:", action)
       action.payload.forEach(newItem => {
         const exists = [...state.runGroupAddedData,...state.runGroupGetData].some(existingItem => existingItem.CustomerNumber === newItem.CustomerNumber);
-        console.log("🚀 ~ state.runGroupAddedDat:", state.runGroupAddedData)
-        console.log("🚀 ~ exists:", exists)
         if (!exists) {
           state.runGroupAddedData.push(newItem);
         }

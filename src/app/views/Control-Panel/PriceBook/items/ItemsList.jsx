@@ -445,7 +445,7 @@ const ItemList = () => {
                 onChange={handleSelectionAddPriceListData}
                 label="Select Existing Price List"
                 companyID={companyID} // Pass companyID to the component
-                url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${user.companyCode}`}
+                url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${addcompany ? addcompany.Code : ""}`}
                 onOpen={handleOpen} // Trigger handleOpen when autocomplete opens
               />
               <Button

@@ -71,13 +71,17 @@ import { QuotePriceListDocument } from "app/components/Template/pdfs/QuotePriceL
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { exportToExcelQuotePriceBook } from "app/components/Template/Excel";
 import {
+  getQuoteExcel,
+  getQuotePdf,
   getQuotePriceList,
+  mailSendQuote,
   quoteClearState,
   updateDelayedQuotePriceBook,
 } from "app/redux/slice/priceListSlice";
 import LoadingApiDialog, {
   PriceGroupAlertApiDialog,
   QuoteTempAlertApiDialog,
+  ViewPriceLoadingApiDialog,
 } from "app/components/LoadindgDialog";
 import {
   DataGrid,
@@ -186,6 +190,19 @@ export default function BuildCustomPriceBook() {
     (state) => state.getSlice.getQuteFiltError
   );
 
+  const quotePriceStatus = useSelector(
+    (state) => state.priceList.quotePriceStatus
+  );
+
+  const quotePriceMessage = useSelector(
+    (state) => state.priceList.quotePriceMessage
+  );
+
+  const quoteError = useSelector((state) => state.priceList.quoteError);
+
+  const quotePriceLoading = useSelector(
+    (state) => state.priceList.quotePriceLoading
+  );
   const handleMailNavigate = () => {
     toast.error("Under Construction");
     // navigate("/sent-mail", { state: { screenName: "Quote" } });
@@ -500,8 +517,10 @@ export default function BuildCustomPriceBook() {
         PriceLevel: getQuoteHeaderData.PriceLevel,
         CustomerName: "",
         CustomerNumber: "",
-        ShowPrice:values.isShowPrice,
-        CurrentDate:getQuoteHeaderData.CurrentDate,
+        ShowPrice: values.isShowPrice,
+        CurrentDate: getQuoteHeaderData.CurrentDate,
+        PreferedPdf: getQuoteHeaderData.PreferedPdf,
+        PreferedExcel: getQuoteHeaderData.PreferedExcel,
       };
 
       const response = await dispatch(quoteInfoData({ data }));
@@ -639,6 +658,132 @@ export default function BuildCustomPriceBook() {
       setDeleteID(0);
     }
   };
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  function downloadPDFBytes(byteString, fileName, typeFormate, values) {
+    // Decode the base64 string into binary data
+    const byteCharacters = atob(byteString); // Decode base64 to binary string
+    const byteNumbers = Array.from(byteCharacters).map((char) =>
+      char.charCodeAt(0)
+    ); // Convert binary string to byte array
+    const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+    // Create a Blob from the byte array
+    const blob = new Blob([byteArray], { type: "application/pdf" });
+
+    // Create a temporary URL for the Blob
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Create a temporary <a> element for downloading
+    if (typeFormate === "PDF") {
+      // Create a temporary <a> element for downloading
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `${getQuoteHeaderData.Name}_Quote_${sunday} TO ${saturday}.pdf`;
+
+      // Append the link to the document and trigger the download
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } else {
+      window.open(blobUrl, "_blank");
+    }
+  }
+  const getPdf = async (typeFormate) => {
+    setIsGenerating(true);
+    const res = await dispatch(
+      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID })
+    );
+
+    if (res.payload.status === "Y") {
+      setTimeout(() => {
+        setIsGenerating(false);
+        downloadPDFBytes(res.payload.Path, "GeneratedFile.pdf", typeFormate);
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        setIsGenerating(false);
+      }, 2000);
+    }
+  };
+
+  const getExcel = async (typeFormate) => {
+    setIsGenerating(true);
+    const res = await dispatch(
+      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID })
+    );
+
+    if (res.payload.status === "Y") {
+      setTimeout(() => {
+        setIsGenerating(false);
+        const byteCharacters = atob(res.payload.Path); // Decode base64 to binary string
+        const byteNumbers = Array.from(byteCharacters).map((char) =>
+          char.charCodeAt(0)
+        ); // Convert binary string to byte array
+        const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+        // Create a Blob from the byte array
+        const blob = new Blob([byteArray], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
+        });
+
+        // Create a temporary URL for the Blob
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Create a temporary <a> element for downloading
+
+        // Create a temporary <a> element for downloading
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = `${getQuoteHeaderData.CustomerName}_Quote_${sunday} TO ${saturday}.xlsx`;
+
+        // Append the link to the document and trigger the download
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        setIsGenerating(false);
+      }, 2000);
+    }
+  };
+
+  const [openAlert9, setOpenAlert9] = useState(false);
+  const [postError9, setPostError9] = useState(null);
+  const fnQuoteSendMail = async () => {
+    const data = {
+      RecordID: 0,
+      CompanyID: user.companyID,
+      CompanyCode: getQuoteHeaderData.CompanyCode,
+      HeaderID: getQuoteHeaderData.RecordID,
+      UserID: user.id,
+      TemplateID: 0,
+    };
+    console.log("🚀 ~ data ~ data:", data);
+
+    try {
+      const response = await dispatch(mailSendQuote(data));
+
+      if (response.payload.status === "Y") {
+        setOpenAlert9(true);
+      } else {
+        setOpenAlert9(true);
+        setPostError9(response.payload.message);
+      }
+    } catch (error) {
+      setOpenAlert9(true);
+      setPostError9("An error occurred while sending the email. Please retry.");
+      console.error("Error during HandleSave:", error);
+    }
+  };
   return (
     <Container>
       <Box
@@ -649,38 +794,39 @@ export default function BuildCustomPriceBook() {
       >
         <Box className="breadcrumb">
           <Breadcrumb
-            routeSegments={[{ name: "Price Book" },{ name: "New Prospect" },{ name: "Quote" }]}
+            routeSegments={[
+              { name: "Price Book" },
+              { name: "New Prospect" },
+              { name: "Quote" },
+            ]}
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
-          {params.mode ==="view" ?(
-             <Button
-             variant="contained"
-             color="info"
-             size="small"
-             startIcon={<ArrowBackIcon size="small" />}
-             onClick={() =>
-               navigate("/pages/pricing-portal/saved-quote-list")
-             }
-           >
-             Back
-           </Button>
-          ):(
+          {params.mode === "view" ? (
             <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<ArrowBackIcon size="small" />}
-            onClick={() =>
-              navigate("/pages/pricing-portal/new-quote/view", {
-                state: { headerID: state.headerID },
-              })
-            }
-          >
-            Back
-          </Button>
+              variant="contained"
+              color="info"
+              size="small"
+              startIcon={<ArrowBackIcon size="small" />}
+              onClick={() => navigate("/pages/pricing-portal/saved-quote-list")}
+            >
+              Back
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              startIcon={<ArrowBackIcon size="small" />}
+              onClick={() =>
+                navigate("/pages/pricing-portal/new-quote/view", {
+                  state: { headerID: state.headerID },
+                })
+              }
+            >
+              Back
+            </Button>
           )}
-         
         </Box>
       </Box>
 
@@ -696,7 +842,7 @@ export default function BuildCustomPriceBook() {
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
             PriceLists: getQuteFiltData.PriceListID,
             adHocItems: [],
-            isShowPrice:getQuoteHeaderData.ShowPrice,
+            isShowPrice: getQuoteHeaderData.ShowPrice,
           }}
           validate={(values) => {
             const errors = {};
@@ -786,7 +932,7 @@ export default function BuildCustomPriceBook() {
                       <FormControlLabel
                         control={
                           <Checkbox
-                          name="isShowPrice"
+                            name="isShowPrice"
                             checked={values.isShowPrice} // Controlled checkbox state
                             onChange={handleChange} // Update state on change
                             sx={{
@@ -802,7 +948,6 @@ export default function BuildCustomPriceBook() {
                       <Stack direction="row" alignItems={"flex-end"}>
                         <Tooltip title="PDF" placement="top">
                           <CustomIconButton
-                            // disabled={true}
                             sx={{
                               bgcolor: theme.palette.primary.main, // Use sx for styling
                               color: "white", // Ensure icon button text color is visible
@@ -811,7 +956,7 @@ export default function BuildCustomPriceBook() {
                               },
                             }}
                             aria-label="pdf"
-                            onClick={() => toast.error("Under Construction")}
+                            onClick={() => getPdf("PDF")}
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -821,7 +966,7 @@ export default function BuildCustomPriceBook() {
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
-                            onClick={() => toast.error("Under Construction")}
+                            onClick={getExcel}
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -830,12 +975,7 @@ export default function BuildCustomPriceBook() {
                         <Tooltip title="Print" placement="top">
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
-                            onClick={() => toast.error("Under Construction")}
-                            component="a"
-                            aria-label="print"
-                            // href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            onClick={() => getPdf("PRINT")}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -846,7 +986,7 @@ export default function BuildCustomPriceBook() {
                             bgcolor={theme.palette.error.main}
                             aria-label="mail"
                             // disabled={true}
-                            onClick={handleMailNavigate}
+                            onClick={fnQuoteSendMail}
                           >
                             <IoIosMailOpen style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -1459,6 +1599,50 @@ export default function BuildCustomPriceBook() {
                       </Button>
                     </Box>
                   }
+                />
+                <PriceGroupAlertApiDialog
+                logo={`data:image/png;base64,${user.logo}`}
+                  open={openAlert9}
+                  error={postError9}
+                  message={
+                    postError9
+                      ? postError9
+                      : "Customer will receive their Price Book shortly"
+                  }
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+
+                        justifyContent: "flex-end",
+
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setOpenAlert9(false);
+
+                          setTimeout(() => {
+                            setPostError9(null);
+                          }, 1000);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
+                />
+                <ViewPriceLoadingApiDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isGenerating}
+                  message={quotePriceMessage}
+                  loading={quotePriceLoading}
+                  error={quoteError}
                 />
               </Box>{" "}
             </form>

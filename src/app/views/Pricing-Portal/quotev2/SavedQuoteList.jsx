@@ -6,8 +6,9 @@ import {
   Button,
   styled,
   useTheme,
-  Stack,Tooltip,
-  IconButton
+  Stack,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
@@ -32,11 +33,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
 import { getProspectListData } from "app/redux/slice/getSlice";
 import { deleteQuote } from "app/redux/slice/postSlice";
-import { PriceGroupAlertApiDialog, QuoteTempAlertApiDialog } from "app/components/LoadindgDialog";
+import {
+  PriceGroupAlertApiDialog,
+  QuoteTempAlertApiDialog,
+} from "app/components/LoadindgDialog";
 import { useState } from "react";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -86,7 +90,7 @@ const SavedQuoteList = () => {
   const columns = [
     {
       headerName: "Date",
-      field: "FromDate",
+      field: "CurrentDate",
       width: "100",
       align: "left",
       headerAlign: "left",
@@ -115,51 +119,50 @@ const SavedQuoteList = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-           <Tooltip title="Copy">
-  <IconButton
-    color="black"
-    size="small"
-    onClick={() => {
-      navigate("/pages/pricing-portal/new-quote/copy", {
-        state: {
-          headerID: params.row.RecordID,
-        },
-      });
-    }}
-  >
-    <ContentCopyIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
+            <Tooltip title="Copy">
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() => {
+                  navigate("/pages/pricing-portal/new-quote/copy", {
+                    state: {
+                      headerID: params.row.RecordID,
+                    },
+                  });
+                }}
+              >
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-<Tooltip title="View">
-  <IconButton
-    color="black"
-    size="small"
-    onClick={() => {
-      navigate("/pages/pricing-portal/new-quote/view/build-quote", {
-        state: {
-          headerID: params.row.RecordID,
-        },
-      });
-    }}
-  >
-    <VisibilityIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
+            <Tooltip title="View">
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() => {
+                  navigate("/pages/pricing-portal/new-quote/view/build-quote", {
+                    state: {
+                      headerID: params.row.RecordID,
+                    },
+                  });
+                }}
+              >
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-<Tooltip title="Delete">
-  <IconButton
-    color="error"
-    size="small"
-    onClick={() => {
-      setDeleteID(params.row.RecordID);
-      setIsRemoveItem(true);
-    }}
-  >
-    <DeleteIcon fontSize="small" />
-  </IconButton>
-</Tooltip>
-
+            <Tooltip title="Delete">
+              <IconButton
+                color="error"
+                size="small"
+                onClick={() => {
+                  setDeleteID(params.row.RecordID);
+                  setIsRemoveItem(true);
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         );
       },
@@ -332,7 +335,11 @@ const SavedQuoteList = () => {
           key={23131}
           open={openAlert6}
           error={postError6}
-          message={postError6 ? "Quote not deleted! and Please retry":"Quote deleted successfully"}
+          message={
+            postError6
+              ? "Quote not deleted! and Please retry"
+              : "Quote deleted successfully"
+          }
           Actions={
             <Box
               sx={{
