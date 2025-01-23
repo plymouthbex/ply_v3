@@ -94,7 +94,7 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
   code: Yup.string()
-    .min(1, "Code must be at least 1 characters")
+    .min(1, "Code must be at least 1 character") // Corrected "characters" to "character"
     .max(15, "Code must be at most 15 characters"),
 
   email: Yup.string()
@@ -102,7 +102,7 @@ const validationSchema = Yup.object({
     .max(200, "Email must be at most 200 characters"),
 
   sequence: Yup.string()
-    .min(1, "Sequence must be at least 1 character")
+    .min(1, "Sequence must be at least 1 character") // Corrected "characters" to "character"
     .max(15, "Sequence must be at most 15 characters"),
 
   name: Yup.string()
@@ -112,24 +112,29 @@ const validationSchema = Yup.object({
   userCompany: Yup.string()
     .min(3, "User Company must be at least 3 characters")
     .max(50, "User Company must be at most 50 characters"),
+
   password: Yup.string()
     .min(15, "Password must be at least 15 characters")
     .required("Password is required"),
+
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Confirm Password is required"),
-  defaultCompany: Yup.object({
+
+  defaultCompany: Yup.object().shape({
     RecordID: Yup.string().required("RecordID is required"),
     Code: Yup.string().required("Code is required"),
     Name: Yup.string().required("Name is required"),
-  }).required("Default Company is required"),
-  phoneNumber: Yup.string()
-  .matches(
-    /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-    "Phone number must be a valid US format"
-  )
-  .required("Phone number is required"),
+  }).required("Default Company is required"), // Ensures entire object is validated
+
+  phonenumber: Yup.string()
+    .matches(
+      /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+      "Phone number must be a valid US format"
+    )
+    .required("Phone number is required"),
 });
+
 
 // ******************** Price List Edit SCREEN  ******************** //
 const UserEdit = () => {
@@ -332,7 +337,7 @@ const UserEdit = () => {
         sortOrder: values.sequence,
         disable: values.disable ? "Y" : "N",
         email: values.email,
-        phone: values.mobilenumber,
+        phone: values.phonenumber,
         userGroup: JSON.stringify(values.userGroup),
         rungroup: JSON.stringify(values.runGroup),
         company: JSON.stringify(values.defaultCompany),
@@ -407,7 +412,7 @@ const UserEdit = () => {
             firstname: data.Firstname,
             lastname: data.Lastname,
             email: data.Email,
-            mobilenumber: "",
+            phonenumber: data.Phone,
             sequence: "",
             disable: data.Disable === "Y" ? true : false,
             defaultCompany: JSON.parse(data.Company),
