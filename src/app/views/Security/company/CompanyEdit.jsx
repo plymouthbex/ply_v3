@@ -254,6 +254,7 @@ const CompanyEdit = () => {
 
       const imageresponse1 = await dispatch(postImage({ idata }));
       if (imageresponse1.payload?.Status === "Y") {
+        setImageList1([]);
         toast.success("General Full Price Book updated successfully!");
       } else {
         toast.error("Please select Logo");
@@ -278,6 +279,7 @@ const CompanyEdit = () => {
 
       const imageresponse2 = await dispatch(postImage({ idata }));
       if (imageresponse2.payload?.Status === "Y") {
+        setImageList2([]);
         toast.success("Customer Custom Price Book updated successfully!");
       } else {
         toast.error("Please select Logo");
@@ -302,6 +304,7 @@ const CompanyEdit = () => {
       };
 
       const imageresponse3 = await dispatch(postImage({ idata }));
+      setImageList3([]);
       if (imageresponse3.payload?.Status === "Y") {
         toast.success("Customer Full Price Book updated successfully!");
       } else {

@@ -73,7 +73,7 @@ const Container = styled("div")(({ theme }) => ({
 
 const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   height: 70,
-  width: "100%",
+  width: "200px",
   cursor: "pointer",
   borderRadius: "4px",
   marginBottom: "16px",
@@ -87,12 +87,14 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
     )}, 0.2) !important`,
   },
   background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
+  // alignItems:"center",
+  // justifyItems:"center"
 }));
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
   code: Yup.string()
-    .min(1, "Code must be at least 1 characters")
+    .min(1, "Code must be at least 1 character") // Corrected "characters" to "character"
     .max(15, "Code must be at most 15 characters"),
 
   email: Yup.string()
@@ -100,7 +102,7 @@ const validationSchema = Yup.object({
     .max(200, "Email must be at most 200 characters"),
 
   sequence: Yup.string()
-    .min(1, "Sequence must be at least 1 character")
+    .min(1, "Sequence must be at least 1 character") // Corrected "characters" to "character"
     .max(15, "Sequence must be at most 15 characters"),
 
   name: Yup.string()
@@ -110,18 +112,29 @@ const validationSchema = Yup.object({
   userCompany: Yup.string()
     .min(3, "User Company must be at least 3 characters")
     .max(50, "User Company must be at most 50 characters"),
+
   password: Yup.string()
     .min(15, "Password must be at least 15 characters")
     .required("Password is required"),
+
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Confirm Password is required"),
-  defaultCompany: Yup.object({
+
+  defaultCompany: Yup.object().shape({
     RecordID: Yup.string().required("RecordID is required"),
     Code: Yup.string().required("Code is required"),
     Name: Yup.string().required("Name is required"),
-  }).required("Default Company is required"),
+  }).required("Default Company is required"), // Ensures entire object is validated
+
+  phonenumber: Yup.string()
+    .matches(
+      /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+      "Phone number must be a valid US format"
+    )
+    .required("Phone number is required"),
 });
+
 
 // ******************** Price List Edit SCREEN  ******************** //
 const UserEdit = () => {
@@ -324,7 +337,7 @@ const UserEdit = () => {
         sortOrder: values.sequence,
         disable: values.disable ? "Y" : "N",
         email: values.email,
-        phone: values.mobilenumber,
+        phone: values.phonenumber,
         userGroup: JSON.stringify(values.userGroup),
         rungroup: JSON.stringify(values.runGroup),
         company: JSON.stringify(values.defaultCompany),
@@ -336,6 +349,7 @@ const UserEdit = () => {
       // return;
       const response = await dispatch(userPost({ userData }));
       if (response.payload.status === "Y") {
+        setImageList1([]);
         setOpenAlert(true);
       } else {
         setOpenAlert(true);
@@ -398,7 +412,7 @@ const UserEdit = () => {
             firstname: data.Firstname,
             lastname: data.Lastname,
             email: data.Email,
-            mobilenumber: "",
+            phonenumber: data.Phone,
             sequence: "",
             disable: data.Disable === "Y" ? true : false,
             defaultCompany: JSON.parse(data.Company),
@@ -596,10 +610,10 @@ const UserEdit = () => {
                     type="text"
                     id="phonenumber"
                     name="phonenumber"
-                    // required
-                    // InputLabelProps={{
-                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    // }}
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     label="Phone"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
@@ -607,8 +621,8 @@ const UserEdit = () => {
                     onChange={handleChange}
                       autoComplete="off"
                     onBlur={handleBlur}
-                    // error={touched.phonenumber && Boolean(errors.phonenumber)}
-                    // helperText={touched.phonenumber && errors.phonenumber}
+                    error={touched.phonenumber && Boolean(errors.phonenumber)}
+                    helperText={touched.phonenumber && errors.phonenumber}
                   />
                     {/* <TextField
                     fullWidth
@@ -757,44 +771,49 @@ sx={{ width:"20px"}}
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
-                    <CardContent>
-                      <Stack spacing={2} sx={{ alignItems: "center" }}>
-                        <div>
-                          <Avatar
-                            src={
-                              previewImages1.length > 0
-                                ? previewImages1[0]["preview"]
-                                : `data:image/png;base64,${data.UserProfileImage}`
-                            }
-                            sx={{ height: "80px", width: "80px" }}
-                          />
-                        </div>
-                        <Stack spacing={1} sx={{ textAlign: "center" }}>
-                          <Typography variant="h5">
-                            {values.firstname} {values.lastname}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                    <Divider />
-                    <CardActions>
-                      <DropZone {...dropzoneProps1.getRootProps()}>
-                        <input {...dropzoneProps1.getInputProps()} />
-                        <FlexBox alignItems="center" flexDirection="column">
-                          <Publish
-                            sx={{ color: "text.secondary", fontSize: "48px" }}
-                          />
-                          {imageList1.length ? (
-                            <span>
-                              {imageList1.length} images were selected
-                            </span>
-                          ) : (
-                            <span>Upload image</span>
-                          )}
-                        </FlexBox>
-                      </DropZone>
-                    </CardActions>
-                  </Card>
+  <CardContent>
+    <Stack spacing={2} sx={{ alignItems: "center" }}>
+      <div>
+        <Avatar
+          src={
+            previewImages1.length > 0
+              ? previewImages1[0]["preview"]
+              : `data:image/png;base64,${data.UserProfileImage}`
+          }
+          sx={{ height: "80px", width: "80px" }}
+        />
+      </div>
+      <Stack spacing={1} sx={{ textAlign: "center" }}>
+        <Typography variant="h5">
+          {values.firstname} {values.lastname}
+        </Typography>
+      </Stack>
+    </Stack>
+  </CardContent>
+  <Divider />
+  
+  <CardActions
+  sx={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  <DropZone {...dropzoneProps1.getRootProps()}>
+    <input {...dropzoneProps1.getInputProps()} />
+    <FlexBox alignItems="center" flexDirection="column">
+      <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+      {imageList1.length ? (
+        <span>{imageList1.length} images were selected</span>
+      ) : (
+        <span>Upload image</span>
+      )}
+    </FlexBox>
+  </DropZone>
+</CardActions>
+
+</Card>
+
                 </Box>
                 {/* <Box
                   sx={{
@@ -984,6 +1003,7 @@ sx={{ width:"20px"}}
                 onClick={() => {
                   dispatch(getUserData({ ID: 0 }));
                   setPreviewImages1([]);
+                  setImageList1([]);
                   setOpenAlert(false);
                 }}
                 autoFocus

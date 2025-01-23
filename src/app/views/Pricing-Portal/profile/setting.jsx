@@ -298,6 +298,7 @@ const Settings = () => {
 
       const imageresponse1 = await dispatch(postImage({ idata }));
       if (imageresponse1.payload?.Status === "Y") {
+        setImageList1([]);
         toast.success("Plymouth Logo updated successfully!");
       } else {
         toast.error("Please select Logo");
@@ -318,6 +319,7 @@ const Settings = () => {
 
       const imageresponse2 = await dispatch(postImage({ idata }));
       if (imageresponse2.payload?.Status === "Y") {
+        setImageList2([]);
         toast.success("S and J Logo updated successfully!");
       } else {
         toast.error("Please select Logo");
@@ -339,6 +341,7 @@ const Settings = () => {
       const imageresponse3 = await dispatch(postImage({ idata }));
 
       if (imageresponse3.payload?.Status === "Y") {
+        setImageList3([]);
         toast.success("Nicky Logo updated successfully!");
       } else {
         toast.error("Please select Logo");

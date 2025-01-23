@@ -59,6 +59,7 @@ import {
 import { deleteUserGroupData, userGroupPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
+import toast from "react-hot-toast";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -256,13 +257,24 @@ const UserGroupEdit = () => {
   const HandleSave = async (values) => {
     
     // if (selectedRows.length === 0) {
+     
     //   setOpenCompanyyAlert(true);
     //   return; // Exit the function if no rows are selected
     // }
-    // if (selectedAppRows.length === 0) {
-    //   setOpenAppAlert(true);
-    //   return; // Exit the function if no rows are selected
-    // }
+    const hasSelectedCompany = selectedRows.some(
+      (row) => row.IsSelected === "Y"
+    );
+  
+    const hasPreSelectedCompany = CompanyRows.some(
+      (company) => company.IsSelected === "Y"
+    );
+  
+    // If no company is selected in selectedRows and no pre-selected company exists, show a toast alert
+    if (!hasSelectedCompany || !hasPreSelectedCompany) {
+      setOpenCompanyyAlert(true);
+      return; // Stop execution if no company is selected
+    }
+    
     const userGroupData = {
       recordID: data.RecordID,
       name: values.userGroupName,
