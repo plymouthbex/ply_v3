@@ -130,7 +130,7 @@ const validationSchema = Yup.object({
   phonenumber: Yup.string()
     .matches(
       /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-      "Phone number must be a valid US format"
+      "Phone number must be in the format (XXX) XXX-XXXX"
     )
     .required("Phone number is required"),
 });

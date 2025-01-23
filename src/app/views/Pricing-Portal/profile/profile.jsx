@@ -215,7 +215,7 @@ export default function Page() {
     <strong>Phone:</strong>
   </Typography>
   <Typography variant="body2" sx={{ marginLeft: "32px" }}>
-    {user.phone1}
+    {user.userMobile}
   </Typography>
 
   {/* <Typography variant="body1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>

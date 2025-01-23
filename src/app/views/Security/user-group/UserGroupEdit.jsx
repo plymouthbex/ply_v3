@@ -270,7 +270,7 @@ const UserGroupEdit = () => {
     );
   
     // If no company is selected in selectedRows and no pre-selected company exists, show a toast alert
-    if (!hasSelectedCompany || !hasPreSelectedCompany) {
+    if (!hasSelectedCompany) {
       setOpenCompanyyAlert(true);
       return; // Stop execution if no company is selected
     }
