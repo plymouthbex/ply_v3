@@ -801,7 +801,7 @@ export const PriceListOptimizedAutocomplete = ({
 }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error,  ] = useState(null);
+  const [error,setError  ] = useState(null);
 
   // Fetch data when component mounts or URL/CompanyID changes
   useEffect(() => {
