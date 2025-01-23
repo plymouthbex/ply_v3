@@ -121,6 +121,12 @@ const validationSchema = Yup.object({
     Code: Yup.string().required("Code is required"),
     Name: Yup.string().required("Name is required"),
   }).required("Default Company is required"),
+  phoneNumber: Yup.string()
+  .matches(
+    /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+    "Phone number must be a valid US format"
+  )
+  .required("Phone number is required"),
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -596,10 +602,10 @@ const UserEdit = () => {
                     type="text"
                     id="phonenumber"
                     name="phonenumber"
-                    // required
-                    // InputLabelProps={{
-                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    // }}
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
                     label="Phone"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
@@ -607,8 +613,8 @@ const UserEdit = () => {
                     onChange={handleChange}
                       autoComplete="off"
                     onBlur={handleBlur}
-                    // error={touched.phonenumber && Boolean(errors.phonenumber)}
-                    // helperText={touched.phonenumber && errors.phonenumber}
+                    error={touched.phonenumber && Boolean(errors.phonenumber)}
+                    helperText={touched.phonenumber && errors.phonenumber}
                   />
                     {/* <TextField
                     fullWidth
