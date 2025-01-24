@@ -78,6 +78,7 @@ const PrintGroupEdit = () => {
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
   const [isPrintGroupOpen, SetIsPrintGroupOpen] = useState(false);
   const [printGroupID, setPrintGroupID] = useState(0);
   const [isDelete, setIsDelete] = useState(false);
@@ -313,9 +314,21 @@ const PrintGroupEdit = () => {
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
+        setSuccessMessage(response.payload.message)
+        setTimeout(() => {
+          setOpenAlert(false);
+          setSuccessMessage(null);
+          
+        }, 2000);
       } else {
         setOpenAlert(true);
-        setPostError(true);
+        setPostError(response.payload.message);
+  
+        setTimeout(() => {
+          // setOpenAlert(false);
+          setPostError(null);
+        
+        }, 2000);
       }
     } catch (error) {
       console.error("Error during HandleSave:", error);
@@ -330,7 +343,13 @@ const PrintGroupEdit = () => {
           setOpenAlert(true);
         } else {
           setOpenAlert(true);
-          setPostError(true);
+          setPostError(response.payload.message);
+    
+          setTimeout(() => {
+            // setOpenAlert(false);
+            setPostError(null);
+            
+          }, 2000);
         }
       });
       setSubmitting(false);
@@ -736,12 +755,8 @@ const PrintGroupEdit = () => {
         error={postError}
         message={
           postError
-            ? "Something went wrong and please retry"
-            : params.mode === "add"
-            ? "Categories added successfully"
-            : params.mode === "delete"
-            ? "Categories Releived Successfully"
-            : "Categories updated successfully"
+            ? postError
+            : successMessage
         }
         Actions={
           params.mode === "add" ? (
@@ -759,7 +774,7 @@ const PrintGroupEdit = () => {
                 size="small"
                 onClick={() => {
                   navigate("/pages/control-panel/print-group");
-                }}
+              }}
               >
                 Back to Categories
               </Button>
@@ -772,6 +787,7 @@ const PrintGroupEdit = () => {
                   dispatch(getprintGroupData({ id: 0 }));
                   dispatch(clearPrintGroupState());
                   setOpenAlert(false);
+                  setSuccessMessage(null)
                 }}
                 autoFocus
               >

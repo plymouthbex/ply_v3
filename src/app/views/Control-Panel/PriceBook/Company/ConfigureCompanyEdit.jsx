@@ -170,6 +170,7 @@ const ConfigureCompanyEdit = () => {
   const [removePriceListdDesc, setremovePriceListDesc] = useState("");
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
   // ********************** COLUMN ********************** //
   const columns = [
@@ -328,9 +329,10 @@ const ConfigureCompanyEdit = () => {
     const response = await dispatch(postConfigureCompany({ Cdata }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
+      setSuccessMessage(response.payload.message)
     } else {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError(response.payload.message);
     }
   };
 
@@ -801,11 +803,7 @@ const ConfigureCompanyEdit = () => {
         open={openAlert}
         error={postError}
         message={
-          params.mode === "add"
-            ? "Company configuration added successfully."
-            : params.mode === "delete"
-            ? "Company configuration deleted Successfully."
-            : "Company configuration updated successfully."
+          postError?postError:successMessage
         }
         Actions={
           params.mode === "add" ? (
@@ -814,8 +812,10 @@ const ConfigureCompanyEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() =>
-                  navigate("/pages/control-panel/configure-price-book/company")
+                onClick={() =>{
+                  navigate("/pages/control-panel/configure-price-book/company");
+                  setSuccessMessage(null);
+              setPostError(null)}
                 }
               >
                 Back to Configure Company
@@ -827,6 +827,8 @@ const ConfigureCompanyEdit = () => {
                 onClick={() => {
                   dispatch(getConfigPriceBook({ ID: 0 }));
                   setOpenAlert(false);
+                  setSuccessMessage(null);
+                  setPostError(null)
                 }}
                 autoFocus
               >
@@ -839,8 +841,10 @@ const ConfigureCompanyEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() =>
-                  navigate("/pages/control-panel/configure-price-book/company")
+                onClick={() =>{
+                  navigate("/pages/control-panel/configure-price-book/company");
+                setSuccessMessage(null);
+              setPostError(null)}
                 }
               >
                 Back to Configure Company

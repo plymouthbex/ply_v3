@@ -106,6 +106,7 @@ const UserGroupEdit = () => {
   const navigate = useNavigate();
   // ******************** LOCAL STATE ******************** //
   const [postError, setPostError] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [opencompanyAlert, setOpenCompanyyAlert] = useState(false);
@@ -116,6 +117,7 @@ const UserGroupEdit = () => {
   const data = useSelector((state) => state.getSlice.userGroupFormData);
 
   const Companydata = useSelector((state) => state.getSlice.userGroupComRow);
+  console.log("🚀 ~ UserGroupEdit ~ Companydata:", Companydata)
 
   const Applicationdata = useSelector(
     (state) => state.getSlice.userGroupAppRow
@@ -254,58 +256,104 @@ const UserGroupEdit = () => {
   }
   //=======================================SAVE================================//
 
-  const HandleSave = async (values) => {
+  // const HandleSave = async (values) => {
     
-    // if (selectedRows.length === 0) {
-     
-    //   setOpenCompanyyAlert(true);
-    //   return; // Exit the function if no rows are selected
-    // }
+  
+  //   const hasSelectedCompany = selectedRows.some(
+  //     (row) => row.IsSelected === "Y"
+  //   );
+    
+  //   const hasPreSelectedCompany = companyRows.some(
+  //     (company) => company.IsSelected === "Y"
+  //   );
+  //   console.log("🚀 ~ HandleSave ~ hasPreSelectedCompany:", hasPreSelectedCompany)
+    
+  //   // Show the alert only if neither hasSelectedCompany nor hasPreSelectedCompany is true
+  //   if (!hasSelectedCompany && !hasPreSelectedCompany) {
+  //     setOpenCompanyyAlert(true);
+  //     return;
+  //   }
+    
+    
+  //   // if (!hasSelectedMenu) {
+  //   //   setOpenAppAlert(true);
+  //   //   return; 
+  //   // }
+    
+  //   const userGroupData = {
+  //     recordID: data.RecordID,
+  //     name: values.userGroupName,
+  //     code: values.code,
+  //     // companyCode: ,
+  //     type: values.type,
+  //     sortorder: values.sequence,
+  //     disable: values.disable ? "Y" : "N",
+  //     applicationAccess: selectedAppRows,
+  //     companyAccess: selectedRows,
+  //   };
+  //   console.log("🚀 ~ HandleSave ~ userGroupData:", userGroupData);
+  //   const response = await dispatch(userGroupPost({ userGroupData }));
+  //   if (response.payload.status === "Y") {
+  //     setOpenAlert(true);
+  //     setSuccessMessage(response.payload.message);
+  //   } else {
+  //     setOpenAlert(true);
+  //     setPostError(response.payload.message);
+  //     // toast.error("Error occurred while saving data");
+  //   }
+  // };
+  const HandleSave = async (values) => {
     const hasSelectedCompany = selectedRows.some(
       (row) => row.IsSelected === "Y"
     );
   
-    const hasPreSelectedCompany = CompanyRows.some(
-      (company) => company.IsSelected === "Y"
-    );
+    // Check if CompanyData is empty
+    const isCompanyDataEmpty = Companydata.length === 0;
   
-    // If no company is selected in selectedRows and no pre-selected company exists, show a toast alert
-    if (!hasSelectedCompany) {
+    // Debugging logs
+    console.log("🚀 ~ HandleSave ~ CompanyData:", Companydata);
+    console.log("🚀 ~ HandleSave ~ isCompanyDataEmpty:", isCompanyDataEmpty);
+  
+    // Show the alert if no company is selected and CompanyData is empty
+    if (!hasSelectedCompany && isCompanyDataEmpty) {
       setOpenCompanyyAlert(true);
-      return; // Stop execution if no company is selected
+      return;
     }
-    
+    // Prepare data for submission
     const userGroupData = {
       recordID: data.RecordID,
       name: values.userGroupName,
       code: values.code,
-      // companyCode: ,
       type: values.type,
       sortorder: values.sequence,
       disable: values.disable ? "Y" : "N",
       applicationAccess: selectedAppRows,
       companyAccess: selectedRows,
     };
+  
     console.log("🚀 ~ HandleSave ~ userGroupData:", userGroupData);
+  
+    // Dispatch and handle response
     const response = await dispatch(userGroupPost({ userGroupData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
+      setSuccessMessage(response.payload.message);
     } else {
       setOpenAlert(true);
-      setPostError(true);
-      // toast.error("Error occurred while saving data");
+      setPostError(response.payload.message);
     }
   };
-
+  
   // ******************** DELETE ******************** //
   const userGroupDeleteFn = async (values, setSubmitting) => {
     try {
       dispatch(deleteUserGroupData({ ID: data.RecordID })).then((response) => {
         if (response.payload.status === "Y") {
           setOpenAlert(true);
+          setSuccessMessage(response.payload.message)
         } else {
           setOpenAlert(true);
-          setPostError(true);
+          setPostError(response.payload.message);
         }
       });
       // setSubmitting(false);
@@ -854,6 +902,7 @@ const UserGroupEdit = () => {
               size="small"
               onClick={() => {
                setOpenCompanyyAlert(false);
+              
               }}
             >
               Close
@@ -909,6 +958,8 @@ const UserGroupEdit = () => {
               onClick={() => {
                 setIsDelete(false);
                 userGroupDeleteFn();
+                setSuccessMessage(null);
+                        setPostError(null)
               }}
             >
               Yes
@@ -921,6 +972,8 @@ const UserGroupEdit = () => {
               onClick={() => {
                 setIsDelete(false);
                 // setSubmitting(false);
+                setSuccessMessage(null);
+                        setPostError(null)
               }}
             >
               No
@@ -934,12 +987,8 @@ const UserGroupEdit = () => {
         error={postError}
         message={
           postError
-            ? "Something went wrong and please retry"
-            : params.mode === "add"
-            ? "User Group added successfully"
-            : params.mode === "delete"
-            ? "User Group Deleted Successfully"
-            : "User Group updated successfully"
+            ? postError
+            : successMessage
         }
         Actions={
           params.mode === "add" ? (
@@ -955,7 +1004,10 @@ const UserGroupEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/user-group")}
+                onClick={() =>{ navigate("/pages/security/user-group");
+                  setSuccessMessage(null);
+                        setPostError(null)
+                }}
               >
                 Back to UserGroup
               </Button>
@@ -967,6 +1019,8 @@ const UserGroupEdit = () => {
                 onClick={() => {
                   dispatch(getUserGroupData({ ID: 0 }));
                   setOpenAlert(false);
+                  setSuccessMessage(null);
+                        setPostError(null)
                 }}
                 autoFocus
               >
@@ -986,7 +1040,10 @@ const UserGroupEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/user-group")}
+                onClick={() => {navigate("/pages/security/user-group");
+                  setSuccessMessage(null);
+                        setPostError(null)
+                }}
               >
                 Back to UserGroup
               </Button>

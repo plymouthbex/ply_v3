@@ -90,7 +90,7 @@ const Customer = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Contacts">
+            <Tooltip title="Customer Contacts">
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="black"

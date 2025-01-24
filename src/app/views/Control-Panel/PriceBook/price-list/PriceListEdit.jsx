@@ -100,7 +100,7 @@ const PriceListEdit = () => {
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-
+const [successMessage,setSuccessMessage]=useState(false);
   const [showGridData, setShowGridData] = useState(0);
   const [isPriceListOpen, SetIsPriceListOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
@@ -379,6 +379,7 @@ const PriceListEdit = () => {
           dispatch(getPriceListFilterData(filterData));
           if (params.mode === "add") {
             setOpenAlert(true);
+            setSuccessMessage(response.payload.message);
             navigate(
               "/pages/control-panel/price-list/price-list-detail/edit",
               {
@@ -394,7 +395,7 @@ const PriceListEdit = () => {
         } else {
           if (params.mode === "add") {
             setOpenAlert(true);
-            setPostError(true);
+            setPostError(response.payload.message);
           }
         }
       });
@@ -410,9 +411,10 @@ const PriceListEdit = () => {
         (response) => {
           if (response.payload.status === "Y") {
             setOpenAlert(true);
+            setSuccessMessage(response.payload.message);
           } else {
             setOpenAlert(true);
-            setPostError(true);
+            setPostError(response.payload.message);
           }
         }
       );
@@ -896,6 +898,13 @@ const PriceListEdit = () => {
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                     />
+                    
+                  </Stack>
+                  <Stack
+                    sx={{ gridColumn: "span 1" }}
+                    direction="column"
+                    gap={1}
+                  >
                     <FormikOptimizedAutocomplete
                       disabled={
                         params.mode === "delete" || params.mode === "view"
@@ -911,13 +920,7 @@ const PriceListEdit = () => {
                       label="Buyer"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Buyer`}
                     />
-                  </Stack>
-                  <Stack
-                    sx={{ gridColumn: "span 1" }}
-                    direction="column"
-                    gap={1}
-                  >
-                    <FormikOptimizedAutocomplete
+                    {/* <FormikOptimizedAutocomplete
                       disabled={
                         params.mode === "delete" || params.mode === "view"
                           ? true
@@ -931,7 +934,7 @@ const PriceListEdit = () => {
                       }
                       label="Prop Customer"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetCustomer?CompanyCode=PM`}
-                    />
+                    /> */}
                     {/* <FormControlLabel
                       sx={{ height: 37.13 }}
                       control={
@@ -974,7 +977,7 @@ const PriceListEdit = () => {
                     direction="column"
                     gap={1}
                   >
-                    <TextField
+                    {/* <TextField
                       fullWidth
                       variant="outlined"
                       type="text"
@@ -996,7 +999,7 @@ const PriceListEdit = () => {
 
                       //   error={!!touched.comments1 && !!errors.comments1}
                       //   helperText={touched.comments1 && errors.comments1}
-                    />
+                    /> */}
                   </Stack>
                 </Box>
                 <Box
@@ -1548,6 +1551,8 @@ const PriceListEdit = () => {
                       onClick={() => {
                         setIsDelete(false);
                         priceListDeleteFn();
+                        setSuccessMessage(null);
+                        setPostError(null);
                       }}
                     >
                       Yes
@@ -1560,6 +1565,8 @@ const PriceListEdit = () => {
                       onClick={() => {
                         setIsDelete(false);
                         setSubmitting(false);
+                        setSuccessMessage(null);
+                        setPostError(null);
                       }}
                       autoFocus
                     >
@@ -1657,12 +1664,8 @@ const PriceListEdit = () => {
         error={postError}
         message={
           postError
-            ? "Error! while saving please try again"
-            : params.mode === "add"
-            ? "Price List saved successfully"
-            : params.mode === "delete"
-            ? "Pricel List deleted successfully"
-            : "Price List saved successfully"
+            ?postError
+            :successMessage
         }
         Actions={
           params.mode === "add" ? (
@@ -1715,8 +1718,8 @@ const PriceListEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  // navigate(-1);
-                  // dispatch(clearPriceListState());
+                  setSuccessMessage(null);
+                  setPostError(null);
                   setOpenAlert(false);
                 }}
               >
@@ -1731,6 +1734,8 @@ const PriceListEdit = () => {
                   navigate("/pages/control-panel/price-list");
                   dispatch(clearPriceListState());
                   setOpenAlert(false);
+                  setSuccessMessage(null);
+                  setPostError(null);
                 }}
               >
                 Back To Price List

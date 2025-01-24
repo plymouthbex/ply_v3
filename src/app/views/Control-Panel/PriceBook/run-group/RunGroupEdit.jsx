@@ -75,6 +75,8 @@ const RunGroupEdit = () => {
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(false);
+  
   const [isRunGroupOpen, SetIsRunGroupOpen] = useState(false);
   const [RunGroupID, setRunGroupID] = useState(0);
   const [isDelete, setIsDelete] = useState(false);
@@ -386,13 +388,14 @@ const RunGroupEdit = () => {
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
+        setSuccessMessage(response.payload.message);
         if(params.mode === "add"){
 
           dispatch(getRunGroupData({ id: response.payload.RecordID }));
         }
       } else {
         setOpenAlert(true);
-        setPostError(true);
+        setPostError(response.payload.message);
       }
     } catch (error) {
       console.error("Error during HandleSave:", error);
@@ -405,9 +408,10 @@ const RunGroupEdit = () => {
       dispatch(runGroupDelete({ id: data.RecordId })).then((response) => {
         if (response.payload.status === "Y") {
           setOpenAlert(true);
+          setSuccessMessage(response.payload.message);
         } else {
           setOpenAlert(true);
-          setPostError(true);
+          setPostError(response.payload.message);
         }
       });
       setSubmitting(false);
@@ -738,6 +742,8 @@ const RunGroupEdit = () => {
                       onClick={() => {
                         setIsDelete(false);
                         runGroupDeleteFn();
+                        setSuccessMessage(null);
+                        setPostError(null)
                       }}
                     >
                       Yes
@@ -750,6 +756,8 @@ const RunGroupEdit = () => {
                       onClick={() => {
                         setIsDelete(false);
                         setSubmitting(false);
+                        setSuccessMessage(null);
+                        setPostError(null)
                       }}
                       autoFocus
                     >
@@ -819,12 +827,7 @@ const RunGroupEdit = () => {
         error={postError}
         message={
           postError
-            ? "Something went wrong and please retry"
-            : params.mode === "add"
-            ? "Price Book Group added successfully"
-            : params.mode === "delete"
-            ? "Price Book Group deleted Successfully"
-            : "Price Book Group updated successfully"
+            ? postError:successMessage
         }
         Actions={
           <Box
@@ -841,6 +844,8 @@ const RunGroupEdit = () => {
             size="small"
             onClick={() => {
               setOpenAlert(false);
+              setSuccessMessage(null);
+              setPostError(null)
             }}
           >
             close

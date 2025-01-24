@@ -264,6 +264,10 @@ const Contact = () => {
               // path: "/pages/control-panel/configure-price-book/company",
             },
             {
+              name: "Configure Price Book",
+              // path: "/pages/control-panel/configure-price-book/company",
+            },
+            {
               name: "Customer",
               path: "/pages/control-panel/configure-price-book/customer",
             },
