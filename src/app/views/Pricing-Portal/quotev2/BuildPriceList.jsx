@@ -703,10 +703,10 @@ export default function BuildCustomPriceBook() {
       window.open(blobUrl, "_blank");
     }
   }
-  const getPdf = async (typeFormate) => {
+  const getPdf = async (typeFormate,values) => {
     setIsGenerating(true);
     const res = await dispatch(
-      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID })
+      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID, ShowPrice:values.isShowPrice})
     );
 
     if (res.payload.status === "Y") {
@@ -721,10 +721,10 @@ export default function BuildCustomPriceBook() {
     }
   };
 
-  const getExcel = async (typeFormate) => {
+  const getExcel = async (values) => {
     setIsGenerating(true);
     const res = await dispatch(
-      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID })
+      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
     );
 
     if (res.payload.status === "Y") {
@@ -1134,7 +1134,7 @@ export default function BuildCustomPriceBook() {
                       variant="standard"
                     >
                       <FormLabel focused={false} component="legend">
-                        Preferred Communication
+                        Preferred Format
                       </FormLabel>
                       <Stack direction="row" gap={2}>
                         <FormControlLabel

@@ -693,10 +693,10 @@ export default function BuildCustomPriceBook() {
       window.open(blobUrl, "_blank");
     }
   }
-  const getPdf = async (typeFormate) => {
+  const getPdf = async (typeFormate,values) => {
     setIsGenerating(true);
     const res = await dispatch(
-      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID })
+      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
     );
 
     if (res.payload.status === "Y") {
@@ -711,10 +711,10 @@ export default function BuildCustomPriceBook() {
     }
   };
 
-  const getExcel = async (typeFormate) => {
+  const getExcel = async (typeFormate,values) => {
     setIsGenerating(true);
     const res = await dispatch(
-      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID })
+      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
     );
 
     if (res.payload.status === "Y") {
@@ -956,7 +956,7 @@ export default function BuildCustomPriceBook() {
                               },
                             }}
                             aria-label="pdf"
-                            onClick={() => getPdf("PDF")}
+                            onClick={() => getPdf("PDF",values)}
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -966,7 +966,7 @@ export default function BuildCustomPriceBook() {
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
-                            onClick={getExcel}
+                            onClick={()=>getExcel(values)}
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -975,7 +975,7 @@ export default function BuildCustomPriceBook() {
                         <Tooltip title="Print" placement="top">
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
-                            onClick={() => getPdf("PRINT")}
+                            onClick={() => getPdf("PRINT",values)}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
