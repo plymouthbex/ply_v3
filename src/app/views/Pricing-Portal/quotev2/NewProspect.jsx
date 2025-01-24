@@ -225,8 +225,8 @@ const NewProspect = () => {
             serviceProvider: getQuoteProspectInfoData.Provider,
             salesRepName: getQuoteProspectInfoData.Salesrepresentative,
             customer: getQuoteProspectInfoData.CustomerNumber,
-            PreferedPdf: getQuoteProspectInfoData.PreferedPdf,
-            PreferedExcel: getQuoteProspectInfoData.PreferedExcel,
+            PreferedPdf: getQuoteProspectInfoData.RecordID? getQuoteProspectInfoData.PreferedPdf :true,
+            PreferedExcel: getQuoteProspectInfoData.RecordID? getQuoteProspectInfoData.PreferedExcel :true,
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
               : null,
@@ -582,7 +582,7 @@ const NewProspect = () => {
                           onChange={handleChange}
                           />
                         }
-                        label="Email"
+                        label="Pdf"
                       />
                       <FormControlLabel
                         control={
