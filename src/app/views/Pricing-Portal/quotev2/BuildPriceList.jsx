@@ -845,8 +845,8 @@ export default function BuildCustomPriceBook() {
                 }
               : null,
             isShowPrice: getQuoteHeaderData.ShowPrice,
-            PreferedPdf: getQuoteHeaderData.PreferedPdf,
-            PreferedExcel: getQuoteHeaderData.PreferedExcel,
+            PreferedPdf: getQuoteHeaderData.RecordID ? getQuoteHeaderData.PreferedPdf :true,
+            PreferedExcel: getQuoteHeaderData.RecordID ? getQuoteHeaderData.PreferedExcel:true,
             CurrentDate:
               getQuoteHeaderData.CurrentDate || getCurrentDateForInput(),
             brand: JSON.parse(getQuteFiltData.Brand.Value),

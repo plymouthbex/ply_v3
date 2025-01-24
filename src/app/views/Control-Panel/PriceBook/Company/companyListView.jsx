@@ -203,6 +203,7 @@ const Company = () => {
         <Breadcrumb
           routeSegments={[
             { name: "Control Panel" },
+            { name: "Configure Price Book" },
             { name: "Company" },
           ]}
         />

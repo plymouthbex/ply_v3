@@ -341,6 +341,7 @@ const PrintGroupEdit = () => {
       dispatch(deletePrintGroupData({ ID: data.RecordId })).then((response) => {
         if (response.payload.status === "Y") {
           setOpenAlert(true);
+          setSuccessMessage(response.payload.message);
         } else {
           setOpenAlert(true);
           setPostError(response.payload.message);
