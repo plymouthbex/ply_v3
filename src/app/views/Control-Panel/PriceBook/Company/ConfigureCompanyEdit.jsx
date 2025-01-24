@@ -33,6 +33,8 @@ import {
   dataGridHeightC,
   dataGridRowHeight,
   dataGridHeaderFooterHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
 } from "app/utils/constant";
 
 // ******************** ICONS ******************** //
@@ -65,6 +67,8 @@ import {
 } from "app/redux/slice/postSlice";
 import toast from "react-hot-toast";
 import useAuth from "app/hooks/useAuth";
+import { CompanyPriceListAutoComplete, CompanyPriceListAutoCompleteMemo } from "app/components/FormikAutocomplete";
+import { useMemo } from "react";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -130,7 +134,7 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
 // ******************** Price List Edit SCREEN  ******************** //
 const ConfigureCompanyEdit = () => {
   // ******************** HOOKS AND CONSTANTS ******************** //
-  const { user }  = useAuth()
+  const { user } = useAuth();
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const params = useParams();
@@ -141,14 +145,8 @@ const ConfigureCompanyEdit = () => {
   const dispatch = useDispatch();
   // ******************** REDUX_STATE ******************** //
   const data = useSelector((state) => state.getSlice.getconfigureData);
-  const getRows = useSelector(
-    (state) => state.getSlice.configurePriceListGetData
-  );
+  const getRows = useSelector((state) => state.getSlice.configurePriceListGetData);
 
-  const getRowsSet = new Set(getRows.map((item) => item.PRICELISTID));
-  const filteredSelectedItems = getRows.filter(
-    (selectedItem) => !getRowsSet.has(selectedItem.PRICELISTID)
-  );
 
 
   const loading = useSelector((state) => state.getSlice.getconfigureLoading);
@@ -159,8 +157,8 @@ const ConfigureCompanyEdit = () => {
     dispatch(getConfigPriceBook({ ID: State.RecordID }));
   }, [dispatch]);
   // ******************** USE-State ******************** //
-  const [addPriceListData, setAddPriceListData] = useState(null);
-  const handleSelectionAddPriceListData = (newValue) => {
+  const [addPriceListData, setAddPriceListData] = useState([]);
+  const handleSelectionAddPriceListData = (e, newValue) => {
     setAddPriceListData(newValue);
   };
 
@@ -206,7 +204,6 @@ const ConfigureCompanyEdit = () => {
           <div>
             <Box gap={1}>
               <div style={{ display: "flex", gap: "10px" }}>
-
                 <Tooltip title="Exclude Price List">
                   <IconButton
                     color="black"
@@ -228,7 +225,25 @@ const ConfigureCompanyEdit = () => {
     },
   ];
 
-  function CustomToolbar() {
+  const CustomToolBar = React.memo(() => {
+    const handleAddPriceList = () => {
+      if (addPriceListData.length > 0) {
+        // Prepare price data and dispatch the action
+        const pricedata = {
+          recordID: data.RecordID,
+          priceListID: addPriceListData.PRICELISTID,
+        };
+  
+        dispatch(PostConfigurePriceListID({ pricedata }));
+      } else {
+        // Handle case where no price list data is selected
+        setIsPriceListExistsError(true);
+        setTimeout(() => {
+          setIsPriceListExistsError(false);
+        }, 2000);
+      }
+    };
+  
     return (
       <GridToolbarContainer
         sx={{
@@ -250,7 +265,8 @@ const ConfigureCompanyEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <PGOptimizedAutocomplete
+
+          <CompanyPriceListAutoCompleteMemo
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -259,59 +275,31 @@ const ConfigureCompanyEdit = () => {
             value={addPriceListData}
             onChange={handleSelectionAddPriceListData}
             label="Include Price List"
-            url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
+            url={`${
+              process.env.REACT_APP_BASE_URL
+            }PriceListItems/GetPrictListList?CompanyCode=PM`}
           />
-
           <Tooltip title="Add">
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
               size="small"
-              onClick={() => {
-                if (addPriceListData) {
-                  const isItem = [...getRows, ...filteredSelectedItems].some(
-                    (item) =>
-                      lodash.isEqual(
-                        item.PRICELISTID,
-                        addPriceListData.PRICELISTID
-                      )
-                  );
-                  if (isItem) {
-                    setIsPriceListExists(true);
-                    setTimeout(() => {
-                      setIsPriceListExists(false);
-                      setAddPriceListData(null);
-                    }, 5000);
-                    return;
-                  }
-                  dispatch(configureAddedPriceList(addPriceListData));
-                  setAddPriceListData(null);
-                } else {
-                  setIsPriceListExistsError(true);
-                  setTimeout(() => {
-                    setIsPriceListExistsError(false);
-                  }, 2000);
-                }
-
-                const pricedata = {
-                  recordID: data.RecordID,
-                  priceListID: addPriceListData.PRICELISTID,
-                };
-                const response = dispatch(
-                  PostConfigurePriceListID({ pricedata })
-                );
-              }}
+              onClick={handleAddPriceList}
             >
-              <Add sx={{
+              <Add
+                sx={{
                   fontSize: 30, // Increased icon size
                   color: theme.palette.success.main,
-                }} />
+                }}
+              />
             </IconButton>
           </Tooltip>
         </Box>
       </GridToolbarContainer>
     );
-  }
+  });
+  
+
 
   const handleSave = async (values) => {
     const Cdata = {
@@ -334,22 +322,18 @@ const ConfigureCompanyEdit = () => {
     }
   };
 
-  const priceBookLevels =  user.companyCode == "PM" ?
-  [
-    { id: 6, level: "Price Book Level 6" },
-    { id: 7, level: "Price Book Level 7" },
-    { id: 8, level: "Price Book Level 8" },
-    { id: 9, level: "Price Book Level 9" },
-  
-  ]
-  :
-  [
-
-    { id: 8, level: "Price Book Level 8" },
-    { id: 9, level: "Price Book Level 9" },
-  
-  ]
-  ;
+  const priceBookLevels =
+    user.companyCode == "PM"
+      ? [
+          { id: 6, level: "Price Book Level 6" },
+          { id: 7, level: "Price Book Level 7" },
+          { id: 8, level: "Price Book Level 8" },
+          { id: 9, level: "Price Book Level 9" },
+        ]
+      : [
+          { id: 8, level: "Price Book Level 8" },
+          { id: 9, level: "Price Book Level 9" },
+        ];
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -445,24 +429,6 @@ const ConfigureCompanyEdit = () => {
                       </Typography>{" "}
                       {State.Code} || {State.Name}
                     </Typography>
-
-                    {/* <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="code"
-                    name="code"
-                    label="Code"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    // required
-                    value={values.code}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.code && Boolean(errors.code)}
-                    helperText={touched.code && errors.code}
-                    autoFocus
-                  /> */}
                     <TextField
                       fullWidth
                       variant="outlined"
@@ -519,111 +485,8 @@ const ConfigureCompanyEdit = () => {
                         />
                       )}
                     />
-                    {/* <FormControl
-                      sx={{ gridColumn: "span 2" }}
-                      fullWidth
-                      size="small"
-                    >
-                      <InputLabel id="demo-simple-select-label">
-                        Automatic Mail Configuration
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        value={values.provider}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        id="provider"
-                        name="provider"
-                        label="Price Book Type"
-                      >
-                        <MenuItem value={"AT&T"}>User</MenuItem>
-                        <MenuItem value={"V"}>Single Origin</MenuItem>
-                        <MenuItem value={"TM"}>UserGroup</MenuItem>
-                      </Select>
-                    </FormControl> */}
-                    {/* <Stack
-                      sx={{ gridColumn: "span 1" }}
-                      direction="row"
-                      gap={2}
-                    >
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={values.pdf}
-                            onChange={handleChange}
-                            sx={{ height: "10px" }}
-                            disabled={
-                              params.mode === "delete" || params.mode === "view"
-                            }
-                            size="small"
-                            id="pdf"
-                            name="pdf"
-                          />
-                        }
-                        label="PDF"
-                      />
-
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            size="small"
-                            id="excel"
-                            name="excel"
-                            checked={values.excel}
-                            onChange={handleChange}
-                            sx={{ height: "10px" }}
-                            disabled={
-                              params.mode === "delete" || params.mode === "view"
-                            }
-                          />
-                        }
-                        label="EXCEL"
-                      />
-                    </Stack> */}
-                    {/* <FormControlLabel
-                      control={
-                        <Checkbox
-                          size="small"
-                          id="disable"
-                          name="disable"
-                          checked={values.disable}
-                          onChange={handleChange}
-                          sx={{ height: "10px" }}
-                        />
-                      }
-                      label="Disable"
-                    /> */}
+                  
                   </Stack>
-                  {/* <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    gap="20px"
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Typography variant="h5">Price Book Cover Image</Typography>
-                    <SettingsLogo previewImages={previewImages3} />
-                    <DropZone {...dropzoneProps3.getRootProps()}>
-                      <input
-                        {...dropzoneProps3.getInputProps({
-                          onChange: (e) => handleImageUpload3(e.target.files),
-                        })}
-                        multiple={false}
-                      />
-                      <FlexBox alignItems="center" flexDirection="column">
-                        <Publish
-                          sx={{ color: "text.secondary", fontSize: "48px" }}
-                        />
-                        {imageList3.length ? (
-                          <span>{imageList3.length} images selected</span>
-                        ) : (
-                          <span>Drop images</span>
-                        )}
-                      </FlexBox>
-                    </DropZone>
-                  </Box>
-                </Stack> */}
                 </Box>
                 <Box
                   sx={{
@@ -693,18 +556,18 @@ const ConfigureCompanyEdit = () => {
                     }}
                     slots={{
                       loadingOverlay: LinearProgress,
-                      toolbar: CustomToolbar,
+                      toolbar: CustomToolBar,
                     }}
                     rowHeight={dataGridRowHeight}
-                    rows={[...getRows, ...filteredSelectedItems]}
+                    rows={getRows}
                     columns={columns}
                     disableSelectionOnClick
                     disableRowSelectionOnClick
                     getRowId={(row) => row.PRICELISTID}
                     initialState={{
-                      pagination: { paginationModel: { pageSize: 20 } },
+                      pagination: { paginationModel: { pageSize: dataGridPageSize } },
                     }}
-                    pageSizeOptions={[5, 10, 20, 25]}
+                    pageSizeOptions={dataGridpageSizeOptions}
                     columnVisibilityModel={{
                       item_key: false,
                     }}
@@ -854,4 +717,3 @@ const ConfigureCompanyEdit = () => {
 };
 
 export default ConfigureCompanyEdit;
-

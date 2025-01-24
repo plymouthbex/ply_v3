@@ -48,6 +48,7 @@ import {
 } from "app/components/SingleAutocompletelist";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
+  DeleteAdHocItem,
   PostAdHocItem,
   priceListClearFilter,
   priceListConditionsPost,
@@ -171,6 +172,16 @@ const PriceListEdit = () => {
       hide: false,
     },
     {
+      headerName: "Print",
+      field: "print",
+      minWidth: "100",
+      align: "left",
+      headerAlign: "left",
+      renderCell: (param) => {
+        return param.row.AdHocItem === "Y" ? "Yes" : "No";
+      },
+    },
+    {
       headerName: "Ad Hoc Item",
       field: "AdHocItem",
       minWidth: "100",
@@ -182,7 +193,7 @@ const PriceListEdit = () => {
     },
     {
       field: "Action",
-      headerName: "Attributes",
+      headerName: "Action",
       minWidth: 200,
       flex: 1,
       sortable: false,
@@ -195,36 +206,6 @@ const PriceListEdit = () => {
       renderCell: (param) => {
         return (
           <>
-            <Tooltip title="Edit">
-              <IconButton
-                sx={{ height: 25 }}
-                variant="contained"
-                color="black"
-                size="small"
-                // onClick={() => handleRowClick(params)}
-                onClick={() =>
-                  navigate("./item-attributes/edit", {
-                    state: {
-                      id: state.id,
-                      recordID: param.row.RecordId,
-                      itemNumber: param.row.Item_Number,
-                      itemDesc: param.row.Item_Description,
-                      priceListID: priceListHeaderData.PriceListID,
-                      priceListDesc: priceListHeaderData.PricelistDesc,
-                    },
-                  })
-                }
-                // startIcon={<ModeEditOutlineIcon size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                <ModeEditOutlineIcon size="small" />
-              </IconButton>
-            </Tooltip>
-            {param.row.AdHocItem == "Y" ? (
               <Tooltip title="Remove">
                 <IconButton
                   sx={{ height: 25, marginLeft: 2 }}
@@ -232,20 +213,8 @@ const PriceListEdit = () => {
                   color="error"
                   size="small"
                   onClick={() => {
-                    // setRemoveItemID(param.row.Item_Number);
-                    // setRemoveItemDesc(param.row.Item_Description);
-                    // setIsRemoveItem(true);
-
-                    navigate("./item-attributes/delete", {
-                      state: {
-                        id: state.id,
-                        recordID: param.row.RecordId,
-                        itemNumber: param.row.Item_Number,
-                        itemDesc: param.row.Item_Description,
-                        priceListID: priceListHeaderData.PriceListID,
-                        priceListDesc: priceListHeaderData.PricelistDesc,
-                      },
-                    });
+                    setIsRemoveItem1ID(param.row.RecordId)
+                    setIsRemoveItem1(true)
                   }}
                   // startIcon={<DeleteIcon size="small" />}
                   disabled={
@@ -257,9 +226,6 @@ const PriceListEdit = () => {
                   <DeleteIcon size="small" />
                 </IconButton>
               </Tooltip>
-            ) : (
-              false
-            )}
           </>
         );
       },
@@ -694,6 +660,32 @@ const PriceListEdit = () => {
       setPostError2(true);
     }
   };
+
+    const [isRemoveItem1, setIsRemoveItem1] = useState(false);
+    const [isRemoveItem1ID, setIsRemoveItem1ID] = useState(0);
+    const [openAlert11, setOpenAlert11] = useState(false);
+    const [postError11, setPostError11] = useState(false);
+    const itemDeleteFn = async (values) => {
+      const data = {
+        RecordID: isRemoveItem1ID,
+        priceListID: `${priceListHeaderData.PriceListID}`,
+        quotationRecordID: "0",
+        filterType: "PL",
+        itemNo: "",
+        printSequence: "",
+        printItem: "0",
+        comment: "",
+      };  
+      const response = await dispatch(DeleteAdHocItem({ data }));
+      if (response.payload.status === "Y") {
+        dispatch(getPriceListData2({ id: priceListHeaderData.PriceListID }));
+        setOpenAlert11(true);
+        setIsRemoveItem1ID(0)
+      } else {
+        setOpenAlert11(true);
+        setPostError11(true);
+      }
+    };
   return (
     <Container>
       {getStatus === "fulfilled" && !getError && (
@@ -1649,7 +1641,35 @@ const PriceListEdit = () => {
           )}
         </Formik>
       )}
+                <AlertDialog
+                  key={23131}
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={openAlert11}
+                  error={postError11}
+                  message={postError11 ?"Error while Deleting and please try again":"Item Deleted Successfully"}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setOpenAlert11(false)
+                        }}
+                        sx={{ mr: 1, height: 25 }}
+                      >
+                        Close
+                      </Button>
 
+                    </Box>
+                  }
+                />
       <AlertDialog
         key={23131}
         logo={`data:image/png;base64,${user.logo}`}
@@ -1773,7 +1793,45 @@ const PriceListEdit = () => {
           </Box>
         }
       />
-
+              <MessageAlertDialog
+                  open={isRemoveItem1}
+                  logo={`data:image/png;base64,${user.logo}`}
+                  message={`Are you sure you want to remove Item ?`}
+                  // message={`Are you sure you want to remove Item ${values.itemDescription}?`}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        sx={{ mr: 1, height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          itemDeleteFn();
+                          setIsRemoveItem1(false);
+                        }}
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        sx={{ mr: 1, height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsRemoveItem1(false);
+                        }}
+                      >
+                        No
+                      </Button>
+                    </Box>
+                  }
+                />
       <AlertDialog
         key={5826}
         logo={`data:image/png;base64,${user.logo}`}

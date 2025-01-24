@@ -139,12 +139,10 @@ const NewProspect = () => {
       CurrentDate: values.prospectDate,
       PreferedPdf: values.PreferedPdf,
       PreferedExcel: values.PreferedExcel,
-      ShowPrice: false,
+      ShowPrice: getQuoteProspectInfoData.ShowPrice ,
     };
 
     const response = await dispatch(quoteInfoData({ data }));
-    console.log("🚀 ~ handleSave ~ response:", response);
-
     if (response.payload.status === "Y") {
       setOpenAlert(true);
 
@@ -595,7 +593,7 @@ const NewProspect = () => {
                           onChange={handleChange}
                           />
                         }
-                        label="Mobile"
+                        label="Excel"
                       />
                     </Stack>
                   </FormControl>
