@@ -405,6 +405,7 @@ const ConfigureEdit = () => {
                       name: "Control Panel",
                       // path: "/pages/control-panel/configure-price-book/company",
                     },
+                    { name: "Configure Price Book" },
                     {
                       name: "Company",
                       path: "/pages/control-panel/configure-price-book/company",

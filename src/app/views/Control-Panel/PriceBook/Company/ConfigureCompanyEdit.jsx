@@ -368,6 +368,7 @@ const ConfigureCompanyEdit = () => {
                 <Breadcrumb
                   routeSegments={[
                     { name: "Control Panel" },
+                    { name: "Configure Price Book" },
                     {
                       name: "Company",
                       path: "/pages/control-panel/configure-price-book/company",
