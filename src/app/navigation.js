@@ -109,7 +109,7 @@ export const navigations = [
 
       {
         name: "Price Book Group",
-        path: "/pages/control-panel/company-run-group",
+        path: "/pages/control-panel/run-group",
         iconText: "R",
         accessID: "CP004",
         icon: <DescriptionIcon fontSize="small" />,

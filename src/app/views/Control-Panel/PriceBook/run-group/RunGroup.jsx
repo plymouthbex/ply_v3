@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IconButton,
   LinearProgress,
@@ -28,6 +28,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getRunGroupListView } from "app/redux/slice/listviewSlice";
 import { clearRunGroupState } from "app/redux/slice/getSlice";
 import useAuth from "app/hooks/useAuth";
+import { FormikCustomSelectCompanyPriceList } from "app/components/SingleAutocompletelist";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -52,8 +53,9 @@ const RunGroup = () => {
 
   // ********************** REDUX STATE ********************** //
   const dispatch = useDispatch();
+  const [companyID, setCompanyID] = useState(user.companyCode);
   useEffect(() => {
-    dispatch(getRunGroupListView({ ID: state.CompanyCode }));
+    dispatch(getRunGroupListView({ ID: companyID}));
     dispatch(clearRunGroupState());
   }, [dispatch]);
   const loading = useSelector((state) => state.listview.rungroupTemploading);
@@ -142,25 +144,39 @@ const RunGroup = () => {
 
   function CustomToolbar() {
     return (
-      <GridToolbarContainer
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          width: "100%",
-          padding: 2,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            paddingX: 2,
-          }}
-        >
+       <GridToolbarContainer
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 2,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+                paddingX: 2,
+                width: "100%",
+              }}
+            >
+        <FormikCustomSelectCompanyPriceList
+                name="company"
+                id="company"
+                multiple={false}
+                value={companyID}
+                onChange={(e) => {
+                  setCompanyID(e.target.value);
+                  dispatch(getRunGroupListView({ ID: e.target.value }));
+                }}
+                label="Company"
+                url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+              />
+         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <GridToolbarQuickFilter />
 
           <Tooltip title="Create Price Book Group">
@@ -179,7 +195,7 @@ const RunGroup = () => {
                 }} />
             </IconButton>
           </Tooltip>
-
+</Box>
         </Box>
       </GridToolbarContainer>
     );

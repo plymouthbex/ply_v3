@@ -105,6 +105,7 @@ const CompanyEdit = () => {
   // ******************** LOCAL STATE ******************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
+    const [postMessage, setPostMessage] = useState(false);
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.companyFormData);
   console.log("🚀 ~ CompanyEdit ~ data:", data);
@@ -143,9 +144,13 @@ const CompanyEdit = () => {
 
     if (response.payload.status === "Y") {
       setOpenAlert(true);
+      setPostMessage(response.payload.message);
+     
     } else {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError(response.payload.message)
+      
+      ;
       // toast.error("Error occurred while saving data");
     }
   };
@@ -841,12 +846,8 @@ const CompanyEdit = () => {
         open={openAlert}
         error={postError}
         message={
-          postError ? "Something went wrong and please retry":
-          params.mode === "add"
-            ? "Company added successfully"
-            : params.mode === "delete"
-            ? "Company Deleted Successfully"
-            : "Company updated successfully"
+          postError ? postError:
+          postMessage
         }
         Actions={
           params.mode === "add" ? (
@@ -855,7 +856,10 @@ const CompanyEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/company")}
+                onClick={() => {navigate("/pages/security/company");
+                  setPostError(null);
+                  setPostMessage(null);
+                }}
               >
                 Back to Company
               </Button>
@@ -866,6 +870,8 @@ const CompanyEdit = () => {
                 onClick={() => {
                   dispatch(getCompanyData({ ID: 0 }));
                   setOpenAlert(false);
+                  setPostError(null);
+                  setPostMessage(null);
                 }}
                 autoFocus
               >
@@ -878,7 +884,10 @@ const CompanyEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/company")}
+                onClick={() => {navigate("/pages/security/company");
+                  setPostError(null);
+                  setPostMessage(null);
+                }}
               >
                 Back to Company
               </Button>

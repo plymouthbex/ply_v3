@@ -94,7 +94,7 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
   code: Yup.string()
-    .min(1, "Code must be at least 1 character") // Corrected "characters" to "character"
+    .min(1, "Code must be at least 1 characters")
     .max(15, "Code must be at most 15 characters"),
 
   email: Yup.string()
@@ -102,7 +102,7 @@ const validationSchema = Yup.object({
     .max(200, "Email must be at most 200 characters"),
 
   sequence: Yup.string()
-    .min(1, "Sequence must be at least 1 character") // Corrected "characters" to "character"
+    .min(1, "Sequence must be at least 1 character")
     .max(15, "Sequence must be at most 15 characters"),
 
   name: Yup.string()
@@ -112,29 +112,24 @@ const validationSchema = Yup.object({
   userCompany: Yup.string()
     .min(3, "User Company must be at least 3 characters")
     .max(50, "User Company must be at most 50 characters"),
-
   password: Yup.string()
     .min(15, "Password must be at least 15 characters")
     .required("Password is required"),
-
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Confirm Password is required"),
-
-  defaultCompany: Yup.object().shape({
+  defaultCompany: Yup.object({
     RecordID: Yup.string().required("RecordID is required"),
     Code: Yup.string().required("Code is required"),
     Name: Yup.string().required("Name is required"),
-  }).required("Default Company is required"), // Ensures entire object is validated
-
+  }).required("Default Company is required"),
   phonenumber: Yup.string()
-    .matches(
-      /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-      "Phone number must be in the format (XXX) XXX-XXXX"
-    )
-    .required("Phone number is required"),
+  .matches(
+    /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+    "Phone number must be in the format (XXX) XXX-XXXX"
+  )
+  .required("Phone number is required"),
 });
-
 
 // ******************** Price List Edit SCREEN  ******************** //
 const UserEdit = () => {
@@ -152,6 +147,7 @@ const UserEdit = () => {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [postError, setPostError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
 
@@ -351,9 +347,10 @@ const UserEdit = () => {
       if (response.payload.status === "Y") {
         setImageList1([]);
         setOpenAlert(true);
+        setSuccessMessage(response.payload.message)
       } else {
         setOpenAlert(true);
-        setPostError(true);
+        setPostError(response.payload.message);
       }
     }
   };
@@ -365,9 +362,10 @@ const UserEdit = () => {
       dispatch(deleteUserData({ ID: data.RecordID })).then((response) => {
         if (response.payload.status === "Y") {
           setOpenAlert(true);
+          setSuccessMessage(response.payload.message)
         } else {
           setOpenAlert(true);
-          setPostError(true);
+          setPostError(response.payload.messagerue);
         }
       });
       // setSubmitting(false);
@@ -621,6 +619,7 @@ const UserEdit = () => {
                     onChange={handleChange}
                       autoComplete="off"
                     onBlur={handleBlur}
+                    disabled={params?.mode === "delete"}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
                   />
@@ -925,6 +924,8 @@ sx={{ width:"20px"}}
                       onClick={() => {
                         setIsDelete(false);
                         userDeleteFn();
+                        setSuccessMessage(null);
+                        setPostError(null)
                       }}
                     >
                       Yes
@@ -935,7 +936,8 @@ sx={{ width:"20px"}}
                       size="small"
                       onClick={() => {
                         setIsDelete(false);
-                        // setSubmitting(false);
+                        setSuccessMessage(null);
+                        setPostError(null)
                       }}
                       autoFocus
                     >
@@ -978,12 +980,8 @@ sx={{ width:"20px"}}
         open={openAlert}
         error={postError}
         message={
-          postError ? "Something went wrong and please retry":
-          params.mode === "add"
-            ? "User added successfully"
-            : params.mode === "delete"
-            ? "User Deleted Successfully"
-            : "User updated successfully"
+          postError ? postError:
+         successMessage
         }
         Actions = {
           params.mode === "add" ? (
@@ -992,7 +990,10 @@ sx={{ width:"20px"}}
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/user")}
+                onClick={() => {navigate("/pages/security/user");
+                  setSuccessMessage(null);
+                  setPostError(null)
+                }}
               >
                 Back to User
               </Button>
@@ -1003,8 +1004,9 @@ sx={{ width:"20px"}}
                 onClick={() => {
                   dispatch(getUserData({ ID: 0 }));
                   setPreviewImages1([]);
-                  setImageList1([]);
                   setOpenAlert(false);
+                  setSuccessMessage(null);
+                  setPostError(null)
                 }}
                 autoFocus
               >
@@ -1018,7 +1020,10 @@ sx={{ width:"20px"}}
                   variant="contained"
                   color="info"
                   size="small"
-                  onClick={() => navigate("/pages/security/user")}
+                  onClick={() => {navigate("/pages/security/user");
+                    setSuccessMessage(null);
+                    setPostError(null)
+                  }}
                 >
                   Back to User
                 </Button>
@@ -1029,7 +1034,9 @@ sx={{ width:"20px"}}
                   size="small"
                   onClick={() => {
                     // Add your logout logic here
-                    navigate("/session/signin")
+                    navigate("/session/signin");
+                    setSuccessMessage(null);
+                    setPostError(null)
                   }}
                 >
                   Logout

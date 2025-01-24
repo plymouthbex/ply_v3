@@ -131,6 +131,7 @@ const ContactEdit = () => {
   const [removePriceListdDesc, setremovePriceListDesc] = useState("");
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
   // ******************** REDUX STATE ******************** //
 
@@ -169,12 +170,13 @@ const ContactEdit = () => {
     );
     if (response.payload.status === "Y") {
       setOpenAlert(true);
+      setSuccessMessage(response.payload.message);
       if(params.mode === "add"){
         dispatch(getConfigContact({ RecordID: response.payload.RecordID }));
       }
     } else {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError(response.payload.message);
     }
     setSubmitting(false)
   };
@@ -184,9 +186,10 @@ const ContactEdit = () => {
     const response = await dispatch(deleteConfigContact({ RecordID: data.RecordID }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
+      setSuccessMessage(response.payload.message);
     } else {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError(response.payload.message);
     }
     setSubmitting(false)
   };
@@ -236,6 +239,10 @@ const ContactEdit = () => {
                   routeSegments={[
                     {
                       name: "Control Panel",
+                      // path: "/pages/control-panel/configure-price-book/company",
+                    },
+                    {
+                      name: "Configure Price Book",
                       // path: "/pages/control-panel/configure-price-book/company",
                     },
                     {
@@ -358,6 +365,7 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={!!touched.firstName && !!errors.firstName}
                     helperText={touched.firstName && errors.firstName}
+                    disabled={params?.mode === "delete"}
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
@@ -377,6 +385,7 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={!!touched.lastName && !!errors.lastName}
                     helperText={touched.lastName && errors.lastName}
+                    disabled={params?.mode === "delete"}
                   />
 
                   <TextField
@@ -394,6 +403,11 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
+                    required
+                    disabled={params?.mode === "delete"}
                   />
 
                   <FormControl
@@ -412,6 +426,7 @@ const ContactEdit = () => {
                       id="provider"
                       name="provider"
                       label="Price Book Type"
+                      disabled={params?.mode === "delete"}
                     >
                       <MenuItem value={"AT&T"}>AT&T</MenuItem>
                       <MenuItem value={"V"}>Verizon</MenuItem>
@@ -437,6 +452,7 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
+                    disabled={params?.mode === "delete"}
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -454,6 +470,7 @@ const ContactEdit = () => {
                             name="preferedMail"
                             checked={values.preferedMail}
                             onChange={handleChange}
+                            disabled={params?.mode === "delete"}
                           />
                         }
                         label="Email"
@@ -465,6 +482,7 @@ const ContactEdit = () => {
                             name="preferedMobile"
                             checked={values.preferedMobile}
                             onChange={handleChange}
+                            disabled={params?.mode === "delete"}
                           />
                         }
                         label="Mobile"
@@ -591,12 +609,8 @@ const ContactEdit = () => {
         open={openAlert}
         error={postError}
         message={
-          postError?"Something went wrong and please retry" :
-          params.mode === "add"
-            ? "Contact added successfully"
-            : params.mode === "delete"
-            ? "Contact deleted successfully"
-            : "Contact updated successfully"
+          postError?postError:
+         successMessage
         }
         Actions={
           <DialogActions>
@@ -606,7 +620,9 @@ const ContactEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert(false);
-                navigate(-1)
+                navigate(-1);
+                setSuccessMessage(null);
+                setPostError(null)
               }}
             >
               Back

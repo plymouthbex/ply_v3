@@ -69,6 +69,7 @@ const ApplicationEdit = () => {
   // ******************** LOCAL STATE ******************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(false);
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.applicationFormData);
   const status = useSelector((state) => state.getSlice.applicationStatus);
@@ -93,9 +94,12 @@ const ApplicationEdit = () => {
     const response = await dispatch(applicationPost({ appData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
+      setSuccessMessage(response.payload.message);
     } else {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError(response.payload.message);
+
+    
       // toast.error("Error occurred while saving data");
     }
   };
@@ -334,12 +338,8 @@ const ApplicationEdit = () => {
         open={openAlert}
         error={postError}
         message={
-          postError ? "Something went wrong and please retry":
-          params.mode === "add"
-            ? "Application added successfully"
-            : params.mode === "delete"
-              ? "Application Deleted Successfully"
-              : "Application updated successfully"
+          postError ?postError:
+         successMessage
         }
         Actions={
           params.mode === "add" ? (
@@ -348,7 +348,10 @@ const ApplicationEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/application")}
+                onClick={() => {navigate("/pages/security/application");
+                  setPostError(null);
+                  setSuccessMessage(null);
+                }}
               >
                 Back to Menu
               </Button>
@@ -359,6 +362,8 @@ const ApplicationEdit = () => {
                 onClick={() => {
                   dispatch(getApplicationData({ ID: 0 }));
                   setOpenAlert(false);
+                  setPostError(null);
+                  setSuccessMessage(null);
                 }}
                 autoFocus
               >
@@ -371,7 +376,10 @@ const ApplicationEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/security/application")}
+                onClick={() =>{ navigate("/pages/security/application");
+                  setPostError(null);
+                  setSuccessMessage(null);
+                }}
               >
                 Back to Menu
               </Button>
