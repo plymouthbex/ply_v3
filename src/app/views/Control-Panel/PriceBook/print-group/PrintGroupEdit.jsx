@@ -38,7 +38,7 @@ import {
 import useAuth from "app/hooks/useAuth";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
-import { PGOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
+import { FormikCustomSelectCompanyPriceList, PGOptimizedAutocomplete, PriceListOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
 
 // ********************** ICONS ********************** //
 import { Add } from "@mui/icons-material";
@@ -49,6 +49,7 @@ import {
   deletePrintGroupData,
   postPrintGroupData,
 } from "app/redux/slice/postSlice";
+import toast from "react-hot-toast";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -169,7 +170,12 @@ const PrintGroupEdit = () => {
       },
     },
   ];
-
+  const [companyID, setCompanyID] = useState(user.companyCode);
+  const handleOpen = () => {
+    if (!companyID) {
+      toast.error("Please Select the company");
+    }
+  };
   function CustomToolbar() {
     return (
       <GridToolbarContainer
@@ -189,10 +195,23 @@ const PrintGroupEdit = () => {
             alignItems: "center",
             gap: 2,
             paddingX: 2,
+            width: "70%",
           }}
         >
           <GridToolbarQuickFilter />
-          <PGOptimizedAutocomplete
+           <FormikCustomSelectCompanyPriceList
+                          name="company"
+                          id="company"
+                          multiple={false}
+                          value={companyID}
+                          onChange={(e) => {
+                            setCompanyID(e.target.value);
+                            
+                          }}
+                          label="Company"
+                          url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+                        />
+          <PriceListOptimizedAutocomplete
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -201,7 +220,9 @@ const PrintGroupEdit = () => {
             value={addPriceListData}
             onChange={handleSelectionAddPriceListData}
             label="Add Price List"
-            url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
+            companyID={companyID}
+            url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${companyID}`}
+            onOpen={handleOpen}
           />
           <Tooltip title="Add">
             <IconButton
@@ -315,20 +336,12 @@ const PrintGroupEdit = () => {
       if (response.payload.status === "Y") {
         setOpenAlert(true);
         setSuccessMessage(response.payload.message)
-        setTimeout(() => {
-          setOpenAlert(false);
-          setSuccessMessage(null);
-          
-        }, 2000);
+        
       } else {
         setOpenAlert(true);
         setPostError(response.payload.message);
   
-        setTimeout(() => {
-          // setOpenAlert(false);
-          setPostError(null);
         
-        }, 2000);
       }
     } catch (error) {
       console.error("Error during HandleSave:", error);
@@ -346,11 +359,7 @@ const PrintGroupEdit = () => {
           setOpenAlert(true);
           setPostError(response.payload.message);
     
-          setTimeout(() => {
-            // setOpenAlert(false);
-            setPostError(null);
-            
-          }, 2000);
+         
         }
       });
       setSubmitting(false);
@@ -774,7 +783,10 @@ const PrintGroupEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/print-group");
+                  {navigate("/pages/control-panel/print-group");
+                    setSuccessMessage(null);
+                    setPostError(null)
+                  };
               }}
               >
                 Back to Categories
@@ -788,7 +800,8 @@ const PrintGroupEdit = () => {
                   dispatch(getprintGroupData({ id: 0 }));
                   dispatch(clearPrintGroupState());
                   setOpenAlert(false);
-                  setSuccessMessage(null)
+                  setSuccessMessage(null);
+                  setPostError(null)
                 }}
                 autoFocus
               >
@@ -808,7 +821,10 @@ const PrintGroupEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => navigate("/pages/control-panel/print-group")}
+                onClick={() => {navigate("/pages/control-panel/print-group");
+                  setSuccessMessage(null);
+                  setPostError(null)
+                }}
               >
                 Back to Categories
               </Button>
