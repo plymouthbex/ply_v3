@@ -101,7 +101,7 @@ const PriceListEdit = () => {
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-const [successMessage,setSuccessMessage]=useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
   const [showGridData, setShowGridData] = useState(0);
   const [isPriceListOpen, SetIsPriceListOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
@@ -146,7 +146,6 @@ const [successMessage,setSuccessMessage]=useState(false);
     (selectedItem) => !addItemsSet.has(selectedItem.Item_Number)
   );
 
-
   const allSelAddItems = [...filteredSelectedItems, ...addedRows].map(
     (item) => {
       return { ...item, Item_Number: `@${item.Item_Number}`, showAction: true };
@@ -174,11 +173,45 @@ const [successMessage,setSuccessMessage]=useState(false);
     {
       headerName: "Print",
       field: "print",
-      minWidth: "100",
+      minWidth: 100,
       align: "left",
-      headerAlign: "left",
-      renderCell: (param) => {
-        return param.row.AdHocItem === "Y" ? "Yes" : "No";
+      headerAlign: "center",
+      renderCell: (params) => {
+        return (
+          <div>
+            <Checkbox
+              // checked={true}
+              onChange={(e) => {
+                // dispatch(
+                //   applicationPost({
+                //     appData: {
+                //       RecordID: params.row.RecordID,
+                //       ApplicationCode: params.row.ApplicationCode,
+                //       ApplicationName: params.row.ApplicationName,
+                //       SortOrder: params.row.SortOrder,
+                //       User: params.row.User ? 1 : 0,
+                //       Admin: params.row.Admin ? 1 : 0,
+                //       SystemAdmin: e.target.checked ? 1 : 0,
+                //       Disable: params.row.Disable === "Y" ? "Y" : "N",
+                //     },
+                //   })
+                // );
+                // dispatch(
+                //   onCheckboxChangeMenu({
+                //     id: params.row.RecordID,
+                //     field: "SystemAdmin",
+                //   })
+                // );
+              }}
+              sx={{
+                color: "#174c4f",
+                "&.Mui-checked": {
+                  color: "#174c4f",
+                },
+              }}
+            />
+          </div>
+        );
       },
     },
     {
@@ -206,26 +239,26 @@ const [successMessage,setSuccessMessage]=useState(false);
       renderCell: (param) => {
         return (
           <>
-              <Tooltip title="Remove">
-                <IconButton
-                  sx={{ height: 25, marginLeft: 2 }}
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  onClick={() => {
-                    setIsRemoveItem1ID(param.row.RecordId)
-                    setIsRemoveItem1(true)
-                  }}
-                  // startIcon={<DeleteIcon size="small" />}
-                  disabled={
-                    params.mode === "delete" || params.mode === "view"
-                      ? true
-                      : false
-                  }
-                >
-                  <DeleteIcon size="small" />
-                </IconButton>
-              </Tooltip>
+            <Tooltip title="Remove">
+              <IconButton
+                sx={{ height: 25, marginLeft: 2 }}
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={() => {
+                  setIsRemoveItem1ID(param.row.RecordId);
+                  setIsRemoveItem1(true);
+                }}
+                // startIcon={<DeleteIcon size="small" />}
+                disabled={
+                  params.mode === "delete" || params.mode === "view"
+                    ? true
+                    : false
+                }
+              >
+                <DeleteIcon size="small" />
+              </IconButton>
+            </Tooltip>
           </>
         );
       },
@@ -323,9 +356,11 @@ const [successMessage,setSuccessMessage]=useState(false);
             buyer: values.buyer ? JSON.stringify(values.buyer) : null,
             createdBy: values.createdBy,
             companyCode: state.companyCode,
-            forcePageBreak:  "N",
-            overridesequence:  "N",
-            customer:values.propCustomer ? JSON.stringify(values.propCustomer) : null,
+            forcePageBreak: "N",
+            overridesequence: "N",
+            customer: values.propCustomer
+              ? JSON.stringify(values.propCustomer)
+              : null,
             comments: values.comments,
             createdDate: values.createdDateTime,
             modifyDate: values.lastModifiedDateTime,
@@ -346,12 +381,12 @@ const [successMessage,setSuccessMessage]=useState(false);
           if (params.mode === "add") {
             setOpenAlert(true);
             setSuccessMessage(response.payload.message);
-            navigate(
-              "/pages/control-panel/price-list/price-list-detail/edit",
-              {
-                state: { id: response.payload.PriceListID, companyCode: state.companyCode },
-              }
-            );
+            navigate("/pages/control-panel/price-list/price-list-detail/edit", {
+              state: {
+                id: response.payload.PriceListID,
+                companyCode: state.companyCode,
+              },
+            });
           }
 
           // if(params.mode === "edit"){
@@ -551,7 +586,7 @@ const [successMessage,setSuccessMessage]=useState(false);
                 size="small"
                 onClick={async () => {
                   if (addPriceListData) {
-                    const isItem = [...priceListItemsData,...addedRows].some(
+                    const isItem = [...priceListItemsData, ...addedRows].some(
                       (item) =>
                         lodash.isEqual(
                           item.Item_Number,
@@ -586,7 +621,11 @@ const [successMessage,setSuccessMessage]=useState(false);
                       //     AdHocItem: "Y",
                       //   })
                       // );
-                      dispatch(getPriceListData2({ id: priceListHeaderData.PriceListID }));
+                      dispatch(
+                        getPriceListData2({
+                          id: priceListHeaderData.PriceListID,
+                        })
+                      );
                       setAddPriceListData(null);
                     } else {
                       setOpenAlert1(true);
@@ -614,7 +653,7 @@ const [successMessage,setSuccessMessage]=useState(false);
                 color="info"
                 size="small"
                 type="submit"
-                startIcon={<Add size="small"/>}
+                startIcon={<Add size="small" />}
                 disabled={
                   params.mode === "delete" || params.mode === "view"
                     ? true
@@ -663,31 +702,31 @@ const [successMessage,setSuccessMessage]=useState(false);
     }
   };
 
-    const [isRemoveItem1, setIsRemoveItem1] = useState(false);
-    const [isRemoveItem1ID, setIsRemoveItem1ID] = useState(0);
-    const [openAlert11, setOpenAlert11] = useState(false);
-    const [postError11, setPostError11] = useState(false);
-    const itemDeleteFn = async (values) => {
-      const data = {
-        RecordID: isRemoveItem1ID,
-        priceListID: `${priceListHeaderData.PriceListID}`,
-        quotationRecordID: "0",
-        filterType: "PL",
-        itemNo: "",
-        printSequence: "",
-        printItem: "0",
-        comment: "",
-      };  
-      const response = await dispatch(DeleteAdHocItem({ data }));
-      if (response.payload.status === "Y") {
-        dispatch(getPriceListData2({ id: priceListHeaderData.PriceListID }));
-        setOpenAlert11(true);
-        setIsRemoveItem1ID(0)
-      } else {
-        setOpenAlert11(true);
-        setPostError11(true);
-      }
+  const [isRemoveItem1, setIsRemoveItem1] = useState(false);
+  const [isRemoveItem1ID, setIsRemoveItem1ID] = useState(0);
+  const [openAlert11, setOpenAlert11] = useState(false);
+  const [postError11, setPostError11] = useState(false);
+  const itemDeleteFn = async (values) => {
+    const data = {
+      RecordID: isRemoveItem1ID,
+      priceListID: `${priceListHeaderData.PriceListID}`,
+      quotationRecordID: "0",
+      filterType: "PL",
+      itemNo: "",
+      printSequence: "",
+      printItem: "0",
+      comment: "",
     };
+    const response = await dispatch(DeleteAdHocItem({ data }));
+    if (response.payload.status === "Y") {
+      dispatch(getPriceListData2({ id: priceListHeaderData.PriceListID }));
+      setOpenAlert11(true);
+      setIsRemoveItem1ID(0);
+    } else {
+      setOpenAlert11(true);
+      setPostError11(true);
+    }
+  };
   return (
     <Container>
       {getStatus === "fulfilled" && !getError && (
@@ -797,15 +836,11 @@ const [successMessage,setSuccessMessage]=useState(false);
                       variant="contained"
                       color="info"
                       size="small"
-                      disabled={isSubmitting }
-                      startIcon={
-                     
-                          <DeleteIcon color="error" size="small" />
-                      
-                      }
+                      disabled={isSubmitting}
+                      startIcon={<DeleteIcon color="error" size="small" />}
                       type="submit"
                     >
-                       Confirm
+                      Confirm
                     </Button>
                   )}
                   <Button
@@ -834,64 +869,60 @@ const [successMessage,setSuccessMessage]=useState(false);
                     padding: "10px",
                   }}
                 >
-                  <Stack
+                  <TextField
                     sx={{ gridColumn: "span 1" }}
-                    direction="column"
-                    gap={1}
-                  >
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="text"
-                      id="priceListID"
-                      name="priceListID"
-                      label="Price List Name"
-                      value={values.priceListID}
-                      onFocus={() => setSubmitting(true)}
-                      onChange={handleChange}
-                      onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
-                      required
-                      InputLabelProps={{
-                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                      }}
-                      autoComplete="off"
-                      size="small"
-                      //   error={!!touched.priceListID && !!errors.priceListID}
-                      //   helperText={touched.priceListID && errors.priceListID}
-                      disabled={
-                        params.mode === "delete" ||
-                        params.mode === "view" ||
-                        params.mode === "edit"
-                          ? true
-                          : false
-                      }
-                    />
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="text"
-                      id="priceListDescription"
-                      name="priceListDescription"
-                      label="Price List Description"
-                      value={values.priceListDescription}
-                      autoComplete="off"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      size="small"
-                      //   error={!!touched.priceListDescription && !!errors.priceListDescription}
-                      //   helperText={touched.priceListDescription && errors.priceListDescription}
-                      disabled={
-                        params.mode === "delete" || params.mode === "view"
-                          ? true
-                          : false
-                      }
-                      required
-                      InputLabelProps={{
-                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                      }}
-                    />
-                    
-                  </Stack>
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="priceListID"
+                    name="priceListID"
+                    label="Price List Name"
+                    value={values.priceListID}
+                    onFocus={() => setSubmitting(true)}
+                    onChange={handleChange}
+                    onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
+                    autoComplete="off"
+                    size="small"
+                    //   error={!!touched.priceListID && !!errors.priceListID}
+                    //   helperText={touched.priceListID && errors.priceListID}
+                    disabled={
+                      params.mode === "delete" ||
+                      params.mode === "view" ||
+                      params.mode === "edit"
+                        ? true
+                        : false
+                    }
+                  />
+                  <TextField
+                    sx={{ gridColumn: "span 1" }}
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="priceListDescription"
+                    name="priceListDescription"
+                    label="Price List Description"
+                    value={values.priceListDescription}
+                    autoComplete="off"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    size="small"
+                    //   error={!!touched.priceListDescription && !!errors.priceListDescription}
+                    //   helperText={touched.priceListDescription && errors.priceListDescription}
+                    disabled={
+                      params.mode === "delete" || params.mode === "view"
+                        ? true
+                        : false
+                    }
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
+                  />
+
                   <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="column"
@@ -1009,7 +1040,6 @@ const [successMessage,setSuccessMessage]=useState(false);
                     sx={{ gridColumn: "span 1" }}
                     direction={"column"}
                     gap={1}
-                 
                   >
                     <Stack direction="row" gap={13} height={44}>
                       <Typography sx={{ marginLeft: 2 }} variant="h6">
@@ -1045,7 +1075,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="brandInExData"
                         id="brandInExData"
                         value={values.brandInExData}
-                        onChange={(event, newValue) =>{setFieldValue("brandInExData", newValue);setSubmitting(false)}}
+                        onChange={(event, newValue) => {
+                          setFieldValue("brandInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="Brand"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
                         disabled={
@@ -1085,11 +1118,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="commodityInExData"
                         id="commodityInExData"
                         value={values.commodityInExData}
-                        onChange={(event, newValue) =>{
-                          setFieldValue("commodityInExData", newValue)
-                          setSubmitting(false)
-                        }
-                        }
+                        onChange={(event, newValue) => {
+                          setFieldValue("commodityInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="Commodity"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
                         disabled={
@@ -1129,11 +1161,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="altClassInExData"
                         id="altClassInExData"
                         value={values.altClassInExData}
-                        onChange={(event, newValue) =>{
-                          setFieldValue("altClassInExData", newValue)
-                          setSubmitting(false)
-                        }
-                        }
+                        onChange={(event, newValue) => {
+                          setFieldValue("altClassInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="Alternate Class"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
                         disabled={
@@ -1173,11 +1204,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="vendorInExData"
                         id="vendorInExData"
                         value={values.vendorInExData}
-                        onChange={(event, newValue) =>{
-                          setFieldValue("vendorInExData", newValue)
-                          setSubmitting(false)
-                        }
-                        }
+                        onChange={(event, newValue) => {
+                          setFieldValue("vendorInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="Vendor"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
                         disabled={
@@ -1218,11 +1248,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="frshForzInExData"
                         id="frshForzInExData"
                         value={values.frshForzInExData}
-                        onChange={(event, newValue) =>{
-                          setFieldValue("frshForzInExData", newValue)
-                          setSubmitting(false)
-                        }
-                        }
+                        onChange={(event, newValue) => {
+                          setFieldValue("frshForzInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="Fs/Fz"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
                         disabled={
@@ -1262,11 +1291,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="SecondClassInExData"
                         id="SecondClassInExData"
                         value={values.SecondClassInExData}
-                        onChange={(event, newValue) =>{
-                          setFieldValue("SecondClassInExData", newValue)
-                          setSubmitting(false)
-                        }
-                        }
+                        onChange={(event, newValue) => {
+                          setFieldValue("SecondClassInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="Secondary Class"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
                         disabled={
@@ -1306,11 +1334,10 @@ const [successMessage,setSuccessMessage]=useState(false);
                         name="classIDInExData"
                         id="classIDInExData"
                         value={values.classIDInExData}
-                        onChange={(event, newValue) =>{
-                          setFieldValue("classIDInExData", newValue)
-                          setSubmitting(false)
-                        }
-                        }
+                        onChange={(event, newValue) => {
+                          setFieldValue("classIDInExData", newValue);
+                          setSubmitting(false);
+                        }}
                         label="ClassID"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
                         disabled={
@@ -1324,18 +1351,17 @@ const [successMessage,setSuccessMessage]=useState(false);
                     </Stack>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
-                   
-                        <Button
-                          variant="contained"
-                          color="info"
-                          size="small"
-                          startIcon={<CheckIcon size="small" />}
-                          disabled={isSubmitting }
-                          type="submit"
-                        >
-                          Apply Filters & Save
-                        </Button>
-                     
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        startIcon={<CheckIcon size="small" />}
+                        disabled={isSubmitting}
+                        type="submit"
+                      >
+                        Apply Filters & Save
+                      </Button>
+
                       {state.id ? (
                         <Button
                           variant="contained"
@@ -1550,7 +1576,7 @@ const [successMessage,setSuccessMessage]=useState(false);
                       Yes
                     </Button>
                     <Button
-                    sx={{ml:1}}
+                      sx={{ ml: 1 }}
                       variant="contained"
                       color="info"
                       size="small"
@@ -1648,45 +1674,44 @@ const [successMessage,setSuccessMessage]=useState(false);
           )}
         </Formik>
       )}
-                <AlertDialog
-                  key={23131}
-                  logo={`data:image/png;base64,${user.logo}`}
-                  open={openAlert11}
-                  error={postError11}
-                  message={postError11 ?"Error while Deleting and please try again":"Item Deleted Successfully"}
-                  Actions={
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        width: "100%",
-                      }}
-                    >
-                      <Button
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        onClick={() => {
-                          setOpenAlert11(false)
-                        }}
-                        sx={{ mr: 1, height: 25 }}
-                      >
-                        Close
-                      </Button>
-
-                    </Box>
-                  }
-                />
+      <AlertDialog
+        key={23131}
+        logo={`data:image/png;base64,${user.logo}`}
+        open={openAlert11}
+        error={postError11}
+        message={
+          postError11
+            ? "Error while Deleting and please try again"
+            : "Item deleted and Price List saved successfully"
+        }
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenAlert11(false);
+              }}
+              sx={{ mr: 1, height: 25 }}
+            >
+              Close
+            </Button>
+          </Box>
+        }
+      />
       <AlertDialog
         key={23131}
         logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
-        message={
-          postError
-            ?postError
-            :successMessage
-        }
+        message={postError ? postError : successMessage}
         Actions={
           params.mode === "add" ? (
             <Box
@@ -1732,19 +1757,21 @@ const [successMessage,setSuccessMessage]=useState(false);
                 width: "100%",
               }}
             >
-                {params.mode != "delete" &&<Button
-                sx={{ mr: 1, height: 25 }}
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {
-                  setSuccessMessage(null);
-                  setPostError(null);
-                  setOpenAlert(false);
-                }}
-              >
-                Close
-              </Button>}
+              {params.mode != "delete" && (
+                <Button
+                  sx={{ mr: 1, height: 25 }}
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => {
+                    setSuccessMessage(null);
+                    setPostError(null);
+                    setOpenAlert(false);
+                  }}
+                >
+                  Close
+                </Button>
+              )}
               <Button
                 sx={{ mr: 1, height: 25 }}
                 variant="contained"
@@ -1798,45 +1825,45 @@ const [successMessage,setSuccessMessage]=useState(false);
           </Box>
         }
       />
-              <MessageAlertDialog
-                  open={isRemoveItem1}
-                  logo={`data:image/png;base64,${user.logo}`}
-                  message={`Are you sure you want to remove Item ?`}
-                  // message={`Are you sure you want to remove Item ${values.itemDescription}?`}
-                  Actions={
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        width: "100%",
-                      }}
-                    >
-                      <Button
-                        sx={{ mr: 1, height: 25 }}
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        onClick={() => {
-                          itemDeleteFn();
-                          setIsRemoveItem1(false);
-                        }}
-                      >
-                        Yes
-                      </Button>
-                      <Button
-                        sx={{ mr: 1, height: 25 }}
-                        variant="contained"
-                        color="info"
-                        size="small"
-                        onClick={() => {
-                          setIsRemoveItem1(false);
-                        }}
-                      >
-                        No
-                      </Button>
-                    </Box>
-                  }
-                />
+      <MessageAlertDialog
+        open={isRemoveItem1}
+        logo={`data:image/png;base64,${user.logo}`}
+        message={`Are you sure you want to remove Item ?`}
+        // message={`Are you sure you want to remove Item ${values.itemDescription}?`}
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                itemDeleteFn();
+                setIsRemoveItem1(false);
+              }}
+            >
+              Yes
+            </Button>
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setIsRemoveItem1(false);
+              }}
+            >
+              No
+            </Button>
+          </Box>
+        }
+      />
       <AlertDialog
         key={5826}
         logo={`data:image/png;base64,${user.logo}`}
