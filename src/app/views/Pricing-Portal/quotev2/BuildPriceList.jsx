@@ -82,6 +82,7 @@ import {
 } from "app/redux/slice/priceListSlice";
 import LoadingApiDialog, {
   PriceGroupAlertApiDialog,
+  QuoteLoadingApiDialog,
   QuoteTempAlertApiDialog,
   ViewPriceLoadingApiDialog,
 } from "app/components/LoadindgDialog";
@@ -462,10 +463,13 @@ export default function BuildCustomPriceBook() {
 
   const getFilteredDataAndSave = async (values, setSubmitting) => {
     const inputValue = values.pricelistName.trim();
-    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    const isPricelist = rowProspect.some(
+      (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
     if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
-      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
-      setPrintGroupID(pricelistID.RecordID);
+      const pricelistID = rowProspect.find((item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
+          setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
       return;
     }
@@ -651,10 +655,13 @@ export default function BuildCustomPriceBook() {
   const [printGroupID, setPrintGroupID] = useState(0);
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
-    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    const isPricelist = rowProspect.some(
+      (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
     if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
-      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
-      setPrintGroupID(pricelistID.RecordID);
+      const pricelistID = rowProspect.find((item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
+          setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
     } else {
       setSubmitting(false);
@@ -704,6 +711,7 @@ export default function BuildCustomPriceBook() {
     }
   }
   const getPdf = async (typeFormate,values) => {
+    console.log("🚀 ~ getPdf ~ values:", values)
     setIsGenerating(true);
     const res = await dispatch(
       getQuotePdf({ RecordID: getQuoteHeaderData.RecordID, ShowPrice:values.isShowPrice})
@@ -722,6 +730,7 @@ export default function BuildCustomPriceBook() {
   };
 
   const getExcel = async (values) => {
+
     setIsGenerating(true);
     const res = await dispatch(
       getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
@@ -769,6 +778,16 @@ export default function BuildCustomPriceBook() {
   const [openAlert9, setOpenAlert9] = useState(false);
   const [postError9, setPostError9] = useState(null);
   const fnQuoteSendMail = async () => {
+    if(!getQuoteHeaderData.RecordID){
+      setOpenAlert9(true)
+      setPostError9("Please Save Before Send the Mail")
+      return
+    }
+    if(getQuoteFilterItemData.length === 0){
+      setOpenAlert9(true)
+      setPostError9("No items Found for this Quotations")
+      return
+    }
     const data = {
       RecordID: 0,
       CompanyID: user.companyID,
@@ -777,7 +796,6 @@ export default function BuildCustomPriceBook() {
       UserID: user.id,
       TemplateID: 0,
     };
-    console.log("🚀 ~ data ~ data:", data);
 
     try {
       const response = await dispatch(mailSendQuote( data));
@@ -831,8 +849,8 @@ export default function BuildCustomPriceBook() {
             company: getQuoteHeaderData.CompanyCode
               ? getQuoteHeaderData.CompanyCode
               : user.companyCode,
-            pricelistName: getQuoteHeaderData.Name,
-            salesRepName: getQuoteHeaderData.Salesrepresentative,
+            pricelistName: getQuoteHeaderData.Name ,
+            salesRepName: getQuoteHeaderData.Salesrepresentative || user.name,
             priceBookLevel: getQuoteHeaderData.PriceLevel
               ? getQuoteHeaderData.PriceLevel
               : null,
@@ -975,7 +993,7 @@ export default function BuildCustomPriceBook() {
                               },
                             }}
                             aria-label="pdf"
-                            onClick={() => getPdf("PDF")}
+                            onClick={() => getPdf("PDF",values)}
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -985,7 +1003,7 @@ export default function BuildCustomPriceBook() {
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
-                            onClick={getExcel}
+                            onClick={()=>getExcel(values)}
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -994,7 +1012,7 @@ export default function BuildCustomPriceBook() {
                         <Tooltip title="Print" placement="top">
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
-                            onClick={() => getPdf("PRINT")}
+                            onClick={() => getPdf("PRINT",values)}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -1475,7 +1493,7 @@ export default function BuildCustomPriceBook() {
                     error={true}
                     message={
                       addPriceListData
-                        ? `${addPriceListData.Item_Number} Oops! This item is already exists in quote.`
+                        ? `Oops! This item is already exists in quote.`
                         : "Please select item!"
                     }
                     Actions={
@@ -1846,12 +1864,35 @@ export default function BuildCustomPriceBook() {
                     </Box>
                   }
                 />
-                <ViewPriceLoadingApiDialog
+                <QuoteLoadingApiDialog
                   logo={`data:image/png;base64,${user.logo}`}
                   open={isGenerating}
                   message={quotePriceMessage}
                   loading={quotePriceLoading}
                   error={quoteError}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+
+                        justifyContent: "flex-end",
+
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsGenerating(false);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
                 />
               </Box>{" "}
             </form>

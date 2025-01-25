@@ -80,6 +80,7 @@ import {
 } from "app/redux/slice/priceListSlice";
 import LoadingApiDialog, {
   PriceGroupAlertApiDialog,
+  QuoteLoadingApiDialog,
   QuoteTempAlertApiDialog,
   ViewPriceLoadingApiDialog,
 } from "app/components/LoadindgDialog";
@@ -395,103 +396,6 @@ export default function BuildCustomPriceBook() {
     },
   ];
 
-  function CustomToolbar() {
-    return (
-      <GridToolbarContainer
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          padding: "10px",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            width: "100%",
-          }}
-        >
-          <GridToolbarQuickFilter />
-          {/* <FormikCustomAutocompleteMultiAdHocItems
-            errors={isItemExistsError}
-            helper={isItemExistsError && "please select item!"}
-            name="adHocItem"
-            id="adHocItem"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Ad Hoc Item"
-            url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
-          />
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            type="reset"
-            startIcon={<Add size="small" />}
-            disabled={params.mode == "copy" ? true : false}
-          >
-            Ad Hoc Item
-          </Button> */}
-        </Box>
-      </GridToolbarContainer>
-    );
-  }
-
-  async function adHocItem(values) {
-    if (addPriceListData) {
-      const isItem = getQuoteFilterItemData.some((item) =>
-        lodash.isEqual(item.Item_Number, addPriceListData.Item_Number)
-      );
-      if (isItem) {
-        setIsItemExists(true);
-        setTimeout(() => {
-          setIsItemExists(false);
-          setAddPriceListData(null);
-        }, 5000);
-        return;
-      }
-      setRowSelectionModel([
-        ...rowSelectionModel,
-        addPriceListData.Item_Number,
-      ]);
-      const res = await dispatch(
-        quoteAddHocItem({
-          data: {
-            priceListID: "0",
-            quotationRecordID: getQuoteHeaderData.RecordID.toString(),
-            filterType: "Q",
-            itemNo: addPriceListData.Item_Number,
-            itemDescription: addPriceListData.Item_Description,
-            CONTARCTITEMS: "N",
-            AdHocItem: "Y",
-          },
-        })
-      );
-      if (res.payload.status === "Y") {
-        dispatch(
-          getQuoteItemsAndFiltersget3({
-            data: { RecordID: getQuoteHeaderData.RecordID.toString() },
-          })
-        );
-
-        setOpenAlert3(true);
-      } else {
-        setOpenAlert3(true);
-        setPostError3(true);
-      }
-
-      setAddPriceListData(null);
-    } else {
-      setIsItemExistsError(true);
-      setTimeout(() => {
-        setIsItemExistsError(false);
-      }, 2000);
-    }
-  }
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
 
@@ -693,10 +597,13 @@ export default function BuildCustomPriceBook() {
       window.open(blobUrl, "_blank");
     }
   }
-  const getPdf = async (typeFormate,values) => {
+  const getPdf = async (typeFormate, values) => {
     setIsGenerating(true);
     const res = await dispatch(
-      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
+      getQuotePdf({
+        RecordID: getQuoteHeaderData.RecordID,
+        ShowPrice: values.isShowPrice,
+      })
     );
 
     if (res.payload.status === "Y") {
@@ -711,12 +618,14 @@ export default function BuildCustomPriceBook() {
     }
   };
 
-  const getExcel = async (typeFormate,values) => {
+  const getExcel = async (values) => {
     setIsGenerating(true);
     const res = await dispatch(
-      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
+      getQuoteExcel({
+        RecordID: getQuoteHeaderData.RecordID,
+        ShowPrice: values.isShowPrice,
+      })
     );
-
     if (res.payload.status === "Y") {
       setTimeout(() => {
         setIsGenerating(false);
@@ -759,6 +668,23 @@ export default function BuildCustomPriceBook() {
   const [openAlert9, setOpenAlert9] = useState(false);
   const [postError9, setPostError9] = useState(null);
   const fnQuoteSendMail = async () => {
+    if (!getQuoteHeaderData.RecordID) {
+      setOpenAlert9(true);
+      setPostError9("Please Save Before Send the Mail");
+      return;
+    }
+
+    if (getQuoteFilterItemData.length === 0) {
+      setOpenAlert9(true);
+      setPostError9("No items Found for this Quotations");
+      return;
+    }
+
+    if (!getQuoteHeaderData.EmailID) {
+      setOpenAlert9(true);
+      setPostError9("Provide a valid EmailID for the prospect to proceed");
+      return;
+    }
     const data = {
       RecordID: 0,
       CompanyID: user.companyID,
@@ -767,7 +693,6 @@ export default function BuildCustomPriceBook() {
       UserID: user.id,
       TemplateID: 0,
     };
-    console.log("🚀 ~ data ~ data:", data);
 
     try {
       const response = await dispatch(mailSendQuote(data));
@@ -780,7 +705,9 @@ export default function BuildCustomPriceBook() {
       }
     } catch (error) {
       setOpenAlert9(true);
-      setPostError9("An error occurred while sending the email. Please retry.");
+      setPostError9(
+        "An error occurred while sending the email. Please try again."
+      );
       console.error("Error during HandleSave:", error);
     }
   };
@@ -802,13 +729,13 @@ export default function BuildCustomPriceBook() {
           />
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={1}>
-          {params.mode === "view" ? (
+          {params.mode === "edit" ? (
             <Button
               variant="contained"
               color="info"
               size="small"
               startIcon={<ArrowBackIcon size="small" />}
-              onClick={() => navigate("/pages/pricing-portal/saved-quote-list")}
+              onClick={() => navigate(-1)}
             >
               Back
             </Button>
@@ -956,7 +883,7 @@ export default function BuildCustomPriceBook() {
                               },
                             }}
                             aria-label="pdf"
-                            onClick={() => getPdf("PDF",values)}
+                            onClick={() => getPdf("PDF", values)}
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -966,7 +893,7 @@ export default function BuildCustomPriceBook() {
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
-                            onClick={()=>getExcel(values)}
+                            onClick={() => getExcel(values)}
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -975,7 +902,7 @@ export default function BuildCustomPriceBook() {
                         <Tooltip title="Print" placement="top">
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
-                            onClick={() => getPdf("PRINT",values)}
+                            onClick={() => getPdf("PRINT", values)}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -1601,7 +1528,7 @@ export default function BuildCustomPriceBook() {
                   }
                 />
                 <PriceGroupAlertApiDialog
-                logo={`data:image/png;base64,${user.logo}`}
+                  logo={`data:image/png;base64,${user.logo}`}
                   open={openAlert9}
                   error={postError9}
                   message={
@@ -1637,12 +1564,35 @@ export default function BuildCustomPriceBook() {
                     </Box>
                   }
                 />
-                <ViewPriceLoadingApiDialog
+                <QuoteLoadingApiDialog
                   logo={`data:image/png;base64,${user.logo}`}
                   open={isGenerating}
                   message={quotePriceMessage}
                   loading={quotePriceLoading}
                   error={quoteError}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+
+                        justifyContent: "flex-end",
+
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsGenerating(false);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
                 />
               </Box>{" "}
             </form>

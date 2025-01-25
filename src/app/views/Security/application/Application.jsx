@@ -243,7 +243,7 @@ const Application = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <Tooltip title="Create Menu">
+          {/* <Tooltip title="Create Menu">
             <IconButton
               sx={{ height: 25 }}
               color="black"
@@ -256,7 +256,7 @@ const Application = () => {
             >
               <Add sx={{fontSize:30,color: theme.palette.success.main,}}  />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
 
           {/* <Button
             variant="contained"

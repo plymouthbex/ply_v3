@@ -106,10 +106,13 @@ const NewProspect = () => {
   // //=============================SAVE==================================//
 
   const handleSave = async (values, setSubmitting) => {
-    const inputValue = values.name.trim();
-    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    const inputValue = values.prospectName.trim();
+    const isPricelist = rowProspect.some(
+      (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
     if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
-      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
+      const pricelistID = rowProspect.find((item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
       return;
@@ -118,9 +121,9 @@ const NewProspect = () => {
       RecordID: params.mode === "copy" ? 0 : getQuoteProspectInfoData.RecordID,
       CompanyCode: values.company ? values.company : "",
       UserID: user.id,
-      FromDate: "",
-      ToDate: "",
-      Name: values.name,
+      FromDate: getQuoteProspectInfoData.FromDate,
+      ToDate: getQuoteProspectInfoData.ToDate,
+      Name: values.prospectName,
       Description: values.description,
       Address1: values.address1,
       Address2: values.address2,
@@ -149,7 +152,7 @@ const NewProspect = () => {
       setTimeout(() => {
         navigate(
           params.mode === "copy"
-            ? "/pages/pricing-portal/new-quote/new/build-quote"
+            ? "/pages/pricing-portal/new-quote/new/build-quote":  params.mode === "edit" ? "./build-quote"
             : "/pages/pricing-portal/new-quote/new/build-quote",
           { state: { headerID: response.payload.RecordId } }
         );
@@ -191,9 +194,12 @@ const NewProspect = () => {
   const [printGroupID, setPrintGroupID] = useState(0);
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
-    const isPricelist = rowProspect.some((item) => item.Name === inputValue);
+    const isPricelist = rowProspect.some(
+      (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
     if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
-      const pricelistID = rowProspect.find((item) => item.Name === inputValue);
+      const pricelistID = rowProspect.find((item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+    );
       setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
     } else {
@@ -217,7 +223,7 @@ const NewProspect = () => {
             company: getQuoteProspectInfoData.CompanyCode
               ? getQuoteProspectInfoData.CompanyCode
               : user.companyCode,
-            name: getQuoteProspectInfoData.Name,
+            prospectName: getQuoteProspectInfoData.Name,
             description: getQuoteProspectInfoData.Description,
             address1: getQuoteProspectInfoData.Address1,
             address2: getQuoteProspectInfoData.Address2,
@@ -227,7 +233,7 @@ const NewProspect = () => {
             email: getQuoteProspectInfoData.EmailID,
             mobile: getQuoteProspectInfoData.Mobile,
             serviceProvider: getQuoteProspectInfoData.Provider,
-            salesRepName: getQuoteProspectInfoData.Salesrepresentative,
+            salesRepName: getQuoteProspectInfoData.Salesrepresentative || user.name,
             customer: getQuoteProspectInfoData.CustomerNumber,
             PreferedPdf: getQuoteProspectInfoData.RecordID? getQuoteProspectInfoData.PreferedPdf :true,
             PreferedExcel: getQuoteProspectInfoData.RecordID? getQuoteProspectInfoData.PreferedExcel :true,
@@ -272,7 +278,7 @@ const NewProspect = () => {
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  {params.mode === "copy" && (
+                  {(params.mode === "copy" ||  params.mode === "edit") && (
                     <Button
                       variant="contained"
                       color="info"
@@ -351,8 +357,8 @@ const NewProspect = () => {
                     fullWidth
                     variant="outlined"
                     type="text"
-                    id="name"
-                    name="name"
+                    id="prospectName"
+                    name="prospectName"
                     label="Prospect Name"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
@@ -362,12 +368,12 @@ const NewProspect = () => {
                         "& .MuiInputLabel-asterisk": { color: "red" },
                       },
                     }}
-                    value={values.name}
+                    value={values.prospectName}
                     onChange={handleChange}
                     onFocus={() => setSubmitting(true)}
                     onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
-                    error={!!touched.name && !!errors.name}
-                    helperText={touched.name && errors.name}
+                    error={!!touched.prospectName && !!errors.prospectName}
+                    helperText={touched.prospectName && errors.prospectName}
                     autoComplete="off"
                   />
                   {/* <TextField
@@ -561,12 +567,12 @@ const NewProspect = () => {
                     error={!!touched.email && !!errors.email}
                     helperText={touched.email && errors.email}
                     autoComplete="off"
-                    required
-                    InputLabelProps={{
-                      sx: {
-                        "& .MuiInputLabel-asterisk": { color: "red" },
-                      },
-                    }}
+                    // required
+                    // InputLabelProps={{
+                    //   sx: {
+                    //     "& .MuiInputLabel-asterisk": { color: "red" },
+                    //   },
+                    // }}
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -664,7 +670,7 @@ const NewProspect = () => {
                       color="info"
                       size="small"
                       onClick={() => {
-                        setFieldValue("name", "");
+                        setFieldValue("prospectName", "");
                         SetIsPrintGroupOpen(false);
                         setSubmitting(false);
                       }}
@@ -692,6 +698,7 @@ const NewProspect = () => {
       /> */}
 
       <PriceGroupAlertApiDialog
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={postError ? postError : "Prospect info saved successfully"}

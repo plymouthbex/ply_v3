@@ -17,7 +17,13 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight, dataGridHeaderFooterHeight } from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
 
 // ********************** ICONS ********************** //
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -47,7 +53,7 @@ const RunGroup = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state;
-  console.log("🚀 ~ RunGroup ~ state:", state)
+  console.log("🚀 ~ RunGroup ~ state:", state);
   const { user } = useAuth();
   // ********************** LOCAL STATE ********************** //
 
@@ -55,7 +61,7 @@ const RunGroup = () => {
   const dispatch = useDispatch();
   const [companyID, setCompanyID] = useState(user.companyCode);
   useEffect(() => {
-    dispatch(getRunGroupListView({ ID: companyID}));
+    dispatch(getRunGroupListView({ ID: companyID }));
     dispatch(clearRunGroupState());
   }, [dispatch]);
   const loading = useSelector((state) => state.listview.rungroupTemploading);
@@ -108,9 +114,15 @@ const RunGroup = () => {
                 color="black"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/run-group/run-group-getail/edit", {
-                    state: { ID: params.row.RecordID, CompanyCode: state.CompanyCode },
-                  });
+                  navigate(
+                    "/pages/control-panel/run-group/run-group-getail/edit",
+                    {
+                      state: {
+                        ID: params.row.RecordID,
+                        CompanyCode: companyID,
+                      },
+                    }
+                  );
                 }}
                 disabled={params.mode === "delete" || params.mode === "view"}
               >
@@ -123,9 +135,12 @@ const RunGroup = () => {
                 color="error"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/run-group/run-group-getail/delete", {
-                    state: { ID: params.row.RecordID },
-                  });
+                  navigate(
+                    "/pages/control-panel/run-group/run-group-getail/delete",
+                    {
+                      state: { ID: params.row.RecordID, CompanyCode: companyID,},
+                    }
+                  );
                 }}
                 disabled={params.mode === "delete" || params.mode === "view"}
               >
@@ -133,69 +148,72 @@ const RunGroup = () => {
               </IconButton>
             </Tooltip>
           </div>
-
         );
       },
     },
   ];
 
-
   // ********************** TOOLBAR ********************** //
 
   function CustomToolbar() {
     return (
-       <GridToolbarContainer
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "100%",
-              padding: 2,
+      <GridToolbarContainer
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+            paddingX: 2,
+            width: "100%",
+          }}
+        >
+          <FormikCustomSelectCompanyPriceList
+            name="company"
+            id="company"
+            multiple={false}
+            value={companyID}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+              dispatch(getRunGroupListView({ ID: e.target.value }));
             }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 2,
-                paddingX: 2,
-                width: "100%",
-              }}
-            >
-        <FormikCustomSelectCompanyPriceList
-                name="company"
-                id="company"
-                multiple={false}
-                value={companyID}
-                onChange={(e) => {
-                  setCompanyID(e.target.value);
-                  dispatch(getRunGroupListView({ ID: e.target.value }));
-                }}
-                label="Company"
-                url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-              />
-         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <GridToolbarQuickFilter />
+            label="Company"
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+          />
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+            <GridToolbarQuickFilter />
 
-          <Tooltip title="Create Price Book Group">
-            <IconButton
-              color="black"
-              size="small"
-              onClick={() => {
-                navigate("/pages/control-panel/run-group/run-group-getail/add", {
-                  state: { ID: 0,CompanyCode: state.CompanyCode },
-                });
-              }}
-            >
-              <Add sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }} />
-            </IconButton>
-          </Tooltip>
-</Box>
+            <Tooltip title="Create Price Book Group">
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() => {
+                  navigate(
+                    "/pages/control-panel/run-group/run-group-getail/add",
+                    {
+                      state: { ID: 0, CompanyCode: companyID, },
+                    }
+                  );
+                }}
+              >
+                <Add
+                  sx={{
+                    fontSize: 30, // Increased icon size
+                    color: theme.palette.success.main,
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </GridToolbarContainer>
     );
@@ -205,8 +223,12 @@ const RunGroup = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Control Panel" },{ name: "Company", path: "/pages/control-panel/company-run-group" }, { name: "Price Book Group" }]}
-        // ,path:"/pages/company-run-group" 
+          routeSegments={[
+            { name: "Control Panel" },
+            { name: "Company", path: "/pages/control-panel/company-run-group" },
+            { name: "Price Book Group" },
+          ]}
+          // ,path:"/pages/company-run-group"
         />
       </div>
 
@@ -266,7 +288,7 @@ const RunGroup = () => {
             columnHeaderHeight={dataGridHeaderFooterHeight}
             sx={{
               // This is to override the default height of the footer row
-              '& .MuiDataGrid-footerContainer': {
+              "& .MuiDataGrid-footerContainer": {
                 height: dataGridHeaderFooterHeight,
                 minHeight: dataGridHeaderFooterHeight,
               },
