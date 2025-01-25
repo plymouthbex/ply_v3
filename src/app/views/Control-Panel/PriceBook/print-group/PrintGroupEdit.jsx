@@ -88,7 +88,7 @@ const PrintGroupEdit = () => {
   const [isRemovePriceList, setIsRemovePriceList] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
   const [removePriceListdDesc, setremovePriceListDesc] = useState("");
-
+  const [ID, setId] = useState('');
   const [addPriceListData, setAddPriceListData] = useState(null);
   const handleSelectionAddPriceListData = (newValue) => {
     setAddPriceListData(newValue);
@@ -199,18 +199,18 @@ const PrintGroupEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-           <FormikCustomSelectCompanyPriceList
-                          name="company"
-                          id="company"
-                          multiple={false}
-                          value={companyID}
-                          onChange={(e) => {
-                            setCompanyID(e.target.value);
-                            
-                          }}
-                          label="Company"
-                          url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-                        />
+          <FormikCustomSelectCompanyPriceList
+            name="company"
+            id="company"
+            multiple={false}
+            value={companyID}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+
+            }}
+            label="Company"
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+          />
           <PriceListOptimizedAutocomplete
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
@@ -255,9 +255,9 @@ const PrintGroupEdit = () => {
               }}
             >
               <Add sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }} />
+                fontSize: 30, // Increased icon size
+                color: theme.palette.success.main,
+              }} />
             </IconButton>
           </Tooltip>
 
@@ -299,9 +299,9 @@ const PrintGroupEdit = () => {
   }
 
   useEffect(() => {
-    if (status === "idle") {
+    // if (status === "idle") {
       dispatch(getprintGroupData({ id: state.id }));
-    }
+    // }
   }, [location.key]);
 
   const isPrintGroupExists = (e, setSubmitting) => {
@@ -322,26 +322,30 @@ const PrintGroupEdit = () => {
 
   const printGroupSaveFn = async (values, setSubmitting) => {
     const postData = {
-      recordId: state.id,
+      recordId: data.RecordId,
       groupcode: values.groupCode,
       groupName: values.groupName,
       sortorder: values.SortOrder,
       disable: "N",
-      Headeronly:false,
+      Headeronly: false,
       printList: [...getRows, ...filteredSelectedItems],
     };
     try {
       const response = await dispatch(postPrintGroupData({ PGdata: postData }));
 
       if (response.payload.status === "Y") {
+        if (params.mode === "add") {
+          navigate("/pages/control-panel/print-group/print-group-detail/edit", { state: { id: response.payload.RecordId } });
+          // dispatch(getprintGroupData({id:response.payload.RecordId}))
+        }
         setOpenAlert(true);
         setSuccessMessage(response.payload.message)
-        
+
       } else {
         setOpenAlert(true);
         setPostError(response.payload.message);
-  
-        
+
+
       }
     } catch (error) {
       console.error("Error during HandleSave:", error);
@@ -353,13 +357,14 @@ const PrintGroupEdit = () => {
     try {
       dispatch(deletePrintGroupData({ ID: data.RecordId })).then((response) => {
         if (response.payload.status === "Y") {
+
           setOpenAlert(true);
           setSuccessMessage(response.payload.message);
         } else {
           setOpenAlert(true);
           setPostError(response.payload.message);
-    
-         
+
+
         }
       });
       setSubmitting(false);
@@ -432,17 +437,31 @@ const PrintGroupEdit = () => {
                   >
                     {params.mode === "delete" ? "Confirm" : "Save"}
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="info"
-                    size="small"
-                    startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => {
-                      navigate(-1);
-                    }}
-                  >
-                    Back
-                  </Button>
+                  {state.YearFlag ? (
+  <Button
+    variant="contained"
+    color="info"
+    size="small"
+    startIcon={<ArrowBackIcon size="small" />}
+    onClick={() => {
+      navigate("/pages/control-panel/price-list");
+    }}
+  >
+    Back
+  </Button>
+) : (
+  <Button
+    variant="contained"
+    color="info"
+    size="small"
+    startIcon={<ArrowBackIcon size="small" />}
+    onClick={() => {
+      navigate("/pages/control-panel/print-group");
+    }}
+  >
+    Back
+  </Button>
+)}
                 </Stack>
               </div>
 
@@ -483,8 +502,8 @@ const PrintGroupEdit = () => {
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                      // error={!!touched.groupCode && !!errors.groupCode}
-                      // helperText={touched.groupCode && errors.groupCode}
+                    // error={!!touched.groupCode && !!errors.groupCode}
+                    // helperText={touched.groupCode && errors.groupCode}
                     />
                     <TextField
                       fullWidth
@@ -502,8 +521,8 @@ const PrintGroupEdit = () => {
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                       autoComplete="off"
-                      // error={!!touched.groupName && !!errors.groupName}
-                      // helperText={touched.groupName && errors.groupName}
+                    // error={!!touched.groupName && !!errors.groupName}
+                    // helperText={touched.groupName && errors.groupName}
                     />
                     <TextField
                       fullWidth
@@ -616,7 +635,7 @@ const PrintGroupEdit = () => {
                 </Box>
               </Paper>
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isPrintGroupOpen}
                 tittle={values.groupCode}
                 message={`Oops!This print group is already in use.`}
@@ -663,7 +682,7 @@ const PrintGroupEdit = () => {
               />
 
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 // tittle={values.groupCode}
                 message={`Are you sure you want to delete the  Category?`}
@@ -705,7 +724,7 @@ const PrintGroupEdit = () => {
               />
 
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isRemovePriceList}
                 tittle={removePriceListdDesc}
                 message={`Are you sure you want to remove Price List ?`}
@@ -760,7 +779,7 @@ const PrintGroupEdit = () => {
       )}
 
       <AlertDialog
-       logo={`data:image/png;base64,${user.logo}`}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
@@ -769,7 +788,6 @@ const PrintGroupEdit = () => {
             : successMessage
         }
         Actions={
-          params.mode === "add" ? (
             <Box
               sx={{
                 display: "flex",
@@ -777,64 +795,56 @@ const PrintGroupEdit = () => {
                 width: "100%",
               }}
             >
-              <Button
+                            <Button
                 sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
                 onClick={() => {
-                  {navigate("/pages/control-panel/print-group");
-                    setSuccessMessage(null);
-                    setPostError(null)
-                  };
-              }}
-              >
-                Back to Categories
-              </Button>
-              <Button
-                sx={{ mr: 1, height: 25 }}
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {
-                  dispatch(getprintGroupData({ id: 0 }));
-                  dispatch(clearPrintGroupState());
+
                   setOpenAlert(false);
-                  setSuccessMessage(null);
-                  setPostError(null)
-                }}
-                autoFocus
-              >
-                Add New Categories
-              </Button>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                width: "100%",
-              }}
-            >
-              <Button
-                sx={{ mr: 1, height: 25 }}
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {navigate("/pages/control-panel/print-group");
-                  setSuccessMessage(null);
-                  setPostError(null)
+
                 }}
               >
-                Back to Categories
+                Close
               </Button>
+              {state.YearFlag ? (
+  <Button
+    sx={{ mr: 1, height: 25 }}
+    variant="contained"
+    color="info"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/price-list");
+      setSuccessMessage(null);
+      setPostError(null);
+    }}
+  >
+    Back to Categories
+  </Button>
+) : (
+  <Button
+    sx={{ mr: 1, height: 25 }}
+    variant="contained"
+    color="info"
+    size="small"
+    onClick={() => {
+      navigate("/pages/control-panel/print-group");
+      setSuccessMessage(null);
+      setPostError(null);
+    }}
+  >
+    Back to Categories
+  </Button>
+)}
+
             </Box>
-          )
+  
         }
       />
 
       <MessageAlertDialog
-       logo={`data:image/png;base64,${user.logo}`}
+        logo={`data:image/png;base64,${user.logo}`}
         open={isPriceListExists}
         tittle={
           addPriceListData

@@ -390,6 +390,7 @@ const HomePage = () => {
 
                 <Tooltip title="Mail" placement="top">
                   <CustomIconButton
+                  disabled={true}
                     bgcolor={theme.palette.error.main}
                     aria-label="mail"
                     onClick={() =>
@@ -404,7 +405,9 @@ const HomePage = () => {
                       })
                     }
                   >
-                    <IoIosMailOpen style={{ fontSize: "21px" }} />
+                    <IoIosMailOpen
+                    
+                style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
               </Stack>

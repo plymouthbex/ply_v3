@@ -507,7 +507,9 @@ function CustomToolbar() {
                     naviate(
                       "/pages/control-panel/print-group/print-group-detail/edit",
                       {
-                        state: { id: printSelectedData.RecordID },
+                        state: { id: printSelectedData.RecordID,
+                          YearFlag: true
+                         },
                       }
                     );
                   } catch (e) {}
