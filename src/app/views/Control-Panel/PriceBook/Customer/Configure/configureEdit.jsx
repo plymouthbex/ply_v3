@@ -54,6 +54,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   configureAddedPriceList,
   getConfigPriceBook,
+  getConfigPriceBook2,
 } from "app/redux/slice/getSlice";
 import {
   ConfigurepriceListClear,
@@ -63,6 +64,7 @@ import {
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
+import { CompanyPriceListAutoCompleteMemo } from "app/components/FormikAutocomplete";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -137,7 +139,7 @@ const ConfigureEdit = () => {
   const { user } = useAuth()
   // ******************** LOCAL STATE ******************** //
 
-  const [addPriceListData, setAddPriceListData] = useState(null);
+  const [addPriceListData, setAddPriceListData] = useState([]);
   const [isPriceListExists, setIsPriceListExists] = useState(false);
   const [isPriceListExistsError, setIsPriceListExistsError] = useState(false);
   const [isRemovePriceList, setIsRemovePriceList] = useState(false);
@@ -148,6 +150,7 @@ const ConfigureEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getconfigureData);
+  console.log("🚀 ~ ConfigureEdit ~ data:", data)
   const getRows = useSelector(
     (state) => state.getSlice.configurePriceListGetData
   );
@@ -165,7 +168,7 @@ const ConfigureEdit = () => {
   const status = useSelector((state) => state.getSlice.getconfigureStatus);
   const error = useSelector((state) => state.getSlice.getconfigureError);
 
-  const handleSelectionAddPriceListData = (newValue) => {
+  const handleSelectionAddPriceListData = (e,newValue) => {
     setAddPriceListData(newValue);
   };
   //==================================GETAPI=====================================//
@@ -247,7 +250,7 @@ const ConfigureEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <PGOptimizedAutocomplete
+          {/* <PGOptimizedAutocomplete
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -257,7 +260,7 @@ const ConfigureEdit = () => {
             onChange={handleSelectionAddPriceListData}
             label="Include Price List"
             url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
-          />
+          /> */}
 
           <Tooltip title="Add">
             <IconButton
@@ -323,7 +326,85 @@ const ConfigureEdit = () => {
       </GridToolbarContainer>
     );
   }
-  console.log("🚀 ~ handleSave ~ params.mode:", params.mode);
+  const CustomToolBar = React.memo(() => {
+    const handleAddPriceList = async() => {
+      if (addPriceListData.length > 0) {
+        // Prepare price data and dispatch the action
+        const pricedata = {
+          RecordID: data.RecordID,
+          priceListID: addPriceListData.PRICELISTID,
+        };
+  
+      const response = await  dispatch(PostConfigurePriceListID({ pricedata:addPriceListData,RecordID: data.RecordID, }));
+
+        if (response.payload.status === "Y") {
+          // dispatch(configureAddedPriceList);
+          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
+          setAddPriceListData([])
+        }
+      } else {
+        // Handle case where no price list data is selected
+        setIsPriceListExistsError(true);
+        setTimeout(() => {
+          setIsPriceListExistsError(false);
+        }, 2000);
+      }
+    };
+  
+    return (
+      <GridToolbarContainer
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          width: "100%",
+          padding: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            paddingX: 2,
+          }}
+        >
+          <GridToolbarQuickFilter />
+
+          <CompanyPriceListAutoCompleteMemo
+            errors={isPriceListExistsError}
+            helper={isPriceListExistsError && "Please select price list!"}
+            disabled={params.mode === "delete" || params.mode === "view"}
+            name="addPriceList"
+            id="addPriceList"
+            value={addPriceListData}
+            onChange={handleSelectionAddPriceListData}
+            label="Include Price List"
+            url={`${
+              process.env.REACT_APP_BASE_URL
+            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+          />
+          <Tooltip title="Add">
+            <IconButton
+              disabled={params.mode === "delete" || params.mode === "view"}
+              color="black"
+              size="small"
+              onClick={handleAddPriceList}
+            >
+              <Add
+                sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </GridToolbarContainer>
+    );
+  });
 
   //====================================================================================//
 
@@ -362,7 +443,7 @@ const ConfigureEdit = () => {
 
   return (
     <Container>
-        <Formik
+       {status === "fulfilled" && !error ? (<Formik
           initialValues={{
             RecordID: data.RecordID,
             email: data.EmailId,
@@ -418,7 +499,7 @@ const ConfigureEdit = () => {
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  <Button
+                  {/* <Button
                     variant="contained"
                     color="info"
                     size="small"
@@ -433,7 +514,7 @@ const ConfigureEdit = () => {
                     disabled={isSubmitting}
                   >
                     {params.mode === "delete" ? "Confirm" : "Save"}
-                  </Button>
+                  </Button> */}
                   <Button
                     variant="contained"
                     color="info"
@@ -561,7 +642,7 @@ const ConfigureEdit = () => {
                     }}
                     slots={{
                       loadingOverlay: LinearProgress,
-                      toolbar: CustomToolbar,
+                      toolbar: CustomToolBar,
                     }}
                     rowHeight={dataGridRowHeight}
                     rows={[...getRows, ...filteredSelectedItems]}
@@ -610,7 +691,7 @@ const ConfigureEdit = () => {
                         );
                         if (response.payload.status === "Y") {
                           // dispatch(configureAddedPriceList);
-                          dispatch(getConfigPriceBook({ ID: State.RecordID }));
+                          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
                         }
                         setIsRemovePriceList(false);
                         setremovePriceListID(0);
@@ -654,7 +735,7 @@ const ConfigureEdit = () => {
                       size="small"
                       onClick={() => {
                         setIsPriceListExists(false);
-                        setAddPriceListData(null);
+                        setAddPriceListData([]);
                       }}
                     >
                       Close
@@ -664,7 +745,9 @@ const ConfigureEdit = () => {
               />
             </form>
           )}
-        </Formik>
+        </Formik>  ) : (
+        false
+      )}
       <AlertDialog
        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}

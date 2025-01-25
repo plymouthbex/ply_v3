@@ -638,7 +638,7 @@ const PrintGroupEdit = () => {
                 logo={`data:image/png;base64,${user.logo}`}
                 open={isPrintGroupOpen}
                 tittle={values.groupCode}
-                message={`Oops!${values.groupCode} This print group is already in use.`}
+                message={`Oops!This print group is already in use.`}
                 Actions={
                   <Box
                     sx={{
@@ -727,7 +727,7 @@ const PrintGroupEdit = () => {
                 logo={`data:image/png;base64,${user.logo}`}
                 open={isRemovePriceList}
                 tittle={removePriceListdDesc}
-                message={`Are you sure you want to remove Price List ${removePriceListdDesc} ?`}
+                message={`Are you sure you want to remove Price List ?`}
                 Actions={
                   <Box
                     sx={{
@@ -851,7 +851,7 @@ const PrintGroupEdit = () => {
             ? addPriceListData.PRICELISTDESCRIPTION
             : "Please select price list!"
         }
-        message={"Oops! This price list is already exists in print group."}
+        message={"Oops! This price list is already exists in Category."}
         Actions={
           <Box
             sx={{

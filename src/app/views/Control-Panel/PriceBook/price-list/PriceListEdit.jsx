@@ -38,6 +38,7 @@ import {
   getPriceListData,
   getPriceListData2,
   getPriceListFilterData,
+  onCheckboxChangePriceListEdit,
   priceListAddedItems,
   priceListDeletedItem,
 } from "app/redux/slice/getSlice";
@@ -55,6 +56,7 @@ import {
   priceListDelete,
   priceListHeaderPost,
   priceListItemPost,
+  PutAdHocItem,
 } from "app/redux/slice/postSlice";
 import useAuth from "app/hooks/useAuth";
 
@@ -174,13 +176,13 @@ const PriceListEdit = () => {
       headerName: "Print",
       field: "print",
       minWidth: 100,
-      align: "left",
+      align: "center",
       headerAlign: "center",
-      renderCell: (params) => {
+      renderCell: (param) => {
         return (
           <div>
             <Checkbox
-              // checked={true}
+              checked={param.row.PrintItem}
               onChange={(e) => {
                 // dispatch(
                 //   applicationPost({
@@ -196,12 +198,23 @@ const PriceListEdit = () => {
                 //     },
                 //   })
                 // );
-                // dispatch(
-                //   onCheckboxChangeMenu({
-                //     id: params.row.RecordID,
-                //     field: "SystemAdmin",
-                //   })
-                // );
+
+                dispatch(PutAdHocItem({ data: {
+                  RecordID: param.row.RecordId,
+                  PriceListID: priceListHeaderData.PriceListID,
+                  QuotationRecordID: "0",
+                  FilterType: "PL",
+                  ItemNo: param.row.Item_Number,
+                  PrintItem: e.target.checked  ? "1" : "0",
+
+                }}))
+                dispatch(
+                  onCheckboxChangePriceListEdit({
+                    id: param.row.RecordId,
+                    field: "PrintItem",
+                    adhocItem:param.row.AdHocItem
+                  })
+                );
               }}
               sx={{
                 color: "#174c4f",

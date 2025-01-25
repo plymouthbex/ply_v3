@@ -546,6 +546,26 @@ export const getConfigPriceBook = createAsyncThunk(
   }
 );
 
+
+export const getConfigPriceBook2 = createAsyncThunk(
+  "page/getConfigPriceBook2",
+  async ({ ID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPricebookConfiguration?RecordID=${ID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 export const getQuoteItemsAndFilters = createAsyncThunk(
   "get/getQuoteItemsAndFilters", // action type
   async ({ data }, { rejectWithValue }) => {
@@ -874,6 +894,23 @@ const getSlice = createSlice({
       state.getQuoteProspectLoadingItems= false;
       state.getQuoteProspectStatusItems= "idle";
       state.getQuoteProspectErrorItems= null;
+    },
+    onCheckboxChangePriceListEdit: (state, action) => {
+      const { id, field,adhocItem } = action.payload;
+      if(adhocItem == "Y"){
+        const updatedRow = state.priceListAddedData.map((row) =>
+          row.RecordId === id ? { ...row, [field]: !row[field] } : row
+        );
+  
+        state.priceListAddedData = updatedRow;
+      }else{
+        const updatedRow = state.priceListItemsData.map((row) =>
+          row.RecordId === id ? { ...row, [field]: !row[field] } : row
+        );
+  
+        state.priceListItemsData = updatedRow;
+      }
+
     },
   },
   extraReducers: (builder) => {
@@ -1223,6 +1260,11 @@ const getSlice = createSlice({
         state.userError = true;
       })
 
+      .addCase(getConfigPriceBook2.fulfilled, (state, action) => {
+        state.configurePriceListGetData = action.payload.data.PriceList;
+        state.configurePriceListContactData = action.payload.data.Contacts;
+      })
+
       .addCase(getQuoteItemsAndFilters.pending, (state) => {
         state.getQuoteFilterItemData = [];
         state.getQuteFiltData = {};
@@ -1284,6 +1326,7 @@ const getSlice = createSlice({
 });
 
 export const {
+  onCheckboxChangePriceListEdit,
   clearStateProspectInfoQuote,
   // PRICELIST ACTION
   priceListSelectedItems,

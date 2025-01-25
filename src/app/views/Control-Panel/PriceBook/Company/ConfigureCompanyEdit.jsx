@@ -57,6 +57,7 @@ import {
   configureAddedPriceList,
   configurePriceListDeleted,
   getConfigPriceBook,
+  getConfigPriceBook2,
 } from "app/redux/slice/getSlice";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
@@ -227,15 +228,21 @@ const ConfigureCompanyEdit = () => {
   ];
 
   const CustomToolBar = React.memo(() => {
-    const handleAddPriceList = () => {
+    const handleAddPriceList = async() => {
       if (addPriceListData.length > 0) {
         // Prepare price data and dispatch the action
         const pricedata = {
-          recordID: data.RecordID,
+          RecordID: data.RecordID,
           priceListID: addPriceListData.PRICELISTID,
         };
   
-        dispatch(PostConfigurePriceListID({ pricedata }));
+      const response = await  dispatch(PostConfigurePriceListID({ pricedata:addPriceListData,RecordID: data.RecordID, }));
+
+        if (response.payload.status === "Y") {
+          // dispatch(configureAddedPriceList);
+          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
+          setAddPriceListData([])
+        }
       } else {
         // Handle case where no price list data is selected
         setIsPriceListExistsError(true);
@@ -278,7 +285,7 @@ const ConfigureCompanyEdit = () => {
             label="Include Price List"
             url={`${
               process.env.REACT_APP_BASE_URL
-            }PriceListItems/GetPrictListList?CompanyCode=PM`}
+            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
           />
           <Tooltip title="Add">
             <IconButton
@@ -318,6 +325,7 @@ const ConfigureCompanyEdit = () => {
     if (response.payload.status === "Y") {
       setOpenAlert(true);
       setSuccessMessage(response.payload.message)
+      
     } else {
       setOpenAlert(true);
       setPostError(response.payload.message);
@@ -607,7 +615,7 @@ const ConfigureCompanyEdit = () => {
                         );
                         if (response.payload.status === "Y") {
                           // dispatch(configureAddedPriceList);
-                          dispatch(getConfigPriceBook({ ID: State.RecordID }));
+                          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
                         }
                         setIsRemovePriceList(false);
                         setremovePriceListID(0);

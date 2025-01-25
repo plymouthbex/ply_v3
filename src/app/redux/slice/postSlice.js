@@ -976,9 +976,9 @@ export const postConfigureCompany = createAsyncThunk(
 
 export const PostConfigurePriceListID = createAsyncThunk(
   "post/PostConfigurePriceListID", // Action type string
-  async ({ pricedata }, { rejectWithValue }) => {
+  async ({ pricedata,RecordID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/PostConfigurePriceListID`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/PostConfigurePriceListID?RecordID=${RecordID}`;
       const response = await axios.post(URL, pricedata, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,

@@ -162,9 +162,13 @@ const NewProspect = () => {
 
       setTimeout(() => {
         setOpenAlert(false);
-        setPostError(null);
         setSubmitting(false);
       }, 2000);
+
+      
+      setTimeout(() => {
+        setPostError(null);
+      }, 2500);
     }
   };
 
@@ -570,7 +574,7 @@ const NewProspect = () => {
                     variant="standard"
                   >
                     <FormLabel focused={false} component="legend">
-                      Preferred Communication
+                      Preferred Format
                     </FormLabel>
                     <Stack direction="row" gap={2}>
                       <FormControlLabel
