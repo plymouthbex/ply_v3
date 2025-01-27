@@ -1160,6 +1160,47 @@ export const postMailConfig = createAsyncThunk(
     }
   }
 );
+
+
+export const LoginConfig = createAsyncThunk(
+  "post/LoginConfig", // Action type string
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}UserModule/UpdatePassword`;
+      const response = await axios.put(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const ChangePassword = createAsyncThunk(
+  "post/ChangePassword", // Action type string
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}UserModule/ChangePassword`;
+      const response = await axios.put(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,

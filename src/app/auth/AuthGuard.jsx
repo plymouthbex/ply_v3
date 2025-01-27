@@ -19,7 +19,7 @@ const AuthGuard = ({ children }) => {
     isAuthenticated,
     // user
   } = useAuth();
-    console.log("🚀 ~ file: AuthGuard.jsx:22 ~ AuthGuard ~ isAuthenticated:", isAuthenticated)
+    // console.log("🚀 ~ file: AuthGuard.jsx:22 ~ AuthGuard ~ isAuthenticated:", isAuthenticated)
   const { pathname } = useLocation();
 
   //   const routes = flat(AllPages);
