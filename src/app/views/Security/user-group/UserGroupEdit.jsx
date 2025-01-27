@@ -310,6 +310,13 @@ const UserGroupEdit = () => {
     // Check if CompanyData is empty
     const isCompanyDataEmpty = Companydata.length === 0;
   
+
+    const hasSelectedApp = selectedAppRows.some(
+      (row) => row.IsSelected === "Y"
+    );
+  
+    // Check if CompanyData is empty
+    const isAppDataEmpty = Applicationdata.length === 0;
     // Debugging logs
     console.log("🚀 ~ HandleSave ~ CompanyData:", Companydata);
     console.log("🚀 ~ HandleSave ~ isCompanyDataEmpty:", isCompanyDataEmpty);
@@ -317,6 +324,10 @@ const UserGroupEdit = () => {
     // Show the alert if no company is selected and CompanyData is empty
     if (!hasSelectedCompany && isCompanyDataEmpty) {
       setOpenCompanyyAlert(true);
+      return;
+    }
+    if (!hasSelectedApp && isAppDataEmpty) {
+      setOpenAppAlert(true);
       return;
     }
     // Prepare data for submission

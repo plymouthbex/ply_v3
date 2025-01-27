@@ -697,6 +697,44 @@ const UserEdit = () => {
                     error={touched.sequence && Boolean(errors.sequence)}
                     helperText={touched.sequence && errors.sequence}
                   /> */}
+                    
+                    
+                   
+                    <FormControlLabel
+sx={{ width:"20px"}}
+                      control={
+                        <Checkbox
+                          size="small"
+                          id="disable"
+                          name="disable"
+                          checked={values.disable}
+                          onChange={handleChange}
+                          sx={{ height: "10px" }}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                          }
+                        />
+                      }
+                      label="Disable"
+                     
+                    />
+
+                    <Typography sx={{fontSize:"16px",fontWeight:"bold"}}>Default Settings</Typography>
+                     <FormikCompanyOptimizedAutocomplete
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      name="defaultCompany"
+                      id="defaultCompany"
+                      value={values.defaultCompany}
+                      onChange={(event, newValue) =>
+                        setFieldValue("defaultCompany", newValue)
+                      }
+                      required
+                      label="Default Company"
+                      url={`${process.env.REACT_APP_BASE_URL}Company`}
+                    />
                     <FormikUserGroupOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
@@ -734,39 +772,6 @@ const UserEdit = () => {
                       }
                       label="Default Price Book Group"
                       url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
-                    />
-                    <FormikCompanyOptimizedAutocomplete
-                      sx={{ gridColumn: "span 2" }}
-                      disabled={
-                        params.mode === "delete" || params.mode === "view"
-                      }
-                      name="defaultCompany"
-                      id="defaultCompany"
-                      value={values.defaultCompany}
-                      onChange={(event, newValue) =>
-                        setFieldValue("defaultCompany", newValue)
-                      }
-                      required
-                      label="Default Company"
-                      url={`${process.env.REACT_APP_BASE_URL}Company`}
-                    />
-                    <FormControlLabel
-sx={{ width:"20px"}}
-                      control={
-                        <Checkbox
-                          size="small"
-                          id="disable"
-                          name="disable"
-                          checked={values.disable}
-                          onChange={handleChange}
-                          sx={{ height: "10px" }}
-                          disabled={
-                            params.mode === "delete" || params.mode === "view"
-                          }
-                        />
-                      }
-                      label="Disable"
-                     
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
