@@ -419,7 +419,7 @@ const UserEdit = () => {
             defaultCompany: JSON.parse(data.Company),
             runGroup: JSON.parse(data.Rungroup),
             userGroup: JSON.parse(data.UserGroup),
-            sales:data.SalesPerson,
+            sales:JSON.parse(data.SalesPerson),
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
