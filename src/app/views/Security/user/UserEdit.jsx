@@ -716,9 +716,7 @@ sx={{ width:"20px"}}
                         />
                       }
                       label="Disable"
-                     
                     />
-
                     <Typography sx={{fontSize:"16px",fontWeight:"bold"}}>Default Settings</Typography>
                      <FormikCompanyOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
