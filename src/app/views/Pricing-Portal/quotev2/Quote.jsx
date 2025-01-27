@@ -648,8 +648,9 @@ export default function BuildCustomPriceBook() {
         // Create a temporary <a> element for downloading
         const link = document.createElement("a");
         link.href = blobUrl;
-        link.download = `${getQuoteHeaderData.CustomerName}_Quote_${sunday} TO ${saturday}.xlsx`;
+        link.download = `${getQuoteHeaderData.Name}_Quote_${sunday} TO ${saturday}.xlsx`;
 
+        console.log("🚀 ~ setTimeout ~ getQuoteHeaderData.CustomerName:", getQuoteHeaderData.Name)
         // Append the link to the document and trigger the download
         document.body.appendChild(link);
         link.click();

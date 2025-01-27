@@ -120,6 +120,7 @@ const RunGroup = () => {
                       state: {
                         ID: params.row.RecordID,
                         CompanyCode: companyID,
+                        Name:params.row.RunGroupCode,
                       },
                     }
                   );

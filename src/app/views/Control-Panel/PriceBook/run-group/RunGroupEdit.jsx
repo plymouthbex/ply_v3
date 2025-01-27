@@ -46,6 +46,7 @@ import { Add } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useAuth from "app/hooks/useAuth";
 import { CusListRunGrpOptimizedAutocomplete } from "app/components/FormikAutocomplete";
+import { FormikSalesPersonOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -69,6 +70,7 @@ const RunGroupEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state;
+  console.log("🚀 ~ RunGroupEdit ~ state:", state)
   const dispatch = useDispatch();
   const { user } = useAuth();
 
@@ -86,16 +88,51 @@ const RunGroupEdit = () => {
   const [isRemoveCustomer, setIsRemoveCustomer] = useState(false);
   const [removeCustomerID, setremoveCustomerID] = useState(0);
   const [removeCustomerdDesc, setremoveCustomerDesc] = useState("");
-
+  const [slectedSalesName,setselectedSalesName]=useState(null);
   const [addCustomerListData, setAddCustomerListData] = useState([]);
+  const [addedCustomers, setAddedCustomers] = useState([]);
+ 
+  // const handleSelectionAddCustomerListData = (e, newValue) => {
+  //   setAddCustomerListData(newValue);
+  // };
+
 
   const handleSelectionAddCustomerListData = (e, newValue) => {
     setAddCustomerListData(newValue);
   };
+
+  const handleAddCustomers = () => {
+    // if (addedCustomers.length > 0) {
+    //   // Dispatch the selected customers
+    //   dispatch(runGroupAddedItem(addedCustomers));
+
+    //   // Add the new customers to `getRows` (locally) to dynamically filter them out
+    //   setAddedCustomers([]);
+    // } else {
+    //   setIsCustomerListExistsError(true);
+    //   setTimeout(() => {
+    //     setIsCustomerListExistsError(false);
+    //   }, 2000);
+    // }
+    if (addCustomerListData.length > 0) {
+      // Dispatch to Redux
+      dispatch(runGroupAddedItem(addCustomerListData));
+      // Add to addedCustomers and reset selected data
+      setAddedCustomers((prev) => [...prev, ...addCustomerListData]);
+      setAddCustomerListData([]);
+    } else {
+      setIsCustomerListExistsError(true);
+      setTimeout(() => {
+        setIsCustomerListExistsError(false);
+      }, 2000);
+    }
+  };
+
   // ********************** REDUX STATE ********************** //
   const data = useSelector((state) => state.getSlice.runGroupFormData);
   const addedRows = useSelector((state) => state.getSlice.runGroupAddedData);
   const getRows = useSelector((state) => state.getSlice.runGroupGetData);
+  console.log("🚀 ~ RunGroupEdit ~ getRows:", getRows)
   const loading = useSelector((state) => state.getSlice.runGroupLoading);
   const status = useSelector((state) => state.getSlice.runGroupStatus);
   const error = useSelector((state) => state.getSlice.printGroupError);
@@ -137,25 +174,51 @@ const RunGroupEdit = () => {
       align: "center",
       renderCell: (param) => {
         return (
+          // <Tooltip title="Remove Customer">
+          //   <IconButton
+          //     color="error"
+          //     size="small"
+          //     disabled={params.mode === "delete" || params.mode === "view"}
+          //     onClick={() => {
+          //       setremoveCustomerID(param.row.CustomerNumber);
+          //       setremoveCustomerDesc(param.row.CustomerName);
+          //       setIsRemoveCustomer(true);
+          //     }}
+          //   >
+          //     <DeleteIcon fontSize="small" />
+          //   </IconButton>
+          // </Tooltip>
           <Tooltip title="Remove Customer">
-            <IconButton
-              color="error"
-              size="small"
-              disabled={params.mode === "delete" || params.mode === "view"}
-              onClick={() => {
-                setremoveCustomerID(param.row.CustomerNumber);
-                setremoveCustomerDesc(param.row.CustomerName);
-                setIsRemoveCustomer(true);
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            color="error"
+            size="small"
+            onClick={() => {
+              // Remove customer from addedCustomers state
+              setAddedCustomers((prev) =>
+                prev.filter(
+                  (customer) =>
+                    customer.CustomerNumber !== param.row.CustomerNumber
+                )
+              );
+
+              // Optional: Show confirmation modal or alert
+              setremoveCustomerID(param.row.CustomerNumber);
+              setremoveCustomerDesc(param.row.CustomerName);
+              setIsRemoveCustomer(true);
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+    
         );
       },
     },
   ];
-
+  const filteredExistingRows = [
+    ...(getRows || []), // Ensure `getRows` is an array
+    ...addedCustomers,
+  ];
   const CustomToolbar = React.memo(() => {
     console.log("Toolbar rendered"); // To check re-renders
     return (
@@ -181,7 +244,7 @@ const RunGroupEdit = () => {
         >
           <GridToolbarQuickFilter sx={{ width: 200 }} />
          
-              <CusListRunGrpOptimizedAutocomplete
+              {/* <CusListRunGrpOptimizedAutocomplete
                 sx={{ width: 400 }}
                 errors={isCustomerListExistsError}
                 helper={isCustomerListExistsError && "Please select customer!"}
@@ -229,7 +292,30 @@ const RunGroupEdit = () => {
                 startIcon={<Add size="small" />}
               >
                 Add Customers
-              </Button>
+              </Button> */}
+               <CusListRunGrpOptimizedAutocomplete
+        errors={isCustomerListExistsError}
+        helper={isCustomerListExistsError && "Please select customer!"}
+        name="customerPriceList"
+        id="customerPriceList"
+        value={addCustomerListData}
+        onChange={handleSelectionAddCustomerListData}
+        label="Customers"
+       url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList?CompanyCode=${state.CompanyCode}&PriceBookGroup=${slectedSalesName || data.SalesPersonName}`}
+        
+        addedCustomers={addedCustomers} // Pass added customers to exclude them
+      />
+
+      <Button
+        sx={{ width: 200, height: 40, gridColumn: "span 1" }}
+        variant="contained"
+        color="info"
+        size="small"
+        onClick={handleAddCustomers}
+        startIcon={<Add size="small" />}
+      >
+        Add Customers
+      </Button>
        
          
         </Box>
@@ -245,6 +331,7 @@ const RunGroupEdit = () => {
       Name: values.runGroupName,
       Sortorder: values.sortOrder,
       CompanyCode: state.CompanyCode,
+      SalesPerson:slectedSalesName,
       Disable: "N",
       LastModifiedDate: "",
       RunGroupList: [...getRows, ...filteredSelectedItems],
@@ -285,7 +372,14 @@ const RunGroupEdit = () => {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
   };
+  // const sales = data.SalesPersonName
 
+
+  // useEffect(() => {
+  //   if (sales) {
+  //     setselectedSalesName(data.SalesPersonName); // Set the parsed sales data
+  //   }
+  // }, [sales]);
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -297,6 +391,7 @@ const RunGroupEdit = () => {
             sortOrder: data.Sortorder,
             Disable: data.Disable,
             LastModifiedDate: data.LastModifiedDate,
+            sales:JSON.parse(data.SalesPerson),
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -320,6 +415,7 @@ const RunGroupEdit = () => {
             handleSubmit,
             resetForm,
             setSubmitting,
+            setFieldValue
           }) => (
             <form onSubmit={handleSubmit}>
               <div className="breadcrumb">
@@ -385,7 +481,7 @@ const RunGroupEdit = () => {
                     type="text"
                     id="runGroupCode"
                     name="runGroupCode"
-                    label="Name"
+                    label="Price Book Group Name"
                     value={values.runGroupCode}
                     onChange={handleChange}
                     required
@@ -419,7 +515,25 @@ const RunGroupEdit = () => {
                     //   error={!!touched.runGroupName && !!errors.runGroupName}
                     //   helperText={touched.runGroupName && errors.runGroupName}
                   />
-
+ <FormikSalesPersonOptimizedAutocomplete
+                      // sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                          ? true
+                          : false
+                      }
+                      name="sales"
+                      id="sales"
+                      value={values.sales}
+                      onChange={(event, newValue) =>
+                      {
+                        setFieldValue("sales", newValue)
+                        setselectedSalesName(newValue.Name)
+                      }
+                      }
+                      label="Sales Person Name"
+                      url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
+                    />
                   {/* <TextField
                     fullWidth
                     variant="outlined"

@@ -610,7 +610,7 @@ export const userPost = createAsyncThunk(
   "userPost/POST",
   async ({ userData }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}UserModule/PostCompany`;
+      const URL = `${process.env.REACT_APP_BASE_URL}UserModule/PostUserData`;
       const response = await axios.post(URL, userData, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
