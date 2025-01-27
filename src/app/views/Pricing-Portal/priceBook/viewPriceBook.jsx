@@ -1043,7 +1043,7 @@ const ViewPriceBook = () => {
       logo={`data:image/png;base64,${user.logo}`}
                       open={alertMessage}
                       tittle={"PDF"}
-                      message={`The Selected Customer ${selectedCustomerName} does not have  Pdf `}
+                      message={`The Selected Customer does not have Pdf Configuration`}
                       Actions={
                         <DialogActions>
                           
@@ -1065,7 +1065,7 @@ const ViewPriceBook = () => {
       logo={`data:image/png;base64,${user.logo}`}
                       open={alertMessage1}
                       tittle={"PDF"}
-                      message={`The selected customer ${selectedCustomerName} does not have Excel.`}
+                      message={`The selected customer does not have Excel Configuration.`}
                       Actions={
                         <DialogActions>
                           
@@ -1087,7 +1087,7 @@ const ViewPriceBook = () => {
       logo={`data:image/png;base64,${user.logo}`}
                       open={alertMessage2}
                       tittle={"PDF"}
-                      message={`The selected customer ${selectedCustomerName} does not have any contacts `}
+                      message={`The selected customer does not have any contacts(Email) `}
                       Actions={
                         <DialogActions>
                           
