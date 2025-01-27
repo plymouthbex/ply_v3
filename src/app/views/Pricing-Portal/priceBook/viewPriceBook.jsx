@@ -17,6 +17,7 @@ import {
   MenuItem,
   RadioGroup,
   Radio,
+  DialogActions,
 } from "@mui/material";
 import { Box, styled } from "@mui/material";
 import { Breadcrumb, SimpleCard } from "app/components";
@@ -55,6 +56,7 @@ import { CustomerCustomPriceDocument } from "app/components/Template/pdfs/Custom
 import { CustomerFullPriceDocument } from "app/components/Template/pdfs/CustomerFullPriceBook";
 import toast from "react-hot-toast";
 import { runGroupMailData } from "app/redux/slice/postSlice";
+import { MessageAlertDialog } from "app/components/AlertDialog";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -152,14 +154,40 @@ const ViewPriceBook = () => {
   const [isCustomer, setIsCustomer] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isNextWeek, setIsNextWeek] = useState(false);
+  const [isCustomerPdf, setIsCustomerPdf] = useState(null);
+  const [isCustomerExcel, setIsCustomerExcel] = useState(null);
+  const [isCustomerMail, setIsCustomerMail] = useState(null);
+  const [alertMessage, setAlertMessage]=useState(false);
+  const [alertMessage1, setAlertMessage1]=useState(false);
+  const [alertMessage2, setAlertMessage2]=useState(false);
   const { user } = useAuth();
   //=======================CUSTOMER===================================//
   const [selectedCustomerOptions, setSelectedCustomerOptions] = useState(null);
-
+  const [selectedCustomerName, setSelectedCustomerName] = useState(null);
+  // const handleSelectionCustomerChange = (newValue) => {
+  //   setSelectedCustomerOptions(newValue);
+  //   setSelectedCustomerName(newValue.CustomerName);
+  //   setIsCustomerPdf(newValue.Pdf);
+  //   setIsCustomerExcel(newValue.Excel);
+  //   setIsCustomerMail(newValue.ContactCount)
+  // };
   const handleSelectionCustomerChange = (newValue) => {
-    setSelectedCustomerOptions(newValue);
+    if (newValue) {
+      setSelectedCustomerOptions(newValue);
+      setSelectedCustomerName(newValue.CustomerName);
+      setIsCustomerPdf(newValue.Pdf);
+      setIsCustomerExcel(newValue.Excel);
+      setIsCustomerMail(newValue.ContactCount);
+    } else {
+      // Set values to null if newValue is not provided
+      setSelectedCustomerOptions(null);
+      setSelectedCustomerName(null);
+      setIsCustomerPdf(null);
+      setIsCustomerExcel(null);
+      setIsCustomerMail(null);
+    }
   };
-
+  
   //=======================PRICE LIST TYPE===================================//
   const [selectPriceListtype, setSelectPriceListType] = useState("FP");
 
@@ -226,48 +254,96 @@ const ViewPriceBook = () => {
   };
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
+  // const fnRunGrpEmailProcess = async () => {
+  //   if (!selectedCustomerOptions) {
+  //     setIsCustomer("Please Choose Customer");
+
+  //     setTimeout(() => {
+  //       setIsCustomer(null);
+  //     }, 1000);
+  //     return;
+  //   }
+
+  //   const data = [
+  //     {
+  //       CustomerNumber: selectedCustomerOptions.Code,
+  //       FullPriceBookPdf: selectPriceListtype === "FP" ? "1" : "0",
+  //       FullPriceBookExcel: selectPriceListtype === "FP" ? "1" : "0",
+  //       CustomPriceBooPdf: selectPriceListtype === "CP" ? "1" : "0",
+  //       CustomPriceBookExcel: selectPriceListtype === "CP" ? "1" : "0",
+  //       FromDate: sunday,
+  //       ToDate: saturday,
+  //       UserID: user.id,
+  //       CompnayID: user.companyID,
+  //       CompanyCode: user.companyCode,
+  //       TemplateID: "",
+  //     },
+  //   ];
+  //   console.log("🚀 ~ data ~ data:", data);
+
+  //   try {
+  //     const response = await dispatch(runGroupMailData({ data }));
+
+  //     if (response.payload.status === "Y") {
+  //       setOpenAlert(true);
+  //     } else {
+  //       setOpenAlert(true);
+  //       setPostError(true);
+  //     }
+  //   } catch (error) {
+  //     setOpenAlert(true);
+  //     setPostError(true);
+  //     console.error("Error during HandleSave:", error);
+  //   }
+  // };
   const fnRunGrpEmailProcess = async () => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
-
+  
       setTimeout(() => {
         setIsCustomer(null);
       }, 1000);
       return;
     }
-    const data = [
-      {
-        CustomerNumber: selectedCustomerOptions.Code,
-        FullPriceBookPdf: selectPriceListtype === "FP" ? "1" : "0",
-        FullPriceBookExcel: selectPriceListtype === "FP" ? "1" : "0",
-        CustomPriceBooPdf: selectPriceListtype === "CP" ? "1" : "0",
-        CustomPriceBookExcel: selectPriceListtype === "CP" ? "1" : "0",
-        FromDate: sunday,
-        ToDate: saturday,
-        UserID: user.id,
-        CompnayID: user.companyID,
-        CompanyCode: user.companyCode,
-        TemplateID: "",
-      },
-    ];
-    console.log("🚀 ~ data ~ data:", data);
-
-    try {
-      const response = await dispatch(runGroupMailData({ data }));
-
-      if (response.payload.status === "Y") {
-        setOpenAlert(true);
-      } else {
+  
+    if (isCustomerMail > 0) {
+      const data = [
+        {
+          CustomerNumber: selectedCustomerOptions.Code,
+          FullPriceBookPdf: selectPriceListtype === "FP" ? "1" : "0",
+          FullPriceBookExcel: selectPriceListtype === "FP" ? "1" : "0",
+          CustomPriceBooPdf: selectPriceListtype === "CP" ? "1" : "0",
+          CustomPriceBookExcel: selectPriceListtype === "CP" ? "1" : "0",
+          FromDate: sunday,
+          ToDate: saturday,
+          UserID: user.id,
+          CompnayID: user.companyID,
+          CompanyCode: user.companyCode,
+          TemplateID: "",
+        },
+      ];
+  
+      console.log("🚀 ~ data ~ data:", data);
+  
+      try {
+        const response = await dispatch(runGroupMailData({ data }));
+  
+        if (response.payload.status === "Y") {
+          setOpenAlert(true);
+        } else {
+          setOpenAlert(true);
+          setPostError(true);
+        }
+      } catch (error) {
         setOpenAlert(true);
         setPostError(true);
+        console.error("Error during HandleSave:", error);
       }
-    } catch (error) {
-      setOpenAlert(true);
-      setPostError(true);
-      console.error("Error during HandleSave:", error);
+    } else {
+      setAlertMessage2(true);
     }
   };
-
+  
   const getPriceListCustomerFull = (priceListOutType) => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
@@ -717,13 +793,23 @@ const ViewPriceBook = () => {
                 label="Show Price"
               />
               <Stack direction="row" alignItems={"center"}>
-                <Tooltip title="PDF" placement="top">
+                
+                  <Tooltip title="PDF" placement="top">
                   <CustomIconButton
                     onClick={
-                      () =>
-                        selectPriceListtype === "FP"
-                          ? getPriceListCustomerFull("PDF")
-                          : getPriceListCustomerCustom("PDF")
+                      // () =>
+                      //   selectPriceListtype === "FP"
+                      //     ? getPriceListCustomerFull("PDF")
+                      //     : getPriceListCustomerCustom("PDF")
+                      isCustomerPdf === "1"
+                      ? () =>
+                          selectPriceListtype === "FP"
+                            ? getPriceListCustomerFull("PDF")
+                            : getPriceListCustomerCustom("PDF")
+                      : () => {
+                          // Show an alert or notification if the customer cannot have a PDF
+                          setAlertMessage(true);
+                        }
                       // navigate("/PDF8")
                     }
                     sx={{
@@ -738,14 +824,21 @@ const ViewPriceBook = () => {
                     <FaFilePdf style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
+                
                 <Tooltip title="Excel" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.success.main}
                     aria-label="excel"
-                    onClick={() =>
+                    onClick={
+                      
+                      isCustomerExcel === "1" ? () =>
                       selectPriceListtype === "FP"
                         ? getPriceListCustomerFull("EXCEL")
                         : getPriceListCustomerCustom("EXCEL")
+                        : () => {
+                          // Show an alert or notification if the customer cannot have a PDF
+                          setAlertMessage1(true);
+                        }
                     }
                     // onClick={() => navigate("/PDF8")}
                   >
@@ -755,10 +848,20 @@ const ViewPriceBook = () => {
                 <Tooltip title="Print" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.warning.main}
-                    onClick={() =>
+                    onClick={
+                      // () =>
+                      // selectPriceListtype === "FP"
+                      //   ? getPriceListCustomerFull("PRINT")
+                      //   : getPriceListCustomerCustom("PRINT")
+                      isCustomerPdf === "1"
+                       ? () =>
                       selectPriceListtype === "FP"
                         ? getPriceListCustomerFull("PRINT")
                         : getPriceListCustomerCustom("PRINT")
+                        :()=>{
+                          setAlertMessage2(true);
+                        }
+                    
                     }
                     aria-label="print"
                   >
@@ -936,6 +1039,72 @@ const ViewPriceBook = () => {
         loading={viewPriceIsPdfGenrating}
         error={viewPriceIsPdfError}
       />
+      <MessageAlertDialog
+      logo={`data:image/png;base64,${user.logo}`}
+                      open={alertMessage}
+                      tittle={"PDF"}
+                      message={`The Selected Customer ${selectedCustomerName} does not have  Pdf `}
+                      Actions={
+                        <DialogActions>
+                          
+                          <Button
+                            variant="contained"
+                            color="info"
+                            size="small"
+                            onClick={() => {
+                              setAlertMessage(false)
+                            }}
+                            autoFocus
+                          >
+                            Close
+                          </Button>
+                        </DialogActions>
+                      }
+                    />
+                     <MessageAlertDialog
+      logo={`data:image/png;base64,${user.logo}`}
+                      open={alertMessage1}
+                      tittle={"PDF"}
+                      message={`The selected customer ${selectedCustomerName} does not have Excel.`}
+                      Actions={
+                        <DialogActions>
+                          
+                          <Button
+                            variant="contained"
+                            color="info"
+                            size="small"
+                            onClick={() => {
+                              setAlertMessage1(false)
+                            }}
+                            autoFocus
+                          >
+                            Close
+                          </Button>
+                        </DialogActions>
+                      }
+                    />
+                    <MessageAlertDialog
+      logo={`data:image/png;base64,${user.logo}`}
+                      open={alertMessage2}
+                      tittle={"PDF"}
+                      message={`The selected customer ${selectedCustomerName} does not have any contacts `}
+                      Actions={
+                        <DialogActions>
+                          
+                          <Button
+                            variant="contained"
+                            color="info"
+                            size="small"
+                            onClick={() => {
+                              setAlertMessage2(false)
+                            }}
+                            autoFocus
+                          >
+                            Close
+                          </Button>
+                        </DialogActions>
+                      }
+                    />
     </Container>
   );
 };

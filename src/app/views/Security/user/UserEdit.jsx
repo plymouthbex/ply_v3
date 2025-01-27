@@ -43,6 +43,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   FormikCompanyOptimizedAutocomplete,
   FormikRungroupOptimizedAutocomplete,
+  FormikSalesPersonOptimizedAutocomplete,
   FormikUserGroupOptimizedAutocomplete,
 } from "app/components/SingleAutocompletelist";
 import useAuth from "app/hooks/useAuth";
@@ -754,6 +755,22 @@ sx={{ width:"20px"}}
                       }}
                       label="User Group"
                       url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
+                    />
+                    <FormikSalesPersonOptimizedAutocomplete
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                          ? true
+                          : false
+                      }
+                      name="sales"
+                      id="sales"
+                      value={values.SalesPerson}
+                      onChange={(event, newValue) =>
+                        setFieldValue("sales", newValue)
+                      }
+                      label="Sales Person Name"
+                      url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
                     />
                     <FormikRungroupOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
