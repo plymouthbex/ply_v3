@@ -75,8 +75,8 @@ const RunGroupEdit = () => {
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(false);
-  
+  const [successMessage, setSuccessMessage] = useState(false);
+
   const [isRunGroupOpen, SetIsRunGroupOpen] = useState(false);
   const [RunGroupID, setRunGroupID] = useState(0);
   const [isDelete, setIsDelete] = useState(false);
@@ -179,218 +179,84 @@ const RunGroupEdit = () => {
             width: "100%",
           }}
         >
-          <GridToolbarQuickFilter sx={{ width: 400 }} />
-          {/* <CusListRunGrpOptimizedAutocomplete
-            errors={isCustomerListExistsError}
-            helper={isCustomerListExistsError && "Please select customer!"}
-            disabled={params.mode === "delete" || params.mode === "view"}
-            name="customerPriceList"
-            id="customerPriceList"
-            value={addCustomerListData}
-            onChange={handleSelectionAddCustomerListData}
-            label="Customer"
-            url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
-          /> */}
-          {/* <Tooltip title="Add Customers">
-            <IconButton
-              color="black"
-              size="small"
-              disabled={params.mode === "delete"}
-              onClick={() => {
-                if (addCustomerListData) {
-                  // const isItem = [...getRows, ...filteredSelectedItems].some(
-                  //   (item) =>
-                  //     lodash.isEqual(
-                  //       item.RecordID,
-                  //       addCustomerListData.RecordID
-                  //     )
-                  // );
-                  // if (isItem) {
-                  //   setIsCustomerListExists(true);
-                  //   setTimeout(() => {
-                  //     setIsCustomerListExists(false);
-                  //     setAddCustomerListData(null);
-                  //   }, 5000);
-                  //   return;
-                  // }
-                  dispatch(runGroupAddedItem(addCustomerListData));
-                  setAddCustomerListData([]);
-                } else {
-                  setIsCustomerListExistsError(true);
-                  setTimeout(() => {
-                    setIsCustomerListExistsError(false);
-                  }, 2000);
-                }
-              }}
-            >
-              <Add fontSize="small" />
-            </IconButton>
-          </Tooltip> */}
+          <GridToolbarQuickFilter sx={{ width: 200 }} />
+         
+              <CusListRunGrpOptimizedAutocomplete
+                sx={{ width: 400 }}
+                errors={isCustomerListExistsError}
+                helper={isCustomerListExistsError && "Please select customer!"}
+                disabled={params.mode === "delete" || params.mode === "add"}
+                name="customerPriceList"
+                id="customerPriceList"
+                value={addCustomerListData}
+                onChange={handleSelectionAddCustomerListData}
+                label="Customers"
+                url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList?CompanyCode=${state.CompanyCode}&PriceBookGroup=${data.Code}`}
+              />
 
-          {/* <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add fontSize="small" />}
-            disabled={params.mode === "delete" ? true : false}
-            onClick={() => {
-              if (addCustomerListData) {
-                const isItem = [...getRows, ...filteredSelectedItems].some(
-                  (item) =>
-                    lodash.isEqual(item.RecordID, addCustomerListData.RecordID)
-                );
-                if (isItem) {
-                  setIsCustomerListExists(true);
-                  setTimeout(() => {
-                    setIsCustomerListExists(false);
-                    setAddCustomerListData(null);
-                  }, 5000);
-                  return;
-                }
-                dispatch(runGroupAddedItem(addCustomerListData));
-                setAddCustomerListData(null);
-              } else {
-                setIsCustomerListExistsError(true);
-                setTimeout(() => {
-                  setIsCustomerListExistsError(false);
-                }, 2000);
-              }
-            }}
-          >
-            Add
-          </Button> */}
+              <Button
+                sx={{ width: 200, height: 40, gridColumn: "span 1" }}
+                variant="contained"
+                color="info"
+                size="small"
+                disabled={params.mode === "delete" || params.mode === 'add'}
+                onClick={() => {
+                  if (addCustomerListData) {
+                    // const isItem = [...getRows, ...filteredSelectedItems].some(
+                    //   (item) =>
+                    //     lodash.isEqual(
+                    //       item.RecordID,
+                    //       addCustomerListData.RecordID
+                    //     )
+                    // );
+                    // if (isItem) {
+                    //   setIsCustomerListExists(true);
+                    //   setTimeout(() => {
+                    //     setIsCustomerListExists(false);
+                    //     setAddCustomerListData(null);
+                    //   }, 5000);
+                    //   return;
+                    // }
+                    dispatch(runGroupAddedItem(addCustomerListData));
+                    setAddCustomerListData([]);
+                  } else {
+                    setIsCustomerListExistsError(true);
+                    setTimeout(() => {
+                      setIsCustomerListExistsError(false);
+                    }, 2000);
+                  }
+                }}
+                startIcon={<Add size="small" />}
+              >
+                Add Customers
+              </Button>
+       
+         
         </Box>
       </GridToolbarContainer>
     );
   });
-  // ********************** TOOLBAR ********************** //
-  // function CustomToolbar() {
-  //   return (
-  //     <GridToolbarContainer
-  //       sx={{
-  //         display: "flex",
-  //         flexDirection: "row",
-  //         justifyContent: "flex-end",
-  //         width: "100%",
-  //         padding: "5px",
-  //       }}
-  //     >
-  //       <Box
-  //         sx={{
-  //           display: "flex",
-  //           flexDirection: isNonMobile ? "row" : "column",
-  //           justifyContent: "flex-end",
-  //           alignItems: "center",
-  //           gap: 2,
-  //           paddingX: 2,
-  //           width: "100%",
-  //         }}
-  //       >
-  //         <GridToolbarQuickFilter sx={{ width: 400 }} />
-  //         <CusListRunGrpOptimizedAutocomplete
-  //           errors={isCustomerListExistsError}
-  //           helper={isCustomerListExistsError && "Please select customer!"}
-  //           disabled={params.mode === "delete" || params.mode === "view"}
-  //           name="customerPriceList"
-  //           id="customerPriceList"
-  //           value={addCustomerListData}
-  //           onChange={handleSelectionAddCustomerListData}
-  //           label="Customer"
-  //           url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
-  //         />
-  //         <Tooltip title="Add Customer">
-  //           <IconButton
-  //             color="black"
-  //             size="small"
-  //             disabled={params.mode === "delete"}
-  //             onClick={() => {
-  //               if (addCustomerListData) {
-  //                 const isItem = [...getRows, ...filteredSelectedItems].some(
-  //                   (item) =>
-  //                     lodash.isEqual(
-  //                       item.RecordID,
-  //                       addCustomerListData.RecordID
-  //                     )
-  //                 );
-  //                 if (isItem) {
-  //                   setIsCustomerListExists(true);
-  //                   setTimeout(() => {
-  //                     setIsCustomerListExists(false);
-  //                     setAddCustomerListData(null);
-  //                   }, 5000);
-  //                   return;
-  //                 }
-  //                 dispatch(runGroupAddedItem(addCustomerListData));
-  //                 setAddCustomerListData(null);
-  //               } else {
-  //                 setIsCustomerListExistsError(true);
-  //                 setTimeout(() => {
-  //                   setIsCustomerListExistsError(false);
-  //                 }, 2000);
-  //               }
-  //             }}
-  //           >
-  //             <Add fontSize="small" />
-  //           </IconButton>
-  //         </Tooltip>
 
-  //         {/* <Button
-  //           variant="contained"
-  //           color="info"
-  //           size="small"
-  //           startIcon={<Add fontSize="small" />}
-  //           disabled={params.mode === "delete" ? true : false}
-  //           onClick={() => {
-  //             if (addCustomerListData) {
-  //               const isItem = [...getRows, ...filteredSelectedItems].some(
-  //                 (item) =>
-  //                   lodash.isEqual(item.RecordID, addCustomerListData.RecordID)
-  //               );
-  //               if (isItem) {
-  //                 setIsCustomerListExists(true);
-  //                 setTimeout(() => {
-  //                   setIsCustomerListExists(false);
-  //                   setAddCustomerListData(null);
-  //                 }, 5000);
-  //                 return;
-  //               }
-  //               dispatch(runGroupAddedItem(addCustomerListData));
-  //               setAddCustomerListData(null);
-  //             } else {
-  //               setIsCustomerListExistsError(true);
-  //               setTimeout(() => {
-  //                 setIsCustomerListExistsError(false);
-  //               }, 2000);
-  //             }
-  //           }}
-  //         >
-  //           Add
-  //         </Button> */}
-  //       </Box>
-  //     </GridToolbarContainer>
-  //   );
-  // }
 
   const runGroupSaveFn = async (values, setSubmitting) => {
     const postData = {
-      recordId: data.RecordId,
-      code: values.runGroupCode,
-      name: values.runGroupName,
-      sortorder: values.sortOrder,
-      companyCode: state.CompanyCode,
-      disable: "N",
-      lastModifiedDate: "",
+      RecordId: data.RecordId,
+      Code: values.runGroupCode,
+      Name: values.runGroupName,
+      Sortorder: values.sortOrder,
+      CompanyCode: state.CompanyCode,
+      Disable: "N",
+      LastModifiedDate: "",
       RunGroupList: [...getRows, ...filteredSelectedItems],
     };
     try {
       const response = await dispatch(runGroupPost({ rData: postData }));
-      console.log("🚀 ~ runGroupSaveFn ~ response:", response)
+      console.log("🚀 ~ runGroupSaveFn ~ response:", response);
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
         setSuccessMessage(response.payload.message);
-        if(params.mode === "add"){
-
+        if (params.mode === "add") {
           dispatch(getRunGroupData({ id: response.payload.RecordID }));
         }
       } else {
@@ -553,60 +419,7 @@ const RunGroupEdit = () => {
                     //   error={!!touched.runGroupName && !!errors.runGroupName}
                     //   helperText={touched.runGroupName && errors.runGroupName}
                   />
-                  <CusListRunGrpOptimizedAutocomplete
-                  sx={{ gridColumn: "span 1" }}
-                    errors={isCustomerListExistsError}
-                    helper={
-                      isCustomerListExistsError && "Please select customer!"
-                    }
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                    }
-                    name="customerPriceList"
-                    id="customerPriceList"
-                    value={addCustomerListData}
-                    onChange={handleSelectionAddCustomerListData}
-                    label="Customers"
-                    url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
-                  />
-                   
-            <Button
-             sx={{width:150,height:40, gridColumn:"span 1"}}
-             variant="contained"
-             color="info"
-             size="small"
-              disabled={params.mode === "delete"}
-              onClick={() => {
-                if (addCustomerListData) {
-                  // const isItem = [...getRows, ...filteredSelectedItems].some(
-                  //   (item) =>
-                  //     lodash.isEqual(
-                  //       item.RecordID,
-                  //       addCustomerListData.RecordID
-                  //     )
-                  // );
-                  // if (isItem) {
-                  //   setIsCustomerListExists(true);
-                  //   setTimeout(() => {
-                  //     setIsCustomerListExists(false);
-                  //     setAddCustomerListData(null);
-                  //   }, 5000);
-                  //   return;
-                  // }
-                  dispatch(runGroupAddedItem(addCustomerListData));
-                  setAddCustomerListData([]);
-                } else {
-                  setIsCustomerListExistsError(true);
-                  setTimeout(() => {
-                    setIsCustomerListExistsError(false);
-                  }, 2000);
-                }
-              }}
-              startIcon={ <Add  size="small"/>}
-            >
-             Add Customers
-            </Button>
-          
+
                   {/* <TextField
                     fullWidth
                     variant="outlined"
@@ -743,7 +556,7 @@ const RunGroupEdit = () => {
                         setIsDelete(false);
                         runGroupDeleteFn();
                         setSuccessMessage(null);
-                        setPostError(null)
+                        setPostError(null);
                       }}
                     >
                       Yes
@@ -757,7 +570,7 @@ const RunGroupEdit = () => {
                         setIsDelete(false);
                         setSubmitting(false);
                         setSuccessMessage(null);
-                        setPostError(null)
+                        setPostError(null);
                       }}
                       autoFocus
                     >
@@ -825,33 +638,29 @@ const RunGroupEdit = () => {
         logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
-        message={
-          postError
-            ? postError:successMessage
-        }
+        message={postError ? postError : successMessage}
         Actions={
           <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            width: "100%",
-          }}
-        >
-          <Button
-            variant="contained"
-            sx={{ mr: 1, height: 25 }}
-            color="info"
-            size="small"
-            onClick={() => {
-              setOpenAlert(false);
-              setSuccessMessage(null);
-              setPostError(null)
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
             }}
           >
-            close
-          </Button>
-
-        </Box>
+            <Button
+              variant="contained"
+              sx={{ mr: 1, height: 25 }}
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
+                setSuccessMessage(null);
+                setPostError(null);
+              }}
+            >
+              close
+            </Button>
+          </Box>
         }
       />
 

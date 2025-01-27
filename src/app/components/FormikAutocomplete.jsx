@@ -97,7 +97,7 @@ export function CusListRunGrpOptimizedAutocomplete({
       }}
       size="small"
       multiple={multiple}
-      limitTags={2}
+      limitTags={1}
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}

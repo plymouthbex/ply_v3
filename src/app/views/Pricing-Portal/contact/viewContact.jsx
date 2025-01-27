@@ -121,6 +121,7 @@ const ContactEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getConfigContactData);
+  console.log("🚀 ~ ContactEdit ~ data:", data)
   const loading = useSelector(
     (state) => state.getSlice.getConfigContactLoading
   );

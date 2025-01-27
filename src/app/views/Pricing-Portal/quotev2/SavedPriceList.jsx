@@ -37,6 +37,7 @@ import { PriceGroupAlertApiDialog, QuoteTempAlertApiDialog } from "app/component
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -138,7 +139,7 @@ const SavedPriceList = () => {
   </IconButton>
 </Tooltip>
 
-<Tooltip title="View">
+<Tooltip title="Edit">
   <IconButton
     color="black"
     size="small"
@@ -150,7 +151,7 @@ const SavedPriceList = () => {
       });
     }}
   >
-    <VisibilityIcon fontSize="small" />
+    <ModeEditOutlineIcon fontSize="small" />
   </IconButton>
 </Tooltip>
 
