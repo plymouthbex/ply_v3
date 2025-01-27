@@ -18,6 +18,7 @@ import {
   FormControl,
   Typography,
   LinearProgress,
+  sliderClasses,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import Avatar from "@mui/material/Avatar";
@@ -151,7 +152,7 @@ const UserEdit = () => {
   const [successMessage, setSuccessMessage] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
-
+  const [slectedSalesName,setselectedSalesName]=useState(null);
   const [OpenUser, setOpenUser] = useState(false);
 
   // ******************** REDUX STATE ******************** //
@@ -341,6 +342,7 @@ const UserEdit = () => {
         UserProfileImage:
           previewImages1.length > 0 ? images[1] : data.UserProfileImage,
         IsPasswordChanged: data.Password === values.password ? 0 : 1,
+        SalesPerson:slectedSalesName,
       };
       console.log("🚀 ~ HandleSave ~ userData:", userData);
       // return;
@@ -417,6 +419,7 @@ const UserEdit = () => {
             defaultCompany: JSON.parse(data.Company),
             runGroup: JSON.parse(data.Rungroup),
             userGroup: JSON.parse(data.UserGroup),
+            sales:data.SalesPerson,
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
@@ -765,9 +768,11 @@ sx={{ width:"20px"}}
                       }
                       name="sales"
                       id="sales"
-                      value={values.SalesPerson}
+                      value={values.sales}
                       onChange={(event, newValue) =>
-                        setFieldValue("sales", newValue)
+                        {setFieldValue("sales", newValue);
+                          setselectedSalesName(newValue.Name)
+                        }
                       }
                       label="Sales Person Name"
                       url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}

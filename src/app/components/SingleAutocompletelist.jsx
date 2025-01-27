@@ -1369,10 +1369,10 @@ export const FormikSalesPersonOptimizedAutocomplete = ({
           label={props.label || "Select Options"}
           error={!!error}
           helperText={error}
-          required
-          InputLabelProps={{
-            sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-          }}
+          // required
+          // InputLabelProps={{
+          //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+          // }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
