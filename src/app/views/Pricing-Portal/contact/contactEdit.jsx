@@ -62,6 +62,7 @@ import {
 } from "app/redux/slice/postSlice";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import useAuth from "app/hooks/useAuth";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -75,9 +76,6 @@ const Container = styled("div")(({ theme }) => ({
     flexDirection: "row",
   },
 }));
-
-
-
 
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
@@ -107,7 +105,7 @@ const ConfigureContactEdit = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
-
+  const { user } = useAuth()
 
   // ******************** LOCAL STATE ******************** //
 
@@ -122,10 +120,10 @@ const ConfigureContactEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getconfigureData);
+  console.log("🚀 ~ ConfigureContactEdit ~ data:", data);
   const getRows = useSelector(
     (state) => state.getSlice.configurePriceListContactData
   );
-
 
   const getRowsSet = new Set(getRows.map((item) => item.PRICELISTID));
   const filteredSelectedItems = getRows.filter(
@@ -144,7 +142,6 @@ const ConfigureContactEdit = () => {
     dispatch(getConfigPriceBook({ ID: State.RecordID }));
   }, [dispatch]);
   // ********************** COLUMN ********************** //
-
 
   function CustomToolbar() {
     return (
@@ -168,40 +165,59 @@ const ConfigureContactEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-        
 
+          {data.Rungroup === user.defaultRunGroup && user.role === 'USER' ? 
           <Tooltip title="Add">
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
               size="small"
               onClick={() => {
-                navigate(
-                    "./add",
-                    {
-                      state: {
-                        RecordID: 0,
-                        CompanyCode: State.CompanyCode,
-                         CustomerNumber:data.CustomerNumber
-                      },
-                    }
-                  );
+                navigate("./add", {
+                  state: {
+                    RecordID: 0,
+                    CompanyCode: State.CompanyCode,
+                    CustomerNumber: data.CustomerNumber,
+                  },
+                });
               }}
             >
-              <Add sx={{
+              <Add
+                sx={{
                   fontSize: 30, // Increased icon size
                   color: theme.palette.success.main,
-                }} />
+                }}
+              />
             </IconButton>
-          </Tooltip>
+          </Tooltip>:user.role != 'USER' ? <Tooltip title="Add">
+            <IconButton
+              disabled={params.mode === "delete" || params.mode === "view"}
+              color="black"
+              size="small"
+              onClick={() => {
+                navigate("./add", {
+                  state: {
+                    RecordID: 0,
+                    CompanyCode: State.CompanyCode,
+                    CustomerNumber: data.CustomerNumber,
+                  },
+                });
+              }}
+            >
+              <Add
+                sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }}
+              />
+            </IconButton>
+          </Tooltip>:false }
         </Box>
       </GridToolbarContainer>
     );
   }
 
   //====================================================================================//
-
-
 
   const columns = [
     {
@@ -211,9 +227,9 @@ const ConfigureContactEdit = () => {
       align: "left",
       headerAlign: "left",
       hide: true,
-      renderCell: (params) => `${params.row.FirstName} ${params.row.LastName} `
+      renderCell: (params) => `${params.row.FirstName} ${params.row.LastName} `,
     },
-    
+
     {
       headerName: "Phone",
       field: "Phone",
@@ -249,16 +265,13 @@ const ConfigureContactEdit = () => {
                 color="black"
                 size="small"
                 onClick={() => {
-                  navigate(
-                    "./edit",
-                    {
-                      state: {
-                        RecordID: params.row.RecordID,
-                        CompanyCode: State.CompanyCode,
-                        CustomerNumber:data.CustomerNumber
-                      },
-                    }
-                  );
+                  navigate("./edit", {
+                    state: {
+                      RecordID: params.row.RecordID,
+                      CompanyCode: State.CompanyCode,
+                      CustomerNumber: data.CustomerNumber,
+                    },
+                  });
                 }}
               >
                 <ModeEditOutlineIcon fontSize="small" />
@@ -269,16 +282,13 @@ const ConfigureContactEdit = () => {
                 color="black"
                 size="small"
                 onClick={() => {
-                  navigate(
-                    "./delete",
-                    {
-                      state: {
-                        RecordID:  params.row.RecordID,
-                        CompanyCode: State.CompanyCode,
-                        CustomerNumber:data.CustomerNumber
-                      },
-                    }
-                  );
+                  navigate("./delete", {
+                    state: {
+                      RecordID: params.row.RecordID,
+                      CompanyCode: State.CompanyCode,
+                      CustomerNumber: data.CustomerNumber,
+                    },
+                  });
                 }}
               >
                 <DeleteIcon fontSize="small" color="error" />
@@ -324,8 +334,15 @@ const ConfigureContactEdit = () => {
             <form onSubmit={handleSubmit}>
               <div className="breadcrumb">
                 <Breadcrumb
-                         routeSegments={[{ name: "Price Book" }, { name: "Contact Directory",path:"/pages/pricing-portal/contact-directory" },{ name: "Contacts" }]}
-                       />
+                  routeSegments={[
+                    { name: "Price Book" },
+                    {
+                      name: "Contact Directory",
+                      path: "/pages/pricing-portal/contact-directory",
+                    },
+                    { name: "Contacts" },
+                  ]}
+                />
                 <Stack direction={"row"} gap={1}>
                   {/* <Button
                     variant="contained"
@@ -478,6 +495,7 @@ const ConfigureContactEdit = () => {
                     pageSizeOptions={[5, 10, 20, 25]}
                     columnVisibilityModel={{
                       item_key: false,
+                      Action:data.Rungroup === user.defaultRunGroup && user.role === 'USER' ? true :user.role != 'USER' ? true :false
                     }}
                     disableColumnFilter
                     disableColumnSelector

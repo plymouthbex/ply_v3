@@ -237,7 +237,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.fpexcel || params.row.fppdf ? (
+          {/* {params.row.fpexcel || params.row.fppdf ? (
             <Tooltip title="Mail" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
@@ -249,7 +249,7 @@ export default function EditRunPriceBook() {
             </Tooltip>
           ) : (
             false
-          )}
+          )} */}
         </Stack>
       ),
     },
@@ -312,7 +312,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.cppdf || params.row.cpexcel ? (
+          {/* {params.row.cppdf || params.row.cpexcel ? (
             <Tooltip title="Mail" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
@@ -324,7 +324,7 @@ export default function EditRunPriceBook() {
             </Tooltip>
           ) : (
             false
-          )}
+          )} */}
         </Stack>
       ),
     },

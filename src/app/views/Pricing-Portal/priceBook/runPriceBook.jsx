@@ -17,7 +17,11 @@ import {
 import React from "react";
 import { Breadcrumb, SimpleCard } from "app/components";
 import { useEffect, useState } from "react";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridToolbarContainer,
+  GridToolbarQuickFilter,
+} from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 
 import { themeColors } from "app/components/baseTheme/themeColors";
@@ -29,7 +33,10 @@ import {
   runGrpMsgUpdate,
   runGrpProcessedDataUpdate,
 } from "app/redux/slice/listviewSlice";
-import { SingleAutocomplete, SingleAutocompleteRunGroup } from "app/components/AutoComplete";
+import {
+  SingleAutocomplete,
+  SingleAutocompleteRunGroup,
+} from "app/components/AutoComplete";
 import { runGroupMailData } from "app/redux/slice/postSlice";
 import {
   getCustomerViewPriceCustomBook,
@@ -143,7 +150,7 @@ export default function RunPriceBook() {
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
-  console.log("🚀 ~ )}TO ~ runGrpRows:", runGrpRows)
+  console.log("🚀 ~ )}TO ~ runGrpRows:", runGrpRows);
   const runGrpProcessingMsg = useSelector(
     (state) => state.listview.runGrpProcessingMsg
   );
@@ -365,13 +372,18 @@ export default function RunPriceBook() {
       setPostError(true);
       return;
     }
-    console.log("🚀 ~ fnRunGrpEmailProcess ~ rowSelectionModel:", rowSelectionModel)
+    console.log(
+      "🚀 ~ fnRunGrpEmailProcess ~ rowSelectionModel:",
+      rowSelectionModel
+    );
     const data = runGrpRows
       .filter(
         (v) =>
-          (rowSelectionModel.includes(v.id)) && (v.fppdf || v.fpexcel || v.cppdf ||v.cpexcel))
+          rowSelectionModel.includes(v.id) &&
+          (v.fppdf || v.fpexcel || v.cppdf || v.cpexcel)
+      )
       .map((v) => ({
-        id:v.id,
+        id: v.id,
         CustomerNumber: v.customernumber,
         FullPriceBookPdf: v.fppdf ? "1" : "0",
         FullPriceBookExcel: v.fpexcel ? "1" : "0",
@@ -380,7 +392,7 @@ export default function RunPriceBook() {
         FromDate: sunday,
         ToDate: saturday,
         UserID: user.id,
-        CompnayID:user.companyID,
+        CompnayID: user.companyID,
         CompanyCode: user.companyCode,
         TemplateID: "",
       }));
@@ -681,11 +693,9 @@ export default function RunPriceBook() {
                   CustomerNumber: row.customernumber,
                 })
               ).then((fpResData) => {
-                console.log("🚀 ~ ).then ~ fpResData:", fpResData)
+                console.log("🚀 ~ ).then ~ fpResData:", fpResData);
                 if (fpResData.payload.length > 0) {
-                  dispatch(
-                    runGrpMsgUpdate(`Full PDF for ${row.customer}...`)
-                  );
+                  dispatch(runGrpMsgUpdate(`Full PDF for ${row.customer}...`));
                   const excelBlobfp = exportToExcelBuildFullPriceBookBlob({
                     excelData: fpResData.payload,
                     date: formatedDate,
@@ -723,7 +733,7 @@ export default function RunPriceBook() {
                         ""
                       )}_FPB_${sunday} TO ${saturday}`,
                       sunday,
-                      saturday
+                      saturday,
                     }));
                 }
                 return null; // Invalid `fp`
@@ -746,7 +756,7 @@ export default function RunPriceBook() {
                   filterparameters: "",
                 })
               ).then((cpResData) => {
-                console.log("🚀 ~ ).then ~ cpResData:", cpResData)
+                console.log("🚀 ~ ).then ~ cpResData:", cpResData);
                 if (cpResData.payload.length > 0) {
                   dispatch(
                     runGrpMsgUpdate(`Custom PDF for ${row.customer}...`)
@@ -793,7 +803,7 @@ export default function RunPriceBook() {
                         ""
                       )}_CPB_${sunday} TO ${saturday}`,
                       sunday,
-                      saturday
+                      saturday,
                     }));
                 }
                 return null; // Invalid `cp`
@@ -803,7 +813,7 @@ export default function RunPriceBook() {
             }
 
             if (promisesForRow.length > 0) {
-              console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow)
+              console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow);
               return Promise.all(promisesForRow).then((results) => {
                 // Merge results into a single object
                 const finalResult = results.reduce((acc, result) => {
@@ -835,7 +845,7 @@ export default function RunPriceBook() {
           )
           .catch(reject);
       } catch (error) {
-        console.log("🚀 ~ processData ~ error:", error)
+        console.log("🚀 ~ processData ~ error:", error);
         reject(error);
       }
     });
@@ -880,7 +890,7 @@ export default function RunPriceBook() {
   };
 
   //=================================TOOLBAR=====================================//
-  function SecondaryCustomToolbar() {
+  const SecondaryCustomToolbar = React.memo(() => {
     return (
       <Box>
         {/* First Row */}
@@ -951,11 +961,11 @@ export default function RunPriceBook() {
             alignItems: "center",
             width: "100%",
             padding: 1,
+            justifyContent:'space-between'
           }}
         >
           <Typography
             variant="h6"
-            width="100%"
             sx={{
               mr: { xs: 0, md: 5 },
               mb: { md: 0 },
@@ -965,7 +975,8 @@ export default function RunPriceBook() {
           >
             Price Book Group
           </Typography>
-          <Box sx={{ width: "50%" }}>
+          <Stack direction="row" gap={2}>
+          <GridToolbarQuickFilter />
             <SingleAutocomplete
               focused
               fullWidth
@@ -977,127 +988,23 @@ export default function RunPriceBook() {
               label="Price Book"
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             />
-          </Box>
+          </Stack>
         </Box>
       </Box>
     );
-  }
-  // console.log("🚀 ~ handleRowSelectionChange ~ selectedRunGrpOptions.Name:", selectedRunGrpOptions.Name)
-  //       console.log("🚀 ~ handleRowSelectionChange ~ user.defaultRunGroup:", user.defaultRunGroup)
-  //       const handleRowSelectionChange = (newRowSelectionModel) => {
-  //         if (user.role === "USER" && selectedRunGrpOptions.Name === user.defaultRunGroup) {
-
-  //           setRowSelectionModel(newRowSelectionModel);
-  //         }
-
-  //       };
+  });
 
   return (
     <Container>
       <Box className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Price Book" }, { name: "Print Price Book Group" }]}
+          routeSegments={[
+            { name: "Price Book" },
+            { name: "Print Price Book Group" },
+          ]}
         />
       </Box>
       <SimpleCard>
-        <Box>
-          {/* First Row */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-              mb: 2, // Add margin-bottom for spacing between rows
-            }}
-          >
-            {/* Price Week Section */}
-            <Stack direction="row-reverse" gap={5}>
-              <Typography
-                variant="caption"
-                align="center"
-                alignItems="center"
-                alignSelf="center"
-              >
-                {formatedDate}
-              </Typography>
-              <RadioGroup
-                row
-                name="week"
-                value={isNextWeek}
-                onChange={toggleWeek}
-              >
-                <FormControlLabel
-                  sx={{ height: 40 }}
-                  value={false}
-                  control={<Radio />}
-                  label="Current Week"
-                />
-                <FormControlLabel
-                  sx={{ height: 40 }}
-                  value={true}
-                  control={<Radio />}
-                  label="Next Week"
-                />
-              </RadioGroup>
-            </Stack>
-
-            {/* Label with Checkbox */}
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={showPrice}
-                  onChange={(e) => setShowprice(e.target.checked)}
-                  sx={{
-                    color: "#174c4f",
-                    "&.Mui-checked": {
-                      color: "#174c4f",
-                    },
-                  }}
-                />
-              }
-              label="Show Price"
-            />
-          </Box>
-
-          {/* Second Row */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              width: "100%",
-              padding: 1,
-            }}
-          >
-            <Typography
-              variant="h6"
-              width="100%"
-              sx={{
-                mr: { xs: 0, md: 5 },
-                mb: { md: 0 },
-                color: "black",
-                textAlign: { xs: "center", md: "left" },
-              }}
-            >
-              Price Book Group
-            </Typography>
-            <Box sx={{ width: "50%" }}>
-              <SingleAutocompleteRunGroup
-                focused
-                fullWidth
-                required
-                name="rungroup"
-                id="rungroup"
-                value={selectedRunGrpOptions}
-                onChange={handleSelectionRunGrpChange}
-                label="Price Book Group"
-                url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
-              />
-            </Box>
-          </Box>
-        </Box>
         <Box
           sx={{
             "& .MuiDataGrid-root": {
@@ -1153,7 +1060,7 @@ export default function RunPriceBook() {
             }}
             slots={{
               loadingOverlay: LinearProgress,
-              // toolbar: secondaryCustomToolbar,
+              toolbar: SecondaryCustomToolbar,
             }}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               // const filterArray = runGrpRows.filter((v) =>

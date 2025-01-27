@@ -157,7 +157,7 @@ const HomePage = () => {
           if (priceListOutType === "EXCEL") {
             exportToExcelFullPriceBookV1({
               excelData: response.payload,
-              fileName: `${user.companyName}_Full Price Book_${sunday} TO ${saturday}.pdf`,
+              fileName: `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`,
               isPrice: isChecked,
             });
             dispatch(
