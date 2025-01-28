@@ -40,7 +40,7 @@ import {
   onCheckboxChangeCustomer,
 } from "app/redux/slice/listviewSlice";
 import CheckIcon from "@mui/icons-material/Check";
-import { postConfigureCompany } from "app/redux/slice/postSlice";
+import { CustomerConfig, postConfigureCompany } from "app/redux/slice/postSlice";
 import AlertDialog from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
 // ********************* STYLED COMPONENTS ********************* //
@@ -61,7 +61,7 @@ const Customer = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
-  const { user } = useAuth()
+  const { user } = useAuth();
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
@@ -124,12 +124,21 @@ const Customer = () => {
             checked={params.row.FullPriceBookExcel}
             onChange={(e) => {
               dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "FullPriceBookExcel",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              dispatch(
                 onCheckboxChangeCustomer({
                   id: params.row.RecordID,
                   field: "FullPriceBookExcel",
                 })
               );
-              handleSave({...params.row,FullPriceBookExcel:e.target.checked })
+              
+
+              // handleSave({...params.row,FullPriceBookExcel:e.target.checked })
             }}
             sx={{
               color: "#174c4f",
@@ -140,16 +149,23 @@ const Customer = () => {
           />
           Excel
           <Checkbox
-          checked={params.row.FullPriceBookPdf}
-          onChange={(e) => {
-            handleSave({...params.row,FullPriceBookPdf:e.target.checked })
-            dispatch(
-              onCheckboxChangeCustomer({
-                id: params.row.RecordID,
-                field: "FullPriceBookPdf",
-              })
-            );
-          }}
+            checked={params.row.FullPriceBookPdf}
+            onChange={(e) => {
+              dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "FullPriceBookPdf",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              // handleSave({ ...params.row, FullPriceBookPdf: e.target.checked });
+              dispatch(
+                onCheckboxChangeCustomer({
+                  id: params.row.RecordID,
+                  field: "FullPriceBookPdf",
+                })
+              );
+            }}
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -175,17 +191,27 @@ const Customer = () => {
       renderCell: (params) => (
         <div>
           <Checkbox
-          checked={params.row.CustomPriceBookExcel}
-          onChange={(e) => {
-            handleSave({...params.row,CustomPriceBookExcel:e.target.checked })
-            dispatch(
-              onCheckboxChangeCustomer({
-                id: params.row.RecordID,
-                field: "CustomPriceBookExcel",
-              })
-              
-            );
-          }}
+            checked={params.row.CustomPriceBookExcel}
+            onChange={(e) => {
+              // handleSave({
+              //   ...params.row,
+              //   CustomPriceBookExcel: e.target.checked,
+              // });
+
+              dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "CustomrPriceBookExcel",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              dispatch(
+                onCheckboxChangeCustomer({
+                  id: params.row.RecordID,
+                  field: "CustomPriceBookExcel",
+                })
+              );
+            }}
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -195,16 +221,26 @@ const Customer = () => {
           />
           Excel
           <Checkbox
-          checked={params.row.CustomPriceBookPdf}
-          onChange={(e) => {
-            handleSave({...params.row,CustomPriceBookPdf:e.target.checked })
-            dispatch(
-              onCheckboxChangeCustomer({
-                id: params.row.RecordID,
-                field: "CustomPriceBookPdf",
-              })
-            );
-          }}
+            checked={params.row.CustomPriceBookPdf}
+            onChange={(e) => {
+              // handleSave({
+              //   ...params.row,
+              //   CustomPriceBookPdf: e.target.checked,
+              // });
+              dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "CustomPriceBookPdf",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              dispatch(
+                onCheckboxChangeCustomer({
+                  id: params.row.RecordID,
+                  field: "CustomPriceBookPdf",
+                })
+              );
+            }}
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -287,7 +323,7 @@ const Customer = () => {
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const handleSave = async (values) => {
-    console.log("🚀 ~ handleSave ~ values:", values)
+    console.log("🚀 ~ handleSave ~ values:", values);
     const data1 = {
       RecordID: values.RecordID,
       Classification: "CS",
@@ -481,7 +517,7 @@ const Customer = () => {
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
             initialState={{
-              pagination: { paginationModel:dataGridPageSize },
+              pagination: { paginationModel: dataGridPageSize },
             }}
             pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
@@ -498,26 +534,30 @@ const Customer = () => {
           />
         </Box>
         <AlertDialog
-       logo={`data:image/png;base64,${user.logo}`}
-        open={openAlert}
-        error={postError}
-        message={postError ? "Somthing went wrong and Please retry":"Changes saved successfully"}
-        Actions={
-          <Box sx={{display:'flex',justifyContent:"flex-end"}}>
-            <Button
-              variant="contained"
-              color="info"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
-              sx={{height:25}}
-            >
-             close
-            </Button>
-          </Box>
-        }
-      />
+          logo={`data:image/png;base64,${user.logo}`}
+          open={openAlert}
+          error={postError}
+          message={
+            postError
+              ? "Somthing went wrong and Please retry"
+              : "Changes saved successfully"
+          }
+          Actions={
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setOpenAlert(false);
+                }}
+                sx={{ height: 25 }}
+              >
+                close
+              </Button>
+            </Box>
+          }
+        />
       </Paper>
     </Container>
   );

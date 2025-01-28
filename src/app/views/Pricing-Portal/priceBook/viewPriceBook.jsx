@@ -157,9 +157,9 @@ const ViewPriceBook = () => {
   const [isCustomerPdf, setIsCustomerPdf] = useState(null);
   const [isCustomerExcel, setIsCustomerExcel] = useState(null);
   const [isCustomerMail, setIsCustomerMail] = useState(null);
-  const [alertMessage, setAlertMessage]=useState(false);
-  const [alertMessage1, setAlertMessage1]=useState(false);
-  const [alertMessage2, setAlertMessage2]=useState(false);
+  const [alertMessage, setAlertMessage] = useState(false);
+  const [alertMessage1, setAlertMessage1] = useState(false);
+  const [alertMessage2, setAlertMessage2] = useState(false);
   const { user } = useAuth();
   //=======================CUSTOMER===================================//
   const [selectedCustomerOptions, setSelectedCustomerOptions] = useState(null);
@@ -187,7 +187,7 @@ const ViewPriceBook = () => {
       setIsCustomerMail(null);
     }
   };
-  
+
   //=======================PRICE LIST TYPE===================================//
   const [selectPriceListtype, setSelectPriceListType] = useState("FP");
 
@@ -299,21 +299,21 @@ const ViewPriceBook = () => {
   const fnRunGrpEmailProcess = async () => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
-  
+
       setTimeout(() => {
         setIsCustomer(null);
       }, 1000);
       return;
     }
-  
+
     if (isCustomerMail > 0) {
       const data = [
         {
           CustomerNumber: selectedCustomerOptions.Code,
-          FullPriceBookPdf: selectPriceListtype === "FP" ? "1" : "0",
-          FullPriceBookExcel: selectPriceListtype === "FP" ? "1" : "0",
-          CustomPriceBooPdf: selectPriceListtype === "CP" ? "1" : "0",
-          CustomPriceBookExcel: selectPriceListtype === "CP" ? "1" : "0",
+          FullPriceBookPdf:selectPriceListtype === "FP" ? selectedCustomerOptions.Pdf : "0",
+          FullPriceBookExcel:selectPriceListtype === "FP" ? selectedCustomerOptions.Excel : "0",
+          CustomPriceBooPdf:selectPriceListtype === "CP" ? selectedCustomerOptions.Pdf : "0",
+          CustomPriceBookExcel:selectPriceListtype === "CP" ? selectedCustomerOptions.Excel : "0",
           FromDate: sunday,
           ToDate: saturday,
           UserID: user.id,
@@ -322,12 +322,12 @@ const ViewPriceBook = () => {
           TemplateID: "",
         },
       ];
-  
+
       console.log("🚀 ~ data ~ data:", data);
-  
+
       try {
         const response = await dispatch(runGroupMailData({ data }));
-  
+
         if (response.payload.status === "Y") {
           setOpenAlert(true);
         } else {
@@ -343,7 +343,7 @@ const ViewPriceBook = () => {
       setAlertMessage2(true);
     }
   };
-  
+
   const getPriceListCustomerFull = (priceListOutType) => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
@@ -793,8 +793,7 @@ const ViewPriceBook = () => {
                 label="Show Price"
               />
               <Stack direction="row" alignItems={"center"}>
-                
-                  <Tooltip title="PDF" placement="top">
+                <Tooltip title="PDF" placement="top">
                   <CustomIconButton
                     onClick={
                       // () =>
@@ -802,14 +801,14 @@ const ViewPriceBook = () => {
                       //     ? getPriceListCustomerFull("PDF")
                       //     : getPriceListCustomerCustom("PDF")
                       isCustomerPdf === "1"
-                      ? () =>
-                          selectPriceListtype === "FP"
-                            ? getPriceListCustomerFull("PDF")
-                            : getPriceListCustomerCustom("PDF")
-                      : () => {
-                          // Show an alert or notification if the customer cannot have a PDF
-                          setAlertMessage(true);
-                        }
+                        ? () =>
+                            selectPriceListtype === "FP"
+                              ? getPriceListCustomerFull("PDF")
+                              : getPriceListCustomerCustom("PDF")
+                        : () => {
+                            // Show an alert or notification if the customer cannot have a PDF
+                            setAlertMessage(true);
+                          }
                       // navigate("/PDF8")
                     }
                     sx={{
@@ -824,21 +823,21 @@ const ViewPriceBook = () => {
                     <FaFilePdf style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
-                
+
                 <Tooltip title="Excel" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.success.main}
                     aria-label="excel"
                     onClick={
-                      
-                      isCustomerExcel === "1" ? () =>
-                      selectPriceListtype === "FP"
-                        ? getPriceListCustomerFull("EXCEL")
-                        : getPriceListCustomerCustom("EXCEL")
+                      isCustomerExcel === "1"
+                        ? () =>
+                            selectPriceListtype === "FP"
+                              ? getPriceListCustomerFull("EXCEL")
+                              : getPriceListCustomerCustom("EXCEL")
                         : () => {
-                          // Show an alert or notification if the customer cannot have a PDF
-                          setAlertMessage1(true);
-                        }
+                            // Show an alert or notification if the customer cannot have a PDF
+                            setAlertMessage1(true);
+                          }
                     }
                     // onClick={() => navigate("/PDF8")}
                   >
@@ -854,14 +853,13 @@ const ViewPriceBook = () => {
                       //   ? getPriceListCustomerFull("PRINT")
                       //   : getPriceListCustomerCustom("PRINT")
                       isCustomerPdf === "1"
-                       ? () =>
-                      selectPriceListtype === "FP"
-                        ? getPriceListCustomerFull("PRINT")
-                        : getPriceListCustomerCustom("PRINT")
-                        :()=>{
-                          setAlertMessage2(true);
-                        }
-                    
+                        ? () =>
+                            selectPriceListtype === "FP"
+                              ? getPriceListCustomerFull("PRINT")
+                              : getPriceListCustomerCustom("PRINT")
+                        : () => {
+                            setAlertMessage2(true);
+                          }
                     }
                     aria-label="print"
                   >
@@ -1040,71 +1038,68 @@ const ViewPriceBook = () => {
         error={viewPriceIsPdfError}
       />
       <MessageAlertDialog
-      logo={`data:image/png;base64,${user.logo}`}
-                      open={alertMessage}
-                      tittle={"PDF"}
-                      message={`The Selected Customer does not have Pdf Configuration`}
-                      Actions={
-                        <DialogActions>
-                          
-                          <Button
-                            variant="contained"
-                            color="info"
-                            size="small"
-                            onClick={() => {
-                              setAlertMessage(false)
-                            }}
-                            autoFocus
-                          >
-                            Close
-                          </Button>
-                        </DialogActions>
-                      }
-                    />
-                     <MessageAlertDialog
-      logo={`data:image/png;base64,${user.logo}`}
-                      open={alertMessage1}
-                      tittle={"PDF"}
-                      message={`The selected customer does not have Excel Configuration.`}
-                      Actions={
-                        <DialogActions>
-                          
-                          <Button
-                            variant="contained"
-                            color="info"
-                            size="small"
-                            onClick={() => {
-                              setAlertMessage1(false)
-                            }}
-                            autoFocus
-                          >
-                            Close
-                          </Button>
-                        </DialogActions>
-                      }
-                    />
-                    <MessageAlertDialog
-      logo={`data:image/png;base64,${user.logo}`}
-                      open={alertMessage2}
-                      tittle={"PDF"}
-                      message={`The selected customer does not have any contacts(Email) `}
-                      Actions={
-                        <DialogActions>
-                          
-                          <Button
-                            variant="contained"
-                            color="info"
-                            size="small"
-                            onClick={() => {
-                              setAlertMessage2(false)
-                            }}
-                            autoFocus
-                          >
-                            Close
-                          </Button>
-                        </DialogActions>
-                      }
-                    />
+        logo={`data:image/png;base64,${user.logo}`}
+        open={alertMessage}
+        tittle={"PDF"}
+        message={`The Selected Customer does not have Pdf Configuration`}
+        Actions={
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setAlertMessage(false);
+              }}
+              autoFocus
+            >
+              Close
+            </Button>
+          </DialogActions>
+        }
+      />
+      <MessageAlertDialog
+        logo={`data:image/png;base64,${user.logo}`}
+        open={alertMessage1}
+        tittle={"PDF"}
+        message={`The selected customer does not have Excel Configuration.`}
+        Actions={
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setAlertMessage1(false);
+              }}
+              autoFocus
+            >
+              Close
+            </Button>
+          </DialogActions>
+        }
+      />
+      <MessageAlertDialog
+        logo={`data:image/png;base64,${user.logo}`}
+        open={alertMessage2}
+        tittle={"PDF"}
+        message={`The selected customer does not have any contacts(Email) `}
+        Actions={
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setAlertMessage2(false);
+              }}
+              autoFocus
+            >
+              Close
+            </Button>
+          </DialogActions>
+        }
+      />
     </Container>
   );
 };
