@@ -52,7 +52,13 @@ import {
 } from "app/components/Template/Excel";
 import { CustomerFullPriceDocument } from "app/components/Template/pdfs/CustomerFullPriceBook";
 import { CustomerCustomPriceDocument } from "app/components/Template/pdfs/CustomerCustomPriceBook";
-import { dataGridHeaderFooterHeight } from "app/utils/constant";
+import {
+  dataGridHeaderFooterHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+} from "app/utils/constant";
+import { FormikCustomSelectPriceBookGroup } from "app/components/SingleAutocompletelist";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -346,9 +352,9 @@ export default function RunPriceBook() {
     },
   ];
 
-  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState({
-    Name: user.defaultRunGroup || "",
-  });
+  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(user.defaultRunGroup?{
+    Name: user.defaultRunGroup,
+  }:null);
 
   const handleSelectionRunGrpChange = (newValue) => {
     setSelectedRunGrpOptions(newValue);
@@ -365,17 +371,18 @@ export default function RunPriceBook() {
   };
 
   const [openAlert, setOpenAlert] = useState(false);
-  const [postError, setPostError] = useState(false);
+  const [postError, setPostError] = useState(null);
   const fnRunGrpEmailProcess = async () => {
-    if (rowSelectionModel.length == 0) {
+    if (!selectedRunGrpOptions) {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError("Please Select Price Book Group");
       return;
     }
-    console.log(
-      "🚀 ~ fnRunGrpEmailProcess ~ rowSelectionModel:",
-      rowSelectionModel
-    );
+    if (rowSelectionModel.length == 0) {
+      setOpenAlert(true);
+      setPostError("Please Select Customer");
+      return;
+    }
     const data = runGrpRows
       .filter(
         (v) =>
@@ -658,6 +665,18 @@ export default function RunPriceBook() {
   // };
 
   const fnProcess = () => {
+    if (!selectedRunGrpOptions) {
+      setProcessFunLoading(false);
+      setProcessLoading(true);
+      setProcessError(true);
+      dispatch(runGrpMsgUpdate("Please Select Price Book Group"));
+      setTimeout(() => {
+        setProcessLoading(false);
+        dispatch(runGrpMsgUpdate(""));
+        setProcessError(false);
+      }, 2000);
+      return;
+    }
     if (rowSelectionModel.length === 0) {
       setProcessFunLoading(false);
       setProcessLoading(true);
@@ -961,7 +980,7 @@ export default function RunPriceBook() {
             alignItems: "center",
             width: "100%",
             padding: 1,
-            justifyContent:'space-between'
+            justifyContent: "space-between",
           }}
         >
           <Typography
@@ -975,8 +994,8 @@ export default function RunPriceBook() {
           >
             Price Book Group
           </Typography>
-          <Stack direction="row" gap={2}>
-          <GridToolbarQuickFilter />
+          <Stack direction="row" gap={2} width={"50%"}>
+            <GridToolbarQuickFilter sx={{ width: 200 }} />
             <SingleAutocomplete
               focused
               fullWidth
@@ -985,9 +1004,19 @@ export default function RunPriceBook() {
               id="rungroup"
               value={selectedRunGrpOptions}
               onChange={handleSelectionRunGrpChange}
-              label="Price Book"
+              label="Price Book Group"
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             />
+            {/* <FormikCustomSelectPriceBookGroup
+              fullWidth
+              name="rungroup"
+              id="rungroup"
+              value={selectedRunGrpOptions}
+              onChange={handleSelectionRunGrpChange}
+              label="Price Book Group"
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+            /> */}
+            
           </Stack>
         </Box>
       </Box>
@@ -1077,10 +1106,10 @@ export default function RunPriceBook() {
             disableRowSelectionOnClick
             getRowId={(row) => row.id}
             initialState={{
-              pagination: { paginationModel: { pageSize: 20 } },
+              pagination: { paginationModel: { pageSize: dataGridPageSize } },
             }}
-            rowHeight={30}
-            pageSizeOptions={[20, 50, 100]}
+            rowHeight={dataGridRowHeight}
+            pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
               RecordID: false,
               SortOrder: false,
@@ -1117,21 +1146,21 @@ export default function RunPriceBook() {
 
               padding: 2,
 
-              border: rowSelectionModel.length > 10 ? "1px solid red" : "none",
+              border: rowSelectionModel.length > 5 ? "1px solid red" : "none",
 
               borderRadius: 1,
 
               backgroundColor:
-                rowSelectionModel.length > 10 ? "#ffe6e6" : "transparent",
+                rowSelectionModel.length > 5 ? "#ffe6e6" : "transparent",
 
               minHeight: 50, // Ensure consistent height
 
               minWidth: 300, // Ensure consistent width
             }}
           >
-            {rowSelectionModel.length > 10 && (
+            {rowSelectionModel.length > 5 && (
               <Typography color="error" align="center">
-                Note: To View Price Book, select no more than 10 rows at a time
+                Note: To View Price Book, select no more than 5 rows at a time
               </Typography>
             )}
           </Box>
@@ -1160,11 +1189,8 @@ export default function RunPriceBook() {
             <PriceGroupAlertApiDialog
               open={openAlert}
               error={postError}
-              message={
-                rowSelectionModel.length === 0
-                  ? "Please Select Customer"
-                  : postError
-                  ? "Something Went Wrong"
+              message={ postError
+                  ? postError
                   : "Customer(s) will receive their Price Book shortly"
               }
               Actions={
@@ -1185,7 +1211,7 @@ export default function RunPriceBook() {
                       setOpenAlert(false);
 
                       setTimeout(() => {
-                        setPostError(false);
+                        setPostError(null);
                       }, 1000);
                     }}
                     sx={{ height: 25 }}
@@ -1206,7 +1232,7 @@ export default function RunPriceBook() {
 
             <Button
               variant="contained"
-              disabled={rowSelectionModel.length > 10}
+              disabled={rowSelectionModel.length > 5}
               sx={{
                 "&:hover": {
                   backgroundColor: theme.palette.secondary.light, // Custom hover color

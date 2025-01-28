@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
 
     const { accessToken, Data: user } = response.data;
 
-    updateFavorites({ userID: user.id });
+    // updateFavorites({ userID: user.id });
     setSession(accessToken);
 
     dispatch({
@@ -140,6 +140,8 @@ export const AuthProvider = ({ children }) => {
         user:user,
       },
     });
+
+    return user
   };
 
   const updateCompany = async () => {

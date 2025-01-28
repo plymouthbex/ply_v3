@@ -14,9 +14,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { values } from "lodash";
+import { useDispatch } from "react-redux";
+import { ChangePassword, LoginConfig } from "app/redux/slice/postSlice";
 const FlexBox = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
@@ -62,6 +66,15 @@ const ContentBox = styled(Box)(({ theme }) => ({
   background: theme.palette.background.default,
 }));
 
+const validationSchema = Yup.object({
+  password: Yup.string()
+    .min(15, "Password must be at least 15 characters")
+    .required("Password is required"),
+  confirmpassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Confirm Password is required"),
+});
+
 // const ForgotPasswordRoot = styled(JustifyBox)(() => ({
 //   background: '#1A2038',
 //   minHeight: '100vh !important',
@@ -72,26 +85,31 @@ const ContentBox = styled(Box)(({ theme }) => ({
 //   },
 // }));
 
-const ResetPassword = () => {
+const ResetPassword = (values) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@example.com");
+  const dispatch = useDispatch();
+  const location = useLocation();
 
-  const handleFormSubmit = () => {
-    console.log(email);
+  const state = location.state || {};
+  const chagepassword = async (values) => {
+    const res = await dispatch(
+      ChangePassword({
+        UserID: state.id,
+        OldPassword: values.password,
+        NewPassword: values.password,
+      })
+    );
+
+    if (res.payload.status == "Y") {
+      navigate("/session/unlock-password/notify'", {
+        state: { message: res.payload.message, error: false },
+      });
+    } else {
+      navigate("/session/unlock-password/notify'", {
+        state: { message: res.payload.message, error: true },
+      });
+    }
   };
-
-  const handleClick = () => {
-    Swal.fire({
-      title: "Password has been changed Successfully",
-      icon: "success",
-      confirmButtonColor: "#164D50",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/session/signin");
-      }
-    });
-  };
-
   return (
     <StyledRoot>
       <Card className="card">
@@ -117,66 +135,82 @@ const ResetPassword = () => {
             </JustifyBox>
 
             <ContentBox>
-              <form onSubmit={handleFormSubmit}>
-                <TextField
-                  type="number"
-                  name="otp"
-                  size="small"
-                  label="Enter OTP"
-                  variant="outlined"
-                  // onChange={(e) => setOtp(e.target.value)} // Assuming you have a setOtp state handler
-                  sx={{ mb: 3, width: "100%" }}
-                />
-                <TextField
-                  type="password" // Correct type for password
-                  name="newPassword"
-                  size="small"
-                  label="New Password"
-                  variant="outlined"
-                  // onChange={(e) => setNewPassword(e.target.value)} // Assuming you have a setNewPassword state handler
-                  sx={{ mb: 3, width: "100%" }}
-                />
-                <TextField
-                  type="password" // Correct type for password
-                  name="confirmPassword"
-                  size="small"
-                  label="Confirm Password"
-                  variant="outlined"
-                  // Assuming you have a setConfirmPassword state handler
-                  sx={{ mb: 3, width: "100%" }}
-                />
+              <Formik
+                initialValues={{
+                  password: "",
+                  confirmpassword: "",
+                }}
+                validationSchema={validationSchema}
+                onSubmit={(values, { setSubmitting }) => {
+                  setTimeout(() => {
+                    chagepassword(values);
+                  }, 400);
+                }}
+              >
+                {({
+                  errors,
+                  touched,
+                  handleBlur,
+                  handleChange,
+                  isSubmitting,
+                  values,
+                  handleSubmit,
+                  setFieldValue,
+                }) => (
+                  <form onSubmit={handleSubmit}>
+                    <TextField
+                      type="password" // Correct type for password
+                      name="password"
+                      size="small"
+                      label="New Password"
+                      variant="outlined"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.password}
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password}
+                      sx={{ mb: 3, width: "100%" }}
+                    />
+                    <TextField
+                      type="password" // Correct type for password
+                      name="confirmpassword"
+                      size="small"
+                      label="Confirm Password"
+                      variant="outlined"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.confirmpassword}
+                      error={
+                        touched.confirmpassword &&
+                        Boolean(errors.confirmpassword)
+                      }
+                      helperText={
+                        touched.confirmpassword && errors.confirmpassword
+                      }
+                      sx={{ mb: 3, width: "100%" }}
+                    />
 
-                <Button
-                  sx={{
-                    backgroundColor: "#164D50",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "#164D50", // Custom hover color
-                    },
-                    // my: 2,
-                    width: "100%",
-                  }}
-                  variant="contained"
-                  onClick={() => navigate("/session/unlock-password/password-notify")}
-                >
-                  Save Password
-                </Button>
-                {/* <Button
-       sx={{
-        backgroundColor: "#164D50",
-        color: "white",
-        "&:hover": {
-          backgroundColor: "#164D50", // Custom hover color
-        },
-        // my: 2,
-        width:'100%'
-      }}
-      variant="contained"
-        onClick={()=>}
-      >
-        Save Password
-      </Button> */}
-              </form>
+                    <Button
+                      sx={{
+                        backgroundColor: "#164D50",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "#164D50", // Custom hover color
+                        },
+                        // my: 2,
+                        width: "100%",
+                      }}
+                      type="submit"
+                      variant="contained"
+                      // onClick={() =>
+                      //   navigate("/session/unlock-password/password-notify")
+                      // }
+                    >
+                      Save Password
+                    </Button>
+                  </form>
+                )}
+              </Formik>
             </ContentBox>
           </Grid>
         </Grid>

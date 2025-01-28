@@ -18,6 +18,8 @@ import useAuth from "app/hooks/useAuth";
 import useSettings from "app/hooks/useSettings";
 import toast from "react-hot-toast";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { LoginConfig } from "app/redux/slice/postSlice";
+import { useDispatch } from "react-redux";
 
 // STYLED COMPONENTS
 const FlexBox = styled(Box)(() => ({
@@ -63,7 +65,7 @@ const StyledRoot = styled("div")(() => ({
 
 // initial login credentials
 const initialValues = {
-  email: "",
+  email: "plymouthbex2024@gmail.com",
   password: "",
   remember: true,
 };
@@ -72,7 +74,7 @@ const initialValues = {
 const validationSchema = Yup.object().shape({
   email: Yup.string().email().required("Username is required!"),
   password: Yup.string()
-    .min(6, "Password must be 6 character length")
+    .min(15, "Password must be 15 character length")
     .required("Password is required!"),
 });
 
@@ -80,14 +82,25 @@ export default function JwtLogin() {
   const theme = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showUnlock, setShowUnlock] = useState(false);
   const { settings } = useSettings();
-
+  const dispatch = useDispatch();
   const { login } = useAuth();
 
   const handleFormSubmit = async (values) => {
     setLoading(true);
     try {
-      await login(values.email, values.password);
+      const response = await login(values.email, values.password);
+      console.log("🚀 ~ handleFormSubmit ~ response:", response)
+      if(response.LoginType === "Y"){
+        navigate("/session/reset-password",{state:{id:response.id}});
+        return
+      }else{
+        if(response.Islock === "Y"){
+          setShowUnlock(true)
+        }
+      }
+      // return
       navigate("/home", {
         state: {
           name: "home",
@@ -98,6 +111,10 @@ export default function JwtLogin() {
         },
       });
     } catch (e) {
+      if(e.response.data.Islock === "Y"){
+      setShowUnlock(true)
+    }
+      console.log("🚀 ~ handleFormSubmit ~ e:", e)
       toast.error("Incorrect user or password");
       setLoading(false);
     }
@@ -107,6 +124,23 @@ export default function JwtLogin() {
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
+
+
+  const forgot = async (values,type) => {
+  const res = await dispatch(
+      LoginConfig({
+        EmailID: values.email,
+        Type:type ,
+      })
+    )
+
+    if(res.payload.status == "Y"){
+      navigate("/session/unlock-password/forgot-notify'",{state:{message:res.payload.message,error:false}})
+    }else{
+      navigate("/session/unlock-password/forgot-notify'",{state:{message:res.payload.message,error:true}})
+    }
+  console.log("🚀 ~ forgot ~ res:", res)
+  }
   return (
     <StyledRoot>
       <Card className="card">
@@ -165,7 +199,7 @@ export default function JwtLogin() {
                     />
 
                     <TextField
-               autoComplete="off"
+                      autoComplete="off"
                       fullWidth
                       size="small"
                       name="password"
@@ -200,8 +234,6 @@ export default function JwtLogin() {
                     <LoadingButton
                       type="submit"
                       sx={{
-                        // backgroundColor: "#164D50",
-                        // color: "white",
                         "&:hover": {
                           backgroundColor: theme.palette.secondary.light, // Custom hover color
                         },
@@ -231,12 +263,16 @@ export default function JwtLogin() {
                           alignItems: "flex-end",
                         }}
                       >
-                        <NavLink
-                          to="/session/forgot-password"
-                          style={{ color: theme.palette.primary.main }}
+                        <Typography
+                          // to="/session/reset-password"
+                          style={{
+                            color: theme.palette.primary.main,
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>forgot(values,"Forget")}
                         >
-                          Forgot password?
-                        </NavLink>
+                          Forgot password ?
+                        </Typography>
                       </Box>
                       <Box
                         sx={{
@@ -245,22 +281,19 @@ export default function JwtLogin() {
                           alignItems: "flex-end",
                         }}
                       >
-                        <NavLink
-                          to="/session/unlock-password"
-                          style={{ color: theme.palette.primary.main }}
-                        >
-                          Unlock password?
-                        </NavLink>
+                        {showUnlock && (
+                          <Typography
+                          onClick={() =>forgot(values,"Unlock  for Login Screen")}
+                            style={{
+                              color: theme.palette.primary.main,
+                              cursor: "pointer",
+                            }}
+                          >
+                            Unlock ?
+                          </Typography>
+                        )}
                       </Box>
                     </Box>
-                    {/* <Paragraph>
-                          Don't have an account?
-                          <NavLink
-                            to="/session/signup"
-                            style={{ color: theme.palette.primary.main, marginLeft: 5 }}>
-                            Register
-                          </NavLink>
-                        </Paragraph> */}
                   </form>
                 )}
               </Formik>

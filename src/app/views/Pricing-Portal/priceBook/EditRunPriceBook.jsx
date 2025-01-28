@@ -76,10 +76,7 @@ export default function EditRunPriceBook() {
   const runGrpProcessedData = useSelector(
     (state) => state.listview.runGrpProcessedData
   );
-  console.log(
-    "🚀 ~ EditRunPriceBook ~ runGrpProcessedData:",
-    runGrpProcessedData
-  );
+
 
   //=================================TOOLBAR=====================================//
   function secondaryCustomToolbar() {
@@ -140,37 +137,7 @@ export default function EditRunPriceBook() {
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-  const fnRunGrpEmailProcess = async (value) => {
-    const data = [
-      {
-        CustomerNumber: value.customernumber,
-        FullPriceBookPdf: value.fppdf ? "1" : "0",
-        FullPriceBookExcel: value.fpexcel ? "1" : "0",
-        CustomPriceBooPdf: value.cppdf ? "1" : "0",
-        CustomPriceBookExcel: value.cpexcel ? "1" : "0",
-        FromDate: value.sunday,
-        ToDate: value.saturday,
-        UserID: user.id,
-        CompnayID: user.companyID,
-        CompanyCode: user.companyCode,
-        TemplateID: "",
-      },
-    ];
-    try {
-      const response = await dispatch(runGroupMailData({ data }));
 
-      if (response.payload.status === "Y") {
-        setOpenAlert(true);
-      } else {
-        setOpenAlert(true);
-        setPostError(true);
-      }
-    } catch (error) {
-      setOpenAlert(true);
-      setPostError(true);
-      console.error("Error during HandleSave:", error);
-    }
-  };
 
   const columns = [
     {
