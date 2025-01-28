@@ -73,7 +73,7 @@ const RunGroupEdit = () => {
   console.log("🚀 ~ RunGroupEdit ~ state:", state)
   const dispatch = useDispatch();
   const { user } = useAuth();
-
+  const getRows = useSelector((state) => state.getSlice.runGroupGetData);
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -91,10 +91,14 @@ const RunGroupEdit = () => {
   const [slectedSalesName,setselectedSalesName]=useState(null);
   const [addCustomerListData, setAddCustomerListData] = useState([]);
   const [addedCustomers, setAddedCustomers] = useState([]);
- 
+  
+  // useEffect(() => {
+  //   setAddedCustomers(getRows || []);
+  // }, [getRows]);
   // const handleSelectionAddCustomerListData = (e, newValue) => {
   //   setAddCustomerListData(newValue);
   // };
+  
 
 
   const handleSelectionAddCustomerListData = (e, newValue) => {
@@ -131,8 +135,8 @@ const RunGroupEdit = () => {
   // ********************** REDUX STATE ********************** //
   const data = useSelector((state) => state.getSlice.runGroupFormData);
   const addedRows = useSelector((state) => state.getSlice.runGroupAddedData);
-  const getRows = useSelector((state) => state.getSlice.runGroupGetData);
-  console.log("🚀 ~ RunGroupEdit ~ getRows:", getRows)
+ 
+
   const loading = useSelector((state) => state.getSlice.runGroupLoading);
   const status = useSelector((state) => state.getSlice.runGroupStatus);
   const error = useSelector((state) => state.getSlice.printGroupError);
@@ -140,6 +144,7 @@ const RunGroupEdit = () => {
   const filteredSelectedItems = addedRows.filter(
     (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
   );
+  console.log("🚀 ~ RunGroupEdit ~ filteredSelectedItems:", filteredSelectedItems)
   useEffect(() => {
     dispatch(getRunGroupData({ id: state.ID }));
   }, []);
@@ -216,9 +221,11 @@ const RunGroupEdit = () => {
     },
   ];
   const filteredExistingRows = [
-    ...(getRows || []), // Ensure `getRows` is an array
+    ...getRows,
     ...addedCustomers,
   ];
+
+  console.log("🚀 ~ RunGroupEdit ~ filteredExistingRows:", filteredExistingRows);
   const CustomToolbar = React.memo(() => {
     console.log("Toolbar rendered"); // To check re-renders
     return (
@@ -303,7 +310,7 @@ const RunGroupEdit = () => {
         label="Customers"
        url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList?CompanyCode=${state.CompanyCode}&PriceBookGroup=${slectedSalesName || data.SalesPersonName}`}
         
-        addedCustomers={addedCustomers} // Pass added customers to exclude them
+        addedCustomers={filteredExistingRows} // Pass added customers to exclude them
       />
 
       <Button
@@ -331,7 +338,7 @@ const RunGroupEdit = () => {
       Name: values.runGroupName,
       Sortorder: values.sortOrder,
       CompanyCode: state.CompanyCode,
-      SalesPerson:slectedSalesName,
+      SalesPerson:slectedSalesName ||  data.SalesPersonName,
       Disable: "N",
       LastModifiedDate: "",
       RunGroupList: [...getRows, ...filteredSelectedItems],
@@ -722,7 +729,9 @@ const RunGroupEdit = () => {
                         setIsRemoveCustomer(false);
                         setremoveCustomerID(0);
                         setremoveCustomerDesc("");
+                        
                       }}
+                     
                     >
                       Yes
                     </Button>
@@ -813,5 +822,6 @@ const RunGroupEdit = () => {
     </Container>
   );
 };
+
 
 export default RunGroupEdit;
