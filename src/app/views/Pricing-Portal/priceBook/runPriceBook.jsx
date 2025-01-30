@@ -37,7 +37,7 @@ import {
   SingleAutocomplete,
   SingleAutocompleteRunGroup,
 } from "app/components/AutoComplete";
-import { runGroupMailData } from "app/redux/slice/postSlice";
+import { CustomerConfig, runGroupMailData } from "app/redux/slice/postSlice";
 import {
   getCustomerViewPriceCustomBook,
   getCustomerViewPriceFullBook,
@@ -156,7 +156,6 @@ export default function RunPriceBook() {
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
-  console.log("🚀 ~ )}TO ~ runGrpRows:", runGrpRows);
   const runGrpProcessingMsg = useSelector(
     (state) => state.listview.runGrpProcessingMsg
   );
@@ -204,11 +203,18 @@ export default function RunPriceBook() {
         <div>
           <Checkbox
             checked={params.row.fpexcel}
-            onChange={() => {
+            onChange={(e) => {
               if (
                 user.role === "USER" &&
                 selectedRunGrpOptions.Name === user.defaultRunGroup
               ) {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "FullPriceBookExcel",
+                    Value: params.row.fpexcel ? "1" : "0",
+                  })
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -217,6 +223,13 @@ export default function RunPriceBook() {
                   })
                 );
               } else if (user.role !== "USER") {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "FullPriceBookExcel",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -237,11 +250,18 @@ export default function RunPriceBook() {
           Excel
           <Checkbox
             checked={params.row.fppdf}
-            onChange={() => {
+            onChange={(e) => {
               if (
                 user.role === "USER" &&
                 selectedRunGrpOptions.Name === user.defaultRunGroup
               ) {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "FullPriceBookPdf",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -250,6 +270,13 @@ export default function RunPriceBook() {
                   })
                 );
               } else if (user.role !== "USER") {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "FullPriceBookPdf",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -285,11 +312,18 @@ export default function RunPriceBook() {
         <div>
           <Checkbox
             checked={params.row.cpexcel}
-            onChange={() => {
+            onChange={(e) => {
               if (
                 user.role === "USER" &&
                 selectedRunGrpOptions.Name === user.defaultRunGroup
               ) {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "CustomrPriceBookExcel",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -298,6 +332,13 @@ export default function RunPriceBook() {
                   })
                 );
               } else if (user.role !== "USER") {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "CustomrPriceBookExcel",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -317,11 +358,18 @@ export default function RunPriceBook() {
           Excel
           <Checkbox
             checked={params.row.cppdf}
-            onChange={() => {
+            onChange={(e) => {
               if (
                 user.role === "USER" &&
                 selectedRunGrpOptions.Name === user.defaultRunGroup
               ) {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "CustomPriceBookPdf",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                )
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -330,6 +378,13 @@ export default function RunPriceBook() {
                   })
                 );
               } else if (user.role !== "USER") {
+                dispatch(
+                  CustomerConfig({
+                    CustomerNumber: params.row.customernumber,
+                    Type: "CustomPriceBookPdf",
+                    Value: e.target.checked ? "1" : "0",
+                  })
+                )
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -352,9 +407,13 @@ export default function RunPriceBook() {
     },
   ];
 
-  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(user.defaultRunGroup?{
-    Name: user.defaultRunGroup,
-  }:null);
+  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(
+    user.defaultRunGroup
+      ? {
+          Name: user.defaultRunGroup,
+        }
+      : null
+  );
 
   const handleSelectionRunGrpChange = (newValue) => {
     setSelectedRunGrpOptions(newValue);
@@ -403,7 +462,6 @@ export default function RunPriceBook() {
         CompanyCode: user.companyCode,
         TemplateID: "",
       }));
-    console.log("🚀 ~ data ~ data:", data);
 
     try {
       const response = await dispatch(runGroupMailData({ data }));
@@ -412,11 +470,11 @@ export default function RunPriceBook() {
         setOpenAlert(true);
       } else {
         setOpenAlert(true);
-        setPostError(true);
+        setPostError(response.payload.message);
       }
     } catch (error) {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError("Something went wrong and please try again");
       console.error("Error during HandleSave:", error);
     }
   };
@@ -1016,7 +1074,6 @@ export default function RunPriceBook() {
               label="Price Book Group"
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             /> */}
-            
           </Stack>
         </Box>
       </Box>
@@ -1187,9 +1244,11 @@ export default function RunPriceBook() {
             </Button>
 
             <PriceGroupAlertApiDialog
+              logo={`data:image/png;base64,${user.logo}`}
               open={openAlert}
               error={postError}
-              message={ postError
+              message={
+                postError
                   ? postError
                   : "Customer(s) will receive their Price Book shortly"
               }

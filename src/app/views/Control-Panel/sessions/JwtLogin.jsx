@@ -65,7 +65,7 @@ const StyledRoot = styled("div")(() => ({
 
 // initial login credentials
 const initialValues = {
-  email: "plymouthbex2024@gmail.com",
+  email: "",
   password: "",
   remember: true,
 };
@@ -283,7 +283,7 @@ export default function JwtLogin() {
                       >
                         {showUnlock && (
                           <Typography
-                          onClick={() =>forgot(values,"Unlock  for Login Screen")}
+                          onClick={() =>forgot(values,"Unlock")}
                             style={{
                               color: theme.palette.primary.main,
                               cursor: "pointer",
