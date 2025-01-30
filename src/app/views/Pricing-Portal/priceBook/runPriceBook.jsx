@@ -13,7 +13,10 @@ import {
   RadioGroup,
   Radio,
   DialogActions,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+import { Add } from "@mui/icons-material";
 import React from "react";
 import { Breadcrumb, SimpleCard } from "app/components";
 import { useEffect, useState } from "react";
@@ -37,7 +40,11 @@ import {
   SingleAutocomplete,
   SingleAutocompleteRunGroup,
 } from "app/components/AutoComplete";
-import { CustomerConfig, runGroupMailData } from "app/redux/slice/postSlice";
+import {
+  CustomerAddPrintGroup,
+  CustomerConfig,
+  runGroupMailData,
+} from "app/redux/slice/postSlice";
 import {
   getCustomerViewPriceCustomBook,
   getCustomerViewPriceFullBook,
@@ -59,6 +66,7 @@ import {
   dataGridRowHeight,
 } from "app/utils/constant";
 import { FormikCustomSelectPriceBookGroup } from "app/components/SingleAutocompletelist";
+import { CusListRunGrpOptimizedAutocomplete } from "app/components/FormikAutocomplete";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -369,7 +377,7 @@ export default function RunPriceBook() {
                     Type: "CustomPriceBookPdf",
                     Value: e.target.checked ? "1" : "0",
                   })
-                )
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -384,7 +392,7 @@ export default function RunPriceBook() {
                     Type: "CustomPriceBookPdf",
                     Value: e.target.checked ? "1" : "0",
                   })
-                )
+                );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
@@ -966,70 +974,19 @@ export default function RunPriceBook() {
       });
   };
 
+  const [openAlert1, setOpenAlert1] = useState(false);
+  const [postError1, setPostError1] = useState(false);
+  const [isCustomerListExistsError, setIsCustomerListExistsError] =
+    useState(false);
+  const [addCustomerListData, setAddCustomerListData] = useState([]);
+  const handleSelectionAddCustomerListData = (e, newValue) => {
+    setAddCustomerListData(newValue);
+  };
+
   //=================================TOOLBAR=====================================//
   const SecondaryCustomToolbar = React.memo(() => {
     return (
       <Box>
-        {/* First Row */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            width: "100%",
-            mb: 2, // Add margin-bottom for spacing between rows
-          }}
-        >
-          {/* Price Week Section */}
-          <Stack direction="row-reverse" gap={5}>
-            <Typography
-              variant="caption"
-              align="center"
-              alignItems="center"
-              alignSelf="center"
-            >
-              {formatedDate}
-            </Typography>
-            <RadioGroup
-              row
-              name="week"
-              value={isNextWeek}
-              onChange={toggleWeek}
-            >
-              <FormControlLabel
-                sx={{ height: 40 }}
-                value={false}
-                control={<Radio />}
-                label="Current Week"
-              />
-              <FormControlLabel
-                sx={{ height: 40 }}
-                value={true}
-                control={<Radio />}
-                label="Next Week"
-              />
-            </RadioGroup>
-          </Stack>
-
-          {/* Label with Checkbox */}
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showPrice}
-                onChange={(e) => setShowprice(e.target.checked)}
-                sx={{
-                  color: "#174c4f",
-                  "&.Mui-checked": {
-                    color: "#174c4f",
-                  },
-                }}
-              />
-            }
-            label="Show Price"
-          />
-        </Box>
-
         {/* Second Row */}
         <Box
           sx={{
@@ -1052,34 +1009,49 @@ export default function RunPriceBook() {
           >
             Price Book Group
           </Typography>
-          <Stack direction="row" gap={2} width={"50%"}>
-            <GridToolbarQuickFilter sx={{ width: 200 }} />
-            <SingleAutocomplete
-              focused
-              fullWidth
-              required
-              name="rungroup"
-              id="rungroup"
-              value={selectedRunGrpOptions}
-              onChange={handleSelectionRunGrpChange}
-              label="Price Book Group"
-              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
-            />
-            {/* <FormikCustomSelectPriceBookGroup
-              fullWidth
-              name="rungroup"
-              id="rungroup"
-              value={selectedRunGrpOptions}
-              onChange={handleSelectionRunGrpChange}
-              label="Price Book Group"
-              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
-            /> */}
-          </Stack>
+          <GridToolbarQuickFilter sx={{ width: 200 }} />
         </Box>
       </Box>
     );
   });
 
+  const handleAddCustomers = async () => {
+    if (!selectedRunGrpOptions) {
+      setOpenAlert1(true);
+      setPostError1("Please Select Price Book Group");
+      return;
+    }
+    if (addCustomerListData.length > 0) {
+      const response = await dispatch(
+        CustomerAddPrintGroup({
+          data: addCustomerListData,
+          PriceBookGroup: selectedRunGrpOptions
+            ? selectedRunGrpOptions.Name
+            : "",
+        })
+      );
+      if (response.payload.status === "Y") {
+        dispatch(
+          fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name })
+        ).then((res) => {
+          // console.log("🚀 ~ dispatch ~ res:", res)
+
+          const allRowIds = res.payload.rows.map((row) => row.id);
+          setRowSelectionModel(allRowIds);
+        });
+        setOpenAlert1(true);
+        setAddCustomerListData([]);
+      } else {
+        setOpenAlert1(true);
+        setPostError1(response.payload.message);
+      }
+    } else {
+      setIsCustomerListExistsError(true);
+      setTimeout(() => {
+        setIsCustomerListExistsError(false);
+      }, 2000);
+    }
+  };
   return (
     <Container>
       <Box className="breadcrumb">
@@ -1091,6 +1063,182 @@ export default function RunPriceBook() {
         />
       </Box>
       <SimpleCard>
+        <Box>
+          {/* First Row */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+              mb: 2, // Add margin-bottom for spacing between rows
+            }}
+          >
+            {/* Price Week Section */}
+            <Stack direction="row-reverse" gap={5}>
+              <Typography
+                variant="caption"
+                align="center"
+                alignItems="center"
+                alignSelf="center"
+              >
+                {formatedDate}
+              </Typography>
+              <RadioGroup
+                row
+                name="week"
+                value={isNextWeek}
+                onChange={toggleWeek}
+              >
+                <FormControlLabel
+                  sx={{ height: 40 }}
+                  value={false}
+                  control={<Radio />}
+                  label="Current Week"
+                />
+                <FormControlLabel
+                  sx={{ height: 40 }}
+                  value={true}
+                  control={<Radio />}
+                  label="Next Week"
+                />
+              </RadioGroup>
+            </Stack>
+
+            {/* Label with Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showPrice}
+                  onChange={(e) => setShowprice(e.target.checked)}
+                  sx={{
+                    color: "#174c4f",
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+              }
+              label="Show Price"
+            />
+            {/* <Stack direction="row" gap={2}  justifyContent={"flex-end"}>
+              <SingleAutocomplete
+              sx={{ width: 200 }}
+                focused
+                fullWidth
+                required
+                name="rungroup"
+                id="rungroup"
+                value={selectedRunGrpOptions}
+                onChange={handleSelectionRunGrpChange}
+                label="Price Book Group"
+                url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+              />
+              <CusListRunGrpOptimizedAutocomplete
+                sx={{ width: 350 }}
+                errors={isCustomerListExistsError}
+                helper={isCustomerListExistsError && "Please select customer!"}
+                name="customerPriceList"
+                id="customerPriceList"
+                value={addCustomerListData}
+                onChange={handleSelectionAddCustomerListData}
+                label="Customers"
+                url={`${
+                  process.env.REACT_APP_BASE_URL
+                }CustomerPriceList/CustomerPriceList?CompanyCode=${
+                  user.companyCode
+                }&PriceBookGroup=${
+                  selectedRunGrpOptions ? selectedRunGrpOptions.Name : ""
+                }`}
+                addedCustomers={[]} // Pass added customers to exclude them
+              />
+            </Stack> */}
+          </Box>
+
+          {/* Second Row */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%",
+              padding: 1,
+              justifyContent: "space-between",
+              gap: 1,
+            }}
+          >
+            <SingleAutocomplete
+              // sx={{ width: 200 }}
+              focused
+              fullWidth
+              required
+              name="rungroup"
+              id="rungroup"
+              value={selectedRunGrpOptions}
+              onChange={handleSelectionRunGrpChange}
+              label="Price Book Group"
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+            />
+
+            <Stack direction="row" width={"100%"} gap={2} justifyContent={"flex-end"}>
+              <CusListRunGrpOptimizedAutocomplete
+                disabled={
+                  user.defaultRunGroup !=
+                    (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
+                  user.role == "USER"
+                }
+                sx={{ width: "100%" }}
+                errors={isCustomerListExistsError}
+                helper={isCustomerListExistsError && "Please select customer!"}
+                name="customerPriceList"
+                id="customerPriceList"
+                value={addCustomerListData}
+                onChange={handleSelectionAddCustomerListData}
+                label="Unassigned Customers"
+                url={`${
+                  process.env.REACT_APP_BASE_URL
+                }CustomerPriceList/CustomerPriceList?CompanyCode=${
+                  user.companyCode
+                }&PriceBookGroup=${
+                  selectedRunGrpOptions ? selectedRunGrpOptions.Name : ""
+                }`}
+                addedCustomers={runGrpRows} // Pass added customers to exclude them
+              />
+              {/* <Button
+               
+                sx={{ width: 200, height: 40, gridColumn: "span 1" }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={handleAddCustomers}
+                startIcon={<Add size="small" />}
+              >
+                Add Customers
+              </Button> */}
+              <Tooltip title="Add Customers">
+                <IconButton
+                sx={{height:37.6}}
+                 disabled={
+                  user.defaultRunGroup !=
+                    (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
+                  user.role == "USER"
+                }
+                  color="info"
+                  onClick={handleAddCustomers}
+
+                >
+                  <Add
+                    sx={{
+                      fontSize: 30, // Increased icon size
+                      color: theme.palette.success.main,
+                    }}
+                  />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Box>
+        </Box>
         <Box
           sx={{
             "& .MuiDataGrid-root": {
@@ -1309,6 +1457,40 @@ export default function RunPriceBook() {
             </Button>
           </Stack>
         </Stack>
+
+        <PriceGroupAlertApiDialog
+          logo={`data:image/png;base64,${user.logo}`}
+          open={openAlert1}
+          error={postError1}
+          message={postError1 ? postError1 : "Customer(s) added successfully"}
+          Actions={
+            <Box
+              sx={{
+                display: "flex",
+
+                justifyContent: "flex-end",
+
+                width: "100%",
+              }}
+            >
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setOpenAlert1(false);
+
+                  setTimeout(() => {
+                    setPostError1(null);
+                  }, 1000);
+                }}
+                sx={{ height: 25 }}
+              >
+                Close
+              </Button>
+            </Box>
+          }
+        />
       </SimpleCard>
     </Container>
   );

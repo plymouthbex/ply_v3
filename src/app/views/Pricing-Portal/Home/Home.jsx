@@ -390,17 +390,19 @@ const HomePage = () => {
 
                 <Tooltip title="Mail" placement="top">
                   <CustomIconButton
-                  disabled={true}
+                  // disabled={true}
                     bgcolor={theme.palette.error.main}
                     aria-label="mail"
                     onClick={() =>
                       navigate("/sent-mail", {
                         state: {
-                          name: "mail",
-                          path: "/sent-mail",
-                          accessID: "PPB0015",
-                          fav: false,
-                          RecordID: 0,
+                          customernumber: user.company,
+                          fppdf:  true ,
+                          fpexcel:  true ,
+                          cppdf:  false,
+                          cpexcel:  false,
+                          FromDate: sunday,
+                          ToDate: saturday,
                         },
                       })
                     }

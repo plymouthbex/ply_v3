@@ -85,7 +85,6 @@ const MailForm = () => {
   const status = useSelector((state) => state.getSlice.mailStatus);
   const error = useSelector((state) => state.getSlice.mailError);
   const data = useSelector((state) => state.getSlice.mailData);
-  console.log("🚀 ~ data:", data);
   const loading = useSelector((state) => state.getSlice.mailLoading);
   // ********************* COLUMN AND ROWS ********************* //
 

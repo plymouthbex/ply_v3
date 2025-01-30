@@ -61,7 +61,7 @@ const Customer = () => {
   const [companyID, setCompanyID] = useState(user.companyID);
 
   useEffect(() => {
-    dispatch(getConfigureCustomerListView({ ID: companyID }));
+    dispatch(getConfigureCustomerListView({ ID: companyID, PriceBookGroup:user.defaultRunGroup && user.role == "USER" ?user.defaultRunGroup :""}));
     // dispatch(clearCustomerListState())
   }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
@@ -75,7 +75,14 @@ const Customer = () => {
       headerAlign: "left",
       hide: false,
     },
-
+    {
+      headerName: "Price Book Group",
+      field: "Rungroup",
+      width: 200,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
     {
       field: "Action",
       headerName: "Action",
@@ -137,13 +144,14 @@ const Customer = () => {
           }}
         >
           <FormikCustomSelectCompanyPriceList2
+          disabled={user.role == "USER"}
             name="company"
             id="company"
             multiple={false}
             value={companyID}
             onChange={(e) => {
               setCompanyID(e.target.value);
-              dispatch(getConfigureCustomerListView({ ID: e.target.value }));
+              dispatch(getConfigureCustomerListView({ ID: e.target.value , PriceBookGroup:user.defaultRunGroup && user.role == "USER" ?user.defaultRunGroup :""}));
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}

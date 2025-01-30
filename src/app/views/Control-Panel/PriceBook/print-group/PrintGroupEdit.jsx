@@ -38,7 +38,11 @@ import {
 import useAuth from "app/hooks/useAuth";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
-import { FormikCustomSelectCompanyPriceList, PGOptimizedAutocomplete, PriceListOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
+import {
+  FormikCustomSelectCompanyPriceList,
+  PGOptimizedAutocomplete,
+  PriceListOptimizedAutocomplete,
+} from "app/components/SingleAutocompletelist";
 
 // ********************** ICONS ********************** //
 import { Add } from "@mui/icons-material";
@@ -88,7 +92,7 @@ const PrintGroupEdit = () => {
   const [isRemovePriceList, setIsRemovePriceList] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
   const [removePriceListdDesc, setremovePriceListDesc] = useState("");
-  const [ID, setId] = useState('');
+  const [ID, setId] = useState("");
   const [addPriceListData, setAddPriceListData] = useState(null);
   const handleSelectionAddPriceListData = (newValue) => {
     setAddPriceListData(newValue);
@@ -206,7 +210,6 @@ const PrintGroupEdit = () => {
             value={companyID}
             onChange={(e) => {
               setCompanyID(e.target.value);
-
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
@@ -254,10 +257,12 @@ const PrintGroupEdit = () => {
                 }
               }}
             >
-              <Add sx={{
-                fontSize: 30, // Increased icon size
-                color: theme.palette.success.main,
-              }} />
+              <Add
+                sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }}
+              />
             </IconButton>
           </Tooltip>
 
@@ -300,7 +305,7 @@ const PrintGroupEdit = () => {
 
   useEffect(() => {
     // if (status === "idle") {
-      dispatch(getprintGroupData({ id: state.id }));
+    dispatch(getprintGroupData({ id: state.id }));
     // }
   }, [location.key]);
 
@@ -335,17 +340,16 @@ const PrintGroupEdit = () => {
 
       if (response.payload.status === "Y") {
         if (params.mode === "add") {
-          navigate("/pages/control-panel/print-group/print-group-detail/edit", { state: { id: response.payload.RecordId } });
+          navigate("/pages/control-panel/print-group/print-group-detail/edit", {
+            state: { id: response.payload.RecordId },
+          });
           // dispatch(getprintGroupData({id:response.payload.RecordId}))
         }
         setOpenAlert(true);
-        setSuccessMessage(response.payload.message)
-
+        setSuccessMessage(response.payload.message);
       } else {
         setOpenAlert(true);
         setPostError(response.payload.message);
-
-
       }
     } catch (error) {
       console.error("Error during HandleSave:", error);
@@ -357,14 +361,11 @@ const PrintGroupEdit = () => {
     try {
       dispatch(deletePrintGroupData({ ID: data.RecordId })).then((response) => {
         if (response.payload.status === "Y") {
-
           setOpenAlert(true);
           setSuccessMessage(response.payload.message);
         } else {
           setOpenAlert(true);
           setPostError(response.payload.message);
-
-
         }
       });
       setSubmitting(false);
@@ -438,30 +439,30 @@ const PrintGroupEdit = () => {
                     {params.mode === "delete" ? "Confirm" : "Save"}
                   </Button>
                   {state.YearFlag ? (
-  <Button
-    variant="contained"
-    color="info"
-    size="small"
-    startIcon={<ArrowBackIcon size="small" />}
-    onClick={() => {
-      navigate("/pages/control-panel/price-list");
-    }}
-  >
-    Back
-  </Button>
-) : (
-  <Button
-    variant="contained"
-    color="info"
-    size="small"
-    startIcon={<ArrowBackIcon size="small" />}
-    onClick={() => {
-      navigate("/pages/control-panel/print-group");
-    }}
-  >
-    Back
-  </Button>
-)}
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      startIcon={<ArrowBackIcon size="small" />}
+                      onClick={() => {
+                        navigate("/pages/control-panel/price-list");
+                      }}
+                    >
+                      Back
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      startIcon={<ArrowBackIcon size="small" />}
+                      onClick={() => {
+                        navigate("/pages/control-panel/print-group");
+                      }}
+                    >
+                      Back
+                    </Button>
+                  )}
                 </Stack>
               </div>
 
@@ -502,8 +503,8 @@ const PrintGroupEdit = () => {
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                    // error={!!touched.groupCode && !!errors.groupCode}
-                    // helperText={touched.groupCode && errors.groupCode}
+                      // error={!!touched.groupCode && !!errors.groupCode}
+                      // helperText={touched.groupCode && errors.groupCode}
                     />
                     <TextField
                       fullWidth
@@ -521,8 +522,8 @@ const PrintGroupEdit = () => {
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                       autoComplete="off"
-                    // error={!!touched.groupName && !!errors.groupName}
-                    // helperText={touched.groupName && errors.groupName}
+                      // error={!!touched.groupName && !!errors.groupName}
+                      // helperText={touched.groupName && errors.groupName}
                     />
                     <TextField
                       fullWidth
@@ -782,64 +783,56 @@ const PrintGroupEdit = () => {
         logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
-        message={
-          postError
-            ? postError
-            : successMessage
-        }
+        message={postError ? postError : successMessage}
         Actions={
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                width: "100%",
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
               }}
             >
-                            <Button
+              Close
+            </Button>
+            {state.YearFlag ? (
+              <Button
                 sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
                 size="small"
                 onClick={() => {
-
-                  setOpenAlert(false);
-
+                  navigate("/pages/control-panel/price-list");
+                  setSuccessMessage(null);
+                  setPostError(null);
                 }}
               >
-                Close
+                Back to Categories
               </Button>
-              {state.YearFlag ? (
-  <Button
-    sx={{ mr: 1, height: 25 }}
-    variant="contained"
-    color="info"
-    size="small"
-    onClick={() => {
-      navigate("/pages/control-panel/price-list");
-      setSuccessMessage(null);
-      setPostError(null);
-    }}
-  >
-    Back to Categories
-  </Button>
-) : (
-  <Button
-    sx={{ mr: 1, height: 25 }}
-    variant="contained"
-    color="info"
-    size="small"
-    onClick={() => {
-      navigate("/pages/control-panel/print-group");
-      setSuccessMessage(null);
-      setPostError(null);
-    }}
-  >
-    Back to Categories
-  </Button>
-)}
-
-            </Box>
-  
+            ) : (
+              <Button
+                sx={{ mr: 1, height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  navigate("/pages/control-panel/print-group");
+                  setSuccessMessage(null);
+                  setPostError(null);
+                }}
+              >
+                Back to Categories
+              </Button>
+            )}
+          </Box>
         }
       />
 

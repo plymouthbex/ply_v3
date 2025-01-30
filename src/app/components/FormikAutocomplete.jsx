@@ -185,8 +185,6 @@ export function CusListRunGrpOptimizedAutocomplete({
     <Autocomplete
       sx={{
         "& .MuiAutocomplete-tag": { maxWidth: "90px" },
-        maxWidth: 500,
-        minWidth: 450,
       }}
       size="small"
       multiple={multiple}

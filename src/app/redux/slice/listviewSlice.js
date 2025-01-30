@@ -387,9 +387,9 @@ export const getConfigureCompanyListView = createAsyncThunk(
 //=====================Configure Company-ListView=================================//
 export const getConfigureCustomerListView = createAsyncThunk(
   "listview/ConfigureCustomer", // action type
-  async ({ ID }, { rejectWithValue }) => {
+  async ({ ID ,PriceBookGroup ="" }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CS&CompanyRecordID=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CS&CompanyRecordID=${ID}&PriceBookGroup=${PriceBookGroup}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,

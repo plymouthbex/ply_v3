@@ -124,7 +124,7 @@ const Notification = () => {
                   // loading={loading}
                   variant="contained"
                 >
-                  Go Back
+                  Back To Login
                 </Button>
               </form>
             </ContentBox>

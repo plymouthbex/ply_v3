@@ -127,10 +127,10 @@ const validationSchema = Yup.object({
   }).required("Default Company is required"),
   phonenumber: Yup.string()
   .matches(
-    /^(\+1|1)?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+    /^\(\d{3}\) \d{3}-\d{4}$/,
     "Phone number must be in the format (XXX) XXX-XXXX"
   )
-  .required("Phone number is required"),
+  .required("Phone number is required")
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -152,7 +152,7 @@ const UserEdit = () => {
   const [successMessage, setSuccessMessage] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
-  const [slectedSalesName,setselectedSalesName]=useState(null);
+  const [slectedSalesName, setselectedSalesName] = useState(null);
   const [OpenUser, setOpenUser] = useState(false);
 
   // ******************** REDUX STATE ******************** //
@@ -342,7 +342,7 @@ const UserEdit = () => {
         UserProfileImage:
           previewImages1.length > 0 ? images[1] : data.UserProfileImage,
         IsPasswordChanged: data.Password === values.password ? 0 : 1,
-        SalesPerson:slectedSalesName,
+        SalesPerson: null,
       };
       console.log("🚀 ~ HandleSave ~ userData:", userData);
       // return;
@@ -350,7 +350,7 @@ const UserEdit = () => {
       if (response.payload.status === "Y") {
         setImageList1([]);
         setOpenAlert(true);
-        setSuccessMessage(response.payload.message)
+        setSuccessMessage(response.payload.message);
       } else {
         setOpenAlert(true);
         setPostError(response.payload.message);
@@ -365,7 +365,7 @@ const UserEdit = () => {
       dispatch(deleteUserData({ ID: data.RecordID })).then((response) => {
         if (response.payload.status === "Y") {
           setOpenAlert(true);
-          setSuccessMessage(response.payload.message)
+          setSuccessMessage(response.payload.message);
         } else {
           setOpenAlert(true);
           setPostError(response.payload.messagerue);
@@ -419,7 +419,7 @@ const UserEdit = () => {
             defaultCompany: JSON.parse(data.Company),
             runGroup: JSON.parse(data.Rungroup),
             userGroup: JSON.parse(data.UserGroup),
-            sales:JSON.parse(data.SalesPerson),
+            sales: JSON.parse(data.SalesPerson),
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
@@ -558,7 +558,7 @@ const UserEdit = () => {
                       helperText={touched.lastname && errors.lastname}
                     />
                     <TextField
-                    autoComplete="off"
+                      autoComplete="off"
                       fullWidth
                       variant="outlined"
                       type="password"
@@ -572,7 +572,6 @@ const UserEdit = () => {
                       InputLabelProps={{
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
-                      
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -606,27 +605,27 @@ const UserEdit = () => {
                         sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                       }}
                     />
- <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="phonenumber"
-                    name="phonenumber"
-                    required
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                    label="Phone"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    value={values.phonenumber}
-                    onChange={handleChange}
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="phonenumber"
+                      name="phonenumber"
+                      required
+                      InputLabelProps={{
+                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                      }}
+                      label="Phone"
+                      size="small"
+                      sx={{ gridColumn: "span 2" }}
+                      value={values.phonenumber}
+                      onChange={handleChange}
                       autoComplete="off"
-                    onBlur={handleBlur}
-                    disabled={params?.mode === "delete"}
-                    error={touched.phonenumber && Boolean(errors.phonenumber)}
-                    helperText={touched.phonenumber && errors.phonenumber}
-                  />
+                      onBlur={handleBlur}
+                      disabled={params?.mode === "delete"}
+                      error={touched.phonenumber && Boolean(errors.phonenumber)}
+                      helperText={touched.phonenumber && errors.phonenumber}
+                    />
                     {/* <TextField
                     fullWidth
                     variant="outlined"
@@ -701,11 +700,9 @@ const UserEdit = () => {
                     error={touched.sequence && Boolean(errors.sequence)}
                     helperText={touched.sequence && errors.sequence}
                   /> */}
-                    
-                    
-                   
+
                     <FormControlLabel
-sx={{ width:"20px"}}
+                      sx={{ width: "20px" }}
                       control={
                         <Checkbox
                           size="small"
@@ -721,8 +718,10 @@ sx={{ width:"20px"}}
                       }
                       label="Disable"
                     />
-                    <Typography sx={{fontSize:"16px",fontWeight:"bold"}}>Default Settings</Typography>
-                     <FormikCompanyOptimizedAutocomplete
+                    <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
+                      Default Settings
+                    </Typography>
+                    <FormikCompanyOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
                         params.mode === "delete" || params.mode === "view"
@@ -759,7 +758,7 @@ sx={{ width:"20px"}}
                       label="User Group"
                       url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
                     />
-                    <FormikSalesPersonOptimizedAutocomplete
+                    {/* <FormikSalesPersonOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
                         params.mode === "delete" || params.mode === "view"
@@ -769,14 +768,13 @@ sx={{ width:"20px"}}
                       name="sales"
                       id="sales"
                       value={values.sales}
-                      onChange={(event, newValue) =>
-                        {setFieldValue("sales", newValue);
-                          setselectedSalesName(newValue.Name)
-                        }
-                      }
+                      onChange={(event, newValue) => {
+                        setFieldValue("sales", newValue);
+                        setselectedSalesName(newValue.Name);
+                      }}
                       label="Sales Person Name"
                       url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
-                    />
+                    /> */}
                     <FormikRungroupOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
@@ -795,49 +793,51 @@ sx={{ width:"20px"}}
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
-  <CardContent>
-    <Stack spacing={2} sx={{ alignItems: "center" }}>
-      <div>
-        <Avatar
-          src={
-            previewImages1.length > 0
-              ? previewImages1[0]["preview"]
-              : `data:image/png;base64,${data.UserProfileImage}`
-          }
-          sx={{ height: "80px", width: "80px" }}
-        />
-      </div>
-      <Stack spacing={1} sx={{ textAlign: "center" }}>
-        <Typography variant="h5">
-          {values.firstname} {values.lastname}
-        </Typography>
-      </Stack>
-    </Stack>
-  </CardContent>
-  <Divider />
-  
-  <CardActions
-  sx={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  }}
->
-  <DropZone {...dropzoneProps1.getRootProps()}>
-    <input {...dropzoneProps1.getInputProps()} />
-    <FlexBox alignItems="center" flexDirection="column">
-      <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
-      {imageList1.length ? (
-        <span>{imageList1.length} images were selected</span>
-      ) : (
-        <span>Upload image</span>
-      )}
-    </FlexBox>
-  </DropZone>
-</CardActions>
+                    <CardContent>
+                      <Stack spacing={2} sx={{ alignItems: "center" }}>
+                        <div>
+                          <Avatar
+                            src={
+                              previewImages1.length > 0
+                                ? previewImages1[0]["preview"]
+                                : `data:image/png;base64,${data.UserProfileImage}`
+                            }
+                            sx={{ height: "80px", width: "80px" }}
+                          />
+                        </div>
+                        <Stack spacing={1} sx={{ textAlign: "center" }}>
+                          <Typography variant="h5">
+                            {values.firstname} {values.lastname}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    </CardContent>
+                    <Divider />
 
-</Card>
-
+                    <CardActions
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <DropZone {...dropzoneProps1.getRootProps()}>
+                        <input {...dropzoneProps1.getInputProps()} />
+                        <FlexBox alignItems="center" flexDirection="column">
+                          <Publish
+                            sx={{ color: "text.secondary", fontSize: "48px" }}
+                          />
+                          {imageList1.length ? (
+                            <span>
+                              {imageList1.length} images were selected
+                            </span>
+                          ) : (
+                            <span>Upload image</span>
+                          )}
+                        </FlexBox>
+                      </DropZone>
+                    </CardActions>
+                  </Card>
                 </Box>
                 {/* <Box
                   sx={{
@@ -936,7 +936,7 @@ sx={{ width:"20px"}}
                 </Box> */}
               </Paper>
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 tittle={"Delete"}
                 message={`Are you sure you want to delete?`}
@@ -950,7 +950,7 @@ sx={{ width:"20px"}}
                         setIsDelete(false);
                         userDeleteFn();
                         setSuccessMessage(null);
-                        setPostError(null)
+                        setPostError(null);
                       }}
                     >
                       Yes
@@ -962,7 +962,7 @@ sx={{ width:"20px"}}
                       onClick={() => {
                         setIsDelete(false);
                         setSuccessMessage(null);
-                        setPostError(null)
+                        setPostError(null);
                       }}
                       autoFocus
                     >
@@ -972,7 +972,7 @@ sx={{ width:"20px"}}
                 }
               />
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={OpenUser}
                 // tittle={"ALERT"}
                 message={`Please select the price book group.`}
@@ -1001,23 +1001,21 @@ sx={{ width:"20px"}}
       )}
 
       <AlertDialog
-       logo={`data:image/png;base64,${user.logo}`}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
-        message={
-          postError ? postError:
-         successMessage
-        }
-        Actions = {
+        message={postError ? postError : successMessage}
+        Actions={
           params.mode === "add" ? (
             <DialogActions>
               <Button
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => {navigate("/pages/security/user");
+                onClick={() => {
+                  navigate("/pages/security/user");
                   setSuccessMessage(null);
-                  setPostError(null)
+                  setPostError(null);
                 }}
               >
                 Back to User
@@ -1031,7 +1029,7 @@ sx={{ width:"20px"}}
                   setPreviewImages1([]);
                   setOpenAlert(false);
                   setSuccessMessage(null);
-                  setPostError(null)
+                  setPostError(null);
                 }}
                 autoFocus
               >
@@ -1045,9 +1043,10 @@ sx={{ width:"20px"}}
                   variant="contained"
                   color="info"
                   size="small"
-                  onClick={() => {navigate("/pages/security/user");
+                  onClick={() => {
+                    navigate("/pages/security/user");
                     setSuccessMessage(null);
-                    setPostError(null)
+                    setPostError(null);
                   }}
                 >
                   Back to User
@@ -1061,7 +1060,7 @@ sx={{ width:"20px"}}
                     // Add your logout logic here
                     navigate("/session/signin");
                     setSuccessMessage(null);
-                    setPostError(null)
+                    setPostError(null);
                   }}
                 >
                   Logout
@@ -1070,8 +1069,7 @@ sx={{ width:"20px"}}
             </DialogActions>
           )
         }
-        
-        
+
         // Actions={
         //   params.mode === "add" ? (
         //     <DialogActions>
@@ -1104,7 +1102,7 @@ sx={{ width:"20px"}}
         //         color="info"
         //         size="small"
         //         onClick={() => navigate("/pages/security/user")}
-             
+
         //       >
         //         Back to user
         //       </Button>

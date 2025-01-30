@@ -1,8 +1,14 @@
 import {
   Box,
   Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  FormLabel,
   Icon,
   IconButton,
+  Stack,
   TextField,
   Typography,
   useMediaQuery,
@@ -16,7 +22,7 @@ import { SimpleCard } from "app/components";
 import { themeShadows } from "app/components/baseTheme/themeColors";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
-import { runGroupMailData } from "app/redux/slice/postSlice";
+import { CompanyMailSend, runGroupMailData } from "app/redux/slice/postSlice";
 import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
 import { useDispatch } from "react-redux";
 import { Formik } from "formik";
@@ -47,14 +53,14 @@ const MailSidebar = () => {
   useEffect(() => {
     // Update content with date range
     setContent(
-      `Hi  \n\n${user.company} Full Price Book for the Week(Pricing Week (SUN) ${state.FromDate}TO (SAT) ${state.ToDate})-Attached\n\nwith Regards\n${user.name}\n${user.company}-commercial team`
+      `Hi  \n\n${user.company} Attached - Full Price Book for the Week(Pricing Week (SUN) ${state.FromDate}TO (SAT) ${state.ToDate})\n\nwith Regards\n${user.name}\n${user.email}\n${user.phone}`
     );
   }, []);
 
   const [openAlert, setOpenAlert] = useState(false);
-  const [postError, setPostError] = useState(false);
-  const fnRunGrpEmailProcess = async () => {
-    const data = [
+  const [postError, setPostError] = useState(null);
+  const fnRunGrpEmailProcess = async (values) => {
+    const data2 = [
       {
         CustomerNumber: state.customernumber,
         FullPriceBookPdf: state.fppdf ? "1" : "0",
@@ -65,35 +71,51 @@ const MailSidebar = () => {
         ToDate: state.ToDate,
       },
     ];
-    console.log("🚀 ~ data ~ data:", data);
+
+    const data = {
+      RecordID: 0,
+      CompanyID: user.companyID,
+      CompanyCode: user.companyCode,
+      UserID: user.id,
+      TemplateID: 0,
+      ToMailID: values.to,
+      CcMailID: values.cc,
+      Subject: values.subject,
+      Content: values.content,
+      Signature: user.name,
+      FromDate: state.FromDate,
+      ToDate: state.ToDate,
+      Pdf: values.PreferedPdf ? "1" : "0",
+      Excel: values.PreferedExcel ? "1" : "0",
+    };
+    // console.log("🚀 ~ data ~ data:", data);
 
     try {
-      const response = await dispatch(runGroupMailData({ data }));
+      const response = await dispatch(CompanyMailSend(data));
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
       } else {
-        setOpenAlert(true);
+        setOpenAlert(response.payload.message);
         setPostError(true);
       }
     } catch (error) {
       setOpenAlert(true);
-      setPostError(true);
+      setPostError("Somthing went wrong and please try again");
       console.error("Error during HandleSave:", error);
     }
   };
 
   const validationSchema = Yup.object({
-
-  
     to: Yup.string()
       .email("Invalid email format")
       .max(200, "Email must be at most 200 characters"),
-      cc: Yup.string()
+    cc: Yup.string()
       .email("Invalid email format")
       .max(200, "Email must be at most 200 characters"),
-
-  });
+    PreferedPdf: Yup.boolean(),
+    PreferedExcel: Yup.boolean(),
+  })
 
   return (
     <Box sx={{ margin: "15px" }}>
@@ -131,11 +153,26 @@ const MailSidebar = () => {
             subject: `RE:Plymouth ${
               state.fppdf ? "Full" : "Custom"
             } Price Book`,
-            content: `Hi  \n\n${user.company} ${
+            content: `Hi  \n\nAttached - ${user.company} ${
               state.fppdf ? "Full" : "Custom"
-            } Price Book for the Week(Pricing Week (SUN) ${state.FromDate}TO (SAT) ${state.ToDate})-Attached\n\nwith Regards\n${user.name}\n${user.company}-commercial team`,
+            } Price Book for the Week(Pricing Week (SUN) ${
+              state.FromDate
+            }TO (SAT) ${state.ToDate})\n\nwith Regards\n${user.name}\n${user.email}\n${user.userMobile}
+            `,
+            PreferedPdf: true,
+            PreferedExcel: true,
           }}
           validationSchema={validationSchema}
+          validate={(values) => {
+            const errors = {};
+            
+            // Checkbox validation: At least one must be checked
+            if (!values.PreferedPdf && !values.PreferedExcel) {
+              errors.PreferedPdf = "At least one format (PDF or Excel) must be selected";
+            }
+        
+            return errors;
+          }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
@@ -186,7 +223,7 @@ const MailSidebar = () => {
                   id="cc"
                   label="CC"
                   variant="outlined"
-                    type="email"
+                  type="email"
                   fullWidth
                   name="cc"
                   value={values.cc}
@@ -226,90 +263,119 @@ const MailSidebar = () => {
                   onBlur={handleBlur}
                   autoComplete="off"
                 />
-              </Box>
-              <Box sx={{ mt: 4, padding: 1 }}>
-          <Box
-            sx={{
-              display: "flex",
-              gap: "10px",
-              backgroundColor: "#EBF8F4",
-              height: 30,
-              borderRadius: "7px",
-              alignItems: "center",
-              paddingLeft: "10px",
-              width: "fit-content",
-            }}
-          >
-            <AttachFileIcon fontSize="small" sx={{ color: "#164D50" }} />
-            <Typography sx={{ color: "#164D50", fontWeight: "500" }}>
-              Price Book Attached
-            </Typography>
-          </Box>
-          <Box sx={{ margin: "20px 0px", display: "flex", gap: "10px" }}>
-            <Button
-              sx={{
-                backgroundColor: "#164D50",
-                "&:hover": {
-                  backgroundColor: "#164D50",
-                },
-              }}
-              variant="contained"
-              startIcon={<SendIcon />}
-              type="submit"
-            >
-              Send
-            </Button>
-            <Button
-              onClick={() => navigate(-1)}
-              variant="outlined"
-              color="info"
-            >
-              Cancel
-            </Button>
-          </Box>
-          <PriceGroupAlertApiDialog
-            open={openAlert}
-            error={postError}
-            message={
-              postError
-                ? "An error occurred while sending the email. Please try again."
-                : "Customer will receive their Price Book shortly"
-            }
-            Actions={
-              <Box
-                sx={{
-                  display: "flex",
-
-                  justifyContent: "flex-end",
-
-                  width: "100%",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert(false);
-
-                    setTimeout(() => {
-                      setPostError(false);
-                    }, 1000);
-                  }}
-                  sx={{ height: 25 }}
+                <FormControl
+                  component="fieldset"
+                  variant="standard"
+                  error={
+                    touched.PreferedPdf &&
+                    touched.PreferedExcel &&
+                    !!errors.PreferedPdf
+                  } // Show error styling if both are touched and there's an error
                 >
-                  Close
-                </Button>
+                  <FormLabel focused={false} component="legend">
+                    Preferred Format
+                  </FormLabel>
+                  <Stack direction="row" gap={2}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          id="PreferedPdf"
+                          name="PreferedPdf"
+                          checked={values.PreferedPdf}
+                          onChange={handleChange}
+                          onBlur={handleBlur} // Ensures validation triggers on blur
+                        />
+                      }
+                      label="Pdf"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          id="PreferedExcel"
+                          name="PreferedExcel"
+                          checked={values.PreferedExcel}
+                          onChange={handleChange}
+                          onBlur={handleBlur} // Ensures validation triggers on blur
+                        />
+                      }
+                      label="Excel"
+                    />
+                  </Stack>
+
+                  {/* Error Message */}
+                  {touched.PreferedPdf &&
+                    touched.PreferedExcel &&
+                    errors.PreferedPdf && (
+                      <FormHelperText>{errors.PreferedPdf}</FormHelperText>
+                    )}
+                </FormControl>
               </Box>
-            }
-          />
-        </Box>
+
+              <Box sx={{ mt: 4, padding: 1 }}>
+                <Box sx={{ margin: "0px 0px", display: "flex", gap: "10px" }}>
+                  <Button
+                    sx={{
+                      backgroundColor: "#164D50",
+                      "&:hover": {
+                        backgroundColor: "#164D50",
+                      },
+                    }}
+                    variant="contained"
+                    startIcon={<SendIcon />}
+                    type="submit"
+                  >
+                    Send
+                  </Button>
+                  <Button
+                    onClick={() => navigate(-1)}
+                    variant="outlined"
+                    color="info"
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+                <PriceGroupAlertApiDialog
+                  open={openAlert}
+                  error={postError}
+                  message={
+                    postError
+                      ? "An error occurred while sending the email. Please try again."
+                      : "Customer will receive their Price Book shortly"
+                  }
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+
+                        justifyContent: "flex-end",
+
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setOpenAlert(false);
+
+                          setTimeout(() => {
+                            setPostError(null);
+                          }, 1000);
+                        }}
+                        sx={{ height: 25 }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
+                />
+              </Box>
             </form>
           )}
         </Formik>
 
         {/* Attachment and Action Buttons */}
-   
       </SimpleCard>
     </Box>
   );
