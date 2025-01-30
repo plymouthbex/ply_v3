@@ -12,6 +12,10 @@ import {
   FormControl,
   Stack,
   DialogActions,
+  Autocomplete,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   DataGrid,
@@ -91,7 +95,9 @@ const MailForm = () => {
   // ********************* TOOLBAR ********************* //
 
   useEffect(() => {
-    dispatch(getCompanyMailConfig({ ID: state.ID }));
+    dispatch(getCompanyMailConfig({ ID: state.ID,
+      type:"CM"
+     }));
   }, []);
 
   const handleSave = async (values, setSubmitting) => { // Accept setSubmitting as a parameter
@@ -103,15 +109,17 @@ const MailForm = () => {
       CompanyID: state.ID,
       Content: values.content,
       FromEmailID: values.fromEmailID,
-      OtherSoureceID: values.otherSourceId,
+      OtherSoureceID: "",
       RecordID: data.RecordID,
       SMPTPortNumber: values.smtpPort,
       SMPTServer: values.smtpHost,
       SSLFlag: values.ssl ? "Y" : "N",
       Subject: values.subject,
+      Classification:values.classification,
     };
   
     console.log("🚀 ~ handleSave ~ mData:", mData);
+    // return;
     const response= await dispatch(postMailConfig({mData}));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
@@ -122,6 +130,13 @@ const MailForm = () => {
     }
   
   };
+
+
+  const Classification=[
+    {type:"CM", name:"Company Email Template"},
+    {type:"CS", name:"Customer Email Template"},
+    {type:"QT", name:"Quote Email Template"},
+  ];
   return (
     <Container>
       <Formik
@@ -356,7 +371,49 @@ const MailForm = () => {
                     // helperText={touched.fromEmailID && errors.fromEmailID}
                     autoComplete="off"
                   />
-                  <TextField
+                  <FormControl sx={{ gridColumn: "span 2" }}>
+  <InputLabel id="classification">Classification</InputLabel>
+  <Select
+   size="small"
+    labelId="classification"
+    id="classification"
+    name="classification"
+    value={values.classification || ""} // Ensure correct selection
+    onChange={handleChange} // Formik's handleChange
+    onBlur={handleBlur}
+    disabled={params?.mode === "delete"}
+    label="Classification"
+  >
+    {Classification.map((option) => (
+      <MenuItem key={option.type} value={option.type}>
+      {option.name}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+                  {/* <Autocomplete
+  fullWidth
+  id="classification"
+  name="classification"
+  options={Classification}
+  disabled={params?.mode === "delete"}
+  getOptionLabel={(option) => option.name} // Display name in dropdown
+  isOptionEqualToValue={(option, value) => option.type === value} // Match by type
+  value={Classification.find((item) => item.type === values.classification) || null} // Set correct value
+  onChange={handleChange}
+  onBlur={handleBlur}
+  disableClearable
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Classification"
+      size="small"
+      sx={{ gridColumn: "span 2" }}
+    />
+  )}
+/> */}
+
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -371,7 +428,7 @@ const MailForm = () => {
                     // error={!!touched.otherSourceId && !!errors.otherSourceId}
                     // helperText={touched.otherSourceId && errors.otherSourceId}
                     autoComplete="off"
-                  />
+                  /> */}
 
                   <TextField
                     size="small"

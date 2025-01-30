@@ -671,9 +671,9 @@ export const getConfigContact = createAsyncThunk(
 
 export const getCompanyMailConfig = createAsyncThunk(
   "get/getCompanyMailConfig", // action type
-  async ({ ID }, { rejectWithValue }) => {
+  async ({ ID,type }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/GetEmailTemplate?CompanyID=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/GetEmailTemplate?CompanyID=${ID}&&Type=${type}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
