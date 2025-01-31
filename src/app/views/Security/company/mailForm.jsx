@@ -80,10 +80,11 @@ const MailForm = () => {
   const params = useParams();
   const location = useLocation();
   const state = location.state;
-  const {user}=useAuth();
+  const { user } = useAuth();
   // ********************* LOCAL STATE ********************* //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
+  
   // ********************* REDUX STATE ********************* //
 
   const status = useSelector((state) => state.getSlice.mailStatus);
@@ -92,14 +93,16 @@ const MailForm = () => {
   console.log("🚀 ~ data:", data);
   const loading = useSelector((state) => state.getSlice.mailLoading);
   // ********************* COLUMN AND ROWS ********************* //
-
+  const [selectedType, setSelectedType] = useState("CM" || "");
+  console.log("🚀 ~ MailForm ~ selectedType:", selectedType);
   // ********************* TOOLBAR ********************* //
 
   useEffect(() => {
-    dispatch(getCompanyMailConfig({ ID: state.ID,
-      type:"CM"
-     }));
-  }, []);
+    dispatch(getCompanyMailConfig({
+      ID: state.ID,
+      type: selectedType, // Ensure updated value
+    }));
+  }, [selectedType]);
 
   const handleSave = async (values, setSubmitting) => { // Accept setSubmitting as a parameter
     const mData = {
@@ -116,12 +119,12 @@ const MailForm = () => {
       SMPTServer: values.smtpHost,
       SSLFlag: values.ssl ? "Y" : "N",
       Subject: values.subject,
-      Classification:values.classification,
+      Classification: values.classification,
     };
-  
+
     console.log("🚀 ~ handleSave ~ mData:", mData);
     // return;
-    const response= await dispatch(postMailConfig({mData}));
+    const response = await dispatch(postMailConfig({ mData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
     } else {
@@ -129,15 +132,18 @@ const MailForm = () => {
       setPostError(true);
       // toast.error("Error occurred while saving data");
     }
-  
+
   };
 
 
-  const Classification=[
-    {type:"CM", name:"Company Email Template"},
-    {type:"CS", name:"Customer Email Template"},
-    {type:"QT", name:"Quote Email Template"},
+  const Classification = [
+    { type: "CM", name: "Company Email Template" },
+    { type: "CS", name: "Customer Email Template" },
+    { type: "QT", name: "Quote Email Template" },
   ];
+
+
+  
   return (
     <Container>
       <Formik
@@ -163,7 +169,7 @@ const MailForm = () => {
             //   setIsDelete(true);
             // }
             // if (params.mode === "add" || params.mode === "edit") {
-              handleSave(values, setSubmitting);
+            handleSave(values, setSubmitting);
             // }
           }, 400);
         }}
@@ -192,18 +198,18 @@ const MailForm = () => {
                   ]}
                 />
                 <Stack direction="row" gap={1}>
-                <Button
+                  <Button
                     variant="contained"
                     color="info"
                     size="small"
                     startIcon={
-                        <SaveIcon size="small" />
-                      
+                      <SaveIcon size="small" />
+
                     }
                     type="submit"
-                   
+
                   >
-                  Save
+                    Save
                   </Button>
                   <Button
                     variant="contained"
@@ -231,6 +237,45 @@ const MailForm = () => {
                     padding: "10px",
                   }}
                 >
+
+                  <FormControl sx={{ gridColumn: "span 2" }}>
+                    <InputLabel id="classification">Classification</InputLabel>
+                    <Select
+                      size="small"
+                      labelId="classification"
+                      id="classification"
+                      name="classification"
+                      value={selectedType} // Ensure correct selection
+                      onChange={(event)=>{
+                        const newValue = event.target.value;
+      setSelectedType(newValue); // Update local state
+      handleChange(event);
+                      }} // Formik's handleChange
+                      onBlur={handleBlur}
+                      disabled={params?.mode === "delete"}
+                      label="Classification"
+                    >
+                      {Classification.map((option) => (
+                        <MenuItem key={option.type} value={option.type}>
+                          {option.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                </Box>
+                <Box
+                  display="grid"
+                  gap="20px"
+                  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                  sx={{
+                    "& > div": {
+                      gridColumn: isNonMobile ? undefined : "span 4",
+                    },
+                    padding: "10px",
+                  }}
+                >
+
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -341,21 +386,21 @@ const MailForm = () => {
                   />
 
                   <FormControlLabel
-                                       control={
-                                         <Checkbox
-                                           size="small"
-                                           id="ssl"
-                                           name="ssl"
-                                           checked={values.ssl}
-                                           onChange={handleChange}
-                                           sx={{ height: "10px" }}
-                                           disabled={
-                                             params.mode === "delete" || params.mode === "view"
-                                           }
-                                         />
-                                       }
-                                       label="SSL"
-                                     />
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="ssl"
+                        name="ssl"
+                        checked={values.ssl}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="SSL"
+                  />
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -372,49 +417,10 @@ const MailForm = () => {
                     // helperText={touched.fromEmailID && errors.fromEmailID}
                     autoComplete="off"
                   />
-                  <FormControl sx={{ gridColumn: "span 2" }}>
-  <InputLabel id="classification">Classification</InputLabel>
-  <Select
-   size="small"
-    labelId="classification"
-    id="classification"
-    name="classification"
-    value={values.classification || ""} // Ensure correct selection
-    onChange={handleChange} // Formik's handleChange
-    onBlur={handleBlur}
-    disabled={params?.mode === "delete"}
-    label="Classification"
-  >
-    {Classification.map((option) => (
-      <MenuItem key={option.type} value={option.type}>
-      {option.name}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-                  {/* <Autocomplete
-  fullWidth
-  id="classification"
-  name="classification"
-  options={Classification}
-  disabled={params?.mode === "delete"}
-  getOptionLabel={(option) => option.name} // Display name in dropdown
-  isOptionEqualToValue={(option, value) => option.type === value} // Match by type
-  value={Classification.find((item) => item.type === values.classification) || null} // Set correct value
-  onChange={handleChange}
-  onBlur={handleBlur}
-  disableClearable
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      label="Classification"
-      size="small"
-      sx={{ gridColumn: "span 2" }}
-    />
-  )}
-/> */}
 
-                  {/* <TextField
+
+
+                  <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -429,7 +435,7 @@ const MailForm = () => {
                     // error={!!touched.otherSourceId && !!errors.otherSourceId}
                     // helperText={touched.otherSourceId && errors.otherSourceId}
                     autoComplete="off"
-                  /> */}
+                  />
 
                   <TextField
                     size="small"
@@ -490,27 +496,27 @@ const MailForm = () => {
         )}
       </Formik>
       <AlertDialog
-       logo={`data:image/png;base64,${user.logo}`}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
-          postError ? "Something went wrong and please retry":
-         "Mail Configuration Saved Successfully"
-          
+          postError ? "Something went wrong and please retry" :
+            "Mail Configuration Saved Successfully"
+
         }
         Actions={
-         
-            <DialogActions>
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => navigate("/pages/security/company")}
-              >
-                Back to Company
-              </Button>
-            </DialogActions>
-          
+
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => navigate("/pages/security/company")}
+            >
+              Back to Company
+            </Button>
+          </DialogActions>
+
         }
       />
     </Container>
