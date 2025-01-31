@@ -59,6 +59,11 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email format")
     .required("Email is required"),
+  cc: Yup.string().test("valid-emails", "Invalid email format", (value) => {
+    if (!value) return true; // Allow empty CC field
+    const emails = value.split(",").map((email) => email.trim());
+    return emails.every((email) => Yup.string().email().isValidSync(email));
+  }),
   emailPassword: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
@@ -68,7 +73,6 @@ const validationSchema = Yup.object({
   smtpHost: Yup.string().required("SMTP Host is required"),
   smtpPort: Yup.number().required("SMTP Port is required").positive().integer(),
 });
-
 
 // ********************* ITEMS SCREEN LISTVIEW ********************* //
 const MailForm = () => {
@@ -84,7 +88,7 @@ const MailForm = () => {
   // ********************* LOCAL STATE ********************* //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-  
+
   // ********************* REDUX STATE ********************* //
 
   const status = useSelector((state) => state.getSlice.mailStatus);
@@ -96,13 +100,16 @@ const MailForm = () => {
   // ********************* TOOLBAR ********************* //
 
   useEffect(() => {
-    dispatch(getCompanyMailConfig({
-      ID: state.ID,
-      type: selectedType, // Ensure updated value
-    }));
+    dispatch(
+      getCompanyMailConfig({
+        ID: state.ID,
+        type: selectedType, // Ensure updated value
+      })
+    );
   }, [selectedType]);
 
-  const handleSave = async (values, setSubmitting) => { // Accept setSubmitting as a parameter
+  const handleSave = async (values, setSubmitting) => {
+    // Accept setSubmitting as a parameter
     const mData = {
       AuthorizedEmailID: values.email,
       AuthorizedPassword: values.emailPassword,
@@ -130,9 +137,7 @@ const MailForm = () => {
       setPostError(true);
       // toast.error("Error occurred while saving data");
     }
-
   };
-
 
   const Classification = [
     { type: "CM", name: "Company Email Template" },
@@ -140,8 +145,6 @@ const MailForm = () => {
     { type: "QT", name: "Quote Email Template" },
   ];
 
-
-  
   return (
     <Container>
       <Formik
@@ -200,12 +203,8 @@ const MailForm = () => {
                     variant="contained"
                     color="info"
                     size="small"
-                    startIcon={
-                      <SaveIcon size="small" />
-
-                    }
+                    startIcon={<SaveIcon size="small" />}
                     type="submit"
-
                   >
                     Save
                   </Button>
@@ -235,7 +234,6 @@ const MailForm = () => {
                     padding: "10px",
                   }}
                 >
-
                   <FormControl sx={{ gridColumn: "span 2" }}>
                     <InputLabel id="classification">Classification</InputLabel>
                     <Select
@@ -244,10 +242,10 @@ const MailForm = () => {
                       id="classification"
                       name="classification"
                       value={selectedType} // Ensure correct selection
-                      onChange={(event)=>{
+                      onChange={(event) => {
                         const newValue = event.target.value;
-      setSelectedType(newValue); // Update local state
-      handleChange(event);
+                        setSelectedType(newValue); // Update local state
+                        handleChange(event);
                       }} // Formik's handleChange
                       onBlur={handleBlur}
                       disabled={params?.mode === "delete"}
@@ -260,7 +258,6 @@ const MailForm = () => {
                       ))}
                     </Select>
                   </FormControl>
-
                 </Box>
                 <Box
                   display="grid"
@@ -273,7 +270,6 @@ const MailForm = () => {
                     padding: "10px",
                   }}
                 >
-
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -416,8 +412,6 @@ const MailForm = () => {
                     autoComplete="off"
                   />
 
-
-
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -498,12 +492,11 @@ const MailForm = () => {
         open={openAlert}
         error={postError}
         message={
-          postError ? "Something went wrong and please retry" :
-            "Mail Configuration Saved Successfully"
-
+          postError
+            ? "Something went wrong and please retry"
+            : "Mail Configuration Saved Successfully"
         }
         Actions={
-
           <DialogActions>
             <Button
               variant="contained"
@@ -514,7 +507,6 @@ const MailForm = () => {
               Back to Company
             </Button>
           </DialogActions>
-
         }
       />
     </Container>

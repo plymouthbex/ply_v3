@@ -12,6 +12,8 @@ import {
   DialogActions,
   Tooltip,
   IconButton,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import {
   DataGrid,
@@ -294,7 +296,7 @@ const RunGroupEdit = () => {
               >
                 Add Customers
               </Button> */}
-{/* 
+          {/* 
           <Button
             sx={{ width: 200, height: 40, gridColumn: "span 1" }}
             variant="contained"
@@ -316,6 +318,7 @@ const RunGroupEdit = () => {
       Code: values.runGroupCode,
       Name: values.runGroupName,
       Sortorder: values.sortOrder,
+      AllSalesMan: values.AllSalesMan,
       CompanyCode: state.CompanyCode,
       SalesPerson: slectedSalesName || data.SalesPersonName,
       Disable: "N",
@@ -374,6 +377,7 @@ const RunGroupEdit = () => {
             runGroupName: data.Name,
             sortOrder: data.Sortorder,
             Disable: data.Disable,
+            AllSalesMan: data.AllSalesMan,
             LastModifiedDate: data.LastModifiedDate,
             sales: JSON.parse(data.SalesPerson),
           }}
@@ -516,43 +520,45 @@ const RunGroupEdit = () => {
                     label="Sales Person Name"
                     url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
                   />
-                  <Stack direction={"row"} gap={1}  sx={{ gridColumn: "span 2" }}>
-
-                 
-                  <CusListRunGrpOptimizedAutocomplete
-                   sx={{width:"100%"}}
-                    errors={isCustomerListExistsError}
-                    helper={
-                      isCustomerListExistsError && "Please select customer!"
-                    }
-                    name="customerPriceList"
-                    id="customerPriceList"
-                    value={addCustomerListData}
-                    onChange={handleSelectionAddCustomerListData}
-                    label="Unassigned Customers"
-                    url={`${
-                      process.env.REACT_APP_BASE_URL
-                    }CustomerPriceList/CustomerPriceList?CompanyCode=${
-                      state.CompanyCode
-                    }&PriceBookGroup=${
-                      slectedSalesName || data.SalesPersonName
-                    }`}
-                    addedCustomers={filteredExistingRows} // Pass added customers to exclude them
-                  />
-                  <Tooltip title="Add Customers">
-                    <IconButton
-                      sx={{ height: 37.6 }}
-                      color="info"
-                      onClick={handleAddCustomers}
-                    >
-                      <Add
-                        sx={{
-                          fontSize: 30, // Increased icon size
-                          color: theme.palette.success.main,
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
+                  <Stack
+                    direction={"row"}
+                    gap={1}
+                    sx={{ gridColumn: "span 2" }}
+                  >
+                    <CusListRunGrpOptimizedAutocomplete
+                      sx={{ width: "100%" }}
+                      errors={isCustomerListExistsError}
+                      helper={
+                        isCustomerListExistsError && "Please select customer!"
+                      }
+                      name="customerPriceList"
+                      id="customerPriceList"
+                      value={addCustomerListData}
+                      onChange={handleSelectionAddCustomerListData}
+                      label="Unassigned Customers"
+                      url={`${
+                        process.env.REACT_APP_BASE_URL
+                      }CustomerPriceList/CustomerPriceList?CompanyCode=${
+                        state.CompanyCode
+                      }&PriceBookGroup=${
+                        slectedSalesName || data.SalesPersonName
+                      }`}
+                      addedCustomers={filteredExistingRows} // Pass added customers to exclude them
+                    />
+                    <Tooltip title="Add Customers">
+                      <IconButton
+                        sx={{ height: 37.6 }}
+                        color="info"
+                        onClick={handleAddCustomers}
+                      >
+                        <Add
+                          sx={{
+                            fontSize: 30, // Increased icon size
+                            color: theme.palette.success.main,
+                          }}
+                        />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                   {/* <TextField
                     fullWidth
@@ -570,6 +576,20 @@ const RunGroupEdit = () => {
                     //   error={!!touched.sortOrder && !!errors.sortOrder}
                     //   helperText={touched.sortOrder && errors.sortOrder}
                   /> */}
+
+                  <FormControlLabel
+                    sx={{ height: 37.13 }}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="AllSalesMan"
+                        name="AllSalesMan"
+                        checked={values.AllSalesMan}
+                        onChange={handleChange}
+                      />
+                    }
+                    label="Belongs TO All Sales"
+                  />
                   <Box
                     sx={{
                       height: 400,

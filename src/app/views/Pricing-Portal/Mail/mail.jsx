@@ -24,53 +24,42 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
 import { CompanyMailSend, runGroupMailData } from "app/redux/slice/postSlice";
 import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { getCompanyMailConfig } from "app/redux/slice/getSlice";
 // Sample mail data object
 
 const MailSidebar = () => {
   const location = useLocation();
   const state = location.state || {};
-  const initialMailData = {
-    to: "",
-    cc: "",
-    subject: `RE:Plymouth ${state.fppdf ? "Full" : "Custom"} Price Book`,
-    content:
-      "Hi  \nKindly find attached Generic Full Price Book\n\nwith Regards\nPlymouth-commercial team",
-  };
+
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useAuth();
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const [to, setTo] = useState(initialMailData.to);
-  const [cc, setCc] = useState(initialMailData.cc);
-  const [subject, setSubject] = useState(initialMailData.subject);
-  const [content, setContent] = useState(initialMailData.content);
+  const status = useSelector((state) => state.getSlice.mailStatus);
+  const error = useSelector((state) => state.getSlice.mailError);
+  const data = useSelector((state) => state.getSlice.mailData);
+  console.log("🚀 ~ MailSidebar ~ data:", data)
+  const loading = useSelector((state) => state.getSlice.mailLoading);
+  // ********************* COLUMN AND ROWS ********************* //
+  // ********************* TOOLBAR ********************* //
 
   useEffect(() => {
-    // Update content with date range
-    setContent(
-      `Hi  \n\n${user.company} Attached - Full Price Book for the Week(Pricing Week (SUN) ${state.FromDate}TO (SAT) ${state.ToDate})\n\nwith Regards\n${user.name}\n${user.email}\n${user.phone}`
-    );
+    dispatch(getCompanyMailConfig({
+      ID: user.companyID,
+      type: "CM", // Ensure updated value
+    }));
   }, []);
+
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(null);
   const fnRunGrpEmailProcess = async (values) => {
-    const data2 = [
-      {
-        CustomerNumber: state.customernumber,
-        FullPriceBookPdf: state.fppdf ? "1" : "0",
-        FullPriceBookExcel: state.fpexcel ? "1" : "0",
-        CustomPriceBooPdf: state.cppdf ? "1" : "0",
-        CustomPriceBookExcel: state.cpexcel ? "1" : "0",
-        FromDate: state.FromDate,
-        ToDate: state.ToDate,
-      },
-    ];
+
 
     const data = {
       RecordID: 0,
@@ -110,13 +99,25 @@ const MailSidebar = () => {
     to: Yup.string()
       .email("Invalid email format")
       .max(200, "Email must be at most 200 characters"),
-    cc: Yup.string()
-      .email("Invalid email format")
-      .max(200, "Email must be at most 200 characters"),
+      cc: Yup.string()
+      .test("valid-emails", "Invalid email format", (value) => {
+        if (!value) return true; // Allow empty CC field
+        const emails = value.split(",").map(email => email.trim());
+        return emails.every(email => Yup.string().email().isValidSync(email));
+      })
+      .max(500, "CC field must be at most 500 characters"),
     PreferedPdf: Yup.boolean(),
     PreferedExcel: Yup.boolean(),
   })
 
+  function replacePlaceholders(template, values) {
+    return template
+    .replace("{FROMDATE}", state.FromDate)
+    .replace("{TODATE}", state.ToDate)
+    .replace("{USER}", values.name)
+    .replace("{USEREMAILID}", values.email)
+    .replace("{USERPHONE}", values.userMobile);
+  }
   return (
     <Box sx={{ margin: "15px" }}>
       <SimpleCard>
@@ -146,19 +147,13 @@ const MailSidebar = () => {
 
         {/* Form Fields */}
 
-        <Formik
+       { status === "fulfilled" && !error ? 
+        (  <Formik
           initialValues={{
             to: "",
-            cc: "",
-            subject: `RE:Plymouth ${
-              state.fppdf ? "Full" : "Custom"
-            } Price Book`,
-            content: `Hi  \n\nAttached - ${user.company} ${
-              state.fppdf ? "Full" : "Custom"
-            } Price Book for the Week(Pricing Week (SUN) ${
-              state.FromDate
-            }TO (SAT) ${state.ToDate})\n\nwith Regards\n${user.name}\n${user.email}\n${user.userMobile}
-            `,
+            cc: data.CCEmailIDs,
+            subject:  data.Subject, user,
+            content: replacePlaceholders(data.Content , user),
             PreferedPdf: true,
             PreferedExcel: true,
           }}
@@ -371,9 +366,11 @@ const MailSidebar = () => {
                   }
                 />
               </Box>
-            </form>
+            </form>  
           )}
-        </Formik>
+        </Formik>) : (
+              false
+            )}
 
         {/* Attachment and Action Buttons */}
       </SimpleCard>
