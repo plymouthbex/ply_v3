@@ -148,11 +148,6 @@ const PriceListEdit = () => {
     (selectedItem) => !addItemsSet.has(selectedItem.Item_Number)
   );
 
-  const allSelAddItems = [...filteredSelectedItems, ...addedRows].map(
-    (item) => {
-      return { ...item, Item_Number: `@${item.Item_Number}`, showAction: true };
-    }
-  );
   // ********************** COLUMN AND ROWS ********************** //
 
   const columns = [
@@ -184,35 +179,23 @@ const PriceListEdit = () => {
             <Checkbox
               checked={param.row.PrintItem}
               onChange={(e) => {
-                // dispatch(
-                //   applicationPost({
-                //     appData: {
-                //       RecordID: params.row.RecordID,
-                //       ApplicationCode: params.row.ApplicationCode,
-                //       ApplicationName: params.row.ApplicationName,
-                //       SortOrder: params.row.SortOrder,
-                //       User: params.row.User ? 1 : 0,
-                //       Admin: params.row.Admin ? 1 : 0,
-                //       SystemAdmin: e.target.checked ? 1 : 0,
-                //       Disable: params.row.Disable === "Y" ? "Y" : "N",
-                //     },
-                //   })
-                // );
-
-                dispatch(PutAdHocItem({ data: {
-                  RecordID: param.row.RecordId,
-                  PriceListID: priceListHeaderData.PriceListID,
-                  QuotationRecordID: "0",
-                  FilterType: "PL",
-                  ItemNo: param.row.Item_Number,
-                  PrintItem: e.target.checked  ? "1" : "0",
-
-                }}))
+                dispatch(
+                  PutAdHocItem({
+                    data: {
+                      RecordID: param.row.RecordId,
+                      PriceListID: priceListHeaderData.PriceListID,
+                      QuotationRecordID: "0",
+                      FilterType: "PL",
+                      ItemNo: param.row.Item_Number,
+                      PrintItem: e.target.checked ? "1" : "0",
+                    },
+                  })
+                );
                 dispatch(
                   onCheckboxChangePriceListEdit({
                     id: param.row.RecordId,
                     field: "PrintItem",
-                    adhocItem:param.row.AdHocItem
+                    adhocItem: param.row.AdHocItem,
                   })
                 );
               }}
@@ -358,6 +341,24 @@ const PriceListEdit = () => {
             ? ""
             : JSON.stringify(values.classIDInExData),
       },
+      BrokenItem: {
+        PriceListID: values.priceListID,
+        Attribute: "BrokenItem",
+        Option: "Exclude",
+        Value: values.brokenItems ? "1" : "0",
+      },
+      Combination: {
+        PriceListID: values.priceListID,
+        Attribute: "Combination",
+        Option: "Exclude",
+        Value: values.combinationFilter ? "1" : "0",
+      },
+      DamageItem: {
+        PriceListID: values.priceListID,
+        Attribute: "DamageItem",
+        Option: "Exclude",
+        Value: values.damagedItems ? "1" : "0",
+      },
     };
     try {
       dispatch(
@@ -382,14 +383,6 @@ const PriceListEdit = () => {
         })
       ).then((response) => {
         if (response.payload.status === "Y") {
-          // dispatch(
-          //   priceListItemPost({
-          //     data: [...filteredSelectedItems, ...addedRows],
-          //     priceListID: response.payload.PriceListID,
-          //   })
-          // );
-
-          // dispatch(priceListConditionsPost({ data: filterData }));
           dispatch(getPriceListFilterData(filterData));
           if (params.mode === "add") {
             setOpenAlert(true);
@@ -401,11 +394,6 @@ const PriceListEdit = () => {
               },
             });
           }
-
-          // if(params.mode === "edit"){
-          //   // dispatch(priceListConditionsPost({ data: filterData }));
-          //   setOpenAlert(true);
-          // }
         } else {
           if (params.mode === "add") {
             setOpenAlert(true);
@@ -413,7 +401,6 @@ const PriceListEdit = () => {
           }
         }
       });
-      // setSubmitting(false);
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -432,7 +419,6 @@ const PriceListEdit = () => {
           }
         }
       );
-      // setSubmitting(false);
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -505,11 +491,28 @@ const PriceListEdit = () => {
             ? ""
             : JSON.stringify(values.classIDInExData),
       },
+      BrokenItem: {
+        PriceListID: values.priceListID,
+        Attribute: "BrokenItem",
+        Option: "Exclude",
+        Value: values.brokenItems ? "1" : "0",
+      },
+      Combination: {
+        PriceListID: values.priceListID,
+        Attribute: "Combination",
+        Option: "Exclude",
+        Value: values.combinationFilter ? "1" : "0",
+      },
+      DamageItem: {
+        PriceListID: values.priceListID,
+        Attribute: "DamageItem",
+        Option: "Exclude",
+        Value: values.damagedItems ? "1" : "0",
+      },
     };
 
     try {
       dispatch(getPriceListFilterData(filterData));
-      // priceListSaveFn(values);
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -517,9 +520,7 @@ const PriceListEdit = () => {
 
   // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
-    // if (getStatus === "idle") {
     dispatch(getPriceListData({ id: state.id }));
-    // }
     if (params.mode === "edit" || params.mode === "view") {
       setShowGridData(0);
     } else setShowGridData(3);
@@ -628,12 +629,6 @@ const PriceListEdit = () => {
                     );
                     if (response.payload.status === "Y") {
                       setOpenAlert1(true);
-                      // dispatch(
-                      //   priceListAddedItems({
-                      //     ...addPriceListData,
-                      //     AdHocItem: "Y",
-                      //   })
-                      // );
                       dispatch(
                         getPriceListData2({
                           id: priceListHeaderData.PriceListID,
@@ -707,6 +702,9 @@ const PriceListEdit = () => {
       setFieldValue("frshForzInExData", []);
       setFieldValue("SecondClassInExData", []);
       setFieldValue("classIDInExData", []);
+      setFieldValue("brokenItems", false);
+      setFieldValue("damagedItems", false);
+      setFieldValue("combinationFilter", false);
       dispatch(clreatFilterAndItems());
       setOpenAlert2(true);
     } else {
@@ -719,6 +717,7 @@ const PriceListEdit = () => {
   const [isRemoveItem1ID, setIsRemoveItem1ID] = useState(0);
   const [openAlert11, setOpenAlert11] = useState(false);
   const [postError11, setPostError11] = useState(false);
+
   const itemDeleteFn = async (values) => {
     const data = {
       RecordID: isRemoveItem1ID,
@@ -740,6 +739,7 @@ const PriceListEdit = () => {
       setPostError11(true);
     }
   };
+
   return (
     <Container>
       {getStatus === "fulfilled" && !getError && (
@@ -806,8 +806,51 @@ const PriceListEdit = () => {
             classIDInExData: JSON.parse(
               priceListFilterData.Class.Value || "[]"
             ),
+            brokenItems:
+              priceListFilterData.BrokenItem.Value == "1" ? true : false,
+            damagedItems:
+              priceListFilterData.DamageItem.Value == "1" ? true : false,
+            combinationFilter:
+              priceListFilterData.Combination.Value == "1" ? true : false,
           }}
           enableReinitialize={true}
+          validate={(values) => {
+            const filters1 = [
+              "brandInEx",
+              "commodityInEx",
+              "altClassInEx",
+              "vendorInEx",
+              "frshForzInEx",
+              "classIDInEx",
+              "SecondClassInEx",
+              ,
+            ];
+            const hasDataCheck = filters1.some(
+              
+              (filter) => values[filter] != "IncludeAll"
+            );
+            
+            const errors = {};
+            const filters = [
+              "brandInExData",
+              "commodityInExData",
+              "altClassInExData",
+              "vendorInExData",
+              "frshForzInExData",
+              "SecondClassInExData",
+              "classIDInExData",
+            ];
+            if (hasDataCheck) {
+              const hasData = filters.some(
+                (filter) => values[filter].length > 0
+              );
+              if (!hasData) {
+                errors.filters =
+                "At least one filter must have selected filter";
+              }
+              return errors;
+            }
+          }}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
               if (params.mode === "delete") {
@@ -900,8 +943,6 @@ const PriceListEdit = () => {
                     }}
                     autoComplete="off"
                     size="small"
-                    //   error={!!touched.priceListID && !!errors.priceListID}
-                    //   helperText={touched.priceListID && errors.priceListID}
                     disabled={
                       params.mode === "delete" ||
                       params.mode === "view" ||
@@ -956,86 +997,6 @@ const PriceListEdit = () => {
                       label="Buyer"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Buyer`}
                     />
-                    {/* <FormikOptimizedAutocomplete
-                      disabled={
-                        params.mode === "delete" || params.mode === "view"
-                          ? true
-                          : false
-                      }
-                      name="propCustomer"
-                      id="propCustomer"
-                      value={values.propCustomer}
-                      onChange={(event, newValue) =>
-                        setFieldValue("propCustomer", newValue)
-                      }
-                      label="Prop Customer"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetCustomer?CompanyCode=PM`}
-                    /> */}
-                    {/* <FormControlLabel
-                      sx={{ height: 37.13 }}
-                      control={
-                        <Checkbox
-                          size="small"
-                          id="forcePageBreak"
-                          name="forcePageBreak"
-                          checked={values.forcePageBreak}
-                          onChange={handleChange}
-                          disabled={
-                            params.mode === "delete" || params.mode === "view"
-                              ? true
-                              : false
-                          }
-                        />
-                      }
-                      label="Force Page Break"
-                    />
-                    <FormControlLabel
-                      sx={{ height: 37.13 }}
-                      control={
-                        <Checkbox
-                          size="small"
-                          id="overrideSeq"
-                          name="overrideSeq"
-                          checked={values.overrideSeq}
-                          onChange={handleChange}
-                          disabled={
-                            params.mode === "delete" || params.mode === "view"
-                              ? true
-                              : false
-                          }
-                        />
-                      }
-                      label="Override Seq"
-                    /> */}
-                  </Stack>
-                  <Stack
-                    sx={{ gridColumn: "span 1" }}
-                    direction="column"
-                    gap={1}
-                  >
-                    {/* <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="text"
-                      id="comments"
-                      name="comments"
-                      label="Comments"
-                      value={values.comments}
-                      autoComplete="off"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      size="small"
-                      multiline
-                      rows={2}
-                      disabled={
-                        params.mode === "delete" || params.mode === "view"
-                          ? true
-                          : false
-                      }
-
-                      //   error={!!touched.comments1 && !!errors.comments1}
-                      //   helperText={touched.comments1 && errors.comments1}
-                    /> */}
                   </Stack>
                 </Box>
                 <Box
@@ -1060,7 +1021,16 @@ const PriceListEdit = () => {
                       </Typography>
                       <Typography variant="h6">Attributes</Typography>
                     </Stack>
-
+                    <Stack
+                      sx={{ p: 0, m: 0 }}
+                      direction="row"
+                      justifyContent={"flex-end"}
+                      gap={2}
+                    >
+                      {errors.filters && (
+                        <div style={{ color: "red" }}>{errors.filters}</div>
+                      )}
+                    </Stack>
                     {/* BRAND */}
                     <Stack direction="row" gap={1}>
                       <TextField
@@ -1360,6 +1330,65 @@ const PriceListEdit = () => {
                             ? true
                             : false
                         }
+                      />
+                    </Stack>
+
+                    <Stack direction="row" gap={1}>
+                      <FormControlLabel
+                        sx={{ height: 37.13 }}
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="brokenItems"
+                            name="brokenItems"
+                            checked={values.brokenItems}
+                            onChange={handleChange}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                                ? true
+                                : false
+                            }
+                          />
+                        }
+                        label="Broken Items"
+                      />
+                      <FormControlLabel
+                        sx={{ height: 37.13 }}
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="damagedItems"
+                            name="damagedItems"
+                            checked={values.damagedItems}
+                            onChange={handleChange}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                                ? true
+                                : false
+                            }
+                          />
+                        }
+                        label="Damaged Items"
+                      />
+                    </Stack>
+                    <Stack direction="row" gap={1}>
+                      <FormControlLabel
+                        sx={{ height: 37.13 }}
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="combinationFilter"
+                            name="combinationFilter"
+                            checked={values.combinationFilter}
+                            onChange={handleChange}
+                            disabled={
+                              params.mode === "delete" || params.mode === "view"
+                                ? true
+                                : false
+                            }
+                          />
+                        }
+                        label="Combination Filter"
                       />
                     </Stack>
 

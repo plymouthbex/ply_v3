@@ -21,6 +21,7 @@ import {
   Radio,
   FormLabel,
   FormControl,
+  MenuItem,
 } from "@mui/material";
 import lodash from "lodash";
 import { Add } from "@mui/icons-material";
@@ -467,9 +468,10 @@ export default function BuildCustomPriceBook() {
       (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
     );
     if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
-      const pricelistID = rowProspect.find((item) => item.Name.toLowerCase() === inputValue.toLowerCase()
-    );
-          setPrintGroupID(pricelistID.RecordID);
+      const pricelistID = rowProspect.find(
+        (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+      );
+      setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
       return;
     }
@@ -507,45 +509,58 @@ export default function BuildCustomPriceBook() {
         const filterData = {
           filterType: "Q",
           headerRecordID: response.payload.RecordId.toString(),
-          Company: {
-            Attribute: "Company",
-            Option: "",
-            Value: "",
-          },
           Brand: {
             Attribute: "Brand",
-            Option: "",
+            Option: values.brandInEx,
             Value: JSON.stringify(values.brand),
           },
           Commodity: {
             Attribute: "Commodity",
-            Option: "",
+            Option: values.commodityInEx,
             Value: JSON.stringify(values.com),
           },
           AlternativeClass: {
             Attribute: "AlternativeClass",
-            Option: "",
+            Option: values.altClassInEx,
             Value: JSON.stringify(values.alt),
           },
           Vendor: {
             Attribute: "Vendor",
-            Option: "",
+            Option: values.vendorInEx,
             Value: JSON.stringify(values.vendor),
           },
           Type: {
             Attribute: "Type",
-            Option: "",
+            Option:values.frshForzInEx,
             Value: JSON.stringify(values.fsfz),
           },
           SecondaryClass: {
             Attribute: "SecondaryClass",
-            Option: "",
+            Option:values.SecondClassInEx,
             Value: JSON.stringify(values.secondary),
           },
           Class: {
             Attribute: "Class",
-            Option: "",
+            Option: values.classIDInEx,
             Value: JSON.stringify(values.classID),
+          },
+          BrokenItem: {
+            PriceListID: values.priceListID,
+            Attribute: "BrokenItem",
+            Option: "Exclude",
+            Value: values.brokenItems ? "1" : "0",
+          },
+          Combination: {
+            PriceListID: values.priceListID,
+            Attribute: "Combination",
+            Option: "Exclude",
+            Value: values.combinationFilter ? "1" : "0",
+          },
+          DamageItem: {
+            PriceListID: values.priceListID,
+            Attribute: "DamageItem",
+            Option: "Exclude",
+            Value: values.damagedItems ? "1" : "0",
           },
           PriceLists: [],
           AdHocItem: values.adHocItems,
@@ -612,6 +627,9 @@ export default function BuildCustomPriceBook() {
       setFieldValue("fsfz", []);
       setFieldValue("classID", []);
       setFieldValue("secondary", []);
+      setFieldValue("brokenItems", false);
+      setFieldValue("damagedItems", false);
+      setFieldValue("combinationFilter", false);
       clearQuotePriceList();
     } else {
       setOpenAlert4(true);
@@ -659,9 +677,10 @@ export default function BuildCustomPriceBook() {
       (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
     );
     if (isPricelist && (params.mode === "copy" || params.mode === "new")) {
-      const pricelistID = rowProspect.find((item) => item.Name.toLowerCase() === inputValue.toLowerCase()
-    );
-          setPrintGroupID(pricelistID.RecordID);
+      const pricelistID = rowProspect.find(
+        (item) => item.Name.toLowerCase() === inputValue.toLowerCase()
+      );
+      setPrintGroupID(pricelistID.RecordID);
       SetIsPrintGroupOpen(true);
     } else {
       setSubmitting(false);
@@ -710,11 +729,14 @@ export default function BuildCustomPriceBook() {
       window.open(blobUrl, "_blank");
     }
   }
-  const getPdf = async (typeFormate,values) => {
-    console.log("🚀 ~ getPdf ~ values:", values)
+  const getPdf = async (typeFormate, values) => {
+    console.log("🚀 ~ getPdf ~ values:", values);
     setIsGenerating(true);
     const res = await dispatch(
-      getQuotePdf({ RecordID: getQuoteHeaderData.RecordID, ShowPrice:values.isShowPrice})
+      getQuotePdf({
+        RecordID: getQuoteHeaderData.RecordID,
+        ShowPrice: values.isShowPrice,
+      })
     );
 
     if (res.payload.status === "Y") {
@@ -730,10 +752,12 @@ export default function BuildCustomPriceBook() {
   };
 
   const getExcel = async (values) => {
-
     setIsGenerating(true);
     const res = await dispatch(
-      getQuoteExcel({ RecordID: getQuoteHeaderData.RecordID,ShowPrice:values.isShowPrice })
+      getQuoteExcel({
+        RecordID: getQuoteHeaderData.RecordID,
+        ShowPrice: values.isShowPrice,
+      })
     );
 
     if (res.payload.status === "Y") {
@@ -778,15 +802,15 @@ export default function BuildCustomPriceBook() {
   const [openAlert9, setOpenAlert9] = useState(false);
   const [postError9, setPostError9] = useState(null);
   const fnQuoteSendMail = async () => {
-    if(!getQuoteHeaderData.RecordID){
-      setOpenAlert9(true)
-      setPostError9("Please Save Before Send the Mail")
-      return
+    if (!getQuoteHeaderData.RecordID) {
+      setOpenAlert9(true);
+      setPostError9("Please Save Before Send the Mail");
+      return;
     }
-    if(getQuoteFilterItemData.length === 0){
-      setOpenAlert9(true)
-      setPostError9("No items Found for this Quotations")
-      return
+    if (getQuoteFilterItemData.length === 0) {
+      setOpenAlert9(true);
+      setPostError9("No items Found for this Quotations");
+      return;
     }
     const data = {
       RecordID: 0,
@@ -798,7 +822,7 @@ export default function BuildCustomPriceBook() {
     };
 
     try {
-      const response = await dispatch(mailSendQuote( data));
+      const response = await dispatch(mailSendQuote(data));
 
       if (response.payload.status === "Y") {
         setOpenAlert9(true);
@@ -849,7 +873,7 @@ export default function BuildCustomPriceBook() {
             company: getQuoteHeaderData.CompanyCode
               ? getQuoteHeaderData.CompanyCode
               : user.companyCode,
-            pricelistName: getQuoteHeaderData.Name ,
+            pricelistName: getQuoteHeaderData.Name,
             salesRepName: getQuoteHeaderData.Salesrepresentative || user.name,
             priceBookLevel: getQuoteHeaderData.PriceLevel
               ? getQuoteHeaderData.PriceLevel
@@ -863,22 +887,71 @@ export default function BuildCustomPriceBook() {
                 }
               : null,
             isShowPrice: getQuoteHeaderData.ShowPrice,
-            PreferedPdf: getQuoteHeaderData.RecordID ? getQuoteHeaderData.PreferedPdf :true,
-            PreferedExcel: getQuoteHeaderData.RecordID ? getQuoteHeaderData.PreferedExcel:true,
+            PreferedPdf: getQuoteHeaderData.RecordID
+              ? getQuoteHeaderData.PreferedPdf
+              : true,
+            PreferedExcel: getQuoteHeaderData.RecordID
+              ? getQuoteHeaderData.PreferedExcel
+              : true,
             CurrentDate:
               getQuoteHeaderData.CurrentDate || getCurrentDateForInput(),
+            brandInEx:
+              params.mode == "new"
+                ? "IncludeAll"
+                : getQuteFiltData.Brand.Option,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
+            commodityInEx:
+              params.mode == "new"
+                ? "IncludeAll"
+                : getQuteFiltData.Commodity.Option,
             com: JSON.parse(getQuteFiltData.Commodity.Value),
+            altClassInEx:
+              params.mode == "new"
+                ? "IncludeAll"
+                : getQuteFiltData.AlternativeClass.Option,
             alt: JSON.parse(getQuteFiltData.AlternativeClass.Value),
+            vendorInEx:
+              params.mode == "new"
+                ? "IncludeAll"
+                : getQuteFiltData.Vendor.Option,
             vendor: JSON.parse(getQuteFiltData.Vendor.Value),
+            frshForzInEx:
+              params.mode == "new" ? "IncludeAll" : getQuteFiltData.Type.Option,
             fsfz: JSON.parse(getQuteFiltData.Type.Value),
+            classIDInEx:
+              params.mode == "new"
+                ? "IncludeAll"
+                : getQuteFiltData.Class.Option,
             classID: JSON.parse(getQuteFiltData.Class.Value),
+            SecondClassInEx:
+              params.mode == "new"
+                ? "IncludeAll"
+                : getQuteFiltData.Class.Option,
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
-            adHocItems: [],
-          }}
+         
+            brokenItems:
+              getQuteFiltData.BrokenItem.Value == "1" ? true : false,
+            damagedItems:
+              getQuteFiltData.DamageItem.Value == "1" ? true : false,
+            combinationFilter:
+              getQuteFiltData.Combination.Value == "1" ? true : false,
+              adHocItems: [],
+            }}
           validate={(values) => {
+            const filters1 = [
+              "brandInEx",
+              "commodityInEx",
+              "altClassInEx",
+              "vendorInEx",
+              "frshForzInEx",
+              "classIDInEx",
+              "SecondClassInEx",
+              ,
+            ];
+            const hasDataCheck = filters1.some(
+              (filter) => values[filter] != "IncludeAll"
+            );
             const errors = {};
-            // Check if at least one filter array has data (ignore other fields like `name`, `description`)
             const filters = [
               "brand",
               "com",
@@ -887,15 +960,22 @@ export default function BuildCustomPriceBook() {
               "fsfz",
               "classID",
               "secondary",
-              "adHocItems",
             ];
-            const hasData = filters.some((filter) => values[filter].length > 0);
-            if (!hasData) {
-              errors.filters =
-                "At least one filter or Ad Hoc must have selected filter/item";
+            if (hasDataCheck) {
+              const hasData = filters.some(
+                (filter) => values[filter].length > 0
+              );
+              if (!hasData) {
+                errors.filters = "At least one filter  must have selected filter";
+              }
+              return errors;
+            }else{
+             if(!values["adHocItems"].length > 0){
+              errors.filters = "At least one Ad Hoc must have selected item";
+              return errors
+             } 
+
             }
-            console.log("🚀 ~ BuildCustomPriceBook ~ errors:", errors);
-            return errors;
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -993,7 +1073,7 @@ export default function BuildCustomPriceBook() {
                               },
                             }}
                             aria-label="pdf"
-                            onClick={() => getPdf("PDF",values)}
+                            onClick={() => getPdf("PDF", values)}
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -1003,7 +1083,7 @@ export default function BuildCustomPriceBook() {
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
-                            onClick={()=>getExcel(values)}
+                            onClick={() => getExcel(values)}
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -1012,7 +1092,7 @@ export default function BuildCustomPriceBook() {
                         <Tooltip title="Print" placement="top">
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
-                            onClick={() => getPdf("PRINT",values)}
+                            onClick={() => getPdf("PRINT", values)}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
@@ -1179,313 +1259,546 @@ export default function BuildCustomPriceBook() {
                         />
                       </Stack>
                     </FormControl>
-                    {/* <Autocomplete
-                      fullWidth
-                      disabled={user.role === "USER"}
-                      sx={{ gridColumn: "span 1" }}
-                      id="priceBookLevel"
-                      name="priceBookLevel"
-                      value={values.priceBookLevel}
-                      options={priceBookLevel1}
-                      getOptionLabel={(option) => `Price Book Level ${option}`}
-                      onChange={(event, newValue) =>
-                        handleChange({
-                          target: {
-                            name: "priceBookLevel",
-                            value: newValue,
-                          },
-                        })
-                      }
-                      onBlur={handleBlur}
-                      disableClearable
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Price Book Level"
-                          size="small"
-                          sx={{ gridColumn: "span 2" }}
-                        />
-                      )}
-                    /> */}
                   </Box>
                   <Box
                     display="grid"
                     gap="20px"
                     padding={1}
-                    gridTemplateColumns="repeat(2, minmax(0, 1fr))"
+                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
                     sx={{
                       "& > div": {
-                        gridColumn: isNonMobile ? undefined : "span 4",
+                        gridColumn: isNonMobile ? undefined : "span 3",
                       },
                     }}
                   >
-                    <Typography
-                      sx={{
-                        gridColumn: "span 1",
-                        fontFamily: "inherit",
-                        fontWeight: "600",
-                        marginLeft: 1,
-                      }}
-                    >
-                      Filters
-                    </Typography>
                     <Stack
-                      sx={{ p: 0, m: 0 }}
-                      direction="row"
-                      justifyContent={"flex-end"}
-                      gap={2}
+                      sx={{ gridColumn: "span 1" }}
+                      direction={"column"}
+                      gap={1}
                     >
-                      {errors.filters && (
-                        <div style={{ color: "red" }}>{errors.filters}</div>
-                      )}
+
+
+
+                    <Stack direction="row" gap={13} height={44}>
+                      <Typography sx={{ marginLeft: 2 }} variant="h6">
+                        Options
+                      </Typography>
+                      <Typography variant="h6">Attributes</Typography>
                     </Stack>
-                    <FormikCustomAutocompleteMulti
-                      name="brand"
-                      id="brand"
-                      value={values.brand}
-                      onChange={(event, newValue) =>
-                        setFieldValue("brand", newValue)
-                      }
-                      label="Brand"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
-                    />
+                    <Stack
+                        sx={{ p: 0, m: 0 }}
+                        direction="row"
+                        justifyContent={"flex-end"}
+                        gap={2}
+                      >
+                        {errors.filters && (
+                          <div style={{ color: "red" }}>{errors.filters}</div>
+                        )}
+                      </Stack>
+                      {/* BRAND */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="brandInEx"
+                          id="brandInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.brandInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          // disabled={
+                          //   params.mode === "delete" || params.mode === "view"
+                          //     ? true
+                          //     : false
+                          // }
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="brand"
+                          id="brand"
+                          value={values.brand}
+                          onChange={(event, newValue) =>
+                            setFieldValue("brand", newValue)
+                          }
+                          disabled={
+                            values.brandInEx === "IncludeAll" ? true : false
+                          }
+                          label="Brand"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="com"
-                      id="com"
-                      value={values.com}
-                      onChange={(event, newValue) =>
-                        setFieldValue("com", newValue)
-                      }
-                      label="Com || Cat"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
-                    />
+                      {/* COMMODITY */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="commodityInEx"
+                          id="commodityInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.commodityInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                          // disabled={
+                          //   params.mode === "delete" || params.mode === "view"
+                          //     ? true
+                          //     : false
+                          // }
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="com"
+                          id="com"
+                          value={values.com}
+                          onChange={(event, newValue) =>
+                            setFieldValue("com", newValue)
+                          }
+                          label="Com || Cat"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
+                          disabled={
+                            values.commodityInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="alt"
-                      id="alt"
-                      value={values.alt}
-                      onChange={(event, newValue) =>
-                        setFieldValue("alt", newValue)
-                      }
-                      label="Alternative Class"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
-                    />
+                      {/* ALTERNATIVE CLASS */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="altClassInEx"
+                          id="altClassInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.altClassInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="alt"
+                          id="alt"
+                          value={values.alt}
+                          onChange={(event, newValue) =>
+                            setFieldValue("alt", newValue)
+                          }
+                          label="Alternative Class"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
+                          disabled={
+                            values.altClassInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="vendor"
-                      id="vendor"
-                      value={values.vendor}
-                      onChange={(event, newValue) =>
-                        setFieldValue("vendor", newValue)
-                      }
-                      label="Vendor"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
-                    />
+                      {/* VENDOR */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="vendorInEx"
+                          id="vendorInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.vendorInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
 
-                    <FormikCustomAutocompleteMulti
-                      name="fsfz"
-                      id="fsfz"
-                      value={values.fsfz}
-                      onChange={(event, newValue) =>
-                        setFieldValue("fsfz", newValue)
-                      }
-                      label="Fs || Fz"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
-                    />
+                        <FormikCustomAutocompleteMulti
+                          name="vendor"
+                          id="vendor"
+                          value={values.vendor}
+                          onChange={(event, newValue) =>
+                            setFieldValue("vendor", newValue)
+                          }
+                          label="Vendor"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
+                          disabled={
+                            values.vendorInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="classID"
-                      id="classID"
-                      value={values.classID}
-                      onChange={(event, newValue) =>
-                        setFieldValue("classID", newValue)
-                      }
-                      label="ClassID"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
-                    />
+                      {/* FRESH/FROZEN */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="frshForzInEx"
+                          id="frshForzInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.frshForzInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="fsfz"
+                          id="fsfz"
+                          value={values.fsfz}
+                          onChange={(event, newValue) =>
+                            setFieldValue("fsfz", newValue)
+                          }
+                          label="Fs || Fz"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
+                          disabled={
+                            values.frshForzInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="secondary"
-                      id="secondary"
-                      value={values.secondary}
-                      onChange={(event, newValue) =>
-                        setFieldValue("secondary", newValue)
-                      }
-                      label="Secondary Class"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
-                    />
+                      {/* CLASS ID */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="classIDInEx"
+                          id="classIDInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.classIDInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
 
-                    <FormikCustomAutocompleteMultiAdHocItems
-                      name="adHocItems"
-                      id="adHocItems"
-                      value={values.adHocItems}
-                      onChange={(event, newValue) =>
-                        setFieldValue("adHocItems", newValue)
-                      }
-                      label="Ad Hoc Items"
-                      url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
-                    />
-                  </Box>
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="classID"
+                          id="classID"
+                          value={values.classID}
+                          onChange={(event, newValue) =>
+                            setFieldValue("classID", newValue)
+                          }
+                          label="ClassID"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
+                          disabled={
+                            values.classIDInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                  <Box
-                    sx={{
-                      height: 400,
+                      {/* SECONDARY CLASS */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="SecondClassInEx"
+                          id="SecondClassInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.SecondClassInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
 
-                      "& .MuiDataGrid-root": {
-                        border: "none",
-                      },
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
 
-                      "& .name-column--cell": {
-                        color: theme.palette.info.contrastText,
-                      },
+                        <FormikCustomAutocompleteMulti
+                          name="secondary"
+                          id="secondary"
+                          value={values.secondary}
+                          onChange={(event, newValue) =>
+                            setFieldValue("secondary", newValue)
+                          }
+                          label="Secondary Class"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
+                          disabled={
+                            values.SecondClassInEx === "IncludeAll"
+                              ? true
+                              : false
+                          }
+                        />
+                      </Stack>
 
-                      "& .MuiDataGrid-columnHeaders": {
-                        backgroundColor: theme.palette.info.main,
+                      <Typography
+                        sx={{
+                          gridColumn: "span 1",
+                          fontFamily: "inherit",
+                          fontWeight: "600",
+                          marginLeft: 1,
+                        }}
+                      >
+                        Ad Hoc Items
+                      </Typography>
+                      <FormikCustomAutocompleteMultiAdHocItems
+                        name="adHocItems"
+                        id="adHocItems"
+                        value={values.adHocItems}
+                        onChange={(event, newValue) =>
+                          setFieldValue("adHocItems", newValue)
+                        }
+                        label="Ad Hoc Items"
+                        url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
+                      />
+                      <Stack direction="row" gap={1}>
+                        <FormControlLabel
+                          sx={{ height: 37.13 }}
+                          control={
+                            <Checkbox
+                              size="small"
+                              id="brokenItems"
+                              name="brokenItems"
+                              checked={values.brokenItems}
+                              onChange={handleChange}
 
-                        color: theme.palette.info.contrastText,
+                            />
+                          }
+                          label="Broken Items"
+                        />
+                        <FormControlLabel
+                          sx={{ height: 37.13 }}
+                          control={
+                            <Checkbox
+                              size="small"
+                              id="damagedItems"
+                              name="damagedItems"
+                              checked={values.damagedItems}
+                              onChange={handleChange}
 
-                        fontWeight: "bold",
+                            />
+                          }
+                          label="Damaged Items"
+                        />
+                      </Stack>
+                      <Stack direction="row" gap={1}>
+                        <FormControlLabel
+                          sx={{ height: 37.13 }}
+                          control={
+                            <Checkbox
+                              size="small"
+                              id="combinationFilter"
+                              name="combinationFilter"
+                              checked={values.combinationFilter}
+                              onChange={handleChange}
+                            />
+                          }
+                          label="Combination Filter"
+                        />
+                      </Stack>
 
-                        fontSize: theme.typography.subtitle2.fontSize,
-                      },
+                      <Stack
+                        justifyContent="flex-end"
+                        direction={"row"}
+                        gap={1}
+                      >
+                        <Button
+                          disabled={isSubmitting}
+                          variant="contained"
+                          color="info"
+                          type="submit"
+                        >
+                          Apply Filters & Save
+                        </Button>
 
-                      "& .MuiDataGrid-virtualScroller": {
-                        backgroundColor: theme.palette.info.light,
-                      },
+                        <Button
+                          variant="contained"
+                          color="info"
+                          disabled={
+                            params.mode == "copy"
+                              ? true
+                              : getQuoteHeaderData.RecordID &&
+                                getQuoteFilterItemData.length > 0
+                              ? false
+                              : true
+                          }
+                          onClick={() => setIsClear(true)}
+                        >
+                          Clear Filters
+                        </Button>
+                      </Stack>
+                    </Stack>
 
-                      "& .MuiDataGrid-footerContainer": {
-                        borderTop: "none",
-
-                        backgroundColor: theme.palette.info.main,
-
-                        color: theme.palette.info.contrastText,
-                      },
-
-                      "& .MuiCheckbox-root": {
-                        color: "black !important",
-                      },
-
-                      "& .MuiCheckbox-root.Mui-checked": {
-                        color: "black !important",
-                      },
-
-                      "& .MuiDataGrid-row:nth-of-type(even)": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-
-                      "& .MuiDataGrid-row:nth-of-type(odd)": {
-                        backgroundColor: theme.palette.background.default,
-                      },
-
-                      "& .MuiDataGrid-row.Mui-selected:hover": {
-                        backgroundColor: `${theme.palette.action.selected} !important`,
-                      },
-                      "& .MuiTablePagination-root": {
-                        color: "white !important", // Ensuring white text color for the pagination
-                      },
-
-                      "& .MuiTablePagination-root .MuiTypography-root": {
-                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                      },
-
-                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                        color: "white !important", // Ensuring white icons for pagination
-                      },
-                    }}
-                  >
-                    <DataGrid
-                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                    <Box
                       sx={{
-                        // This is to override the default height of the footer row
+                        height: 500,
+                        gridColumn: "span 2",
+                        "& .MuiDataGrid-root": {
+                          border: "none",
+                        },
+
+                        "& .name-column--cell": {
+                          color: theme.palette.info.contrastText,
+                        },
+
+                        "& .MuiDataGrid-columnHeaders": {
+                          backgroundColor: theme.palette.info.main,
+
+                          color: theme.palette.info.contrastText,
+
+                          fontWeight: "bold",
+
+                          fontSize: theme.typography.subtitle2.fontSize,
+                        },
+
+                        "& .MuiDataGrid-virtualScroller": {
+                          backgroundColor: theme.palette.info.light,
+                        },
+
                         "& .MuiDataGrid-footerContainer": {
-                          height: dataGridHeaderFooterHeight,
-                          minHeight: dataGridHeaderFooterHeight,
+                          borderTop: "none",
+
+                          backgroundColor: theme.palette.info.main,
+
+                          color: theme.palette.info.contrastText,
+                        },
+
+                        "& .MuiCheckbox-root": {
+                          color: "black !important",
+                        },
+
+                        "& .MuiCheckbox-root.Mui-checked": {
+                          color: "black !important",
+                        },
+
+                        "& .MuiDataGrid-row:nth-of-type(even)": {
+                          backgroundColor: theme.palette.action.hover,
+                        },
+
+                        "& .MuiDataGrid-row:nth-of-type(odd)": {
+                          backgroundColor: theme.palette.background.default,
+                        },
+
+                        "& .MuiDataGrid-row.Mui-selected:hover": {
+                          backgroundColor: `${theme.palette.action.selected} !important`,
+                        },
+                        "& .MuiTablePagination-root": {
+                          color: "white !important", // Ensuring white text color for the pagination
+                        },
+
+                        "& .MuiTablePagination-root .MuiTypography-root": {
+                          color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                        },
+
+                        "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                          color: "white !important", // Ensuring white icons for pagination
                         },
                       }}
-                      slots={{
-                        loadingOverlay: LinearProgress,
-                        toolbar: () => {
-                          return (
-                            <GridToolbarContainer
-                              sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                width: "100%",
-                                padding: "10px",
-                              }}
-                            >
-                              <Box
+                    >
+                      <DataGrid
+                        columnHeaderHeight={dataGridHeaderFooterHeight}
+                        sx={{
+                          // This is to override the default height of the footer row
+                          "& .MuiDataGrid-footerContainer": {
+                            height: dataGridHeaderFooterHeight,
+                            minHeight: dataGridHeaderFooterHeight,
+                          },
+                        }}
+                        slots={{
+                          loadingOverlay: LinearProgress,
+                          toolbar: () => {
+                            return (
+                              <GridToolbarContainer
                                 sx={{
                                   display: "flex",
-                                  flexDirection: "row",
-                                  justifyContent: "flex-end",
-                                  alignItems: "center",
-                                  gap: 2,
+                                  flexDirection: "column",
                                   width: "100%",
+                                  padding: "10px",
                                 }}
                               >
-                                <GridToolbarQuickFilter />
-                                {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}> */}
-                                <Button
-                                  disabled={isSubmitting}
-                                  variant="contained"
-                                  color="info"
-                                  type="submit"
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    justifyContent: "flex-end",
+                                    alignItems: "center",
+                                    gap: 2,
+                                    width: "100%",
+                                  }}
                                 >
-                                  Apply Filters & Save
-                                </Button>
+                                  <GridToolbarQuickFilter />
+                                  {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}> */}
+                                  {/* <Button
+                                    disabled={isSubmitting}
+                                    variant="contained"
+                                    color="info"
+                                    type="submit"
+                                  >
+                                    Apply Filters & Save
+                                  </Button>
 
-                                <Button
-                                  variant="contained"
-                                  color="info"
-                                  disabled={
-                                    params.mode == "copy"
-                                      ? true
-                                      : getQuoteHeaderData.RecordID &&
-                                        getQuoteFilterItemData.length > 0
-                                      ? false
-                                      : true
-                                  }
-                                  onClick={() => setIsClear(true)}
-                                >
-                                  Clear Filters
-                                </Button>
-                                {/* </Stack> */}
-                              </Box>
-                            </GridToolbarContainer>
-                          );
-                        },
-                      }}
-                      rowHeight={30}
-                      rows={getQuoteFilterItemData}
-                      loading={getQuoteFilterItemLoading}
-                      columns={columns}
-                      // checkboxSelection
-                      disableSelectionOnClick
-                      disableRowSelectionOnClick
-                      getRowId={(row) => row.RecordId}
-                      initialState={{
-                        pagination: { paginationModel: { pageSize: 100 } },
-                      }}
-                      pageSizeOptions={[20, 50, 100]}
-                      columnVisibilityModel={{
-                        item_key: true,
-                      }}
-                      disableColumnFilter
-                      disableColumnSelector
-                      disableDensitySelector
-                      slotProps={{
-                        toolbar: {
-                          showQuickFilter: true,
-                        },
-                      }}
-                      // onRowSelectionModelChange={(newRowSelectionModel) => {
-                      //   setRowSelectionModel(newRowSelectionModel);
-                      //   // setRowSelectionModelRows(filterArray);
-                      // }}
-                      // rowSelectionModel={rowSelectionModel}
-                    />
+                                  <Button
+                                    variant="contained"
+                                    color="info"
+                                    disabled={
+                                      params.mode == "copy"
+                                        ? true
+                                        : getQuoteHeaderData.RecordID &&
+                                          getQuoteFilterItemData.length > 0
+                                        ? false
+                                        : true
+                                    }
+                                    onClick={() => setIsClear(true)}
+                                  >
+                                    Clear Filters
+                                  </Button> */}
+                                  {/* </Stack> */}
+                                </Box>
+                              </GridToolbarContainer>
+                            );
+                          },
+                        }}
+                        rowHeight={30}
+                        rows={getQuoteFilterItemData}
+                        loading={getQuoteFilterItemLoading}
+                        columns={columns}
+                        // checkboxSelection
+                        disableSelectionOnClick
+                        disableRowSelectionOnClick
+                        getRowId={(row) => row.RecordId}
+                        initialState={{
+                          pagination: { paginationModel: { pageSize: 100 } },
+                        }}
+                        pageSizeOptions={[20, 50, 100]}
+                        columnVisibilityModel={{
+                          item_key: true,
+                        }}
+                        disableColumnFilter
+                        disableColumnSelector
+                        disableDensitySelector
+                        slotProps={{
+                          toolbar: {
+                            showQuickFilter: true,
+                          },
+                        }}
+                        // onRowSelectionModelChange={(newRowSelectionModel) => {
+                        //   setRowSelectionModel(newRowSelectionModel);
+                        //   // setRowSelectionModelRows(filterArray);
+                        // }}
+                        // rowSelectionModel={rowSelectionModel}
+                      />
+                    </Box>
                   </Box>
                   <PriceGroupAlertApiDialog
                     logo={`data:image/png;base64,${user.logo}`}
@@ -1828,7 +2141,7 @@ export default function BuildCustomPriceBook() {
                   }
                 />
                 <PriceGroupAlertApiDialog
-                logo={`data:image/png;base64,${user.logo}`}
+                  logo={`data:image/png;base64,${user.logo}`}
                   open={openAlert9}
                   error={postError9}
                   message={

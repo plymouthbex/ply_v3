@@ -91,7 +91,6 @@ export default function JwtLogin() {
     setLoading(true);
     try {
       const response = await login(values.email, values.password);
-      console.log("🚀 ~ handleFormSubmit ~ response:", response)
       if(response.LoginType === "Y"){
         navigate("/session/reset-password",{state:{id:response.id}});
         return
@@ -114,8 +113,7 @@ export default function JwtLogin() {
       if(e.response.data.Islock === "Y"){
       setShowUnlock(true)
     }
-      console.log("🚀 ~ handleFormSubmit ~ e:", e)
-      toast.error("Incorrect user or password");
+      toast.error(e.response.data.message);
       setLoading(false);
     }
   };
@@ -139,7 +137,6 @@ export default function JwtLogin() {
     }else{
       navigate("/session/unlock-password/forgot-notify'",{state:{message:res.payload.message,error:true}})
     }
-  console.log("🚀 ~ forgot ~ res:", res)
   }
   return (
     <StyledRoot>

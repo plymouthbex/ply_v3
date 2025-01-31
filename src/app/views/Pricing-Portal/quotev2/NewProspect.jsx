@@ -188,6 +188,7 @@ const NewProspect = () => {
       /^\(\d{3}\) \d{3}-\d{4}$/,
       "Phone number must be in the format (XXX) XXX-XXXX"
     ),
+    
   });
 
   const [isPrintGroupOpen, SetIsPrintGroupOpen] = useState(false);

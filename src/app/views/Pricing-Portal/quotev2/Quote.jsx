@@ -20,6 +20,7 @@ import {
   RadioGroup,
   Radio,
   Divider,
+  MenuItem,
 } from "@mui/material";
 import lodash from "lodash";
 import { Add } from "@mui/icons-material";
@@ -433,45 +434,58 @@ export default function BuildCustomPriceBook() {
         const filterData = {
           filterType: "Q",
           headerRecordID: response.payload.RecordId.toString(),
-          Company: {
-            Attribute: "Company",
-            Option: "",
-            Value: "",
-          },
           Brand: {
             Attribute: "Brand",
-            Option: "",
+            Option: values.brandInEx,
             Value: JSON.stringify(values.brand),
           },
           Commodity: {
             Attribute: "Commodity",
-            Option: "",
+            Option: values.commodityInEx,
             Value: JSON.stringify(values.com),
           },
           AlternativeClass: {
             Attribute: "AlternativeClass",
-            Option: "",
+            Option: values.altClassInEx,
             Value: JSON.stringify(values.alt),
           },
           Vendor: {
             Attribute: "Vendor",
-            Option: "",
+            Option: values.vendorInEx,
             Value: JSON.stringify(values.vendor),
           },
           Type: {
             Attribute: "Type",
-            Option: "",
+            Option:values.frshForzInEx,
             Value: JSON.stringify(values.fsfz),
           },
           SecondaryClass: {
             Attribute: "SecondaryClass",
-            Option: "",
+            Option:values.SecondClassInEx,
             Value: JSON.stringify(values.secondary),
           },
           Class: {
             Attribute: "Class",
-            Option: "",
+            Option: values.classIDInEx,
             Value: JSON.stringify(values.classID),
+          },
+          BrokenItem: {
+            PriceListID: values.priceListID,
+            Attribute: "BrokenItem",
+            Option: "Exclude",
+            Value: values.brokenItems ? "1" : "0",
+          },
+          Combination: {
+            PriceListID: values.priceListID,
+            Attribute: "Combination",
+            Option: "Exclude",
+            Value: values.combinationFilter ? "1" : "0",
+          },
+          DamageItem: {
+            PriceListID: values.priceListID,
+            Attribute: "DamageItem",
+            Option: "Exclude",
+            Value: values.damagedItems ? "1" : "0",
           },
           PriceListID: values.PriceLists,
           AdHocItem: values.adHocItems,
@@ -523,6 +537,9 @@ export default function BuildCustomPriceBook() {
       setFieldValue("fsfz", []);
       setFieldValue("classID", []);
       setFieldValue("secondary", []);
+      setFieldValue("brokenItems", false);
+      setFieldValue("damagedItems", false);
+      setFieldValue("combinationFilter", false);
       clearQuotePriceList();
     } else {
       setOpenAlert4(true);
@@ -650,7 +667,10 @@ export default function BuildCustomPriceBook() {
         link.href = blobUrl;
         link.download = `${getQuoteHeaderData.Name}_Quote_${sunday} TO ${saturday}.xlsx`;
 
-        console.log("🚀 ~ setTimeout ~ getQuoteHeaderData.CustomerName:", getQuoteHeaderData.Name)
+        console.log(
+          "🚀 ~ setTimeout ~ getQuoteHeaderData.CustomerName:",
+          getQuoteHeaderData.Name
+        );
         // Append the link to the document and trigger the download
         document.body.appendChild(link);
         link.click();
@@ -761,20 +781,64 @@ export default function BuildCustomPriceBook() {
       {getQuteFiltStatus === "fulfilled" && !getQuteFiltLoading ? (
         <Formik
           initialValues={{
+            brandInEx:
+              params.mode == "edit"
+                ? "IncludeAll"
+                : getQuteFiltData.Brand.Option,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
+            commodityInEx:
+              params.mode == "edit"
+                ? "IncludeAll"
+                : getQuteFiltData.Commodity.Option,
             com: JSON.parse(getQuteFiltData.Commodity.Value),
+            altClassInEx:
+              params.mode == "edit"
+                ? "IncludeAll"
+                : getQuteFiltData.AlternativeClass.Option,
             alt: JSON.parse(getQuteFiltData.AlternativeClass.Value),
+            vendorInEx:
+              params.mode == "edit"
+                ? "IncludeAll"
+                : getQuteFiltData.Vendor.Option,
             vendor: JSON.parse(getQuteFiltData.Vendor.Value),
+            frshForzInEx:
+              params.mode == "edit" ? "IncludeAll" : getQuteFiltData.Type.Option,
             fsfz: JSON.parse(getQuteFiltData.Type.Value),
+            classIDInEx:
+              params.mode == "edit"
+                ? "IncludeAll"
+                : getQuteFiltData.Class.Option,
             classID: JSON.parse(getQuteFiltData.Class.Value),
+            SecondClassInEx:
+              params.mode == "edit"
+                ? "IncludeAll"
+                : getQuteFiltData.Class.Option,
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
+
+            brokenItems: getQuteFiltData.BrokenItem.Value == "1" ? true : false,
+            damagedItems:
+              getQuteFiltData.DamageItem.Value == "1" ? true : false,
+            combinationFilter:
+              getQuteFiltData.Combination.Value == "1" ? true : false,
             PriceLists: getQuteFiltData.PriceListID,
             adHocItems: [],
             isShowPrice: getQuoteHeaderData.ShowPrice,
           }}
           validate={(values) => {
+            const filters1 = [
+              "brandInEx",
+              "commodityInEx",
+              "altClassInEx",
+              "vendorInEx",
+              "frshForzInEx",
+              "classIDInEx",
+              "SecondClassInEx",
+              ,
+            ];
+            const hasDataCheck = filters1.some(
+              (filter) => values[filter] != "IncludeAll"
+            );
             const errors = {};
-            // Check if at least one filter array has data (ignore other fields like `name`, `description`)
             const filters = [
               "brand",
               "com",
@@ -783,15 +847,28 @@ export default function BuildCustomPriceBook() {
               "fsfz",
               "classID",
               "secondary",
-              "PriceLists",
-              "adHocItems",
             ];
-            const hasData = filters.some((filter) => values[filter].length > 0);
-            if (!hasData) {
-              errors.filters =
-                "At least one filter or Ad Hoc must have selected filter/item";
+            if (hasDataCheck) {
+              const hasData = filters.some(
+                (filter) => values[filter].length > 0
+              );
+              if (!hasData) {
+                errors.filters = "At least one filter  must have selected filter";
+              }
+              return errors;
+            }else{
+              if(values["PriceLists"].length > 0  || values["adHocItems"].length > 0){
+                
+               }else{
+                errors.filters = "At least one Ad Hoc Item/Price List must have selected";
+                return errors
+               }
+
+
+
+
+
             }
-            return errors;
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -922,6 +999,17 @@ export default function BuildCustomPriceBook() {
                       </Stack>
                     </Stack>
                   </Box>
+                  <Stack
+                      sx={{ p: 0, m: 0 }}
+                      direction="row"
+                      justifyContent={"flex-end"}
+                      gap={2}
+                    >
+                      {" "}
+                      {errors.filters && (
+                        <div style={{ color: "red" }}>{errors.filters}</div>
+                      )}
+                    </Stack>
                   <Box
                     display="grid"
                     gap="20px"
@@ -933,105 +1021,310 @@ export default function BuildCustomPriceBook() {
                       },
                     }}
                   >
-                    <Typography
-                      sx={{
-                        gridColumn: "span 1",
-                        fontFamily: "inherit",
-                        fontWeight: "600",
-                        marginLeft: 1,
-                      }}
-                    >
-                      Filters
-                    </Typography>
+
+                    
                     <Stack
-                      sx={{ p: 0, m: 0 }}
-                      direction="row"
-                      justifyContent={"flex-end"}
-                      gap={2}
+                      sx={{ gridColumn: "span 1" }}
+                      direction={"column"}
+                      gap={1}
                     >
-                      {" "}
-                      {errors.filters && (
-                        <div style={{ color: "red" }}>{errors.filters}</div>
-                      )}
+
+
+
+                    <Stack direction="row" gap={13} >
+                      <Typography sx={{ marginLeft: 2,fontFamily: "inherit",
+                        fontWeight: "600", }} >
+                        Options
+                      </Typography>
+                      <Typography sx={{ fontFamily: "inherit",
+                        fontWeight: "600", }} >Attributes</Typography>
                     </Stack>
-                    <FormikCustomAutocompleteMulti
-                      name="brand"
-                      id="brand"
-                      value={values.brand}
-                      onChange={(event, newValue) =>
-                        setFieldValue("brand", newValue)
-                      }
-                      label="Brand"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
-                    />
 
-                    <FormikCustomAutocompleteMulti
-                      name="com"
-                      id="com"
-                      value={values.com}
-                      onChange={(event, newValue) =>
-                        setFieldValue("com", newValue)
-                      }
-                      label="Com || Cat"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
-                    />
+                      {/* BRAND */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="brandInEx"
+                          id="brandInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.brandInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          // disabled={
+                          //   params.mode === "delete" || params.mode === "view"
+                          //     ? true
+                          //     : false
+                          // }
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="brand"
+                          id="brand"
+                          value={values.brand}
+                          onChange={(event, newValue) =>
+                            setFieldValue("brand", newValue)
+                          }
+                          disabled={
+                            values.brandInEx === "IncludeAll" ? true : false
+                          }
+                          label="Brand"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="alt"
-                      id="alt"
-                      value={values.alt}
-                      onChange={(event, newValue) =>
-                        setFieldValue("alt", newValue)
-                      }
-                      label="Alternative Class"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
-                    />
+                      {/* COMMODITY */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="commodityInEx"
+                          id="commodityInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.commodityInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                          // disabled={
+                          //   params.mode === "delete" || params.mode === "view"
+                          //     ? true
+                          //     : false
+                          // }
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="com"
+                          id="com"
+                          value={values.com}
+                          onChange={(event, newValue) =>
+                            setFieldValue("com", newValue)
+                          }
+                          label="Com || Cat"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
+                          disabled={
+                            values.commodityInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="vendor"
-                      id="vendor"
-                      value={values.vendor}
-                      onChange={(event, newValue) =>
-                        setFieldValue("vendor", newValue)
-                      }
-                      label="Vendor"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
-                    />
+                      {/* ALTERNATIVE CLASS */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="altClassInEx"
+                          id="altClassInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.altClassInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="alt"
+                          id="alt"
+                          value={values.alt}
+                          onChange={(event, newValue) =>
+                            setFieldValue("alt", newValue)
+                          }
+                          label="Alternative Class"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
+                          disabled={
+                            values.altClassInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="fsfz"
-                      id="fsfz"
-                      value={values.fsfz}
-                      onChange={(event, newValue) =>
-                        setFieldValue("fsfz", newValue)
-                      }
-                      label="Fs || Fz"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
-                    />
+                      {/* VENDOR */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="vendorInEx"
+                          id="vendorInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.vendorInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
 
-                    <FormikCustomAutocompleteMulti
-                      name="classID"
-                      id="classID"
-                      value={values.classID}
-                      onChange={(event, newValue) =>
-                        setFieldValue("classID", newValue)
-                      }
-                      label="ClassID"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
-                    />
+                        <FormikCustomAutocompleteMulti
+                          name="vendor"
+                          id="vendor"
+                          value={values.vendor}
+                          onChange={(event, newValue) =>
+                            setFieldValue("vendor", newValue)
+                          }
+                          label="Vendor"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
+                          disabled={
+                            values.vendorInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    <FormikCustomAutocompleteMulti
-                      name="secondary"
-                      id="secondary"
-                      value={values.secondary}
-                      onChange={(event, newValue) =>
-                        setFieldValue("secondary", newValue)
-                      }
-                      label="Secondary Class"
-                      url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
-                    />
+                      {/* FRESH/FROZEN */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="frshForzInEx"
+                          id="frshForzInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.frshForzInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="fsfz"
+                          id="fsfz"
+                          value={values.fsfz}
+                          onChange={(event, newValue) =>
+                            setFieldValue("fsfz", newValue)
+                          }
+                          label="Fs || Fz"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
+                          disabled={
+                            values.frshForzInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
 
-                    {/* <Divider sx={{gridColumn:"span 2", borderBottomWidth: 2, borderColor: 'info.main'}} /> */}
+                      {/* CLASS ID */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="classIDInEx"
+                          id="classIDInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.classIDInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+                        <FormikCustomAutocompleteMulti
+                          name="classID"
+                          id="classID"
+                          value={values.classID}
+                          onChange={(event, newValue) =>
+                            setFieldValue("classID", newValue)
+                          }
+                          label="ClassID"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
+                          disabled={
+                            values.classIDInEx === "IncludeAll" ? true : false
+                          }
+                        />
+                      </Stack>
+
+                      {/* SECONDARY CLASS */}
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          size="small"
+                          name="SecondClassInEx"
+                          id="SecondClassInEx"
+                          select
+                          label="Include/Exclude"
+                          value={values.SecondClassInEx}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          fullWidth
+
+                          sx={{ maxWidth: 120, minWidth: 100 }}
+                        >
+                          <MenuItem value="IncludeAll">Include All</MenuItem>
+                          <MenuItem value="Include">Include</MenuItem>
+                          <MenuItem value="Exclude">Exclude</MenuItem>
+                        </TextField>
+
+                        <FormikCustomAutocompleteMulti
+                          name="secondary"
+                          id="secondary"
+                          value={values.secondary}
+                          onChange={(event, newValue) =>
+                            setFieldValue("secondary", newValue)
+                          }
+                          label="Secondary Class"
+                          url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
+                          disabled={
+                            values.SecondClassInEx === "IncludeAll"
+                              ? true
+                              : false
+                          }
+                        />
+                      </Stack>
+
+{/* 
+                      <Stack
+                        justifyContent="flex-end"
+                        direction={"row"}
+                        gap={1}
+                      >
+                        <Button
+                          disabled={isSubmitting}
+                          variant="contained"
+                          color="info"
+                          type="submit"
+                        >
+                          Apply Filters & Save
+                        </Button>
+
+                        <Button
+                          variant="contained"
+                          color="info"
+                          disabled={
+                            params.mode == "copy"
+                              ? true
+                              : getQuoteHeaderData.RecordID &&
+                                getQuoteFilterItemData.length > 0
+                              ? false
+                              : true
+                          }
+                          onClick={() => setIsClear(true)}
+                        >
+                          Clear Filters
+                        </Button>
+                      </Stack> */}
+                    </Stack>
+
+                    <Stack
+                      sx={{ gridColumn: "span 1" }}
+                      direction={"column"}
+                      gap={1}
+                    >
                     <Typography
                       sx={{
                         gridColumn: "span 2",
@@ -1063,6 +1356,55 @@ export default function BuildCustomPriceBook() {
                       label="Ad Hoc Items"
                       url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
                     />
+                    
+                    <Stack direction="row" gap={1}>
+                        <FormControlLabel
+                          sx={{ height: 37.13 }}
+                          control={
+                            <Checkbox
+                              size="small"
+                              id="brokenItems"
+                              name="brokenItems"
+                              checked={values.brokenItems}
+                              onChange={handleChange}
+
+                            />
+                          }
+                          label="Broken Items"
+                        />
+                        <FormControlLabel
+                          sx={{ height: 37.13 }}
+                          control={
+                            <Checkbox
+                              size="small"
+                              id="damagedItems"
+                              name="damagedItems"
+                              checked={values.damagedItems}
+                              onChange={handleChange}
+
+                            />
+                          }
+                          label="Damaged Items"
+                        />
+                      </Stack>
+                      <Stack direction="row" gap={1}>
+                        <FormControlLabel
+                          sx={{ height: 37.13 }}
+                          control={
+                            <Checkbox
+                              size="small"
+                              id="combinationFilter"
+                              name="combinationFilter"
+                              checked={values.combinationFilter}
+                              onChange={handleChange}
+                            />
+                          }
+                          label="Combination Filter"
+                        />
+                      </Stack>
+                    </Stack>
+
+
                   </Box>
 
                   {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}>

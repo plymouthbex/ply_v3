@@ -323,7 +323,6 @@ const ViewPriceBook = () => {
         },
       ];
 
-      console.log("🚀 ~ data ~ data:", data);
 
       try {
         const response = await dispatch(runGroupMailData({ data }));

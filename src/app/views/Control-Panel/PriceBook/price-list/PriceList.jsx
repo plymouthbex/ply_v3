@@ -331,10 +331,7 @@ function CustomToolbar() {
           <Tooltip title="Create Price List">
             <IconButton
               color="info"
-              // sx={{
-              //   height: 50, // Increased button height
-              //   width: 50,  // Increased button width
-              // }}
+
               onClick={() => {
                 naviate(
                   "/pages/control-panel/price-list/price-list-detail/add",

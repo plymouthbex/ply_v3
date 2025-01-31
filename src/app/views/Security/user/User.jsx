@@ -8,6 +8,7 @@ import {
   useTheme,
   Tooltip,
   IconButton,
+  DialogActions,
 } from "@mui/material";
 import {
   DataGrid,
@@ -15,9 +16,14 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight,  dataGridPageSize,
-  dataGridpageSizeOptions,dataGridRowHeight,dataGridHeaderFooterHeight } from "app/utils/constant";
-
+import {
+  dataGridHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+} from "app/utils/constant";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 // ********************** ICONS ********************** //
 import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
@@ -26,6 +32,9 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "app/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserListView } from "app/redux/slice/listviewSlice";
+import { useState } from "react";
+import { LoginConfig } from "app/redux/slice/postSlice";
+import AlertDialog from "app/components/AlertDialog";
 
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -42,25 +51,39 @@ const User = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
   const navigate = useNavigate();
-const {user}=useAuth();
+  const { user } = useAuth();
   console.log("🚀 ~ User ~ user:", user);
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
-  const rows=useSelector((state)=>state.listview.userListViewData);
-  
-
-
+  const rows = useSelector((state) => state.listview.userListViewData);
 
   //=======================API_CALL===================================//
-  const companyCode=user.companyCode;
-  useEffect(()=>{
+  const companyCode = user.companyCode;
+  useEffect(() => {
     dispatch(getUserListView());
-  },[dispatch])
+  }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
+
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(null);
+  const unlock = async (values, type) => {
+    const res = await dispatch(
+      LoginConfig({
+        EmailID: values.Email,
+        Type: type,
+      })
+    );
+    if (res.payload.status === "Y") {
+      setOpenAlert(true);
+      dispatch(getUserListView());
+    } else {
+      setOpenAlert(true);
+      setPostError(res.payload.message);
+    }
+  };
   const columns = [
-   
     {
       headerName: "First Name",
       field: "Name",
@@ -69,7 +92,7 @@ const {user}=useAuth();
       headerAlign: "left",
       hide: true,
     },
-     {
+    {
       headerName: "Last Name",
       field: "LastName",
       width: "170",
@@ -107,35 +130,48 @@ const {user}=useAuth();
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-          <Tooltip title="Edit">
-            <IconButton
-              sx={{ height: 25, width: 25 }}
-              color="black"
-              onClick={() => {
-                navigate("/pages/security/user/user-edit-detail/edit", {
-                  state: { ID: params.row.RecordID },
-                });
-              }}
-            >
-              <ModeEditOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        
-          <Tooltip title="Delete">
-            <IconButton
-              sx={{ height: 25, width: 25 }}
-              color="error"
-              onClick={() => {
-                navigate("/pages/security/user/user-edit-detail/delete", {
-                  state: { ID: params.row.RecordID },
-                });
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </div>
-        
+            <Tooltip title="Edit">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="black"
+                onClick={() => {
+                  navigate("/pages/security/user/user-edit-detail/edit", {
+                    state: { ID: params.row.RecordID },
+                  });
+                }}
+              >
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Delete">
+              <IconButton
+                sx={{ height: 25, width: 25 }}
+                color="error"
+                onClick={() => {
+                  navigate("/pages/security/user/user-edit-detail/delete", {
+                    state: { ID: params.row.RecordID },
+                  });
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            {params.row.IsLocked ? (
+              <Tooltip title="Unlock">
+                <IconButton
+                  sx={{ height: 25, width: 25 }}
+                  color="info"
+                  onClick={() => unlock(params.row,"UnlockPassword")}
+                >
+                  <LockOpenIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              false
+            )}
+          </div>
         );
       },
     },
@@ -187,22 +223,23 @@ const {user}=useAuth();
           <GridToolbarQuickFilter />
 
           <Tooltip title="Create User">
-  <IconButton
-    sx={{ height: 35, width: 35 }}
-    color="info"
-    onClick={() => {
-      navigate("/pages/security/user/user-edit-detail/add", {
-        state: { ID: 0 },
-      });
-    }}
-  >
-    <Add sx={{
+            <IconButton
+              sx={{ height: 35, width: 35 }}
+              color="info"
+              onClick={() => {
+                navigate("/pages/security/user/user-edit-detail/add", {
+                  state: { ID: 0 },
+                });
+              }}
+            >
+              <Add
+                sx={{
                   fontSize: 30, // Increased icon size
                   color: theme.palette.success.main,
-                }} />
-  </IconButton>
-</Tooltip>
-
+                }}
+              />
+            </IconButton>
+          </Tooltip>
         </Box>
       </GridToolbarContainer>
     );
@@ -270,16 +307,15 @@ const {user}=useAuth();
             },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
-            }, 
-        
+            },
+
             "& .MuiTablePagination-root .MuiTypography-root": {
               color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            }, 
-        
+            },
+
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
-        
           }}
         >
           <DataGrid
@@ -302,10 +338,10 @@ const {user}=useAuth();
             columnHeaderHeight={dataGridHeaderFooterHeight}
             sx={{
               // This is to override the default height of the footer row
-              '& .MuiDataGrid-footerContainer': {
-                  height: dataGridHeaderFooterHeight,
-                  minHeight: dataGridHeaderFooterHeight,
-                  // color: theme.palette.info.contrastText,
+              "& .MuiDataGrid-footerContainer": {
+                height: dataGridHeaderFooterHeight,
+                minHeight: dataGridHeaderFooterHeight,
+                // color: theme.palette.info.contrastText,
               },
             }}
             pageSizeOptions={dataGridpageSizeOptions}
@@ -322,6 +358,27 @@ const {user}=useAuth();
             }}
           />
         </Box>
+        <AlertDialog
+          logo={`data:image/png;base64,${user.logo}`}
+          open={openAlert}
+          error={postError}
+          message={postError ? postError : "New One time Pasword successfully sended to user"}
+          Actions={
+            <DialogActions>
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  setOpenAlert(false)
+                  setPostError(null);
+                }}
+              >
+                close
+              </Button>
+            </DialogActions>
+          }
+        />
       </Paper>
     </Container>
   );

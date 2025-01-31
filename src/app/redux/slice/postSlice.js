@@ -1221,6 +1221,46 @@ export const CustomerConfig = createAsyncThunk(
     }
   }
 );
+
+export const CompanyMailSend = createAsyncThunk(
+  "post/CompanyMailSend", // Action type string
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/PostCompanyMailQueue`;
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const CustomerAddPrintGroup = createAsyncThunk(
+  "post/CustomerAddPrintGroup", // Action type string
+  async ({data,PriceBookGroup}, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/UpdateCustomerPriceBookGroup?PriceBookGroup=${PriceBookGroup}`;
+      const response = await axios.put(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,
