@@ -118,11 +118,11 @@ const MailForm = () => {
       SMPTServer: values.smtpHost,
       SSLFlag: values.ssl ? "Y" : "N",
       Subject: values.subject,
-      Classification: values.classification,
+      Classification: selectedType,
     };
 
     console.log("🚀 ~ handleSave ~ mData:", mData);
-    // return;
+
     const response = await dispatch(postMailConfig({ mData }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
