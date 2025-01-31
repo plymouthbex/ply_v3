@@ -93,7 +93,6 @@ const MailForm = () => {
   const loading = useSelector((state) => state.getSlice.mailLoading);
   // ********************* COLUMN AND ROWS ********************* //
   const [selectedType, setSelectedType] = useState("CM" || "");
-  console.log("🚀 ~ MailForm ~ selectedType:", selectedType);
   // ********************* TOOLBAR ********************* //
 
   useEffect(() => {
