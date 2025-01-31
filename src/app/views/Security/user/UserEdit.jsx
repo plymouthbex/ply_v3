@@ -342,7 +342,7 @@ const UserEdit = () => {
         UserProfileImage:
           previewImages1.length > 0 ? images[1] : data.UserProfileImage,
         IsPasswordChanged: data.Password === values.password ? 0 : 1,
-        SalesPerson: null,
+        SalesPerson:slectedSalesName,
       };
       console.log("🚀 ~ HandleSave ~ userData:", userData);
       // return;
@@ -758,7 +758,7 @@ const UserEdit = () => {
                       label="User Group"
                       url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
                     />
-                    {/* <FormikSalesPersonOptimizedAutocomplete
+                    <FormikSalesPersonOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
                         params.mode === "delete" || params.mode === "view"
@@ -774,7 +774,7 @@ const UserEdit = () => {
                       }}
                       label="Sales Person Name"
                       url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
-                    /> */}
+                    />
                     <FormikRungroupOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
