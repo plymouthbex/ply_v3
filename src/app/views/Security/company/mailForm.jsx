@@ -111,7 +111,7 @@ const MailForm = () => {
       CompanyID: state.ID,
       Content: values.content,
       FromEmailID: values.fromEmailID,
-      OtherSoureceID: "",
+      OtherSoureceID: values.otherSourceId,
       RecordID: data.RecordID,
       SMPTPortNumber: values.smtpPort,
       SMPTServer: values.smtpHost,
