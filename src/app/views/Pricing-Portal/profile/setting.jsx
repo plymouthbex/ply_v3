@@ -32,13 +32,14 @@ import { useDispatch, useSelector } from "react-redux";
 import useAuth from "app/hooks/useAuth";
 import { values } from "lodash";
 import { useNavigate } from "react-router-dom";
-import { fetchGetImage,  } from "app/redux/slice/getSlice";
+import { fetchGetImage } from "app/redux/slice/getSlice";
 import toast from "react-hot-toast";
 import {
   RunGroupAutocompleteWithDefault,
   SingleAutocompleteWithDefault,
+  SingleAutocompleteWithDefault2,
 } from "app/components/AutoComplete";
-import { updatesettingData,postImage } from "app/redux/slice/postSlice";
+import { updatesettingData, postImage } from "app/redux/slice/postSlice";
 import { PriceGroupAlertApiDialog } from "app/components/LoadindgDialog";
 // import Cover from "../../../assets/meat1.jpg";
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -81,9 +82,13 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   borderRadius: "4px",
   marginBottom: "16px",
   transition: "all 350ms ease-in-out",
-  border: `2px dashed rgba(${convertHexToRGB(theme.palette.text.primary)}, 0.3)`,
+  border: `2px dashed rgba(${convertHexToRGB(
+    theme.palette.text.primary
+  )}, 0.3)`,
   "&:hover": {
-    background: `rgb(${convertHexToRGB(theme.palette.text.primary)}, 0.2) !important`,
+    background: `rgb(${convertHexToRGB(
+      theme.palette.text.primary
+    )}, 0.2) !important`,
   },
   background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
 }));
@@ -183,7 +188,7 @@ const Settings = () => {
   };
 
   const CompanyID = user.companyID;
-  console.log("🚀 ~ Settings ~ CompanyID:", CompanyID)
+  console.log("🚀 ~ Settings ~ CompanyID:", CompanyID);
 
   const dispatch = useDispatch();
   const dropzoneProps1 = useDropzone({
@@ -289,7 +294,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID:5,
+        CompanyID: 5,
         TabelID: "CO",
         ImageID: "PM",
         Description: "PlyLogo",
@@ -352,7 +357,7 @@ const Settings = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID:5,
+        CompanyID: 5,
         TabelID: "CO",
         ImageID: "PMH",
         Description: "Plymouth Home",
@@ -531,7 +536,7 @@ const Settings = () => {
       const company = companyList.find(
         (value) => value.companyCode === selectedCompanyOptions.Code
       );
-      
+
       if (company) {
         updateUser({
           ...user,
@@ -540,17 +545,12 @@ const Settings = () => {
           //   ? selectedRungroupOptions.Name
           //   : user.defaultRunGroup,
         });
-      // Check if the selected rungroup name is different from the user's defaultRunGroup
-      
-    
-      
+        // Check if the selected rungroup name is different from the user's defaultRunGroup
       } else {
         // console.error("Company not found for RecordID:", newValue.RecordID);
         // toast.error("Company not found for the selected record.");
         // toast.error("Please choose the relevant Rungroup.");
       }
-
-     
     } else {
       setOpenAlert(true);
       setPostError(true);
@@ -579,18 +579,21 @@ const Settings = () => {
               },
             }}
           >
-         <Box sx={{ gridColumn: "span 4" }}>
-    <Typography sx={{fontSize:"16px",fontWeight:"bold"}}>Settings</Typography>
-  </Box>
+            <Box sx={{ gridColumn: "span 4" }}>
+              <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
+                Settings
+              </Typography>
+            </Box>
             <FormControl fullWidth size="small" sx={{ gridColumn: "span 2" }}>
-              <SingleAutocompleteWithDefault
+              <SingleAutocompleteWithDefault2
                 required
                 name="companyID"
                 id="companyID"
                 value={selectedCompanyOptions}
                 onChange={handleSelectionCompanyChange}
                 label="Company"
-                url={`${process.env.REACT_APP_BASE_URL}User/GetCompany`}
+                // url={`${process.env.REACT_APP_BASE_URL}User/GetCompany`}
+                url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
                 defaultValueId={user.companyID}
               />
             </FormControl>
@@ -608,7 +611,7 @@ const Settings = () => {
               /> */}
             </FormControl>
           </Box>
-          <Box
+          {user.role != "USER" && (<Box
             display="grid"
             gap="20px"
             margin={5}
@@ -627,27 +630,24 @@ const Settings = () => {
               justifyContent="center"
               alignItems="center"
             >
-              
               <SettingsLogo previewImages={previewImages1} />
               {/* {user.role === "ADMIN" && ( */}
-                <DropZone {...dropzoneProps1.getRootProps()}>
-                  <input
-                    {...dropzoneProps1.getInputProps({
-                      onChange: (e) => handleImageUpload(e.target.files),
-                    })}
-                    multiple={false}
-                  />
-                  <FlexBox alignItems="center" flexDirection="column">
-                    <Publish
-                      sx={{ color: "text.secondary", fontSize: "48px" }}
-                    />
-                    {imageList1.length ? (
-                      <span>{imageList1.length} images selected</span>
-                    ) : (
-                      <span>Drop images</span>
-                    )}
-                  </FlexBox>
-                </DropZone>
+              <DropZone {...dropzoneProps1.getRootProps()}>
+                <input
+                  {...dropzoneProps1.getInputProps({
+                    onChange: (e) => handleImageUpload(e.target.files),
+                  })}
+                  multiple={false}
+                />
+                <FlexBox alignItems="center" flexDirection="column">
+                  <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+                  {imageList1.length ? (
+                    <span>{imageList1.length} images selected</span>
+                  ) : (
+                    <span>Drop images</span>
+                  )}
+                </FlexBox>
+              </DropZone>
               {/* // )} */}
             </Box>
 
@@ -659,27 +659,24 @@ const Settings = () => {
               justifyContent="center"
               alignItems="center"
             >
-              
               <SettingsLogo previewImages={previewImages2} />
               {/* {user.role === "ADMIN" && ( */}
-                <DropZone {...dropzoneProps2.getRootProps()}>
-                  <input
-                    {...dropzoneProps2.getInputProps({
-                      onChange: (e) => handleImageUpload2(e.target.files),
-                    })}
-                    multiple={false}
-                  />
-                  <FlexBox alignItems="center" flexDirection="column">
-                    <Publish
-                      sx={{ color: "text.secondary", fontSize: "48px" }}
-                    />
-                    {imageList2.length ? (
-                      <span>{imageList2.length} images selected</span>
-                    ) : (
-                      <span>Drop images</span>
-                    )}
-                  </FlexBox>
-                </DropZone>
+              <DropZone {...dropzoneProps2.getRootProps()}>
+                <input
+                  {...dropzoneProps2.getInputProps({
+                    onChange: (e) => handleImageUpload2(e.target.files),
+                  })}
+                  multiple={false}
+                />
+                <FlexBox alignItems="center" flexDirection="column">
+                  <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+                  {imageList2.length ? (
+                    <span>{imageList2.length} images selected</span>
+                  ) : (
+                    <span>Drop images</span>
+                  )}
+                </FlexBox>
+              </DropZone>
               {/* // )} */}
             </Box>
 
@@ -691,30 +688,27 @@ const Settings = () => {
               justifyContent="center"
               alignItems="center"
             >
-              
               <SettingsLogo previewImages={previewImages3} />
               {/* {user.role === "ADMIN" && ( */}
-                <DropZone {...dropzoneProps3.getRootProps()}>
-                  <input
-                    {...dropzoneProps3.getInputProps({
-                      onChange: (e) => handleImageUpload3(e.target.files),
-                    })}
-                    multiple={false}
-                  />
-                  <FlexBox alignItems="center" flexDirection="column">
-                    <Publish
-                      sx={{ color: "text.secondary", fontSize: "48px" }}
-                    />
-                    {imageList3.length ? (
-                      <span>{imageList3.length} images selected</span>
-                    ) : (
-                      <span>Drop images</span>
-                    )}
-                  </FlexBox>
-                </DropZone>
+              <DropZone {...dropzoneProps3.getRootProps()}>
+                <input
+                  {...dropzoneProps3.getInputProps({
+                    onChange: (e) => handleImageUpload3(e.target.files),
+                  })}
+                  multiple={false}
+                />
+                <FlexBox alignItems="center" flexDirection="column">
+                  <Publish sx={{ color: "text.secondary", fontSize: "48px" }} />
+                  {imageList3.length ? (
+                    <span>{imageList3.length} images selected</span>
+                  ) : (
+                    <span>Drop images</span>
+                  )}
+                </FlexBox>
+              </DropZone>
               {/* )} */}
             </Box>
-          </Box>
+          </Box>) }
           <Box
             display="grid"
             gap="20px"
@@ -824,40 +818,40 @@ const Settings = () => {
           </Box>
           {/* Buttons at the bottom */}
           {/* {user.role === "ADMIN" && ( */}
-            <Box display="flex" justifyContent="flex-end" gap="10px" margin={3}>
-              <Button
-                variant="contained"
-                type="submit"
-                sx={{
-                  backgroundColor: "#C0C0C0",
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "small",
-                  "&:hover": {
-                    backgroundColor: "#C0C0C0", // Custom hover color
-                  },
-                }}
-                onClick={fnpostImage}
-              >
-                Upload
-              </Button>
-              <Button
-                variant="contained"
-                type="submit"
-                sx={{
-                  backgroundColor: "#C0C0C0",
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "small",
-                  "&:hover": {
-                    backgroundColor: "#C0C0C0", // Custom hover color
-                  },
-                }}
-                onClick={userUpdate}
-              >
-                Save
-              </Button>
-            </Box>
+          <Box display="flex" justifyContent="flex-end" gap="10px" margin={3}>
+          {user.role != "USER" && ( <Button
+              variant="contained"
+              type="submit"
+              sx={{
+                backgroundColor: "#C0C0C0",
+                color: "black",
+                fontWeight: "bold",
+                fontSize: "small",
+                "&:hover": {
+                  backgroundColor: "#C0C0C0", // Custom hover color
+                },
+              }}
+              onClick={fnpostImage}
+            >
+              Upload
+            </Button>)}
+            <Button
+              variant="contained"
+              type="submit"
+              sx={{
+                backgroundColor: "#C0C0C0",
+                color: "black",
+                fontWeight: "bold",
+                fontSize: "small",
+                "&:hover": {
+                  backgroundColor: "#C0C0C0", // Custom hover color
+                },
+              }}
+              onClick={userUpdate}
+            >
+              Save
+            </Button>
+          </Box>
           {/* )} */}
         </SimpleCard>
         <PriceGroupAlertApiDialog

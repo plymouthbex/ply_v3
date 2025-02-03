@@ -231,27 +231,6 @@ const ViewPriceBook = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleMailNavigate = () => {
-    if (!selectedCustomerOptions) {
-      setIsCustomer("Please Choose Customer");
-
-      setTimeout(() => {
-        setIsCustomer(null);
-      }, 1000);
-      return;
-    }
-    navigate("./send-mail/:vpb", {
-      state: {
-        customernumber: selectedCustomerOptions.Code,
-        fppdf: selectPriceListtype === "FP" ? true : false,
-        fpexcel: selectPriceListtype === "FP" ? true : false,
-        cppdf: selectPriceListtype === "CP" ? true : false,
-        cpexcel: selectPriceListtype === "CP" ? true : false,
-        FromDate: sunday,
-        ToDate: saturday,
-      },
-    });
-  };
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
   // const fnRunGrpEmailProcess = async () => {
@@ -310,10 +289,14 @@ const ViewPriceBook = () => {
       const data = [
         {
           CustomerNumber: selectedCustomerOptions.Code,
-          FullPriceBookPdf:selectPriceListtype === "FP" ? selectedCustomerOptions.Pdf : "0",
-          FullPriceBookExcel:selectPriceListtype === "FP" ? selectedCustomerOptions.Excel : "0",
-          CustomPriceBooPdf:selectPriceListtype === "CP" ? selectedCustomerOptions.Pdf : "0",
-          CustomPriceBookExcel:selectPriceListtype === "CP" ? selectedCustomerOptions.Excel : "0",
+          FullPriceBookPdf:
+            selectPriceListtype === "FP" ? selectedCustomerOptions.Pdf : "0",
+          FullPriceBookExcel:
+            selectPriceListtype === "FP" ? selectedCustomerOptions.Excel : "0",
+          CustomPriceBooPdf:
+            selectPriceListtype === "CP" ? selectedCustomerOptions.Pdf : "0",
+          CustomPriceBookExcel:
+            selectPriceListtype === "CP" ? selectedCustomerOptions.Excel : "0",
           FromDate: sunday,
           ToDate: saturday,
           UserID: user.id,
@@ -322,7 +305,6 @@ const ViewPriceBook = () => {
           TemplateID: "",
         },
       ];
-
 
       try {
         const response = await dispatch(runGroupMailData({ data }));
@@ -344,14 +326,7 @@ const ViewPriceBook = () => {
   };
 
   const getPriceListCustomerFull = (priceListOutType) => {
-    if (!selectedCustomerOptions) {
-      setIsCustomer("Please Choose Customer");
 
-      setTimeout(() => {
-        setIsCustomer(null);
-      }, 1000);
-      return;
-    }
     setIsGenerating(true);
     dispatch(
       viewPricePdfGenrationg({
@@ -794,22 +769,21 @@ const ViewPriceBook = () => {
               <Stack direction="row" alignItems={"center"}>
                 <Tooltip title="PDF" placement="top">
                   <CustomIconButton
-                    onClick={
-                      // () =>
-                      //   selectPriceListtype === "FP"
-                      //     ? getPriceListCustomerFull("PDF")
-                      //     : getPriceListCustomerCustom("PDF")
-                      isCustomerPdf === "1"
-                        ? () =>
-                            selectPriceListtype === "FP"
-                              ? getPriceListCustomerFull("PDF")
-                              : getPriceListCustomerCustom("PDF")
-                        : () => {
-                            // Show an alert or notification if the customer cannot have a PDF
-                            setAlertMessage(true);
-                          }
-                      // navigate("/PDF8")
-                    }
+                    onClick={() => {
+                      if (!selectedCustomerOptions) {
+                        setIsCustomer("Please Choose Customer");
+                  
+                        setTimeout(() => {
+                          setIsCustomer(null);
+                        }, 1000);
+                        return;
+                      }
+                      if (isCustomerPdf === "1") {
+                        selectPriceListtype === "FP"
+                          ? getPriceListCustomerFull("PDF")
+                          : getPriceListCustomerCustom("PDF");
+                      } else setAlertMessage(true);
+                    }}
                     sx={{
                       bgcolor: theme.palette.primary.main,
                       color: "white",
@@ -827,18 +801,21 @@ const ViewPriceBook = () => {
                   <CustomIconButton
                     bgcolor={theme.palette.success.main}
                     aria-label="excel"
-                    onClick={
-                      isCustomerExcel === "1"
-                        ? () =>
-                            selectPriceListtype === "FP"
-                              ? getPriceListCustomerFull("EXCEL")
-                              : getPriceListCustomerCustom("EXCEL")
-                        : () => {
-                            // Show an alert or notification if the customer cannot have a PDF
-                            setAlertMessage1(true);
-                          }
-                    }
-                    // onClick={() => navigate("/PDF8")}
+                    onClick={() => {
+                      if (!selectedCustomerOptions) {
+                        setIsCustomer("Please Choose Customer");
+                  
+                        setTimeout(() => {
+                          setIsCustomer(null);
+                        }, 1000);
+                        return;
+                      }
+                      if (isCustomerExcel === "1") {
+                        selectPriceListtype === "FP"
+                          ? getPriceListCustomerFull("EXCEL")
+                          : getPriceListCustomerCustom("EXCEL");
+                      } else setAlertMessage(true);
+                    }}
                   >
                     <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                   </CustomIconButton>
@@ -846,20 +823,21 @@ const ViewPriceBook = () => {
                 <Tooltip title="Print" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.warning.main}
-                    onClick={
-                      // () =>
-                      // selectPriceListtype === "FP"
-                      //   ? getPriceListCustomerFull("PRINT")
-                      //   : getPriceListCustomerCustom("PRINT")
-                      isCustomerPdf === "1"
-                        ? () =>
-                            selectPriceListtype === "FP"
-                              ? getPriceListCustomerFull("PRINT")
-                              : getPriceListCustomerCustom("PRINT")
-                        : () => {
-                            setAlertMessage2(true);
-                          }
-                    }
+                    onClick={() => {
+                      if (!selectedCustomerOptions) {
+                        setIsCustomer("Please Choose Customer");
+                  
+                        setTimeout(() => {
+                          setIsCustomer(null);
+                        }, 1000);
+                        return;
+                      }
+                      if (isCustomerPdf === "1") {
+                        selectPriceListtype === "FP"
+                          ? getPriceListCustomerFull("PRINT")
+                          : getPriceListCustomerCustom("PRINT");
+                      } else setAlertMessage(true);
+                    }}
                     aria-label="print"
                   >
                     <IoMdPrint style={{ fontSize: "21px" }} />

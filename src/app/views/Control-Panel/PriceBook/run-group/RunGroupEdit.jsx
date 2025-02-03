@@ -32,11 +32,12 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   getRunGroupData,
+  getRunGroupData2,
   runGroupAddedItem,
   runGroupDeletedItem,
 } from "app/redux/slice/getSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { runGroupDelete, runGroupPost } from "app/redux/slice/postSlice";
+import { CustomerAddPrintGroup, deletePriceBookGroup, runGroupDelete, runGroupPost } from "app/redux/slice/postSlice";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import { getRunGroupListView } from "app/redux/slice/listviewSlice";
 import lodash from "lodash";
@@ -72,7 +73,6 @@ const RunGroupEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state;
-  console.log("🚀 ~ RunGroupEdit ~ state:", state);
   const dispatch = useDispatch();
   const { user } = useAuth();
   const getRows = useSelector((state) => state.getSlice.runGroupGetData);
@@ -85,44 +85,31 @@ const RunGroupEdit = () => {
   const [RunGroupID, setRunGroupID] = useState(0);
   const [isDelete, setIsDelete] = useState(false);
   const [isCustomerListExists, setIsCustomerListExists] = useState(false);
-  const [isCustomerListExistsError, setIsCustomerListExistsError] =
-    useState(false);
+  const [isCustomerListExistsError, setIsCustomerListExistsError] = useState(false);
   const [isRemoveCustomer, setIsRemoveCustomer] = useState(false);
   const [removeCustomerID, setremoveCustomerID] = useState(0);
   const [removeCustomerdDesc, setremoveCustomerDesc] = useState("");
   const [slectedSalesName, setselectedSalesName] = useState(null);
 
-  // useEffect(() => {
-  //   setAddedCustomers(getRows || []);
-  // }, [getRows]);
-  // const handleSelectionAddCustomerListData = (e, newValue) => {
-  //   setAddCustomerListData(newValue);
-  // };
 
-  const [addedCustomers, setAddedCustomers] = useState([]);
+
   const [addCustomerListData, setAddCustomerListData] = useState([]);
   const handleSelectionAddCustomerListData = (e, newValue) => {
     setAddCustomerListData(newValue);
   };
 
-  const handleAddCustomers = () => {
-    // if (addedCustomers.length > 0) {
-    //   // Dispatch the selected customers
-    //   dispatch(runGroupAddedItem(addedCustomers));
-
-    //   // Add the new customers to `getRows` (locally) to dynamically filter them out
-    //   setAddedCustomers([]);
-    // } else {
-    //   setIsCustomerListExistsError(true);
-    //   setTimeout(() => {
-    //     setIsCustomerListExistsError(false);
-    //   }, 2000);
-    // }
+  const handleAddCustomers = async(values) => {
     if (addCustomerListData.length > 0) {
-      // Dispatch to Redux
       dispatch(runGroupAddedItem(addCustomerListData));
-      // Add to addedCustomers and reset selected data
-      setAddedCustomers((prev) => [...prev, ...addCustomerListData]);
+        const response = await dispatch(
+              CustomerAddPrintGroup({
+                data: addCustomerListData,
+                PriceBookGroup: data.Code,
+              })
+            );
+        if(response.payload.status === "Y"){
+          dispatch(getRunGroupData2({ id: state.ID }));
+        }
       setAddCustomerListData([]);
     } else {
       setIsCustomerListExistsError(true);
@@ -134,22 +121,13 @@ const RunGroupEdit = () => {
 
   // ********************** REDUX STATE ********************** //
   const data = useSelector((state) => state.getSlice.runGroupFormData);
-  const addedRows = useSelector((state) => state.getSlice.runGroupAddedData);
-
   const loading = useSelector((state) => state.getSlice.runGroupLoading);
   const status = useSelector((state) => state.getSlice.runGroupStatus);
   const error = useSelector((state) => state.getSlice.printGroupError);
-  const getRowsSet = new Set(getRows.map((item) => item.RecordID));
-  const filteredSelectedItems = addedRows.filter(
-    (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
-  );
-  console.log(
-    "🚀 ~ RunGroupEdit ~ filteredSelectedItems:",
-    filteredSelectedItems
-  );
+
   useEffect(() => {
     dispatch(getRunGroupData({ id: state.ID }));
-  }, []);
+  }, [location.key]);
 
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
@@ -181,36 +159,13 @@ const RunGroupEdit = () => {
       align: "center",
       renderCell: (param) => {
         return (
-          // <Tooltip title="Remove Customer">
-          //   <IconButton
-          //     color="error"
-          //     size="small"
-          //     disabled={params.mode === "delete" || params.mode === "view"}
-          //     onClick={() => {
-          //       setremoveCustomerID(param.row.CustomerNumber);
-          //       setremoveCustomerDesc(param.row.CustomerName);
-          //       setIsRemoveCustomer(true);
-          //     }}
-          //   >
-          //     <DeleteIcon fontSize="small" />
-          //   </IconButton>
-          // </Tooltip>
           <Tooltip title="Remove Customer">
             <IconButton
               color="error"
               size="small"
               onClick={() => {
-                // Remove customer from addedCustomers state
-                setAddedCustomers((prev) =>
-                  prev.filter(
-                    (customer) =>
-                      customer.CustomerNumber !== param.row.CustomerNumber
-                  )
-                );
-
-                // Optional: Show confirmation modal or alert
-                setremoveCustomerID(param.row.CustomerNumber);
-                setremoveCustomerDesc(param.row.CustomerName);
+                setremoveCustomerID(param.row.RecordID);
+                setremoveCustomerDesc(param.row.CustomerNumber);
                 setIsRemoveCustomer(true);
               }}
             >
@@ -221,7 +176,7 @@ const RunGroupEdit = () => {
       },
     },
   ];
-  const filteredExistingRows = [...getRows, ...addedCustomers];
+
 
   const CustomToolbar = React.memo(() => {
     return (
@@ -246,67 +201,6 @@ const RunGroupEdit = () => {
           }}
         >
           <GridToolbarQuickFilter sx={{ width: 200 }} />
-
-          {/* <CusListRunGrpOptimizedAutocomplete
-                sx={{ width: 400 }}
-                errors={isCustomerListExistsError}
-                helper={isCustomerListExistsError && "Please select customer!"}
-                disabled={params.mode === "delete" || params.mode === "add"}
-                name="customerPriceList"
-                id="customerPriceList"
-                value={addCustomerListData}
-                onChange={handleSelectionAddCustomerListData}
-                label="Customers"
-                url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList?CompanyCode=${state.CompanyCode}&PriceBookGroup=${data.Code}`}
-              />
-
-              <Button
-                sx={{ width: 200, height: 40, gridColumn: "span 1" }}
-                variant="contained"
-                color="info"
-                size="small"
-                disabled={params.mode === "delete" || params.mode === 'add'}
-                onClick={() => {
-                  if (addCustomerListData) {
-                    // const isItem = [...getRows, ...filteredSelectedItems].some(
-                    //   (item) =>
-                    //     lodash.isEqual(
-                    //       item.RecordID,
-                    //       addCustomerListData.RecordID
-                    //     )
-                    // );
-                    // if (isItem) {
-                    //   setIsCustomerListExists(true);
-                    //   setTimeout(() => {
-                    //     setIsCustomerListExists(false);
-                    //     setAddCustomerListData(null);
-                    //   }, 5000);
-                    //   return;
-                    // }
-                    dispatch(runGroupAddedItem(addCustomerListData));
-                    setAddCustomerListData([]);
-                  } else {
-                    setIsCustomerListExistsError(true);
-                    setTimeout(() => {
-                      setIsCustomerListExistsError(false);
-                    }, 2000);
-                  }
-                }}
-                startIcon={<Add size="small" />}
-              >
-                Add Customers
-              </Button> */}
-          {/* 
-          <Button
-            sx={{ width: 200, height: 40, gridColumn: "span 1" }}
-            variant="contained"
-            color="info"
-            size="small"
-            onClick={handleAddCustomers}
-            startIcon={<Add size="small" />}
-          >
-            Add Customers
-          </Button> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -315,15 +209,16 @@ const RunGroupEdit = () => {
   const runGroupSaveFn = async (values, setSubmitting) => {
     const postData = {
       RecordId: data.RecordId,
-      Code: values.runGroupCode,
-      Name: values.runGroupName,
+      Code: slectedSalesName || data.SalesPersonName,
+      Name: slectedSalesName || data.SalesPersonName,
       Sortorder: values.sortOrder,
-      AllSalesMan: values.AllSalesMan,
+      // AllSalesMan: values.AllSalesMan,
+      AllSalesMan: false,
       CompanyCode: state.CompanyCode,
       SalesPerson: slectedSalesName || data.SalesPersonName,
       Disable: "N",
       LastModifiedDate: "",
-      RunGroupList: [...getRows, ...filteredSelectedItems],
+      RunGroupList: [],
     };
     try {
       const response = await dispatch(runGroupPost({ rData: postData }));
@@ -332,7 +227,14 @@ const RunGroupEdit = () => {
         setOpenAlert(true);
         setSuccessMessage(response.payload.message);
         if (params.mode === "add") {
-          dispatch(getRunGroupData({ id: response.payload.RecordID }));
+          navigate('/pages/control-panel/run-group/run-group-getail/edit',{ID :response.payload.RecordID})
+          dispatch(
+            CustomerAddPrintGroup({
+              data: addCustomerListData,
+              PriceBookGroup: slectedSalesName,
+            })
+          );
+          // dispatch(getRunGroupData({ id: response.payload.RecordID }));
         }
       } else {
         setOpenAlert(true);
@@ -360,13 +262,29 @@ const RunGroupEdit = () => {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
   };
-  // const sales = data.SalesPersonName
 
-  // useEffect(() => {
-  //   if (sales) {
-  //     setselectedSalesName(data.SalesPersonName); // Set the parsed sales data
-  //   }
-  // }, [sales]);
+  const runGroupCusDeleteFn = async () => {
+    try {
+      dispatch(deletePriceBookGroup({ Recordid:removeCustomerID,CustomerNumber:removeCustomerdDesc})).then((response) => {
+        if (response.payload.status === "Y") {
+          dispatch(getRunGroupData2({ id: state.ID }));
+          setIsRemoveCustomer(false);
+          setremoveCustomerID(0);
+          setremoveCustomerDesc("");
+        } else {
+          setIsRemoveCustomer(false);
+          setremoveCustomerID(0);
+          setremoveCustomerDesc("");
+          setOpenAlert(true);
+          setPostError(response.payload.message);
+        }
+      });;
+    } catch (e) {
+      console.log("🚀 ~ priceListSaveFn ~ e:", e);
+    }
+  };
+
+
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -411,12 +329,8 @@ const RunGroupEdit = () => {
                   routeSegments={[
                     { name: "Control Panel" },
                     {
-                      name: "Company",
-                      path: "/pages/control-panel/company-run-group",
-                    },
-                    {
                       name: "Price Book Group",
-                      path: -1,
+                      path: "/pages/control-panel/run-group",
                     },
                     { name: `${params.mode} Price Book Group` },
                   ]}
@@ -463,7 +377,7 @@ const RunGroupEdit = () => {
                     padding: "10px",
                   }}
                 >
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -482,8 +396,8 @@ const RunGroupEdit = () => {
                     disabled={params.mode === "delete" ? true : false}
                     //   error={!!touched.runGroupCode && !!errors.runGroupCode}
                     //   helperText={touched.runGroupCode && errors.runGroupCode}
-                  />
-                  <TextField
+                  /> */}
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -502,11 +416,12 @@ const RunGroupEdit = () => {
                     disabled={params.mode === "delete" ? true : false}
                     //   error={!!touched.runGroupName && !!errors.runGroupName}
                     //   helperText={touched.runGroupName && errors.runGroupName}
-                  />
+                  /> */}
                   <FormikSalesPersonOptimizedAutocomplete
+                      required={true}
                     sx={{ gridColumn: "span 2" }}
                     disabled={
-                      params.mode === "delete" || params.mode === "view"
+                      params.mode === "delete" || params.mode === "view" 
                         ? true
                         : false
                     }
@@ -515,7 +430,10 @@ const RunGroupEdit = () => {
                     value={values.sales}
                     onChange={(event, newValue) => {
                       setFieldValue("sales", newValue);
-                      setselectedSalesName(newValue ? newValue.Name : "");
+                      if(newValue){
+
+                        setselectedSalesName(newValue.Name);
+                      }
                     }}
                     label="Sales Person Name"
                     url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
@@ -526,6 +444,12 @@ const RunGroupEdit = () => {
                     sx={{ gridColumn: "span 2" }}
                   >
                     <CusListRunGrpOptimizedAutocomplete
+                
+                      disabled={
+                        params.mode === "delete" || params.mode === "view" 
+                          ? true
+                          : false
+                      }
                       sx={{ width: "100%" }}
                       errors={isCustomerListExistsError}
                       helper={
@@ -543,10 +467,15 @@ const RunGroupEdit = () => {
                       }&PriceBookGroup=${
                         slectedSalesName || data.SalesPersonName
                       }`}
-                      addedCustomers={filteredExistingRows} // Pass added customers to exclude them
+                      addedCustomers={getRows} // Pass added customers to exclude them
                     />
                     <Tooltip title="Add Customers">
                       <IconButton
+                        disabled={
+                          params.mode === "delete" || params.mode === "view" || params.mode === "add" 
+                            ? true
+                            : false
+                        }
                         sx={{ height: 37.6 }}
                         color="info"
                         onClick={handleAddCustomers}
@@ -560,36 +489,7 @@ const RunGroupEdit = () => {
                       </IconButton>
                     </Tooltip>
                   </Stack>
-                  {/* <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="sortOrder"
-                    name="sortOrder"
-                    label="Sequence"
-                    value={values.sortOrder}
-                    onChange={handleChange}
-                    autoComplete="off"
-                    size="small"
-                    sx={{ gridColumn: "span 1" }}
-                    disabled={params.mode === "delete" ? true : false}
-                    //   error={!!touched.sortOrder && !!errors.sortOrder}
-                    //   helperText={touched.sortOrder && errors.sortOrder}
-                  /> */}
 
-                  <FormControlLabel
-                    sx={{ height: 37.13 }}
-                    control={
-                      <Checkbox
-                        size="small"
-                        id="AllSalesMan"
-                        name="AllSalesMan"
-                        checked={values.AllSalesMan}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Belongs TO All Sales"
-                  />
                   <Box
                     sx={{
                       height: 400,
@@ -661,7 +561,7 @@ const RunGroupEdit = () => {
                         toolbar: CustomToolbar,
                       }}
                       rowHeight={dataGridRowHeight}
-                      rows={[...getRows, ...filteredSelectedItems]}
+                      rows={getRows}
                       columns={columns}
                       disableSelectionOnClick
                       disableRowSelectionOnClick
@@ -752,17 +652,7 @@ const RunGroupEdit = () => {
                       variant="contained"
                       color="info"
                       size="small"
-                      onClick={() => {
-                        dispatch(
-                          runGroupDeletedItem({
-                            id: removeCustomerID,
-                            runGroupAddedData: filteredSelectedItems,
-                          })
-                        );
-                        setIsRemoveCustomer(false);
-                        setremoveCustomerID(0);
-                        setremoveCustomerDesc("");
-                      }}
+                      onClick={runGroupCusDeleteFn}
                     >
                       Yes
                     </Button>

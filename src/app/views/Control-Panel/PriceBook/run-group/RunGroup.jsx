@@ -87,14 +87,7 @@ const RunGroup = () => {
       headerAlign: "left",
       hide: false,
     },
-    // {
-    //   headerName: "Print Sequence",
-    //   field: "SortOrder",
-    //   width: "200",
-    //   align: "left",
-    //   headerAlign: "left",
-    //   hide: false,
-    // },
+
     {
       field: "Action",
       headerName: "Action",
@@ -174,8 +167,7 @@ const RunGroup = () => {
             justifyContent: "space-between",
             alignItems: "center",
             gap: 2,
-            paddingX: 2,
-            width: "100%",
+                        width: "100%",
           }}
         >
           <FormikCustomSelectCompanyPriceList
@@ -195,7 +187,7 @@ const RunGroup = () => {
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
             <GridToolbarQuickFilter />
 
-            <Tooltip title="Create Price Book Group">
+            {/* <Tooltip title="Create Price Book Group">
               <IconButton
                 color="black"
                 size="small"
@@ -215,7 +207,7 @@ const RunGroup = () => {
                   }}
                 />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
           </Box>
         </Box>
       </GridToolbarContainer>
@@ -228,7 +220,6 @@ const RunGroup = () => {
         <Breadcrumb
           routeSegments={[
             { name: "Control Panel" },
-            { name: "Company", path: "/pages/control-panel/company-run-group" },
             { name: "Price Book Group" },
           ]}
           // ,path:"/pages/company-run-group"

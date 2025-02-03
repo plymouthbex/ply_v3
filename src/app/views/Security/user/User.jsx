@@ -362,7 +362,7 @@ const User = () => {
           logo={`data:image/png;base64,${user.logo}`}
           open={openAlert}
           error={postError}
-          message={postError ? postError : "New One time Pasword successfully sended to user"}
+          message={postError ? postError : "New one time Pasword successfully sent to user"}
           Actions={
             <DialogActions>
               <Button

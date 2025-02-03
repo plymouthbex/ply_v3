@@ -212,15 +212,17 @@ export default function RunPriceBook() {
           <Checkbox
             checked={params.row.fpexcel}
             onChange={(e) => {
+              console.log("🚀 ~ RunPriceBook ~ e.target.checked:", e.target.checked)
               if (
                 user.role === "USER" &&
-                selectedRunGrpOptions.Name === user.defaultRunGroup
+                (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+                  user.SalesReps.includes(selectedRunGrpOptions.Name))
               ) {
                 dispatch(
                   CustomerConfig({
                     CustomerNumber: params.row.customernumber,
                     Type: "FullPriceBookExcel",
-                    Value: params.row.fpexcel ? "1" : "0",
+                    Value: e.target.checked ? "1" : "0",
                   })
                 );
                 dispatch(
@@ -247,7 +249,6 @@ export default function RunPriceBook() {
                 );
               }
             }}
-            // onChange={() => handleCheckboxChange(params.row.id, "fp")}
             sx={{
               color: "#174c4f",
               "&.Mui-checked": {
@@ -261,7 +262,8 @@ export default function RunPriceBook() {
             onChange={(e) => {
               if (
                 user.role === "USER" &&
-                selectedRunGrpOptions.Name === user.defaultRunGroup
+                (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+                  user.SalesReps.includes(selectedRunGrpOptions.Name))
               ) {
                 dispatch(
                   CustomerConfig({
@@ -321,9 +323,11 @@ export default function RunPriceBook() {
           <Checkbox
             checked={params.row.cpexcel}
             onChange={(e) => {
+              console.log("🚀 ~ RunPriceBook ~ e.target.checked:", e.target.checked)
               if (
                 user.role === "USER" &&
-                selectedRunGrpOptions.Name === user.defaultRunGroup
+                (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+                  user.SalesReps.includes(selectedRunGrpOptions.Name))
               ) {
                 dispatch(
                   CustomerConfig({
@@ -369,7 +373,8 @@ export default function RunPriceBook() {
             onChange={(e) => {
               if (
                 user.role === "USER" &&
-                selectedRunGrpOptions.Name === user.defaultRunGroup
+                (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+                  user.SalesReps.includes(selectedRunGrpOptions.Name))
               ) {
                 dispatch(
                   CustomerConfig({
@@ -428,8 +433,6 @@ export default function RunPriceBook() {
     if (newValue) {
       dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
         (res) => {
-          // console.log("🚀 ~ dispatch ~ res:", res)
-
           const allRowIds = res.payload.rows.map((row) => row.id);
           setRowSelectionModel(allRowIds);
         }
@@ -491,244 +494,6 @@ export default function RunPriceBook() {
   const [processFunLoading, setProcessFunLoading] = useState(false);
   const [processError, setProcessError] = useState(false);
   const [showPrice, setShowprice] = useState(true);
-
-  // const fnProcess = () => {
-  //   if (rowSelectionModel.length == 0 ) {
-  //     setProcessFunLoading(false);
-  //     setProcessLoading(true);
-  //     setProcessError(true);
-  //     dispatch(runGrpMsgUpdate("Please Select Customer"));
-  //     setTimeout(() => {
-  //       setProcessLoading(false);
-  //       dispatch(runGrpMsgUpdate(""));
-  //       setProcessError(false);
-  //     }, 2000);
-  //     return;
-  //   }
-  //   setProcessLoading(true);
-  //   setProcessFunLoading(true);
-
-  //   const processData = new Promise((resolve, reject) => {
-  //     try {
-  //       const promises = runGrpRows
-  //         .map((value, index) => {
-  //           const promisesForRow = [];
-
-  //           // Handle fp case
-  //           if (
-  //             (value.fpexcel || value.fppdf) &&
-  //             rowSelectionModel.includes(value.id)
-  //           ) {
-  //             const fpPromise = dispatch(
-  //               getCustomerViewPriceFullBook({
-  //                 CompanyCode: user.companyCode,
-  //                 FromDate: sunday,
-  //                 ToDate: saturday,
-  //                 CustomerNumber: value.customernumber,
-  //               })
-  //             ).then((fpResData) => {
-  //               if (fpResData.payload.length > 0  ) {
-  //                 dispatch(
-  //                   runGrpMsgUpdate(`Full PDF for ${value.customer}...`)
-  //                 );
-
-  //                 // Generate Excel Blob for Full Price List
-  //                 const excelBlobfp = exportToExcelBuildFullPriceBookBlob({
-  //                   excelData: fpResData.payload,
-  //                   date: formatedDate,
-  //                   customerName: value.customer,
-  //                   isPrice: value.selected,
-  //                 });
-
-  //                 return pdf(
-  //                   <CustomerFullPriceDocument
-  //                     key={index}
-  //                     data={fpResData.payload}
-  //                     coverPageData={{
-  //                       logo: user.homePagelogo, // Replace with the actual path to the logo image
-  //                       subtitle1: "Price List for",
-  //                       subtitle2: value.customer,
-  //                       effectiveDate: formatedDate,
-  //                       preparedByName: user.name,
-  //                       preparedByPhone: user.userMobile,
-  //                       preparedByEmail: user.email,
-  //                       phone1: user.phone1,
-  //                       phone2: user.phone2,
-  //                       fax: user.fax,
-  //                       coverImg: user.customerFullPriceBookImg,
-  //                     }}
-  //                     isPrice={showPrice}
-  //                     onRenderFinish={() => {
-
-  //                     }}
-  //                     onError={(e) => {
-
-  //                     }}
-  //                   />
-  //                 )
-  //                   .toBlob()
-  //                   .then((blob) => ({
-  //                     ...value,
-  //                     blobfp: blob,
-  //                     excelBlobfp,
-  //                     fileName1: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_FPB_${sunday} TO ${saturday}`,
-  //                   }));
-  //               } else {
-  //                 return {
-  //                   ...value,
-  //                   fpexcel: false,
-  //                   fppdf: false,
-  //                 };
-  //               }
-  //             });
-
-  //             promisesForRow.push(fpPromise);
-  //           }
-
-  //           // Handle cp case
-  //           if (
-  //             (value.cpexcel || value.cppdf) &&
-  //             rowSelectionModel.includes(value.id)
-  //           ) {
-  //             const cpPromise = dispatch(
-  //               getCustomerViewPriceCustomBook({
-  //                 CompanyCode: user.companyCode,
-  //                 FromDate: sunday,
-  //                 ToDate: saturday,
-  //                 CustomerNumber: value.customernumber,
-  //                 filterparameters: "",
-  //               })
-  //             ).then((cpResData) => {
-  //               if (cpResData.payload.length > 0 ) {
-  //                 dispatch(
-  //                   runGrpMsgUpdate(`Custom PDF for ${value.customer}...`)
-  //                 );
-
-  //                 // Generate Excel Blob for Custom Price List
-  //                 const excelBlobcp = exportToExcelBuildCustomPriceBookBlob({
-  //                   excelData: cpResData.payload,
-  //                   date: formatedDate,
-  //                   customerName: value.customer,
-  //                   isPrice: value.selected,
-  //                 });
-
-  //                 return pdf(
-  //                   <CustomerCustomPriceDocument
-  //                     key={index}
-  //                     data={cpResData.payload}
-  //                     headerData={{
-  //                       logo: user.homePagelogo, // Replace with the actual path to the logo image
-  //                       customerName: value.customer,
-  //                       effectiveDate: formatedDate,
-  //                     }}
-  //                     coverPageData={{
-  //                       logo: user.homePagelogo, // Replace with the actual path to the logo image
-  //                       subtitle1: "Price List for",
-  //                       subtitle2: value.customer,
-  //                       effectiveDate: formatedDate,
-  //                       preparedByName: user.name,
-  //                       preparedByPhone: user.userMobile,
-  //                       preparedByEmail: user.email,
-  //                       phone1: user.phone1,
-  //                       phone2: user.phone2,
-  //                       fax: user.fax,
-  //                       coverImg: user.customerCustomPriceBookImg,
-  //                     }}
-  //                     isPrice={showPrice}
-  //                     onRenderFinish={() => {
-  //                       // dispatch(
-  //                       //   viewPricePdfGenrationg({
-  //                       //     Type: "SUCCESS",
-  //                       //     loading: false,
-  //                       //     message:
-  //                       //       "Price Book Succesfully Created! Wait it Automatically Dowaloaded.",
-  //                       //   })
-  //                       // );
-  //                       // setIsGenerating(false);
-  //                     }}
-  //                     onError={(e) => {
-  //                       // console.error("Render Error:", e);
-  //                       // dispatch(
-  //                       //   viewPricePdfGenrationg({
-  //                       //     Type: "ERROR",
-  //                       //     message: "An error occurred while rendering the PDF.",
-  //                       //     loading: false,
-  //                       //     error: true,
-  //                       //   })
-  //                       // );
-  //                     }}
-  //                   />
-  //                 )
-  //                   .toBlob()
-  //                   .then((blob) => ({
-  //                     ...value,
-  //                     blobcp: blob,
-  //                     excelBlobcp,
-  //                     fileName2: `${user.company}_${value.customer.endsWith(".") ? value.customer.slice(0, -1) : value.customer}_CPB_${sunday} TO ${saturday}`,
-  //                   }));
-  //               } else {
-  //                 return {
-  //                   ...value,
-  //                   cpexcel: false,
-  //                   cppdf: false,
-  //                 };
-  //               }
-  //             });
-
-  //             promisesForRow.push(cpPromise);
-  //           }
-
-  //           if (promisesForRow.length > 0) {
-  //             console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow)
-  //             return Promise.all(promisesForRow).then((results) => {
-
-  //               console.log("🚀 ~ returnPromise.all ~ results:", results)
-  //              return results.reduce((acc, result) => {
-
-  //               return({ ...acc, ...result })}, {})  }
-  //             );
-  //           }
-
-  //           // Skip rows where no valid promises are created
-  //           return null;
-  //         })
-  //         .filter(Boolean); // Remove skipped rows (null values)
-
-  //       // Wait for all promises to resolve and return the combined results
-  //       Promise.all(promises)
-  //         .then((allResults) => resolve(allResults))
-  //         .catch(reject);
-  //     } catch (error) {
-  //       reject(error);
-  //     }
-  //   });
-
-  //   dispatch(runGrpMsgUpdate("Initiating..."));
-
-  //   processData
-  //     .then((result) => {
-  //       console.log("🚀 ~ .then ~ result:", result)
-  //       setProcessFunLoading(false);
-  //       dispatch(runGrpMsgUpdate(`Successfully Processed!`));
-  //       dispatch(runGrpProcessedDataUpdate(result));
-  //       setTimeout(() => {
-  //         setProcessLoading(false);
-  //         // navigate("./send-run-price-book");
-  //         dispatch(runGrpMsgUpdate(""));
-  //       }, 1500);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error:", error);
-  //       setProcessFunLoading(false);
-  //       setProcessError(true);
-  //       dispatch(runGrpMsgUpdate(`ERROR: ${error}`));
-  //       setTimeout(() => {
-  //         setProcessLoading(false);
-  //         dispatch(runGrpMsgUpdate(""));
-  //         setProcessError(false);
-  //       }, 1500);
-  //     });
-  // };
 
   const fnProcess = () => {
     if (!selectedRunGrpOptions) {
@@ -898,7 +663,6 @@ export default function RunPriceBook() {
             }
 
             if (promisesForRow.length > 0) {
-              console.log("🚀 ~ .map ~ promisesForRow:", promisesForRow);
               return Promise.all(promisesForRow).then((results) => {
                 // Merge results into a single object
                 const finalResult = results.reduce((acc, result) => {
@@ -930,7 +694,6 @@ export default function RunPriceBook() {
           )
           .catch(reject);
       } catch (error) {
-        console.log("🚀 ~ processData ~ error:", error);
         reject(error);
       }
     });
@@ -939,7 +702,6 @@ export default function RunPriceBook() {
 
     processData
       .then((result) => {
-        console.log("🚀 ~ .then ~ result:", result);
         if (result.length > 0) {
           setProcessFunLoading(false);
           dispatch(runGrpMsgUpdate(`Successfully Processed`));
@@ -1181,31 +943,41 @@ export default function RunPriceBook() {
               url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
             />
 
-            <Stack direction="row" width={"100%"} gap={2} justifyContent={"flex-end"}>
-              <CusListRunGrpOptimizedAutocomplete
-                disabled={
-                  user.defaultRunGroup !=
-                    (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
-                  user.role == "USER"
-                }
-                sx={{ width: "100%" }}
-                errors={isCustomerListExistsError}
-                helper={isCustomerListExistsError && "Please select customer!"}
-                name="customerPriceList"
-                id="customerPriceList"
-                value={addCustomerListData}
-                onChange={handleSelectionAddCustomerListData}
-                label="Unassigned Customers"
-                url={`${
-                  process.env.REACT_APP_BASE_URL
-                }CustomerPriceList/CustomerPriceList?CompanyCode=${
-                  user.companyCode
-                }&PriceBookGroup=${
-                  selectedRunGrpOptions ? selectedRunGrpOptions.Name : ""
-                }`}
-                addedCustomers={runGrpRows} // Pass added customers to exclude them
-              />
-              {/* <Button
+            {(user.defaultRunGroup ==
+              (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
+              user.role == "USER") ||
+            (user.SalesReps.includes(
+              selectedRunGrpOptions ? selectedRunGrpOptions.Name : ""
+            ) &&
+              user.role == "USER") ||
+            user.role != "USER" ? (
+              <Stack
+                direction="row"
+                width={"100%"}
+                gap={2}
+                justifyContent={"flex-end"}
+              >
+                <CusListRunGrpOptimizedAutocomplete
+                  sx={{ width: "100%" }}
+                  errors={isCustomerListExistsError}
+                  helper={
+                    isCustomerListExistsError && "Please select customer!"
+                  }
+                  name="customerPriceList"
+                  id="customerPriceList"
+                  value={addCustomerListData}
+                  onChange={handleSelectionAddCustomerListData}
+                  label="Unassigned Customers"
+                  url={`${
+                    process.env.REACT_APP_BASE_URL
+                  }CustomerPriceList/CustomerPriceList?CompanyCode=${
+                    user.companyCode
+                  }&PriceBookGroup=${
+                    selectedRunGrpOptions ? selectedRunGrpOptions.Name : ""
+                  }`}
+                  addedCustomers={runGrpRows} // Pass added customers to exclude them
+                />
+                {/* <Button
                
                 sx={{ width: 200, height: 40, gridColumn: "span 1" }}
                 variant="contained"
@@ -1216,27 +988,24 @@ export default function RunPriceBook() {
               >
                 Add Customers
               </Button> */}
-              <Tooltip title="Add Customers">
-                <IconButton
-                sx={{height:37.6}}
-                 disabled={
-                  user.defaultRunGroup !=
-                    (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
-                  user.role == "USER"
-                }
-                  color="info"
-                  onClick={handleAddCustomers}
-
-                >
-                  <Add
-                    sx={{
-                      fontSize: 30, // Increased icon size
-                      color: theme.palette.success.main,
-                    }}
-                  />
-                </IconButton>
-              </Tooltip>
-            </Stack>
+                <Tooltip title="Add Customers">
+                  <IconButton
+                    sx={{ height: 37.6 }}
+                    color="info"
+                    onClick={handleAddCustomers}
+                  >
+                    <Add
+                      sx={{
+                        fontSize: 30, // Increased icon size
+                        color: theme.palette.success.main,
+                      }}
+                    />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            ) : (
+              <Stack width={"100%"}></Stack>
+            )}
           </Box>
         </Box>
         <Box

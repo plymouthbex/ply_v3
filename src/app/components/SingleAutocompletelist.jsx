@@ -1391,6 +1391,7 @@ export const FormikRungroupOptimizedAutocomplete = ({
   );
 };
 export const FormikSalesPersonOptimizedAutocomplete = ({
+  required,
   value = null,
   onChange = () => {},
   url,
@@ -1444,10 +1445,87 @@ export const FormikSalesPersonOptimizedAutocomplete = ({
           label={props.label || "Select Options"}
           error={!!error}
           helperText={error}
-          // required
-          // InputLabelProps={{
-          //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-          // }}
+          required={required}
+          InputLabelProps={{
+            sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+          }}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
+
+export const FormikProprietaryItemsOptimizedAutocomplete = ({
+  required,
+  value = null,
+  onChange = () => {},
+  url,
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError(error.response ? error.response.data.message: error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      size="small"
+      limitTags={1}
+      fullWidth
+      options={options}
+      loading={loading}
+      value={value}
+      // isOptionEqualToValue={(option, value) => option.Name === value.Name}
+      onChange={onChange}
+      // getOptionLabel={(option) => option.Name}
+      isOptionEqualToValue={(option, value) => option.ItemNumber === value.ItemNumber}
+      // onChange={(event, newValue) => onChange(newValue)}
+      getOptionLabel={(option) => `${option.ItemNumber} || ${option.ItemDescription}`}
+      ListboxComponent={ListboxComponent} // Custom listbox component
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select Options"}
+          error={!!error}
+          helperText={error}
+          required={required}
+          InputLabelProps={{
+            sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+          }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

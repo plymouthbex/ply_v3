@@ -1261,6 +1261,26 @@ export const CustomerAddPrintGroup = createAsyncThunk(
     }
   }
 );
+
+export const deletePriceBookGroup = createAsyncThunk(
+  "deletePriceBookGroup/DELETE",
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/DeletePriceBookCustomerConfig`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+)
 const postData = createSlice({
   name: "postData",
   initialState,

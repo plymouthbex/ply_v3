@@ -189,7 +189,7 @@ const Layout1Topbar = () => {
                 <Span> Profile </Span>
               </Link>
             </StyledItem>
-
+{/* 
             {user.role != 'USER'&&<StyledItem
               onClick={() => {
                 navigate("/profile/setting");
@@ -199,7 +199,18 @@ const Layout1Topbar = () => {
                 <Icon> settings </Icon>
                 <Span> Settings </Span>
               </Link>
-            </StyledItem>}
+            </StyledItem>} */}
+            
+            <StyledItem
+              onClick={() => {
+                navigate("/profile/setting");
+
+              }}>
+              <Link to="/user-settings">
+                <Icon> settings </Icon>
+                <Span> Settings </Span>
+              </Link>
+            </StyledItem>
 
             <StyledItem
               onClick={() => {

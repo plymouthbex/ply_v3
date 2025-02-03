@@ -25,6 +25,7 @@ const initialState = {
   runGrpProcessingMsg: "",
   runGrpProcessedData: [],
 
+
   //=========================CONTROL-PANEL=======================================//
 
   itemListViewData: [],
@@ -38,6 +39,12 @@ const initialState = {
   rungroupListViewData: [],
   rungroupTemploading: false,
   rungroupTempstatus: "idle",
+
+  proprietaryItemsListviewData: [],
+  proprietaryItemsListviewLoading: false,
+  proprietaryItemsListviewStatus: "idle",
+
+
   printGroupListViewData: [],
   printGroupTemploading: false,
   printGroupTempstatus: "idle",
@@ -199,6 +206,27 @@ export const getRunGroupListView = createAsyncThunk(
   async ({ ID }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GpRunGroupList?CompanyCode=${ID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      // console.log("🚀 ~ response.data:", response.data)
+      return response.data; // returns the response data
+    } catch (error) {
+      // Handle errors
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const getProprietaryItemsListView = createAsyncThunk(
+  "listview/PRoprietaryItems", // action type
+  async ({ id}, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItemsList`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -626,6 +654,21 @@ const listviewSlice = createSlice({
         state.rungroupTempstatus = "failed";
         state.rungroupTemploading = false;
         state.error = action.error.message;
+      })
+
+      .addCase(getProprietaryItemsListView.pending, (state, action) => {
+        state.proprietaryItemsListviewStatus = "loading";
+        state.proprietaryItemsListviewLoading = true;
+        state.proprietaryItemsListviewData = [];
+      })
+      .addCase(getProprietaryItemsListView.fulfilled, (state, action) => {
+        state.proprietaryItemsListviewStatus = "succeeded";
+        state.proprietaryItemsListviewLoading = false;
+        state.proprietaryItemsListviewData = action.payload.data;
+      })
+      .addCase(getProprietaryItemsListView.rejected, (state, action) => {
+        state.proprietaryItemsListviewStatus = "failed";
+        state.proprietaryItemsListviewLoading = false;
       })
 
       .addCase(getPrintGroupListView.pending, (state, action) => {

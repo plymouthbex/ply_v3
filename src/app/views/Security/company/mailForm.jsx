@@ -441,8 +441,8 @@ const MailForm = () => {
                     value={values.cc}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    // error={touched.cc && Boolean(errors.cc)}
-                    // helperText={touched.cc && errors.cc}
+                    error={touched.cc && Boolean(errors.cc)}
+                    helperText={touched.cc && errors.cc}
                     autoComplete="off"
                   />
                   <TextField

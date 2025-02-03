@@ -456,12 +456,12 @@ export default function BuildCustomPriceBook() {
           },
           Type: {
             Attribute: "Type",
-            Option:values.frshForzInEx,
+            Option: values.frshForzInEx,
             Value: JSON.stringify(values.fsfz),
           },
           SecondaryClass: {
             Attribute: "SecondaryClass",
-            Option:values.SecondClassInEx,
+            Option: values.SecondClassInEx,
             Value: JSON.stringify(values.secondary),
           },
           Class: {
@@ -615,6 +615,11 @@ export default function BuildCustomPriceBook() {
     }
   }
   const getPdf = async (typeFormate, values) => {
+    // if (!getQuoteHeaderData.PreferedPdf) {
+    //   setOpenAlert9(true);
+    //   setPostError9("Please check PDF and save before generating PDF");
+    //   return;
+    // }
     setIsGenerating(true);
     const res = await dispatch(
       getQuotePdf({
@@ -636,6 +641,11 @@ export default function BuildCustomPriceBook() {
   };
 
   const getExcel = async (values) => {
+    // if (!getQuoteHeaderData.PreferedExcel ) {
+    //   setOpenAlert9(true);
+    //   setPostError9("Please check Excel and save before generating Excel");
+    //   return;
+    // }
     setIsGenerating(true);
     const res = await dispatch(
       getQuoteExcel({
@@ -781,38 +791,19 @@ export default function BuildCustomPriceBook() {
       {getQuteFiltStatus === "fulfilled" && !getQuteFiltLoading ? (
         <Formik
           initialValues={{
-            brandInEx:
-              params.mode == "edit"
-                ? "IncludeAll"
-                : getQuteFiltData.Brand.Option,
+            brandInEx:getQuteFiltData.Brand.Option,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
-            commodityInEx:
-              params.mode == "edit"
-                ? "IncludeAll"
-                : getQuteFiltData.Commodity.Option,
+            commodityInEx: getQuteFiltData.Commodity.Option,
             com: JSON.parse(getQuteFiltData.Commodity.Value),
-            altClassInEx:
-              params.mode == "edit"
-                ? "IncludeAll"
-                : getQuteFiltData.AlternativeClass.Option,
+            altClassInEx: getQuteFiltData.AlternativeClass.Option,
             alt: JSON.parse(getQuteFiltData.AlternativeClass.Value),
-            vendorInEx:
-              params.mode == "edit"
-                ? "IncludeAll"
-                : getQuteFiltData.Vendor.Option,
+            vendorInEx: getQuteFiltData.Vendor.Option,
             vendor: JSON.parse(getQuteFiltData.Vendor.Value),
-            frshForzInEx:
-              params.mode == "edit" ? "IncludeAll" : getQuteFiltData.Type.Option,
+            frshForzInEx: getQuteFiltData.Type.Option,
             fsfz: JSON.parse(getQuteFiltData.Type.Value),
-            classIDInEx:
-              params.mode == "edit"
-                ? "IncludeAll"
-                : getQuteFiltData.Class.Option,
+            classIDInEx: getQuteFiltData.Class.Option,
             classID: JSON.parse(getQuteFiltData.Class.Value),
-            SecondClassInEx:
-              params.mode == "edit"
-                ? "IncludeAll"
-                : getQuteFiltData.Class.Option,
+            SecondClassInEx: getQuteFiltData.SecondaryClass.Option,
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
 
             brokenItems: getQuteFiltData.BrokenItem.Value == "1" ? true : false,
@@ -853,21 +844,20 @@ export default function BuildCustomPriceBook() {
                 (filter) => values[filter].length > 0
               );
               if (!hasData) {
-                errors.filters = "At least one filter  must have selected filter";
+                errors.filters =
+                  "At least one filter  must have selected filter";
               }
               return errors;
-            }else{
-              if(values["PriceLists"].length > 0  || values["adHocItems"].length > 0){
-                
-               }else{
-                errors.filters = "At least one Ad Hoc Item/Price List must have selected";
-                return errors
-               }
-
-
-
-
-
+            } else {
+              if (
+                values["PriceLists"].length > 0 ||
+                values["adHocItems"].length > 0
+              ) {
+              } else {
+                errors.filters =
+                  "At least one Ad Hoc Item/Price List must have selected";
+                return errors;
+              }
             }
           }}
           enableReinitialize={true}
@@ -1000,16 +990,16 @@ export default function BuildCustomPriceBook() {
                     </Stack>
                   </Box>
                   <Stack
-                      sx={{ p: 0, m: 0 }}
-                      direction="row"
-                      justifyContent={"flex-end"}
-                      gap={2}
-                    >
-                      {" "}
-                      {errors.filters && (
-                        <div style={{ color: "red" }}>{errors.filters}</div>
-                      )}
-                    </Stack>
+                    sx={{ p: 0, m: 0 }}
+                    direction="row"
+                    justifyContent={"flex-end"}
+                    gap={2}
+                  >
+                    {" "}
+                    {errors.filters && (
+                      <div style={{ color: "red" }}>{errors.filters}</div>
+                    )}
+                  </Stack>
                   <Box
                     display="grid"
                     gap="20px"
@@ -1021,24 +1011,27 @@ export default function BuildCustomPriceBook() {
                       },
                     }}
                   >
-
-                    
                     <Stack
                       sx={{ gridColumn: "span 1" }}
                       direction={"column"}
                       gap={1}
                     >
-
-
-
-                    <Stack direction="row" gap={13} >
-                      <Typography sx={{ marginLeft: 2,fontFamily: "inherit",
-                        fontWeight: "600", }} >
-                        Options
-                      </Typography>
-                      <Typography sx={{ fontFamily: "inherit",
-                        fontWeight: "600", }} >Attributes</Typography>
-                    </Stack>
+                      <Stack direction="row" gap={13}>
+                        <Typography
+                          sx={{
+                            marginLeft: 2,
+                            fontFamily: "inherit",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Options
+                        </Typography>
+                        <Typography
+                          sx={{ fontFamily: "inherit", fontWeight: "600" }}
+                        >
+                          Attributes
+                        </Typography>
+                      </Stack>
 
                       {/* BRAND */}
                       <Stack direction="row" gap={1}>
@@ -1228,7 +1221,6 @@ export default function BuildCustomPriceBook() {
                           onChange={handleChange}
                           onBlur={handleBlur}
                           fullWidth
-
                           sx={{ maxWidth: 120, minWidth: 100 }}
                         >
                           <MenuItem value="IncludeAll">Include All</MenuItem>
@@ -1262,7 +1254,6 @@ export default function BuildCustomPriceBook() {
                           onChange={handleChange}
                           onBlur={handleBlur}
                           fullWidth
-
                           sx={{ maxWidth: 120, minWidth: 100 }}
                         >
                           <MenuItem value="IncludeAll">Include All</MenuItem>
@@ -1287,7 +1278,7 @@ export default function BuildCustomPriceBook() {
                         />
                       </Stack>
 
-{/* 
+                      {/* 
                       <Stack
                         justifyContent="flex-end"
                         direction={"row"}
@@ -1325,39 +1316,39 @@ export default function BuildCustomPriceBook() {
                       direction={"column"}
                       gap={1}
                     >
-                    <Typography
-                      sx={{
-                        gridColumn: "span 2",
-                        fontFamily: "inherit",
-                        fontWeight: "600",
-                        marginLeft: 1,
-                      }}
-                    >
-                      Price List
-                    </Typography>
-                    <FormikCustomAutocompleteMultiPriceList
-                      name="PriceLists"
-                      id="PriceLists"
-                      value={values.PriceLists}
-                      onChange={(event, newValue) =>
-                        setFieldValue("PriceLists", newValue)
-                      }
-                      label="Price Lists"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${user.companyCode}`}
-                    />
+                      <Typography
+                        sx={{
+                          gridColumn: "span 2",
+                          fontFamily: "inherit",
+                          fontWeight: "600",
+                          marginLeft: 1,
+                        }}
+                      >
+                        Price List
+                      </Typography>
+                      <FormikCustomAutocompleteMultiPriceList
+                        name="PriceLists"
+                        id="PriceLists"
+                        value={values.PriceLists}
+                        onChange={(event, newValue) =>
+                          setFieldValue("PriceLists", newValue)
+                        }
+                        label="Price Lists"
+                        url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${user.companyCode}`}
+                      />
 
-                    <FormikCustomAutocompleteMultiAdHocItems
-                      name="adHocItems"
-                      id="adHocItems"
-                      value={values.adHocItems}
-                      onChange={(event, newValue) =>
-                        setFieldValue("adHocItems", newValue)
-                      }
-                      label="Ad Hoc Items"
-                      url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
-                    />
-                    
-                    <Stack direction="row" gap={1}>
+                      <FormikCustomAutocompleteMultiAdHocItems
+                        name="adHocItems"
+                        id="adHocItems"
+                        value={values.adHocItems}
+                        onChange={(event, newValue) =>
+                          setFieldValue("adHocItems", newValue)
+                        }
+                        label="Ad Hoc Items"
+                        url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
+                      />
+
+                      <Stack direction="row" gap={1}>
                         <FormControlLabel
                           sx={{ height: 37.13 }}
                           control={
@@ -1367,7 +1358,6 @@ export default function BuildCustomPriceBook() {
                               name="brokenItems"
                               checked={values.brokenItems}
                               onChange={handleChange}
-
                             />
                           }
                           label="Broken Items"
@@ -1381,7 +1371,6 @@ export default function BuildCustomPriceBook() {
                               name="damagedItems"
                               checked={values.damagedItems}
                               onChange={handleChange}
-
                             />
                           }
                           label="Damaged Items"
@@ -1389,7 +1378,12 @@ export default function BuildCustomPriceBook() {
                       </Stack>
                       <Stack direction="row" gap={1}>
                         <FormControlLabel
-                          sx={{ height: 37.13 }}
+                          sx={{
+                            height: 37.13,
+                            "& .MuiFormControlLabel-label": {
+                              fontSize: "13px",
+                            },
+                          }}
                           control={
                             <Checkbox
                               size="small"
@@ -1397,46 +1391,21 @@ export default function BuildCustomPriceBook() {
                               name="combinationFilter"
                               checked={values.combinationFilter}
                               onChange={handleChange}
+                              disabled={
+                                params.mode === "delete" ||
+                                params.mode === "view"
+                              }
                             />
                           }
-                          label="Combination Filter"
+                          label="Combined Filter (The result shows the combination of filters)"
                         />
                       </Stack>
                     </Stack>
-
-
                   </Box>
-
-                  {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}>
-                    <Button
-                      disabled={isSubmitting}
-                      variant="contained"
-                      color="info"
-                      type="submit"
-                    >
-                      Apply Filters & Save
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      color="info"
-                      disabled={
-                        params.mode == "copy"
-                          ? true
-                          : getQuoteHeaderData.RecordID &&
-                            getQuoteFilterItemData.length > 0
-                          ? false
-                          : true
-                      }
-                      onClick={() => setIsClear(true)}
-                    >
-                      Clear Filters
-                    </Button>
-                  </Stack> */}
 
                   <Box
                     sx={{
-                      height: 400,
+                      height: 500,
 
                       "& .MuiDataGrid-root": {
                         border: "none",
@@ -1525,39 +1494,62 @@ export default function BuildCustomPriceBook() {
                                 sx={{
                                   display: "flex",
                                   flexDirection: "row",
-                                  justifyContent: "flex-end",
+                                  justifyContent: "space-between",
                                   alignItems: "center",
                                   gap: 2,
                                   width: "100%",
                                 }}
                               >
-                                <GridToolbarQuickFilter />
-                                {/* <Stack direction="row" justifyContent="end" gap={2} mb={1}> */}
-                                <Button
-                                  disabled={isSubmitting}
-                                  variant="contained"
-                                  color="info"
-                                  type="submit"
+                                <Box
+                                  sx={{
+                                    mt: 1,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    padding: 1,
+                                    border: "1px solid red",
+                                    borderRadius: 1,
+                                    backgroundColor: "#ffe6e6",
+                                    minHeight: 35, // Ensure consistent heigh
+                                    minWidth: 300, // Ensure consistent width
+                                  }}
                                 >
-                                  Apply Filters & Save
-                                </Button>
+                                  <Typography color="error" align="center">
+                                    Note: Only Active Items from GP are shown
+                                    below
+                                  </Typography>
+                                </Box>
+                                <Stack
+                                  direction="row"
+                                  justifyContent="end"
+                                  gap={2}
+                                  mb={1}
+                                >
+                                  <GridToolbarQuickFilter />
+                                  <Button
+                                    disabled={isSubmitting}
+                                    variant="contained"
+                                    color="info"
+                                    type="submit"
+                                  >
+                                    Apply Filters & Save
+                                  </Button>
 
-                                <Button
-                                  variant="contained"
-                                  color="info"
-                                  disabled={
-                                    params.mode == "copy"
-                                      ? true
-                                      : getQuoteHeaderData.RecordID &&
-                                        getQuoteFilterItemData.length > 0
-                                      ? false
-                                      : true
-                                  }
-                                  onClick={() => setIsClear(true)}
-                                >
-                                  Clear Filters
-                                </Button>
-                                {/* </Stack> */}
+                                  <Button
+                                    variant="contained"
+                                    color="info"
+                                    disabled={
+                                      params.mode == "copy"
+                                        ? true
+                                        : getQuoteHeaderData.RecordID &&
+                                          getQuoteFilterItemData.length > 0
+                                        ? false
+                                        : true
+                                    }
+                                    onClick={() => setIsClear(true)}
+                                  >
+                                    Clear Filters
+                                  </Button>
+                                </Stack>
                               </Box>
                             </GridToolbarContainer>
                           );

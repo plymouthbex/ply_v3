@@ -15,6 +15,7 @@ import {
   FormControlLabel,
   Checkbox,
   FormLabel,
+  FormHelperText,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -175,7 +176,7 @@ const NewProspect = () => {
     }
   };
 
-  const priceBookLevel1 = [6, 7, 8, 9];
+  const priceBookLevel1 = [6, 7, 8, 9,10];
   const priceBookLevel2 = [8, 9];
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -188,7 +189,8 @@ const NewProspect = () => {
       /^\(\d{3}\) \d{3}-\d{4}$/,
       "Phone number must be in the format (XXX) XXX-XXXX"
     ),
-    
+        PreferedPdf: Yup.boolean(),
+        PreferedExcel: Yup.boolean(),
   });
 
   const [isPrintGroupOpen, SetIsPrintGroupOpen] = useState(false);
@@ -245,6 +247,16 @@ const NewProspect = () => {
               getQuoteProspectInfoData.CurrentDate || getCurrentDateForInput(),
           }}
           validationSchema={validationSchema}
+          validate={(values) => {
+            const errors = {};
+            
+            // Checkbox validation: At least one must be checked
+            if (!values.PreferedPdf && !values.PreferedExcel) {
+              errors.PreferedPdf = "At least one format (PDF or Excel) must be selected";
+            }
+        
+            return errors;
+          }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
@@ -579,6 +591,11 @@ const NewProspect = () => {
                     sx={{ gridColumn: "span 2" }}
                     component="fieldset"
                     variant="standard"
+                    error={
+                      touched.PreferedPdf &&
+                      touched.PreferedExcel &&
+                      !!errors.PreferedPdf
+                    } 
                   >
                     <FormLabel focused={false} component="legend">
                       Preferred Format
@@ -607,6 +624,11 @@ const NewProspect = () => {
                         label="Excel"
                       />
                     </Stack>
+                    {touched.PreferedPdf &&
+                    touched.PreferedExcel &&
+                    errors.PreferedPdf && (
+                      <FormHelperText>{errors.PreferedPdf}</FormHelperText>
+                    )}
                   </FormControl>
                   <Box
                     sx={{

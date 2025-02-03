@@ -339,6 +339,7 @@ const ConfigureCompanyEdit = () => {
           { id: 7, level: "Price Book Level 7" },
           { id: 8, level: "Price Book Level 8" },
           { id: 9, level: "Price Book Level 9" },
+          { id: 10, level: "Price Book Level 10" },
         ]
       : [
           { id: 8, level: "Price Book Level 8" },

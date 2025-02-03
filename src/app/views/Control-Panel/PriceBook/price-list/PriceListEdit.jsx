@@ -826,10 +826,9 @@ const PriceListEdit = () => {
               ,
             ];
             const hasDataCheck = filters1.some(
-              
               (filter) => values[filter] != "IncludeAll"
             );
-            
+
             const errors = {};
             const filters = [
               "brandInExData",
@@ -846,7 +845,7 @@ const PriceListEdit = () => {
               );
               if (!hasData) {
                 errors.filters =
-                "At least one filter must have selected filter";
+                  "At least one filter must have selected filter";
               }
               return errors;
             }
@@ -1373,7 +1372,10 @@ const PriceListEdit = () => {
                     </Stack>
                     <Stack direction="row" gap={1}>
                       <FormControlLabel
-                        sx={{ height: 37.13 }}
+                        sx={{
+                          height: 37.13,
+                          "& .MuiFormControlLabel-label": { fontSize: "13px" },
+                        }}
                         control={
                           <Checkbox
                             size="small"
@@ -1383,12 +1385,10 @@ const PriceListEdit = () => {
                             onChange={handleChange}
                             disabled={
                               params.mode === "delete" || params.mode === "view"
-                                ? true
-                                : false
                             }
                           />
                         }
-                        label="Combination Filter"
+                        label="Combined Filter (The result shows the combination of filters)"
                       />
                     </Stack>
 
@@ -1441,7 +1441,7 @@ const PriceListEdit = () => {
                   </Stack>
                   <Box
                     sx={{
-                      height: 450,
+                      height: 440,
                       gridColumn: "span 2",
                       "& .name-column--cell": {
                         color: theme.palette.info.contrastText,
@@ -1508,10 +1508,14 @@ const PriceListEdit = () => {
                       rowHeight={dataGridRowHeight}
                       rows={
                         showGridData === 0
-                          ? [...priceListItemsData, ...addedRows]
-                          : showGridData === 1
                           ? priceListItemsData
-                          : [...filteredSelectedItems, ...addedRows]
+                          : showGridData === 1
+                          ? priceListItemsData.filter(
+                              (f) => f.AdHocItem === "N"
+                            )
+                          : priceListItemsData.filter(
+                              (f) => f.AdHocItem === "Y"
+                            )
                       }
                       columns={columns}
                       loading={priceListItemLoading}
@@ -1538,6 +1542,23 @@ const PriceListEdit = () => {
                         },
                       }}
                     />
+                    <Box
+                      sx={{
+                        mt:1,
+                        display: "flex",
+                        alignItems: "center",
+                        padding: 2,
+                        border:"1px solid red",
+                        borderRadius: 1,
+                        backgroundColor: "#ffe6e6",
+                        minHeight: 40, // Ensure consistent heigh
+                        minWidth: 300, // Ensure consistent width
+                      }}
+                    >
+                        <Typography color="error" align="center">
+                          Note: Only Active Items from GP are shown above
+                        </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </Paper>

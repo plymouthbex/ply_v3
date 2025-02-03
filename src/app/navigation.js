@@ -65,14 +65,7 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
-      // {
-      //   name: "Templates",
-      //   icon: <DescriptionIcon fontSize="small" />,
-      //   path: "/pages/pricing-portal/quote-template",
-      //   accessID: "PPB004",
-      //   iconText: "QT",
-      //   fav: false,
-      // },
+
     ],
   },
 
@@ -112,6 +105,14 @@ export const navigations = [
         path: "/pages/control-panel/run-group",
         iconText: "R",
         accessID: "CP004",
+        icon: <DescriptionIcon fontSize="small" />,
+        role: authRoles.admin,
+      },
+      {
+        name: "Proprietary Items",
+        path: "/pages/control-panel/proprietary-items",
+        iconText: "P",
+        accessID: "CP006",
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },

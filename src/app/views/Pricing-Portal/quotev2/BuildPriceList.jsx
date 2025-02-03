@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormControl,
   MenuItem,
+  FormHelperText,
 } from "@mui/material";
 import lodash from "lodash";
 import { Add } from "@mui/icons-material";
@@ -194,6 +195,10 @@ export default function BuildCustomPriceBook() {
   );
   const getQuoteHeaderData = useSelector(
     (state) => state.getSlice.getQuoteHeaderData
+  );
+  console.log(
+    "🚀 ~ BuildCustomPriceBook ~ getQuoteHeaderData:",
+    getQuoteHeaderData
   );
 
   const getQuteFiltLoading = useSelector(
@@ -531,12 +536,12 @@ export default function BuildCustomPriceBook() {
           },
           Type: {
             Attribute: "Type",
-            Option:values.frshForzInEx,
+            Option: values.frshForzInEx,
             Value: JSON.stringify(values.fsfz),
           },
           SecondaryClass: {
             Attribute: "SecondaryClass",
-            Option:values.SecondClassInEx,
+            Option: values.SecondClassInEx,
             Value: JSON.stringify(values.secondary),
           },
           Class: {
@@ -575,13 +580,13 @@ export default function BuildCustomPriceBook() {
           });
           return;
         }
-        if (getQuoteHeaderData.RecordID == 0) {
-          dispatch(
-            getQuoteItemsAndFiltersget2({
-              data: { RecordID: response.payload.RecordId },
-            })
-          );
-        }
+        // if (getQuoteHeaderData.RecordID == 0) {
+        dispatch(
+          getQuoteItemsAndFiltersget2({
+            data: { RecordID: response.payload.RecordId },
+          })
+        );
+        // }
         setOpenAlert(true);
 
         // clearQuotePriceList();
@@ -730,7 +735,11 @@ export default function BuildCustomPriceBook() {
     }
   }
   const getPdf = async (typeFormate, values) => {
-    console.log("🚀 ~ getPdf ~ values:", values);
+    // if (!getQuoteHeaderData.PreferedPdf || !values.PreferedPdf) {
+    //   setOpenAlert9(true);
+    //   setPostError9("Please check PDF and save before generating PDF");
+    //   return;
+    // }
     setIsGenerating(true);
     const res = await dispatch(
       getQuotePdf({
@@ -752,6 +761,11 @@ export default function BuildCustomPriceBook() {
   };
 
   const getExcel = async (values) => {
+    // if (!getQuoteHeaderData.PreferedExcel || !values.PreferedExcel) {
+    //   setOpenAlert9(true);
+    //   setPostError9("Please check Excel and save before generating Excel");
+    //   return;
+    // }
     setIsGenerating(true);
     const res = await dispatch(
       getQuoteExcel({
@@ -895,48 +909,28 @@ export default function BuildCustomPriceBook() {
               : true,
             CurrentDate:
               getQuoteHeaderData.CurrentDate || getCurrentDateForInput(),
-            brandInEx:
-              params.mode == "new"
-                ? "IncludeAll"
-                : getQuteFiltData.Brand.Option,
+            brandInEx:getQuteFiltData.Brand.Option,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
-            commodityInEx:
-              params.mode == "new"
-                ? "IncludeAll"
-                : getQuteFiltData.Commodity.Option,
+            commodityInEx: getQuteFiltData.Commodity.Option,
             com: JSON.parse(getQuteFiltData.Commodity.Value),
-            altClassInEx:
-              params.mode == "new"
-                ? "IncludeAll"
-                : getQuteFiltData.AlternativeClass.Option,
+            altClassInEx: getQuteFiltData.AlternativeClass.Option,
             alt: JSON.parse(getQuteFiltData.AlternativeClass.Value),
-            vendorInEx:
-              params.mode == "new"
-                ? "IncludeAll"
-                : getQuteFiltData.Vendor.Option,
+            vendorInEx: getQuteFiltData.Vendor.Option,
             vendor: JSON.parse(getQuteFiltData.Vendor.Value),
-            frshForzInEx:
-              params.mode == "new" ? "IncludeAll" : getQuteFiltData.Type.Option,
+            frshForzInEx: getQuteFiltData.Type.Option,
             fsfz: JSON.parse(getQuteFiltData.Type.Value),
-            classIDInEx:
-              params.mode == "new"
-                ? "IncludeAll"
-                : getQuteFiltData.Class.Option,
+            classIDInEx: getQuteFiltData.Class.Option,
             classID: JSON.parse(getQuteFiltData.Class.Value),
-            SecondClassInEx:
-              params.mode == "new"
-                ? "IncludeAll"
-                : getQuteFiltData.Class.Option,
+            SecondClassInEx: getQuteFiltData.SecondaryClass.Option,
             secondary: JSON.parse(getQuteFiltData.SecondaryClass.Value),
-         
-            brokenItems:
-              getQuteFiltData.BrokenItem.Value == "1" ? true : false,
+
+            brokenItems: getQuteFiltData.BrokenItem.Value == "1" ? true : false,
             damagedItems:
               getQuteFiltData.DamageItem.Value == "1" ? true : false,
             combinationFilter:
               getQuteFiltData.Combination.Value == "1" ? true : false,
-              adHocItems: [],
-            }}
+            adHocItems: [],
+          }}
           validate={(values) => {
             const filters1 = [
               "brandInEx",
@@ -966,15 +960,25 @@ export default function BuildCustomPriceBook() {
                 (filter) => values[filter].length > 0
               );
               if (!hasData) {
-                errors.filters = "At least one filter  must have selected filter";
+                errors.filters =
+                  "At least one filter  must have selected filter";
+              }
+              // Checkbox validation: At least one must be checked
+              if (!values.PreferedPdf && !values.PreferedExcel) {
+                errors.PreferedPdf =
+                  "At least one format (PDF or Excel) must be selected";
               }
               return errors;
-            }else{
-             if(!values["adHocItems"].length > 0){
-              errors.filters = "At least one Ad Hoc must have selected item";
-              return errors
-             } 
-
+            } else {
+              if (!values["adHocItems"].length > 0) {
+                // Checkbox validation: At least one must be checked
+                if (!values.PreferedPdf && !values.PreferedExcel) {
+                  errors.PreferedPdf =
+                    "At least one format (PDF or Excel) must be selected";
+                }
+                errors.filters = "At least one Ad Hoc must have selected item";
+                return errors;
+              }
             }
           }}
           enableReinitialize={true}
@@ -1230,6 +1234,11 @@ export default function BuildCustomPriceBook() {
                       sx={{ gridColumn: "span 2" }}
                       component="fieldset"
                       variant="standard"
+                      error={
+                        touched.PreferedPdf &&
+                        touched.PreferedExcel &&
+                        !!errors.PreferedPdf
+                      }
                     >
                       <FormLabel focused={false} component="legend">
                         Preferred Format
@@ -1258,6 +1267,11 @@ export default function BuildCustomPriceBook() {
                           label="Excel"
                         />
                       </Stack>
+                      {touched.PreferedPdf &&
+                        touched.PreferedExcel &&
+                        errors.PreferedPdf && (
+                          <FormHelperText>{errors.PreferedPdf}</FormHelperText>
+                        )}
                     </FormControl>
                   </Box>
                   <Box
@@ -1276,16 +1290,13 @@ export default function BuildCustomPriceBook() {
                       direction={"column"}
                       gap={1}
                     >
-
-
-
-                    <Stack direction="row" gap={13} height={44}>
-                      <Typography sx={{ marginLeft: 2 }} variant="h6">
-                        Options
-                      </Typography>
-                      <Typography variant="h6">Attributes</Typography>
-                    </Stack>
-                    <Stack
+                      <Stack direction="row" gap={13} height={44}>
+                        <Typography sx={{ marginLeft: 2 }} variant="h6">
+                          Options
+                        </Typography>
+                        <Typography variant="h6">Attributes</Typography>
+                      </Stack>
+                      <Stack
                         sx={{ p: 0, m: 0 }}
                         direction="row"
                         justifyContent={"flex-end"}
@@ -1483,7 +1494,6 @@ export default function BuildCustomPriceBook() {
                           onChange={handleChange}
                           onBlur={handleBlur}
                           fullWidth
-
                           sx={{ maxWidth: 120, minWidth: 100 }}
                         >
                           <MenuItem value="IncludeAll">Include All</MenuItem>
@@ -1517,7 +1527,6 @@ export default function BuildCustomPriceBook() {
                           onChange={handleChange}
                           onBlur={handleBlur}
                           fullWidth
-
                           sx={{ maxWidth: 120, minWidth: 100 }}
                         >
                           <MenuItem value="IncludeAll">Include All</MenuItem>
@@ -1572,7 +1581,6 @@ export default function BuildCustomPriceBook() {
                               name="brokenItems"
                               checked={values.brokenItems}
                               onChange={handleChange}
-
                             />
                           }
                           label="Broken Items"
@@ -1586,7 +1594,6 @@ export default function BuildCustomPriceBook() {
                               name="damagedItems"
                               checked={values.damagedItems}
                               onChange={handleChange}
-
                             />
                           }
                           label="Damaged Items"
@@ -1594,7 +1601,12 @@ export default function BuildCustomPriceBook() {
                       </Stack>
                       <Stack direction="row" gap={1}>
                         <FormControlLabel
-                          sx={{ height: 37.13 }}
+                          sx={{
+                            height: 37.13,
+                            "& .MuiFormControlLabel-label": {
+                              fontSize: "13px",
+                            },
+                          }}
                           control={
                             <Checkbox
                               size="small"
@@ -1602,9 +1614,13 @@ export default function BuildCustomPriceBook() {
                               name="combinationFilter"
                               checked={values.combinationFilter}
                               onChange={handleChange}
+                              disabled={
+                                params.mode === "delete" ||
+                                params.mode === "view"
+                              }
                             />
                           }
-                          label="Combination Filter"
+                          label="Combined Filter (The result shows the combination of filters)"
                         />
                       </Stack>
 
@@ -1798,6 +1814,23 @@ export default function BuildCustomPriceBook() {
                         // }}
                         // rowSelectionModel={rowSelectionModel}
                       />
+                      <Box
+                        sx={{
+                          mt: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          padding: 2,
+                          border: "1px solid red",
+                          borderRadius: 1,
+                          backgroundColor: "#ffe6e6",
+                          minHeight: 40, // Ensure consistent heigh
+                          minWidth: 300, // Ensure consistent width
+                        }}
+                      >
+                        <Typography color="error" align="center">
+                          Note: Only Active Items from GP are shown above
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
                   <PriceGroupAlertApiDialog

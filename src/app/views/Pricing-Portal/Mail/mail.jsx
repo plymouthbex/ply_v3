@@ -96,9 +96,11 @@ const MailSidebar = () => {
   };
 
   const validationSchema = Yup.object({
-    to: Yup.string()
-      .email("Invalid email format")
-      .max(200, "Email must be at most 200 characters"),
+    to: Yup.string().test("valid-emails", "Invalid email format", (value) => {
+      if (!value) return true; // Allow empty CC field
+      const emails = value.split(",").map(email => email.trim());
+      return emails.every(email => Yup.string().email().isValidSync(email));
+    }),
       cc: Yup.string()
       .test("valid-emails", "Invalid email format", (value) => {
         if (!value) return true; // Allow empty CC field

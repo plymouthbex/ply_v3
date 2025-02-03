@@ -19,6 +19,10 @@ const PPBCustomerItems = Loadable(lazy(() => import('./customer-price-lists/PPBC
 const RunGroup = Loadable(lazy(() => import('./run-group/RunGroup')));
 const RunGroupEdit = Loadable(lazy(() => import('./run-group/RunGroupEdit')));
 
+
+const ProprietaryItems = Loadable(lazy(() => import('./proprietary-items/ProprietaryItems')));
+const ProprietaryItemsEdit = Loadable(lazy(() => import('./proprietary-items/ProprietaryItemsEdit')));
+
 const CompanyList=Loadable(lazy(()=>import("./price-list/CompanyList")));
 const CompanyRunGroup=Loadable(lazy(()=>import("./run-group/CompanyRunGroup")));
 
@@ -59,7 +63,8 @@ const controlPanelRoutes = [
   { path: '/pages/control-panel/run-group', element: <RunGroup /> },
   { path: '/pages/control-panel/run-group/run-group-getail/:mode', element: <RunGroupEdit /> },
 
-
+  { path: '/pages/control-panel/proprietary-items', element: <ProprietaryItems /> },
+  { path: '/pages/control-panel/proprietary-items/proprietary-item-detail/:mode', element: <ProprietaryItemsEdit /> },
 
 
   { path: '/pages/control-panel/configure-price-book/company', element: <Company /> },

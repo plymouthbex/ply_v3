@@ -328,6 +328,85 @@ export const SingleAutocompleteWithDefault = ({
     />
   );
 };
+
+export const SingleAutocompleteWithDefault2 = ({
+  value = null,
+  onChange,
+  url,
+  defaultValueId, // The ID of the default value to be pre-selected
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // Error state
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data); // Assuming API response has a `Data` array
+      } catch (error) {
+        setOptions([]);
+        setError("Error fetching data."); // Show error message
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  useEffect(() => {
+    if (defaultValueId) {
+      const defaultOption = options.find(
+        (option) => option.RecordID === defaultValueId
+      );
+      if (defaultOption && !value) {
+        onChange(defaultOption); // Set the default selected value when the data is fetched
+      }
+    }
+  }, [options, defaultValueId, onChange]);
+
+  return (
+    <Autocomplete
+      size="small"
+      limitTags={1}
+      fullWidth
+      options={options}
+      loading={loading}
+      value={value} // Pass the current value
+      onChange={(event, newValue) => onChange(newValue)} // Handle selection change
+      getOptionLabel={(option) => option.Name} // Display the Name
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select Options"} // Default label
+          error={!!error} // Show error style if there is an error
+          helperText={error} // Show error message
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
 export const RunGroupAutocompleteWithDefault = ({
   value = null,
   onChange,

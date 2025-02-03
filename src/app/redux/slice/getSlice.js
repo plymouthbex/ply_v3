@@ -287,6 +287,25 @@ export const getRunGroupData = createAsyncThunk(
     }
   }
 );
+
+export const getRunGroupData2 = createAsyncThunk(
+  "runGroupData2/GET",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GetRunGroup?Recordid=${id}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 //=======COMPANY=========================///
 export const getCompanyData = createAsyncThunk(
   "companyData/GET",
@@ -1080,6 +1099,18 @@ const getSlice = createSlice({
         state.runGroupLoading = false;
         state.runGroupError = true;
       })
+
+        // RUN GROUP
+        .addCase(getRunGroupData2.pending, (state) => {
+          state.runGroupLoading = true;
+        })
+        .addCase(getRunGroupData2.fulfilled, (state, action) => {
+          state.runGroupLoading = false;
+          state.runGroupGetData = action.payload.data.RunGroupList;
+        })
+        .addCase(getRunGroupData2.rejected, (state, action) => {
+          state.runGroupLoading = false;
+        })
       //COMPANY
       .addCase(getCompanyData.pending, (state) => {
         state.companyStatus = "pending";
