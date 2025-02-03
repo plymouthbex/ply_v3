@@ -270,7 +270,18 @@ const UserEdit = () => {
   console.log("🚀 ~ UserEdit ~ UG:", name);
   const [UserName, setSelectUserName] = useState(name);
   const [UserID, setSelectUserID] = useState(null);
-  const[companyCode,setCompanyCode]= useState(null);
+  const [companyCode, setCompanyCode] = useState(null);
+  console.log("🚀 ~ UserEdit ~ companyCode:", companyCode)
+  
+
+  useEffect(() => {
+    if (data.CompanyCode) {
+      setCompanyCode(data.CompanyCode);
+    }
+    if(data.UserGroupID){
+      setSelectUserID(data.UserGroupID)
+    }
+  }, [data]);
   console.log("🚀 ~ UserEdit ~ UserID:", UserID)
   console.log("🚀 ~ UserEdit ~ UserName:", UserName);
   ///===========API CALL GET============================//
@@ -758,7 +769,7 @@ const UserEdit = () => {
                       id="defaultCompany"
                       value={values.defaultCompany}
                       onChange={(event, newValue) =>{
-                        setFieldValue("defaultCompany", newValue)
+                        setFieldValue("defaultCompany", newValue);
                         if(newValue){
                         setCompanyCode(newValue.Code);
                         }else{
@@ -768,7 +779,7 @@ const UserEdit = () => {
                       required
                       label="Default Company"
                      
-                          url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserGroupAccess?Type=CO&UserGroupID=${data.UserGroupID || UserID}`}
+                          url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserGroupAccess?Type=CO&UserGroupID=${UserID}`}
                     />
                    
                     {/* 
@@ -804,7 +815,7 @@ const UserEdit = () => {
                         setFieldValue("runGroup", newValue)
                       }
                       label="Default Price Book Group"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${data.CompanyCode || companyCode}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${companyCode}`}
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
