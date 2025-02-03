@@ -226,31 +226,31 @@ const ConfigureCompanyEdit = () => {
       },
     },
   ];
+  const handleAddPriceList = async() => {
+    if (addPriceListData.length > 0) {
+      // Prepare price data and dispatch the action
+      const pricedata = {
+        RecordID: data.RecordID,
+        priceListID: addPriceListData.PRICELISTID,
+      };
 
-  const CustomToolBar = React.memo(() => {
-    const handleAddPriceList = async() => {
-      if (addPriceListData.length > 0) {
-        // Prepare price data and dispatch the action
-        const pricedata = {
-          RecordID: data.RecordID,
-          priceListID: addPriceListData.PRICELISTID,
-        };
-  
-      const response = await  dispatch(PostConfigurePriceListID({ pricedata:addPriceListData,RecordID: data.RecordID, }));
+    const response = await  dispatch(PostConfigurePriceListID({ pricedata:addPriceListData,RecordID: data.RecordID, }));
 
-        if (response.payload.status === "Y") {
-          // dispatch(configureAddedPriceList);
-          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
-          setAddPriceListData([])
-        }
-      } else {
-        // Handle case where no price list data is selected
-        setIsPriceListExistsError(true);
-        setTimeout(() => {
-          setIsPriceListExistsError(false);
-        }, 2000);
+      if (response.payload.status === "Y") {
+        // dispatch(configureAddedPriceList);
+        dispatch(getConfigPriceBook2({ ID: State.RecordID }));
+        setAddPriceListData([])
       }
-    };
+    } else {
+      // Handle case where no price list data is selected
+      setIsPriceListExistsError(true);
+      setTimeout(() => {
+        setIsPriceListExistsError(false);
+      }, 2000);
+    }
+  };
+  const CustomToolBar = React.memo(() => {
+   
   
     return (
       <GridToolbarContainer
@@ -274,7 +274,7 @@ const ConfigureCompanyEdit = () => {
         >
           <GridToolbarQuickFilter />
 
-          <CompanyPriceListAutoCompleteMemo
+          {/* <CompanyPriceListAutoCompleteMemo
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -301,7 +301,7 @@ const ConfigureCompanyEdit = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -499,6 +499,47 @@ const ConfigureCompanyEdit = () => {
                   
                   </Stack>
                 </Box>
+                <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            paddingX: 2,
+          }}
+        >
+          {/* <GridToolbarQuickFilter /> */}
+
+          <CompanyPriceListAutoCompleteMemo
+            errors={isPriceListExistsError}
+            helper={isPriceListExistsError && "Please select price list!"}
+            disabled={params.mode === "delete" || params.mode === "view"}
+            name="addPriceList"
+            id="addPriceList"
+            value={addPriceListData}
+            onChange={handleSelectionAddPriceListData}
+            label="Include Price List"
+            url={`${
+              process.env.REACT_APP_BASE_URL
+            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+          />
+          <Tooltip title="Add">
+            <IconButton
+              disabled={params.mode === "delete" || params.mode === "view"}
+              color="black"
+              size="small"
+              onClick={handleAddPriceList}
+            >
+              <Add
+                sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        </Box>
                 <Box
                   sx={{
                     height: 400,

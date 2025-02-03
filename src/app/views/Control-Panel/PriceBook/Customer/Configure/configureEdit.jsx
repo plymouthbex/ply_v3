@@ -326,8 +326,8 @@ const ConfigureEdit = () => {
       </GridToolbarContainer>
     );
   }
-  const CustomToolBar = React.memo(() => {
-    const handleAddPriceList = async() => {
+
+  const handleAddPriceList = async() => {
       if (addPriceListData.length > 0) {
         // Prepare price data and dispatch the action
         const pricedata = {
@@ -350,6 +350,8 @@ const ConfigureEdit = () => {
         }, 2000);
       }
     };
+  const CustomToolBar = React.memo(() => {
+    
   
     return (
       <GridToolbarContainer
@@ -361,47 +363,7 @@ const ConfigureEdit = () => {
           padding: 2,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            paddingX: 2,
-          }}
-        >
-          <GridToolbarQuickFilter />
-
-          <CompanyPriceListAutoCompleteMemo
-            errors={isPriceListExistsError}
-            helper={isPriceListExistsError && "Please select price list!"}
-            disabled={params.mode === "delete" || params.mode === "view"}
-            name="addPriceList"
-            id="addPriceList"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Include Price List"
-            url={`${
-              process.env.REACT_APP_BASE_URL
-            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
-          />
-          <Tooltip title="Add">
-            <IconButton
-              disabled={params.mode === "delete" || params.mode === "view"}
-              color="black"
-              size="small"
-              onClick={handleAddPriceList}
-            >
-              <Add
-                sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }}
-              />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <GridToolbarQuickFilter />
       </GridToolbarContainer>
     );
   });
@@ -528,6 +490,48 @@ const ConfigureEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
+              <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            padding: 2,
+            
+          }}
+        >
+         
+
+          <CompanyPriceListAutoCompleteMemo
+            errors={isPriceListExistsError}
+            helper={isPriceListExistsError && "Please select price list!"}
+            disabled={params.mode === "delete" || params.mode === "view"}
+            name="addPriceList"
+            id="addPriceList"
+            value={addPriceListData}
+            onChange={handleSelectionAddPriceListData}
+            label="Include Price List"
+            url={`${
+              process.env.REACT_APP_BASE_URL
+            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+          />
+          <Tooltip title="Add">
+            <IconButton
+              disabled={params.mode === "delete" || params.mode === "view"}
+              color="black"
+              size="small"
+              onClick={handleAddPriceList}
+            >
+              <Add
+                sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        </Box>
                 <Box
                   display="grid"
                   gap="20px"
@@ -539,6 +543,7 @@ const ConfigureEdit = () => {
                     padding: "10px",
                   }}
                 >
+           
                   {/* {params.mode === "edit-Customer" && (
                     <Stack
                       sx={{ gridColumn: "span 4" }}

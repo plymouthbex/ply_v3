@@ -1190,7 +1190,7 @@ export const FormikCompanyOptimizedAutocomplete = ({
             Authorization: process.env.REACT_APP_API_TOKEN,
           },
         });
-        setOptions(response.data.rows || []); // Assuming API response has `Data` array
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
@@ -1343,7 +1343,8 @@ export const FormikRungroupOptimizedAutocomplete = ({
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
-        setError("Failed to load. Please try again.");
+        setError(error.response ? error.response.data.message: error.message);
+        // setError("Failed to load. Please try again.");
       } finally {
         setLoading(false);
       }
