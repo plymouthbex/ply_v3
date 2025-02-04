@@ -14,8 +14,9 @@ const BrandRoot = styled(Box)(() => ({
 }));
 
 const StyledSpan = styled(Span)(({ mode }) => ({
-  fontSize: 18,
+  fontSize: 14,
   marginLeft: ".5rem",
+  fontWeight:"bold",
   display: mode === "compact" ? "none" : "block",
 }));
 
@@ -37,10 +38,11 @@ const {user}=useAuth();
           RecordID: 0,
         }}
       >
-        <Box display="flex" alignItems="center" flexWrap="wrap">
+        <Box display="flex" alignItems="center" >
           <img
             src={`data:image/png;base64,${user.logo}`}
             height={30}
+
             style={{ objectFit: "cover" }}
           />
           <StyledSpan mode={mode} className="sidenavHoverShow">

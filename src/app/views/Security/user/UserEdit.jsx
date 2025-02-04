@@ -269,6 +269,20 @@ const UserEdit = () => {
 
   console.log("🚀 ~ UserEdit ~ UG:", name);
   const [UserName, setSelectUserName] = useState(name);
+  const [UserID, setSelectUserID] = useState(null);
+  const [companyCode, setCompanyCode] = useState(null);
+  console.log("🚀 ~ UserEdit ~ companyCode:", companyCode)
+  
+
+  useEffect(() => {
+    if (data.CompanyCode) {
+      setCompanyCode(data.CompanyCode);
+    }
+    if(data.UserGroupID){
+      setSelectUserID(data.UserGroupID)
+    }
+  }, [data]);
+  console.log("🚀 ~ UserEdit ~ UserID:", UserID)
   console.log("🚀 ~ UserEdit ~ UserName:", UserName);
   ///===========API CALL GET============================//
   useEffect(() => {
@@ -721,21 +735,7 @@ const UserEdit = () => {
                     <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
                       Default Settings
                     </Typography>
-                    <FormikCompanyOptimizedAutocomplete
-                      sx={{ gridColumn: "span 2" }}
-                      disabled={
-                        params.mode === "delete" || params.mode === "view"
-                      }
-                      name="defaultCompany"
-                      id="defaultCompany"
-                      value={values.defaultCompany}
-                      onChange={(event, newValue) =>
-                        setFieldValue("defaultCompany", newValue)
-                      }
-                      required
-                      label="Default Company"
-                      url={`${process.env.REACT_APP_BASE_URL}Company`}
-                    />
+
                     <FormikUserGroupOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
@@ -748,16 +748,42 @@ const UserEdit = () => {
                         setFieldValue("userGroup", newValue);
                         // Ensure that newValue is defined before accessing properties
                         if (newValue) {
-                          setSelectUserName(newValue.Name); // Accessing the Name of the selected user group
+                          setSelectUserName(newValue.Name);
+                          setSelectUserID(newValue.RecordID) // Accessing the Name of the selected user group
                           // Assuming newValue has an ID property for the user ID
                         } else {
                           setSelectUserName(null); // Handle case where no value is selected
-                          // Handle case where no value is selected
+                          setSelectUserID(null)// Handle case where no value is selected
                         } // Handle null cases gracefully
                       }}
                       label="User Group"
                       url={`${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView?CompanyCode=${user.companyCode}`}
+                  
                     />
+                    <FormikCompanyOptimizedAutocomplete
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      name="defaultCompany"
+                      id="defaultCompany"
+                      value={values.defaultCompany}
+                      onChange={(event, newValue) =>{
+                        setFieldValue("defaultCompany", newValue);
+                        if(newValue){
+                        setCompanyCode(newValue.Code);
+                        }else{
+                          setCompanyCode(null)
+                        }
+                      }}
+                      required
+                      label="Default Company"
+                     
+                          url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserGroupAccess?Type=CO&UserGroupID=${UserID}`}
+                    />
+                   
+                    {/* 
+                     // url={`${process.env.REACT_APP_BASE_URL}Company`}
                     <FormikSalesPersonOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
@@ -774,7 +800,7 @@ const UserEdit = () => {
                       }}
                       label="Sales Person Name"
                       url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
-                    />
+                    /> */}
                     <FormikRungroupOptimizedAutocomplete
                       sx={{ gridColumn: "span 2" }}
                       disabled={
@@ -789,7 +815,7 @@ const UserEdit = () => {
                         setFieldValue("runGroup", newValue)
                       }
                       label="Default Price Book Group"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${companyCode}`}
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>
