@@ -68,7 +68,10 @@ import {
 } from "app/redux/slice/postSlice";
 import toast from "react-hot-toast";
 import useAuth from "app/hooks/useAuth";
-import { CompanyPriceListAutoComplete, CompanyPriceListAutoCompleteMemo } from "app/components/FormikAutocomplete";
+import {
+  CompanyPriceListAutoComplete,
+  CompanyPriceListAutoCompleteMemo,
+} from "app/components/FormikAutocomplete";
 import { useMemo } from "react";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -146,9 +149,9 @@ const ConfigureCompanyEdit = () => {
   const dispatch = useDispatch();
   // ******************** REDUX_STATE ******************** //
   const data = useSelector((state) => state.getSlice.getconfigureData);
-  const getRows = useSelector((state) => state.getSlice.configurePriceListGetData);
-
-
+  const getRows = useSelector(
+    (state) => state.getSlice.configurePriceListGetData
+  );
 
   const loading = useSelector((state) => state.getSlice.getconfigureLoading);
   const status = useSelector((state) => state.getSlice.getconfigureStatus);
@@ -226,7 +229,7 @@ const ConfigureCompanyEdit = () => {
       },
     },
   ];
-  const handleAddPriceList = async() => {
+  const handleAddPriceList = async () => {
     if (addPriceListData.length > 0) {
       // Prepare price data and dispatch the action
       const pricedata = {
@@ -234,12 +237,17 @@ const ConfigureCompanyEdit = () => {
         priceListID: addPriceListData.PRICELISTID,
       };
 
-    const response = await  dispatch(PostConfigurePriceListID({ pricedata:addPriceListData,RecordID: data.RecordID, }));
+      const response = await dispatch(
+        PostConfigurePriceListID({
+          pricedata: addPriceListData,
+          RecordID: data.RecordID,
+        })
+      );
 
       if (response.payload.status === "Y") {
         // dispatch(configureAddedPriceList);
         dispatch(getConfigPriceBook2({ ID: State.RecordID }));
-        setAddPriceListData([])
+        setAddPriceListData([]);
       }
     } else {
       // Handle case where no price list data is selected
@@ -250,8 +258,6 @@ const ConfigureCompanyEdit = () => {
     }
   };
   const CustomToolBar = React.memo(() => {
-   
-  
     return (
       <GridToolbarContainer
         sx={{
@@ -306,8 +312,6 @@ const ConfigureCompanyEdit = () => {
       </GridToolbarContainer>
     );
   });
-  
-
 
   const handleSave = async (values) => {
     const Cdata = {
@@ -324,8 +328,7 @@ const ConfigureCompanyEdit = () => {
     const response = await dispatch(postConfigureCompany({ Cdata }));
     if (response.payload.status === "Y") {
       setOpenAlert(true);
-      setSuccessMessage(response.payload.message)
-      
+      setSuccessMessage(response.payload.message);
     } else {
       setOpenAlert(true);
       setPostError(response.payload.message);
@@ -345,6 +348,8 @@ const ConfigureCompanyEdit = () => {
           { id: 8, level: "Price Book Level 8" },
           { id: 9, level: "Price Book Level 9" },
         ];
+
+        
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -497,50 +502,55 @@ const ConfigureCompanyEdit = () => {
                         />
                       )}
                     />
-                  
                   </Stack>
                 </Box>
                 <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            paddingX: 2,
-          }}
-        >
-          {/* <GridToolbarQuickFilter /> */}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    gap: 2,
+                    paddingX: 2,
+                  }}
+                >
+                  {/* <GridToolbarQuickFilter /> */}
 
-          <CompanyPriceListAutoCompleteMemo
-            errors={isPriceListExistsError}
-            helper={isPriceListExistsError && "Please select price list!"}
-            disabled={params.mode === "delete" || params.mode === "view"}
-            name="addPriceList"
-            id="addPriceList"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Include Price List"
-            url={`${
-              process.env.REACT_APP_BASE_URL
-            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
-          />
-          <Tooltip title="Add">
-            <IconButton
-              disabled={params.mode === "delete" || params.mode === "view"}
-              color="black"
-              size="small"
-              onClick={handleAddPriceList}
-            >
-              <Add
-                sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }}
-              />
-            </IconButton>
-          </Tooltip>
-        </Box>
+                  <CompanyPriceListAutoComplete
+                  key={JSON.stringify(getRows)} 
+                    errors={isPriceListExistsError}
+                    helper={
+                      isPriceListExistsError && "Please select price list!"
+                    }
+                    disabled={
+                      params.mode === "delete" || params.mode === "view"
+                    }
+                    name="addPriceList"
+                    id="addPriceList"
+                    value={addPriceListData}
+                    onChange={handleSelectionAddPriceListData}
+                    label="Include Price List"
+                    url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+                    filterData={getRows}
+                  />
+                  <Tooltip title="Add">
+                    <IconButton
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      color="black"
+                      size="small"
+                      onClick={handleAddPriceList}
+                    >
+                      <Add
+                        sx={{
+                          fontSize: 30, // Increased icon size
+                          color: theme.palette.success.main,
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Box
                   sx={{
                     height: 400,
@@ -618,7 +628,9 @@ const ConfigureCompanyEdit = () => {
                     disableRowSelectionOnClick
                     getRowId={(row) => row.PRICELISTID}
                     initialState={{
-                      pagination: { paginationModel: { pageSize: dataGridPageSize } },
+                      pagination: {
+                        paginationModel: { pageSize: dataGridPageSize },
+                      },
                     }}
                     pageSizeOptions={dataGridpageSizeOptions}
                     columnVisibilityModel={{
@@ -716,9 +728,7 @@ const ConfigureCompanyEdit = () => {
       <AlertDialog
         open={openAlert}
         error={postError}
-        message={
-          postError?postError:successMessage
-        }
+        message={postError ? postError : successMessage}
         Actions={
           params.mode === "add" ? (
             <DialogActions>
@@ -726,11 +736,11 @@ const ConfigureCompanyEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() =>{
+                onClick={() => {
                   navigate("/pages/control-panel/configure-price-book/company");
                   setSuccessMessage(null);
-              setPostError(null)}
-                }
+                  setPostError(null);
+                }}
               >
                 Back to Configure Company
               </Button>
@@ -742,7 +752,7 @@ const ConfigureCompanyEdit = () => {
                   dispatch(getConfigPriceBook({ ID: 0 }));
                   setOpenAlert(false);
                   setSuccessMessage(null);
-                  setPostError(null)
+                  setPostError(null);
                 }}
                 autoFocus
               >
@@ -755,11 +765,11 @@ const ConfigureCompanyEdit = () => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() =>{
+                onClick={() => {
                   navigate("/pages/control-panel/configure-price-book/company");
-                setSuccessMessage(null);
-              setPostError(null)}
-                }
+                  setSuccessMessage(null);
+                  setPostError(null);
+                }}
               >
                 Back to Configure Company
               </Button>

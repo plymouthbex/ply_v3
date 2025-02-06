@@ -371,7 +371,7 @@ const PriceListEdit = () => {
             createdBy: values.createdBy,
             companyCode: state.companyCode,
             forcePageBreak: "N",
-            overridesequence: "N",
+            overridesequence: values.overrideSeq,
             customer: values.propCustomer
               ? JSON.stringify(values.propCustomer)
               : null,
@@ -750,8 +750,7 @@ const PriceListEdit = () => {
             buyer: JSON.parse(priceListHeaderData.Buyer),
             forcePageBreak:
               priceListHeaderData.ForcePageBreak === "Y" ? true : false,
-            overrideSeq:
-              priceListHeaderData.Overridesequence === "Y" ? true : false,
+            overrideSeq: priceListHeaderData.Overridesequence,
             propCustomer: JSON.parse(priceListHeaderData.Customer),
             createdDateTime: priceListHeaderData.CreatedDate,
             lastModifiedDateTime: priceListHeaderData.ModifyDate,
@@ -996,7 +995,40 @@ const PriceListEdit = () => {
                       label="Buyer"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Buyer`}
                     />
+
+                    {/* <PrintGroupOptimizedAutocomplete
+                      sx={{ maxWidth: 300 }}
+                      fullWidth
+                      name="printGroup"
+                      id="printGroup"
+                      value={printSelectedData}
+                      onChange={handlePrintSelectedData}
+                      label="Price Book Category"
+                      url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${companyID}`}
+                    /> */}
                   </Stack>
+                  <TextField
+                    sx={{ gridColumn: "span 1" }}
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="overrideSeq"
+                    name="overrideSeq"
+                    label="Override Sequence"
+                    value={values.overrideSeq}
+                    onChange={handleChange}
+                    // required
+                    // InputLabelProps={{
+                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    // }}
+                    autoComplete="off"
+                    size="small"
+                    disabled={
+                      params.mode === "delete" || params.mode === "view"
+                        ? true
+                        : false
+                    }
+                  />
                 </Box>
                 <Box
                   display="grid"
@@ -1388,8 +1420,27 @@ const PriceListEdit = () => {
                             }
                           />
                         }
-                        label="Combined Filter (The result shows the combination of filters)"
+                        label="Combined Filter"
                       />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "5px",
+                          border: "1px solid red",
+                          borderRadius: 1,
+                          backgroundColor: "#ffe6e6",
+                          minHeight: 30, // Ensure consistent heigh
+                        }}
+                      >
+                        <Typography
+                          color="error"
+                          fontSize={"11px"}
+                          align="center"
+                        >
+                          Note: The result shows the combination of filters
+                        </Typography>
+                      </Box>
                     </Stack>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
@@ -1544,20 +1595,20 @@ const PriceListEdit = () => {
                     />
                     <Box
                       sx={{
-                        mt:1,
+                        mt: 1,
                         display: "flex",
                         alignItems: "center",
                         padding: 2,
-                        border:"1px solid red",
+                        border: "1px solid red",
                         borderRadius: 1,
                         backgroundColor: "#ffe6e6",
                         minHeight: 40, // Ensure consistent heigh
                         minWidth: 300, // Ensure consistent width
                       }}
                     >
-                        <Typography color="error" align="center">
-                          Note: Only Active Items from GP are shown above
-                        </Typography>
+                      <Typography color="error" align="center">
+                        Note: Only Active Items from GP are shown above
+                      </Typography>
                     </Box>
                   </Box>
                 </Box>

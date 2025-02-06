@@ -54,6 +54,7 @@ import {
   postPrintGroupData,
 } from "app/redux/slice/postSlice";
 import toast from "react-hot-toast";
+import { CompanyPriceListAutoComplete } from "app/components/FormikAutocomplete";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -78,7 +79,7 @@ const PrintGroupEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const state = location.state;
+  const state = location.state || {};
 
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
@@ -93,8 +94,8 @@ const PrintGroupEdit = () => {
   const [removePriceListID, setremovePriceListID] = useState(0);
   const [removePriceListdDesc, setremovePriceListDesc] = useState("");
   const [ID, setId] = useState("");
-  const [addPriceListData, setAddPriceListData] = useState(null);
-  const handleSelectionAddPriceListData = (newValue) => {
+  const [addPriceListData, setAddPriceListData] = useState([]);
+  const handleSelectionAddPriceListData = (e, newValue) => {
     setAddPriceListData(newValue);
   };
 
@@ -112,6 +113,10 @@ const PrintGroupEdit = () => {
   const getRowsSet = new Set(getRows.map((item) => item.RecordID));
   const filteredSelectedItems = addedRows.filter(
     (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
+  );
+  console.log(
+    "🚀 ~ PrintGroupEdit ~ filteredSelectedItems:",
+    filteredSelectedItems
   );
 
   // ********************** COLUMN ********************** //
@@ -174,12 +179,7 @@ const PrintGroupEdit = () => {
       },
     },
   ];
-  const [companyID, setCompanyID] = useState(user.companyCode);
-  const handleOpen = () => {
-    if (!companyID) {
-      toast.error("Please Select the company");
-    }
-  };
+
   function CustomToolbar() {
     return (
       <GridToolbarContainer
@@ -203,7 +203,7 @@ const PrintGroupEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <FormikCustomSelectCompanyPriceList
+          {/* <FormikCustomSelectCompanyPriceList
             name="company"
             id="company"
             multiple={false}
@@ -213,8 +213,8 @@ const PrintGroupEdit = () => {
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-          />
-          <PriceListOptimizedAutocomplete
+          /> */}
+          {/* <PriceListOptimizedAutocomplete
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -223,9 +223,23 @@ const PrintGroupEdit = () => {
             value={addPriceListData}
             onChange={handleSelectionAddPriceListData}
             label="Add Price List"
-            companyID={companyID}
-            url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${companyID}`}
-            onOpen={handleOpen}
+            companyID={state.companyID}
+            url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${state.companyID}`}
+            // onOpen={handleOpen}
+            filterData={[...getRows, ...filteredSelectedItems]}
+          /> */}
+          {/* <CompanyPriceListAutoComplete
+            key={JSON.stringify(getRows)}
+            errors={isPriceListExistsError}
+            helper={isPriceListExistsError && "Please select price list!"}
+            disabled={params.mode === "delete" || params.mode === "view"}
+            name="addPriceList"
+            id="addPriceList"
+            value={addPriceListData}
+            onChange={handleSelectionAddPriceListData}
+            label="Include Price List"
+            url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${state.companyID}`}
+            filterData={[...getRows, ...filteredSelectedItems]}
           />
           <Tooltip title="Add">
             <IconButton
@@ -234,7 +248,12 @@ const PrintGroupEdit = () => {
               size="small"
               disabled={params.mode === "delete" || params.mode === "view"}
               onClick={() => {
-                if (addPriceListData) {
+                if (addPriceListData.length > 0) {
+                  console.log(
+                    "🚀 ~ CustomToolbar ~ addPriceListData:",
+                    addPriceListData
+                  );
+                  // return
                   const isItem = [...getRows, ...filteredSelectedItems].some(
                     (item) =>
                       lodash.isEqual(item.RecordID, addPriceListData.RecordID)
@@ -243,12 +262,12 @@ const PrintGroupEdit = () => {
                     setIsPriceListExists(true);
                     setTimeout(() => {
                       setIsPriceListExists(false);
-                      setAddPriceListData(null);
+                      setAddPriceListData([]);
                     }, 5000);
                     return;
                   }
                   dispatch(printGroupAddedItem(addPriceListData));
-                  setAddPriceListData(null);
+                  setAddPriceListData([]);
                 } else {
                   setIsPriceListExistsError(true);
                   setTimeout(() => {
@@ -264,7 +283,7 @@ const PrintGroupEdit = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
 
           {/* <Button
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -333,6 +352,7 @@ const PrintGroupEdit = () => {
       sortorder: values.SortOrder,
       disable: "N",
       Headeronly: false,
+      CompanyCode: state.companyID,
       printList: [...getRows, ...filteredSelectedItems],
     };
     try {
@@ -596,6 +616,75 @@ const PrintGroupEdit = () => {
                     },
                   }}
                 >
+                  <Stack direction={"row"} gap={1} justifyContent={"flex-end"}>
+                    <CompanyPriceListAutoComplete
+                      key={JSON.stringify([...getRows, ...filteredSelectedItems])}
+                      errors={isPriceListExistsError}
+                      helper={
+                        isPriceListExistsError && "Please select price list!"
+                      }
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      name="addPriceList"
+                      id="addPriceList"
+                      value={addPriceListData}
+                      onChange={handleSelectionAddPriceListData}
+                      label="Include Price List"
+                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${state.companyID}`}
+                      filterData={[...getRows, ...filteredSelectedItems]}
+                    />
+                    <Tooltip title="Add">
+                      <IconButton
+                        color="black"
+                        sx={{ height: 25 }}
+                        size="small"
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                        onClick={() => {
+                          if (addPriceListData.length > 0) {
+                            console.log(
+                              "🚀 ~ CustomToolbar ~ addPriceListData:",
+                              addPriceListData
+                            );
+                            // return
+                            const isItem = [
+                              ...getRows,
+                              ...filteredSelectedItems,
+                            ].some((item) =>
+                              lodash.isEqual(
+                                item.RecordID,
+                                addPriceListData.RecordID
+                              )
+                            );
+                            if (isItem) {
+                              setIsPriceListExists(true);
+                              setTimeout(() => {
+                                setIsPriceListExists(false);
+                                setAddPriceListData([]);
+                              }, 5000);
+                              return;
+                            }
+                            dispatch(printGroupAddedItem(addPriceListData));
+                            setAddPriceListData([]);
+                          } else {
+                            setIsPriceListExistsError(true);
+                            setTimeout(() => {
+                              setIsPriceListExistsError(false);
+                            }, 2000);
+                          }
+                        }}
+                      >
+                        <Add
+                          sx={{
+                            fontSize: 30, // Increased icon size
+                            color: theme.palette.success.main,
+                          }}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
                   <DataGrid
                     columnHeaderHeight={dataGridHeaderFooterHeight}
                     sx={{

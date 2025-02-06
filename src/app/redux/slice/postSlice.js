@@ -505,6 +505,28 @@ export const runGroupDelete = createAsyncThunk(
   }
 );
 
+export const proprietaryItemsDelete = createAsyncThunk(
+  "proprietaryItemsDelete/DELETE",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/DeletProprietaryItems`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: {
+          ItemNumber: id, // This ensures the parameter is added to the query string
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
 export const customerPriceListPost = createAsyncThunk(
   "customerPriceList/POST",
   async ({ Cdata }, { rejectWithValue }) => {
@@ -550,6 +572,26 @@ export const runGroupPost = createAsyncThunk(
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/PostRunGroup`;
       const response = await axios.post(URL, rData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const proprietaryItemsPost = createAsyncThunk(
+  "proprietaryItemsPost/POST",
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/PostProprietaryItems`;
+      const response = await axios.post(URL, data, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },

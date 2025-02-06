@@ -64,7 +64,7 @@ import {
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
-import { CompanyPriceListAutoCompleteMemo } from "app/components/FormikAutocomplete";
+import { CompanyPriceListAutoComplete, CompanyPriceListAutoCompleteMemo } from "app/components/FormikAutocomplete";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -150,7 +150,6 @@ const ConfigureEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getconfigureData);
-  console.log("🚀 ~ ConfigureEdit ~ data:", data)
   const getRows = useSelector(
     (state) => state.getSlice.configurePriceListGetData
   );
@@ -503,7 +502,8 @@ const ConfigureEdit = () => {
         >
          
 
-          <CompanyPriceListAutoCompleteMemo
+          <CompanyPriceListAutoComplete
+           key={JSON.stringify(getRows)} 
             errors={isPriceListExistsError}
             helper={isPriceListExistsError && "Please select price list!"}
             disabled={params.mode === "delete" || params.mode === "view"}
@@ -515,6 +515,7 @@ const ConfigureEdit = () => {
             url={`${
               process.env.REACT_APP_BASE_URL
             }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+            filterData={[...getRows, ...filteredSelectedItems]}
           />
           <Tooltip title="Add">
             <IconButton

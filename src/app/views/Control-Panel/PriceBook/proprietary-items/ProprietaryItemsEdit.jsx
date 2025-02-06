@@ -31,8 +31,11 @@ import { Formik } from "formik";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
+  getProprietaryItemsData,
   getRunGroupData,
   getRunGroupData2,
+  proprietaryItemAddedItem,
+  proprietaryItemDeletedItem,
   runGroupAddedItem,
   runGroupDeletedItem,
 } from "app/redux/slice/getSlice";
@@ -40,6 +43,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   CustomerAddPrintGroup,
   deletePriceBookGroup,
+  proprietaryItemsDelete,
+  proprietaryItemsPost,
   runGroupDelete,
   runGroupPost,
 } from "app/redux/slice/postSlice";
@@ -54,7 +59,10 @@ import { Add } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useAuth from "app/hooks/useAuth";
 import { CusListRunGrpOptimizedAutocomplete } from "app/components/FormikAutocomplete";
-import { FormikProprietaryItemsOptimizedAutocomplete, FormikSalesPersonOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
+import {
+  FormikProprietaryItemsOptimizedAutocomplete,
+  FormikSalesPersonOptimizedAutocomplete,
+} from "app/components/SingleAutocompletelist";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -80,7 +88,7 @@ const ProprietaryItemsEdit = () => {
   const state = location.state;
   const dispatch = useDispatch();
   const { user } = useAuth();
-  const getRows = useSelector((state) => state.getSlice.runGroupGetData);
+
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -104,16 +112,16 @@ const ProprietaryItemsEdit = () => {
 
   const handleAddCustomers = async (values) => {
     if (addCustomerListData.length > 0) {
-      dispatch(runGroupAddedItem(addCustomerListData));
-      const response = await dispatch(
-        CustomerAddPrintGroup({
-          data: addCustomerListData,
-          PriceBookGroup: data.Code,
-        })
-      );
-      if (response.payload.status === "Y") {
-        dispatch(getRunGroupData2({ id: state.ID }));
-      }
+      dispatch(proprietaryItemAddedItem(addCustomerListData));
+      // const response = await dispatch(
+      //   CustomerAddPrintGroup({
+      //     data: addCustomerListData,
+      //     PriceBookGroup: data.Code,
+      //   })
+      // );
+      // if (response.payload.status === "Y") {
+      //   dispatch(getRunGroupData2({ id: state.ID }));
+      // }
       setAddCustomerListData([]);
     } else {
       setIsCustomerListExistsError(true);
@@ -124,13 +132,14 @@ const ProprietaryItemsEdit = () => {
   };
 
   // ********************** REDUX STATE ********************** //
-  const data = useSelector((state) => state.getSlice.runGroupFormData);
-  const loading = useSelector((state) => state.getSlice.runGroupLoading);
-  const status = useSelector((state) => state.getSlice.runGroupStatus);
-  const error = useSelector((state) => state.getSlice.printGroupError);
+  const getRows = useSelector((state) => state.getSlice.proprietaryItemGetData);
+  const data = useSelector((state) => state.getSlice.proprietaryItemFormData);
+  const loading = useSelector((state) => state.getSlice.proprietaryItemLoading);
+  const status = useSelector((state) => state.getSlice.proprietaryItemStatus);
+  const error = useSelector((state) => state.getSlice.proprietaryItemError);
 
   useEffect(() => {
-    dispatch(getRunGroupData({ id: state.ID }));
+    dispatch(getProprietaryItemsData({ itemsNumber: state.ID }));
   }, [location.key]);
 
   // ********************** COLUMN AND ROWS ********************** //
@@ -209,37 +218,29 @@ const ProprietaryItemsEdit = () => {
     );
   });
 
-  const runGroupSaveFn = async (values, setSubmitting) => {
+  const proprietaryItemSaveFn = async (values, setSubmitting) => {
+    let itemNumber = data.ItemNumber;
+    if (params.mode == "add") {
+      itemNumber = values.item ? values.item.ItemNumber : "";
+    }
     const postData = {
-      RecordId: data.RecordId,
-      Code: slectedSalesName || data.SalesPersonName,
-      Name: slectedSalesName || data.SalesPersonName,
-      Sortorder: values.sortOrder,
-      // AllSalesMan: values.AllSalesMan,
-      AllSalesMan: false,
-      CompanyCode: state.CompanyCode,
-      SalesPerson: slectedSalesName || data.SalesPersonName,
-      Disable: "N",
-      LastModifiedDate: "",
-      RunGroupList: [],
+      ItemNumber: itemNumber,
+      Type: data.Type,
+      CustomerLists: getRows,
     };
     try {
-      const response = await dispatch(runGroupPost({ rData: postData }));
+      const response = await dispatch(proprietaryItemsPost({ data: postData }));
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
         setSuccessMessage(response.payload.message);
         if (params.mode === "add") {
-          navigate("/pages/control-panel/run-group/run-group-getail/edit", {
-            ID: response.payload.RecordID,
-          });
-          dispatch(
-            CustomerAddPrintGroup({
-              data: addCustomerListData,
-              PriceBookGroup: slectedSalesName,
-            })
+          navigate(
+            "/pages/control-panel/proprietary-items/proprietary-item-detail/edit",
+            {
+              state: { ID: itemNumber },
+            }
           );
-          // dispatch(getRunGroupData({ id: response.payload.RecordID }));
         }
       } else {
         setOpenAlert(true);
@@ -251,17 +252,19 @@ const ProprietaryItemsEdit = () => {
     setSubmitting(false);
   };
 
-  const runGroupDeleteFn = async (values, setSubmitting) => {
+  const proprietaryItemDeleteFn = async (values, setSubmitting) => {
     try {
-      dispatch(runGroupDelete({ id: data.RecordId })).then((response) => {
-        if (response.payload.status === "Y") {
-          setOpenAlert(true);
-          setSuccessMessage(response.payload.message);
-        } else {
-          setOpenAlert(true);
-          setPostError(response.payload.message);
+      dispatch(proprietaryItemsDelete({ id: data.ItemNumber })).then(
+        (response) => {
+          if (response.payload.status === "Y") {
+            setOpenAlert(true);
+            setSuccessMessage(response.payload.message);
+          } else {
+            setOpenAlert(true);
+            setPostError(response.payload.message);
+          }
         }
-      });
+      );
       setSubmitting(false);
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
@@ -271,24 +274,28 @@ const ProprietaryItemsEdit = () => {
   const runGroupCusDeleteFn = async () => {
     try {
       dispatch(
-        deletePriceBookGroup({
+        proprietaryItemDeletedItem({
           Recordid: removeCustomerID,
-          CustomerNumber: removeCustomerdDesc,
+          id: removeCustomerdDesc,
         })
-      ).then((response) => {
-        if (response.payload.status === "Y") {
-          dispatch(getRunGroupData2({ id: state.ID }));
-          setIsRemoveCustomer(false);
-          setremoveCustomerID(0);
-          setremoveCustomerDesc("");
-        } else {
-          setIsRemoveCustomer(false);
-          setremoveCustomerID(0);
-          setremoveCustomerDesc("");
-          setOpenAlert(true);
-          setPostError(response.payload.message);
-        }
-      });
+      );
+      setIsRemoveCustomer(false);
+      setremoveCustomerID(0);
+      setremoveCustomerDesc("");
+      // .then((response) => {
+      //   if (response.payload.status === "Y") {
+      //     dispatch(getRunGroupData2({ id: state.ID }));
+      //     setIsRemoveCustomer(false);
+      //     setremoveCustomerID(0);
+      //     setremoveCustomerDesc("");
+      //   } else {
+      //     setIsRemoveCustomer(false);
+      //     setremoveCustomerID(0);
+      //     setremoveCustomerDesc("");
+      //     setOpenAlert(true);
+      //     setPostError(response.payload.message);
+      //   }
+      // });
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -299,15 +306,7 @@ const ProprietaryItemsEdit = () => {
       {status === "fulfilled" && !error ? (
         <Formik
           initialValues={{
-            RecordId: data.RecordId,
-            runGroupCode: data.Code,
-            runGroupName: data.Name,
-            sortOrder: data.Sortorder,
-            Disable: data.Disable,
-            AllSalesMan: data.AllSalesMan,
-            LastModifiedDate: data.LastModifiedDate,
-            // sales: JSON.parse(data.SalesPerson),
-            sales: null,
+            item: params.mode === "add" ? null : data.ItemNumber,
           }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
@@ -316,7 +315,7 @@ const ProprietaryItemsEdit = () => {
                 setIsDelete(true);
               }
               if (params.mode === "add" || params.mode === "edit") {
-                runGroupSaveFn(values, setSubmitting);
+                proprietaryItemSaveFn(values, setSubmitting);
               }
             }, 400);
           }}
@@ -340,17 +339,15 @@ const ProprietaryItemsEdit = () => {
                     { name: "Control Panel" },
                     {
                       name: "Proprietary Items",
-                      path: -1,
+                      path: "/pages/control-panel/proprietary-items",
                     },
                     { name: `${params.mode} Proprietary Item` },
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
                   <Button
-                    // disabled={isSubmitting}
-                    disabled={ true
-
-                    }
+                    disabled={isSubmitting}
+                    // disabled={true}
                     variant="contained"
                     color="info"
                     size="small"
@@ -371,7 +368,9 @@ const ProprietaryItemsEdit = () => {
                     color="info"
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => navigate(-1)}
+                    onClick={() =>
+                      navigate("/pages/control-panel/proprietary-items")
+                    }
                   >
                     Back
                   </Button>
@@ -390,26 +389,37 @@ const ProprietaryItemsEdit = () => {
                     padding: "10px",
                   }}
                 >
-                  <FormikProprietaryItemsOptimizedAutocomplete
-                    required={true}
-                    sx={{ gridColumn: "span 2" }}
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                        ? true
-                        : false
-                    }
-                    name="sales"
-                    id="sales"
-                    value={values.sales}
-                    onChange={(event, newValue) => {
-                      setFieldValue("sales", newValue);
-                      if (newValue) {
-                        setselectedSalesName(newValue.Name);
+                  {params.mode === "add" ? (
+                    <FormikProprietaryItemsOptimizedAutocomplete
+                      required={true}
+                      sx={{ gridColumn: "span 2" }}
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                          ? true
+                          : false
                       }
-                    }}
-                    label="Items"
-                    url={`${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItemsCombo`}
-                  />
+                      name="item"
+                      id="item"
+                      value={values.item}
+                      onChange={(event, newValue) => {
+                        setFieldValue("item", newValue);
+                      }}
+                      label="Items"
+                      url={`${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItemsCombo`}
+                    />
+                  ) : (
+                    <TextField
+                      sx={{ gridColumn: "span 2" }}
+                      variant="outlined"
+                      label="Item Number"
+                      type="text"
+                      name="item"
+                      id="item"
+                      size="small"
+                      value={values.item}
+                      disabled={true}
+                    />
+                  )}
                   <Stack
                     direction={"row"}
                     gap={1}
@@ -431,25 +441,20 @@ const ProprietaryItemsEdit = () => {
                       value={addCustomerListData}
                       onChange={handleSelectionAddCustomerListData}
                       label="Unassigned Customers"
-                      url={`${
-                        process.env.REACT_APP_BASE_URL
-                      }CustomerPriceList/CustomerPriceList?CompanyCode=${
-                        user.companyCode
-                      }&PriceBookGroup=All`}
+                      url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList?CompanyCode=${user.companyCode}&PriceBookGroup=All`}
                       addedCustomers={getRows} // Pass added customers to exclude them
                     />
                     <Tooltip title="Add Customers">
                       <IconButton
-                        // disabled={
-                        //   params.mode === "delete" ||
-                        //   params.mode === "view" ||
-                        //   params.mode === "add"
-                        //     ? true
-                        //     : false
-                        // }
-                        disabled={ true
-
+                        disabled={
+                          params.mode === "delete" ||
+                          params.mode === "view" 
+                            ? true
+                            : false
                         }
+                        // disabled={ true
+
+                        // }
                         sx={{ height: 37.6 }}
                         color="info"
                         onClick={handleAddCustomers}
@@ -566,7 +571,7 @@ const ProprietaryItemsEdit = () => {
                 logo={`data:image/png;base64,${user.logo}`}
                 open={isDelete}
                 tittle={values.runGroupCode}
-                message={`Are you sure you want to delete Price Book Group?`}
+                message={`Are you sure you want to delete Proprietary Item?`}
                 Actions={
                   <Box
                     sx={{
@@ -582,9 +587,7 @@ const ProprietaryItemsEdit = () => {
                       size="small"
                       onClick={() => {
                         setIsDelete(false);
-                        runGroupDeleteFn();
-                        setSuccessMessage(null);
-                        setPostError(null);
+                        proprietaryItemDeleteFn();
                       }}
                     >
                       Yes
@@ -597,8 +600,10 @@ const ProprietaryItemsEdit = () => {
                       onClick={() => {
                         setIsDelete(false);
                         setSubmitting(false);
-                        setSuccessMessage(null);
-                        setPostError(null);
+                        setTimeout(() => {
+                          setSuccessMessage(null);
+                          setPostError(null);
+                        }, 2000);
                       }}
                       autoFocus
                     >
@@ -672,8 +677,10 @@ const ProprietaryItemsEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert(false);
-                setSuccessMessage(null);
-                setPostError(null);
+                setTimeout(() => {
+                  setSuccessMessage(null);
+                  setPostError(null);
+                }, 2000);
               }}
             >
               close

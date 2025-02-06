@@ -120,7 +120,6 @@ const ConfigureContactEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getconfigureData);
-  console.log("🚀 ~ ConfigureContactEdit ~ data:", data);
   const getRows = useSelector(
     (state) => state.getSlice.configurePriceListContactData
   );
@@ -166,7 +165,7 @@ const ConfigureContactEdit = () => {
         >
           <GridToolbarQuickFilter />
 
-          {data.Rungroup === user.defaultRunGroup && user.role === 'USER' ? 
+          {(data.Rungroup === user.defaultRunGroup && user.role === 'USER') || user.SalesReps.includes(data.Rungroup) ? 
           <Tooltip title="Add">
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
@@ -495,7 +494,7 @@ const ConfigureContactEdit = () => {
                     pageSizeOptions={[5, 10, 20, 25]}
                     columnVisibilityModel={{
                       item_key: false,
-                      Action:data.Rungroup === user.defaultRunGroup && user.role === 'USER' ? true :user.role != 'USER' ? true :false
+                      Action:data.Rungroup === user.defaultRunGroup && user.role === 'USER' ? true:user.SalesReps.includes(data.Rungroup)? true :user.role != 'USER' ? true :false
                     }}
                     disableColumnFilter
                     disableColumnSelector

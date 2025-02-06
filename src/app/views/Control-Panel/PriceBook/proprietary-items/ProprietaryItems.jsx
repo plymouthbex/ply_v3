@@ -95,6 +95,15 @@ const ProprietaryItems = () => {
       headerAlign: "left",
       hide: false,
     },
+
+    {
+      headerName: "Customer Name",
+      field: "CustomerName",
+      width: 200,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
   
     {
       field: "Action",
@@ -119,7 +128,7 @@ const ProprietaryItems = () => {
                     "/pages/control-panel/proprietary-items/proprietary-item-detail/edit",
                     {
                       state: {
-                        ID: params.row.RecordID,
+                        ID: params.row.ItemNumber,
                         // CompanyCode: companyID,
                         // Name:params.row.RunGroupCode,
                       },
@@ -139,7 +148,7 @@ const ProprietaryItems = () => {
                   navigate(
                     "/pages/control-panel/proprietary-items/proprietary-item-detail/delete",
                     {
-                      state: { ID: params.row.RecordID},
+                      state: { ID: params.row.ItemNumber},
                     }
                   );
                 }}

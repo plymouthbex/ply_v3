@@ -216,42 +216,43 @@ export const FormikCustomSelectCompany = ({
   );
 };
 
-export const FormikCustomSelectCompanyPriceList2 = ({
+export const FormikCustomSelectCompanyPriceList2= ({
   value = null,
   onChange = () => {},
   url,
   height = 20,
   label = "Select Company",
+  data =[],
   ...props
 }) => {
-  const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // const [options, setOptions] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: process.env.REACT_APP_API_TOKEN,
-          },
-        });
-        setOptions(response.data.data || []); // Assuming API response has `Data` array
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setOptions([]);
-        setError("Failed to load. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const response = await axios.get(url, {
+  //         headers: {
+  //           Authorization: process.env.REACT_APP_API_TOKEN,
+  //         },
+  //       });
+  //       setOptions(response.data.data || []); // Assuming API response has `Data` array
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setOptions([]);
+  //       setError("Failed to load. Please try again.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, [url]);
+  //   fetchData();
+  // }, [url]);
 
   return (
-    <FormControl {...props} sx={{ width: 200 }} error={!!error} size="small">
+    <FormControl {...props} sx={{ width: 200 }} size="small">
       <InputLabel
         sx={{
           "& .MuiInputLabel-asterisk": {
@@ -268,19 +269,19 @@ export const FormikCustomSelectCompanyPriceList2 = ({
         displayEmpty
         {...props}
       >
-        {loading ? (
+        {/* {loading ? (
           <MenuItem disabled>
             <CircularProgress size={24} />
           </MenuItem>
-        ) : (
-          options.map((option) => (
-            <MenuItem key={option.RecordID} value={option.RecordID}>
+        ) : ( */}
+          {data.map((option) => (
+            <MenuItem key={option.Name} value={option.Name}>
               {option.Name}
             </MenuItem>
           ))
-        )}
+        }
       </Select>
-      {error && <TextField helperText={error} />}
+      {/* {error && <TextField helperText={error} />} */}
     </FormControl>
   );
 };
@@ -871,42 +872,44 @@ export const PriceListOptimizedAutocomplete = ({
   url,
   height = 20,
   label = "Price List",
-  companyID, // Pass companyID as a prop
+  companyID,
+  filterData =[],
   ...props
 }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error,setError  ] = useState(null);
 
-  // Fetch data when component mounts or URL/CompanyID changes
   useEffect(() => {
     if (!companyID) {
       setOptions([]); // Clear options if no companyID
       return;
     }
-    setLoading(null);
     const fetchData = async () => {
       setLoading(true);
-
       try {
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: process.env.REACT_APP_API_TOKEN,
-          },
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
-        setOptions(response.data.data || []); // Assuming API response has `Data` array
+  
+        const existingItems = new Set(filterData.map(item => item.PRICELISTID));
+        const filteredOptions = (data.data || []).filter(
+          option => !existingItems.has(option.PRICELISTID)
+        );
+  
+        setOptions(filteredOptions);
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
-        setError(error.response ? error.response.data.message: error.message);
-
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, [url, companyID]);
+  
+    const timeout = setTimeout(fetchData, 500); // Debounce API call
+  
+    return () => clearTimeout(timeout); // Cleanup timeout
+  }, [url, filterData, companyID]);
 
   // Handle the opening of the Autocomplete dropdown
 

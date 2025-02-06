@@ -71,7 +71,6 @@ const PriceList = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const state = location.state;
-  console.log("🚀 ~ PriceList ~ state:", state);
   const { user } = useAuth();
 
   // ********************** LOCAL STATE ********************** //
@@ -485,7 +484,7 @@ function CustomToolbar() {
                 value={printSelectedData}
                 onChange={handlePrintSelectedData}
                 label="Price Book Category"
-                url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList`}
+                url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${companyID}`}
               />
               <Button
                 variant="contained"

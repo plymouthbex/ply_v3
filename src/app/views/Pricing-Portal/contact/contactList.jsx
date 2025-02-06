@@ -17,7 +17,13 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
-import { dataGridHeight, dataGridRowHeight, dataGridHeaderFooterHeight, dataGridPageSize, dataGridpageSizeOptions } from "app/utils/constant";
+import {
+  dataGridHeight,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+} from "app/utils/constant";
 import { Add } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
@@ -33,6 +39,7 @@ import {
   FormikCustomSelectCompanyPriceList2,
 } from "app/components/SingleAutocompletelist";
 import { useState } from "react";
+import { SingleAutocomplete } from "app/components/AutoComplete";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -58,14 +65,53 @@ const Customer = () => {
   const customerRows = useSelector(
     (state) => state.listview.configureCustomerListViewData
   );
-  const [companyID, setCompanyID] = useState(user.companyID);
+  const [companyID, setCompanyID] = useState(user.defaultRunGroup);
 
   useEffect(() => {
-    dispatch(getConfigureCustomerListView({ ID: companyID, PriceBookGroup:user.defaultRunGroup && user.role == "USER" ?user.defaultRunGroup :""}));
+    dispatch(
+      getConfigureCustomerListView({
+        ID: user.companyID,
+        PriceBookGroup:
+          user.defaultRunGroup && user.role == "USER"
+            ? user.defaultRunGroup
+            : "",
+            Role: "C",
+      })
+    );
     // dispatch(clearCustomerListState())
   }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
+
+    const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(
+      user.defaultRunGroup
+        ? {
+            Name: user.defaultRunGroup,
+          }
+        : null
+    );
+  
+    const handleSelectionRunGrpChange = (newValue) => {
+      console.log("🚀 ~ handleSelectionRunGrpChange ~ newValue:", newValue)
+      setSelectedRunGrpOptions(newValue);
+      if (newValue) {
+        dispatch(
+          getConfigureCustomerListView({
+            ID: user.companyID,
+            PriceBookGroup:newValue.Name,
+            Role: "C",
+          })
+        );
+      }
+    };
   const columns = [
+    {
+      headerName: "Customer Number",
+      field: "CustomerNumber",
+      minWidth: 200,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
     {
       headerName: "Customer Name",
       field: "CustomerName",
@@ -143,19 +189,63 @@ const Customer = () => {
             width: "100%",
           }}
         >
-          <FormikCustomSelectCompanyPriceList2
-          disabled={user.role == "USER"}
+          {/* <FormikCustomSelectCompanyPriceList2
+            disabled={user.role == "USER"}
             name="company"
             id="company"
             multiple={false}
             value={companyID}
             onChange={(e) => {
               setCompanyID(e.target.value);
-              dispatch(getConfigureCustomerListView({ ID: e.target.value , PriceBookGroup:user.defaultRunGroup && user.role == "USER" ?user.defaultRunGroup :""}));
+              dispatch(
+                getConfigureCustomerListView({
+                  ID: e.target.value,
+                  PriceBookGroup:
+                    user.defaultRunGroup && user.role == "USER"
+                      ? user.defaultRunGroup
+                      : "",
+                })
+              );
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
+          /> */}
+
+          {user.role != "USER" ? (
+            <SingleAutocomplete
+              sx={{ width: 200 }}
+              focused
+              fullWidth
+              required
+              name="rungroup"
+              id="rungroup"
+              value={selectedRunGrpOptions}
+              onChange={handleSelectionRunGrpChange}
+              label="Price Book Group"
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+            />
+          ) : (
+            <FormikCustomSelectCompanyPriceList2
+            // disabled={user.role == "USER"}
+            name="company"
+            id="company"
+            multiple={false}
+            value={companyID}
+            data={user.companyCode == "PM" ?[{Name:user.defaultRunGroup},{Name:"HOUSE"}] :user.companyCode == "NU" ? [[{Name:user.defaultRunGroup},{Name:"SNUSA"},{Name:"NUSA"}]] :[{Name:user.defaultRunGroup}]}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+              dispatch(
+                getConfigureCustomerListView({
+                  ID: user.companyID,
+                  PriceBookGroup:e.target.value,
+                  Role: "C",
+                })
+              );
+            }}
+            label="Price Book Group"
+            url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
           />
+          )}
           <GridToolbarQuickFilter />
 
           {/* <Tooltip title="Add">

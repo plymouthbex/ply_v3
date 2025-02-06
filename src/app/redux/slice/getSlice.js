@@ -65,6 +65,14 @@ const initialState = {
   runGroupGetData: [],
   runGroupAddedData: [],
 
+  //PROPRIETARY ITEMS
+  proprietaryItemStatus: "idle",
+  proprietaryItemMessage: "Initiating",
+  proprietaryItemLoading: false,
+  proprietaryItemError: false,
+  proprietaryItemFormData: {},
+  proprietaryItemGetData: [],
+
   //Company
   companyStatus: "idle",
   companyMessage: "Initiating",
@@ -106,7 +114,7 @@ const initialState = {
 
   configurePriceListAddedData: [],
   configurePriceListGetData: [],
-  configurePriceListContactData:[],
+  configurePriceListContactData: [],
   configurePriceListSelectData: [],
 
   getQuoteProspectData: [],
@@ -134,7 +142,6 @@ const initialState = {
   getQuteFiltLoading: false,
   getQuteFiltError: null,
 
-
   getMailConfigData: {},
   getMailConfigLoading: false,
   getMailConfigStatus: "idle",
@@ -144,8 +151,6 @@ const initialState = {
   getConfigContactLoading: false,
   getConfigContactStatus: "idle",
   getConfigContactError: null,
-
-
 
   mailStatus: "idle",
   mailError: null,
@@ -190,7 +195,6 @@ export const getPriceListData = createAsyncThunk(
     }
   }
 );
-
 
 export const getPriceListData2 = createAsyncThunk(
   "getPriceListData2/GET",
@@ -293,6 +297,25 @@ export const getRunGroupData2 = createAsyncThunk(
   async ({ id }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GetRunGroup?Recordid=${id}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const getProprietaryItemsData = createAsyncThunk(
+  "getProprietaryItemsData/GET",
+  async ({ itemsNumber }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItem?ItemNumber=${itemsNumber}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -450,7 +473,7 @@ export const getQuoteBookData = createAsyncThunk(
 
 export const getPriceListItemGet = createAsyncThunk(
   "page/getPriceListItemGet",
-  async ({ id = 0, RecordID = 0, type = "PL", }, { rejectWithValue }) => {
+  async ({ id = 0, RecordID = 0, type = "PL" }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceListItemByNumber?RecordID=${RecordID}&PriceListID=${id}&Type=${type}`;
       const response = await axios.get(URL, {
@@ -565,7 +588,6 @@ export const getConfigPriceBook = createAsyncThunk(
   }
 );
 
-
 export const getConfigPriceBook2 = createAsyncThunk(
   "page/getConfigPriceBook2",
   async ({ ID }, { rejectWithValue }) => {
@@ -625,7 +647,6 @@ export const getQuoteItemsAndFiltersget2 = createAsyncThunk(
   }
 );
 
-
 export const getQuoteItemsAndFiltersget3 = createAsyncThunk(
   "get/getQuoteItemsAndFiltersget3", // action type
   async ({ data }, { rejectWithValue }) => {
@@ -645,7 +666,6 @@ export const getQuoteItemsAndFiltersget3 = createAsyncThunk(
     }
   }
 );
-
 
 export const getmailConfig = createAsyncThunk(
   "get/getmailConfig", // action type
@@ -687,10 +707,9 @@ export const getConfigContact = createAsyncThunk(
   }
 );
 
-
 export const getCompanyMailConfig = createAsyncThunk(
   "get/getCompanyMailConfig", // action type
-  async ({ ID,type }, { rejectWithValue }) => {
+  async ({ ID, type }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/GetEmailTemplate?CompanyID=${ID}&&Type=${type}`;
       const response = await axios.get(URL, {
@@ -755,7 +774,18 @@ const getSlice = createSlice({
       state.printGroupAddedData = action.payload;
     },
     printGroupAddedItem: (state, action) => {
-      state.printGroupAddedData.push(action.payload);
+      console.log("🚀 ~ action:", action)
+      // state.printGroupAddedData.push(action.payload);
+
+      action.payload.forEach((newItem) => {
+        const exists = state.printGroupAddedData.some(
+          (existingItem) =>
+            existingItem.PRICELISTID === newItem.PRICELISTID
+        );
+        if (!exists) {
+          state.printGroupAddedData.push(newItem);
+        }
+      });
     },
     printGroupDeletedItem: (state, action) => {
       let id = action.payload.id;
@@ -818,8 +848,14 @@ const getSlice = createSlice({
       state.runGroupAddedData = action.payload;
     },
     runGroupAddedItem: (state, action) => {
-      action.payload.forEach(newItem => {
-        const exists = [...state.runGroupAddedData,...state.runGroupGetData].some(existingItem => existingItem.CustomerNumber === newItem.CustomerNumber);
+      action.payload.forEach((newItem) => {
+        const exists = [
+          ...state.runGroupAddedData,
+          ...state.runGroupGetData,
+        ].some(
+          (existingItem) =>
+            existingItem.CustomerNumber === newItem.CustomerNumber
+        );
         if (!exists) {
           state.runGroupAddedData.push(newItem);
         }
@@ -841,6 +877,7 @@ const getSlice = createSlice({
         state.runGroupGetData.splice(rowIndex1, 1);
       }
     },
+
     clearRunGroupState: (state, action) => {
       state.runGroupStatus = "idle";
       state.runGroupMessage = "Initiating";
@@ -849,6 +886,30 @@ const getSlice = createSlice({
       state.runGroupFormData = {};
       state.runGroupGetData = [];
       state.runGroupAddedData = [];
+    },
+
+    proprietaryItemAddedItem: (state, action) => {
+      action.payload.forEach((newItem) => {
+        const exists = state.proprietaryItemGetData.some(
+          (existingItem) =>
+            existingItem.CustomerNumber === newItem.CustomerNumber
+        );
+        if (!exists) {
+          state.proprietaryItemGetData.push(newItem);
+        }
+      });
+    },
+
+    proprietaryItemDeletedItem: (state, action) => {
+      let id = action.payload.id;
+
+      const rowIndex1 = state.proprietaryItemGetData.findIndex(
+        (row) => row.CustomerNumber === id
+      );
+
+      if (rowIndex1 !== -1) {
+        state.proprietaryItemGetData.splice(rowIndex1, 1);
+      }
     },
 
     //UserGroup Company
@@ -909,63 +970,61 @@ const getSlice = createSlice({
       state.configurePriceListGetData = [];
     },
     clearStateProspectInfoQuote: (state, action) => {
-      state.getQuoteProspectDataItems= [];
-      state.getQuoteProspectLoadingItems= false;
-      state.getQuoteProspectStatusItems= "idle";
-      state.getQuoteProspectErrorItems= null;
+      state.getQuoteProspectDataItems = [];
+      state.getQuoteProspectLoadingItems = false;
+      state.getQuoteProspectStatusItems = "idle";
+      state.getQuoteProspectErrorItems = null;
     },
     onCheckboxChangePriceListEdit: (state, action) => {
-      const { id, field,adhocItem } = action.payload;
-      if(adhocItem == "Y"){
+      const { id, field, adhocItem } = action.payload;
+      if (adhocItem == "Y") {
         const updatedRow = state.priceListAddedData.map((row) =>
           row.RecordId === id ? { ...row, [field]: !row[field] } : row
         );
-  
+
         state.priceListAddedData = updatedRow;
-      }else{
+      } else {
         const updatedRow = state.priceListItemsData.map((row) =>
           row.RecordId === id ? { ...row, [field]: !row[field] } : row
         );
-  
+
         state.priceListItemsData = updatedRow;
       }
-
     },
   },
   extraReducers: (builder) => {
     builder
-    .addCase(getConfigContact.pending, (state) => {
-      state.getConfigContactData = {};
-      state.getConfigContactLoading = true;
-      state.getConfigContactStatus = "pending";
-      state.getConfigContactError = null;
-    })
-    .addCase(getConfigContact.fulfilled, (state, action) => {
-      state.getConfigContactData = action.payload.data;
-      state.getConfigContactLoading = false;
-      state.getConfigContactStatus = "fulfilled";
-    })
-    .addCase(getConfigContact.rejected, (state, action) => {
-      state.getConfigContactError = action.error.message;
-      state.getConfigContactLoading = false;
-      state.getConfigContactStatus = "rejected";
-    })
-    .addCase(getmailConfig.pending, (state) => {
-      state.getMailConfigData = {};
-      state.getMailConfigLoading = true;
-      state.getMailConfigStatus = "pending";
-    })
-    .addCase(getmailConfig.fulfilled, (state, action) => {
-
-      state.getMailConfigData = action.payload.data;
-      state.getMailConfigLoading = false;
-      state.getMailConfigStatus = "fulfilled";
-    })
-    .addCase(getmailConfig.rejected, (state, action) => {
-      state.getMailConfigError = action.error.message;
-      state.getMailConfigLoading = false;
-      state.getMailConfigStatus = "rejected";
-    })
+      .addCase(getConfigContact.pending, (state) => {
+        state.getConfigContactData = {};
+        state.getConfigContactLoading = true;
+        state.getConfigContactStatus = "pending";
+        state.getConfigContactError = null;
+      })
+      .addCase(getConfigContact.fulfilled, (state, action) => {
+        state.getConfigContactData = action.payload.data;
+        state.getConfigContactLoading = false;
+        state.getConfigContactStatus = "fulfilled";
+      })
+      .addCase(getConfigContact.rejected, (state, action) => {
+        state.getConfigContactError = action.error.message;
+        state.getConfigContactLoading = false;
+        state.getConfigContactStatus = "rejected";
+      })
+      .addCase(getmailConfig.pending, (state) => {
+        state.getMailConfigData = {};
+        state.getMailConfigLoading = true;
+        state.getMailConfigStatus = "pending";
+      })
+      .addCase(getmailConfig.fulfilled, (state, action) => {
+        state.getMailConfigData = action.payload.data;
+        state.getMailConfigLoading = false;
+        state.getMailConfigStatus = "fulfilled";
+      })
+      .addCase(getmailConfig.rejected, (state, action) => {
+        state.getMailConfigError = action.error.message;
+        state.getMailConfigLoading = false;
+        state.getMailConfigStatus = "rejected";
+      })
       // ITEMS
       .addCase(fetchgGetAItems.pending, (state) => {
         state.status = "loading";
@@ -1100,17 +1159,33 @@ const getSlice = createSlice({
         state.runGroupError = true;
       })
 
-        // RUN GROUP
-        .addCase(getRunGroupData2.pending, (state) => {
-          state.runGroupLoading = true;
-        })
-        .addCase(getRunGroupData2.fulfilled, (state, action) => {
-          state.runGroupLoading = false;
-          state.runGroupGetData = action.payload.data.RunGroupList;
-        })
-        .addCase(getRunGroupData2.rejected, (state, action) => {
-          state.runGroupLoading = false;
-        })
+      // RUN GROUP
+      .addCase(getRunGroupData2.pending, (state) => {
+        state.runGroupLoading = true;
+      })
+      .addCase(getRunGroupData2.fulfilled, (state, action) => {
+        state.runGroupLoading = false;
+        state.runGroupGetData = action.payload.data.RunGroupList;
+      })
+      .addCase(getRunGroupData2.rejected, (state, action) => {
+        state.runGroupLoading = false;
+      })
+      //PROPRIETARY ITEMS
+      .addCase(getProprietaryItemsData.pending, (state) => {
+        state.proprietaryItemStatus = "pending";
+        state.proprietaryItemLoading = true;
+      })
+      .addCase(getProprietaryItemsData.fulfilled, (state, action) => {
+        state.proprietaryItemStatus = "fulfilled";
+        state.proprietaryItemLoading = false;
+        state.proprietaryItemFormData = action.payload.data;
+        state.proprietaryItemGetData = action.payload.data.CustomerLists;
+      })
+      .addCase(getProprietaryItemsData.rejected, (state, action) => {
+        state.proprietaryItemStatus = "rejected";
+        state.proprietaryItemLoading = false;
+        state.proprietaryItemError = true;
+      })
       //COMPANY
       .addCase(getCompanyData.pending, (state) => {
         state.companyStatus = "pending";
@@ -1331,14 +1406,13 @@ const getSlice = createSlice({
       .addCase(getQuoteItemsAndFiltersget2.fulfilled, (state, action) => {
         state.getQuoteHeaderData = action.payload.data.headerdata;
         state.getQuteFiltData = action.payload.data.filterData;
-
       })
       .addCase(getQuoteItemsAndFiltersget3.fulfilled, (state, action) => {
         state.getQuoteFilterItemData = action.payload.data.itemData;
       })
 
-       //COMPANY--MAIL
-       .addCase(getCompanyMailConfig.pending, (state) => {
+      //COMPANY--MAIL
+      .addCase(getCompanyMailConfig.pending, (state) => {
         state.mailStatus = "pending";
         state.mailLoading = true;
       })
@@ -1351,8 +1425,7 @@ const getSlice = createSlice({
         state.mailStatus = "rejected";
         state.mailLoading = false;
         state.mailError = true;
-      })
-
+      });
   },
 });
 
@@ -1383,6 +1456,8 @@ export const {
   runGroupDeletedItem,
   clearRunGroupState,
 
+  proprietaryItemAddedItem,
+  proprietaryItemDeletedItem,
   //COMPANYACCESS
   companyAdded,
   applicationAdded,

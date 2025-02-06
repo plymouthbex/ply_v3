@@ -435,7 +435,7 @@ const RunGroupEdit = () => {
                         setselectedSalesName(newValue.Name);
                       }
                     }}
-                    label="Sales Person Name"
+                    label="Price Book Group"
                     url={`${process.env.REACT_APP_BASE_URL}GPRungroup/SalesPerson`}
                   />
                   <Stack

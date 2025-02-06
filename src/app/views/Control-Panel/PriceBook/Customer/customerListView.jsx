@@ -371,7 +371,7 @@ const Customer = () => {
         <Typography fontSize={"16px"}>
           <Typography component="span" fontSize={"16px"} fontWeight="bold">
             Company:
-          </Typography>{" "}
+          </Typography>
           {State.Code} || {State.Name}
         </Typography>
 

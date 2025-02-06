@@ -196,10 +196,6 @@ export default function BuildCustomPriceBook() {
   const getQuoteHeaderData = useSelector(
     (state) => state.getSlice.getQuoteHeaderData
   );
-  console.log(
-    "🚀 ~ BuildCustomPriceBook ~ getQuoteHeaderData:",
-    getQuoteHeaderData
-  );
 
   const getQuteFiltLoading = useSelector(
     (state) => state.getSlice.getQuteFiltLoading
@@ -909,7 +905,7 @@ export default function BuildCustomPriceBook() {
               : true,
             CurrentDate:
               getQuoteHeaderData.CurrentDate || getCurrentDateForInput(),
-            brandInEx:getQuteFiltData.Brand.Option,
+            brandInEx: getQuteFiltData.Brand.Option,
             brand: JSON.parse(getQuteFiltData.Brand.Value),
             commodityInEx: getQuteFiltData.Commodity.Option,
             com: JSON.parse(getQuteFiltData.Commodity.Value),
@@ -1562,6 +1558,8 @@ export default function BuildCustomPriceBook() {
                         Ad Hoc Items
                       </Typography>
                       <FormikCustomAutocompleteMultiAdHocItems
+                      key={JSON.stringify(getQuoteFilterItemData)}
+                        height={40}
                         name="adHocItems"
                         id="adHocItems"
                         value={values.adHocItems}
@@ -1570,6 +1568,7 @@ export default function BuildCustomPriceBook() {
                         }
                         label="Ad Hoc Items"
                         url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
+                        filterData={getQuoteFilterItemData}
                       />
                       <Stack direction="row" gap={1}>
                         <FormControlLabel
@@ -1581,6 +1580,9 @@ export default function BuildCustomPriceBook() {
                               name="brokenItems"
                               checked={values.brokenItems}
                               onChange={handleChange}
+                              disabled={
+                                params.mode === "delete" 
+                              }
                             />
                           }
                           label="Broken Items"
@@ -1594,6 +1596,9 @@ export default function BuildCustomPriceBook() {
                               name="damagedItems"
                               checked={values.damagedItems}
                               onChange={handleChange}
+                              disabled={
+                                params.mode === "delete" 
+                              }
                             />
                           }
                           label="Damaged Items"
@@ -1615,13 +1620,31 @@ export default function BuildCustomPriceBook() {
                               checked={values.combinationFilter}
                               onChange={handleChange}
                               disabled={
-                                params.mode === "delete" ||
-                                params.mode === "view"
+                                params.mode === "delete" 
                               }
                             />
                           }
-                          label="Combined Filter (The result shows the combination of filters)"
+                          label="Combined Filter"
                         />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "5px",
+                            border: "1px solid red",
+                            borderRadius: 1,
+                            backgroundColor: "#ffe6e6",
+                            minHeight: 30, // Ensure consistent heigh
+                          }}
+                        >
+                          <Typography
+                            color="error"
+                            fontSize={"11px"}
+                            align="center"
+                          >
+                            Note: The result shows the combination of filters
+                          </Typography>
+                        </Box>
                       </Stack>
 
                       <Stack

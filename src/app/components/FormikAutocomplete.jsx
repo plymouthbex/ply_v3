@@ -57,6 +57,45 @@ ListboxComponent.propTypes = {
 };
 
 
+
+const ListboxComponent1 = React.forwardRef((props, ref) => {
+  const { children, ...other } = props;
+  const itemData = React.Children.toArray(children).flat();
+  const theme = useTheme();
+  const smUp = useMediaQuery(theme.breakpoints.up("sm"), { noSsr: true });
+  const itemSize = smUp ? 40 : 40;
+
+  const getChildSize = (child) => (child.group ? 10 : itemSize);
+  const itemCount = itemData.length;
+  const height = Math.min(8, itemCount) * itemSize;
+
+  return (
+    <div ref={ref}>
+      <OuterElementContext.Provider value={other}>
+        <VariableSizeList
+          height={height + 2 * LISTBOX_PADDING}
+          width="100%"
+          itemSize={(index) => getChildSize(itemData[index])}
+          itemCount={itemCount}
+          itemData={itemData}
+          outerElementType={OuterElementType}
+          innerElementType="ul"
+          overscanCount={5}
+        >
+          {({ index, style }) =>
+            React.cloneElement(itemData[index], { style })
+          }
+        </VariableSizeList>
+      </OuterElementContext.Provider>
+    </div>
+  );
+});
+
+ListboxComponent1.propTypes = {
+  children: PropTypes.node,
+};
+
+
 // export function CusListRunGrpOptimizedAutocomplete({
 //   value = [],
 //   onChange,
@@ -237,6 +276,7 @@ export function CompanyPriceListAutoComplete({
   multiple = true,
   errors,
   helper,
+  filterData,
   ...props
 }) {
   const [options, setOptions] = useState([]);
@@ -250,7 +290,12 @@ export function CompanyPriceListAutoComplete({
         const { data } = await axios.get(url, {
           headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
-        setOptions(data.data || []);
+        const existingItems = new Set(filterData.map(item => item.PRICELISTID));
+        const filteredOptions = (data.data || []).filter(
+          option => !existingItems.has(option.PRICELISTID)
+        );
+  
+        setOptions(filteredOptions);
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
@@ -258,7 +303,9 @@ export function CompanyPriceListAutoComplete({
         setLoading(false);
       }
     };
-    fetchData();
+    const timeout = setTimeout(fetchData, 500); // Debounce API call
+  
+    return () => clearTimeout(timeout); // Cleanup timeout
   }, []);
 
   return (
@@ -314,7 +361,6 @@ export function CompanyPriceListAutoComplete({
   );
 }
 
-export const CompanyPriceListAutoCompleteMemo = React.memo(CompanyPriceListAutoComplete)
 // export const CusListRunGrpOptimizedAutocomplete = ({
 //   value = [],
 //   onChange,
@@ -527,12 +573,16 @@ export function FormikCustomAutocompleteMultiAdHocItems({
   url,
   label = "Select Options",
   multiple = true,
+  height= 30,
+  filterData = [],
   ...props
 }) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  
 
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -540,7 +590,13 @@ export function FormikCustomAutocompleteMultiAdHocItems({
         const { data } = await axios.get(url, {
           headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
-        setOptions(data.data || []);
+  
+        const existingItems = new Set(filterData.map(item => item.Item_Number));
+        const filteredOptions = (data.data || []).filter(
+          option => !existingItems.has(option.Item_Number)
+        );
+  
+        setOptions(filteredOptions);
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
@@ -548,8 +604,11 @@ export function FormikCustomAutocompleteMultiAdHocItems({
         setLoading(false);
       }
     };
-    fetchData();
-  }, [url]);
+  
+    const timeout = setTimeout(fetchData, 500); // Debounce API call
+  
+    return () => clearTimeout(timeout); // Cleanup timeout
+  }, [url, filterData]);
 
   return (
     <Autocomplete
@@ -570,9 +629,9 @@ export function FormikCustomAutocompleteMultiAdHocItems({
       disableCloseOnSelect
       disableListWrap
       loading={loading}
-      ListboxComponent={ListboxComponent}
+      ListboxComponent={ListboxComponent1}
       renderOption={(props, option, { selected }) => (
-        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+        <li {...props} style={{ display: "flex", gap: 2, height: 40 }}>
           <Checkbox
             size="small"
             sx={{ marginLeft: -1 }}

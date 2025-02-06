@@ -24,14 +24,6 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         fav: false,
       },
-      // {
-      //   name: "New Quote",
-      //   icon: <DescriptionIcon fontSize="small" />,
-      //   path: "/pages/pricing-portal/quote-list",
-      //   accessID: "PPB003",
-      //   iconText: "V",
-      //   fav: false,
-      // },
 
       {
         name: "New Quote",
@@ -82,6 +74,15 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
+      
+      {
+        name: "Categories",
+        path: "/pages/control-panel/print-group",
+        iconText: "P",
+        accessID: "CP003",
+        icon: <DescriptionIcon fontSize="small" />,
+        role: authRoles.admin,
+      },
       {
         name: "Price List",
         path: "/pages/control-panel/price-list",
@@ -91,14 +92,6 @@ export const navigations = [
         role: authRoles.admin,
       },
 
-      {
-        name: "Categories",
-        path: "/pages/control-panel/print-group",
-        iconText: "P",
-        accessID: "CP003",
-        icon: <DescriptionIcon fontSize="small" />,
-        role: authRoles.admin,
-      },
 
       {
         name: "Price Book Group",
@@ -180,14 +173,7 @@ export const favMenu = [
     icon: <DescriptionIcon fontSize="small" />,
     role: authRoles.user,
   },
-  // {
-  //   name: "Build Custom Price Book",
-  //   path: "/pages/price-book/build-custom",
-  //   iconText: "B",
-  //   accessID: "PPB003",
-  //   icon: <DescriptionIcon fontSize="small" />,
-  //   role: authRoles.user,
-  // },
+
   {
     name: "Run Price Book",
     path: "/pages/run-price-book",
@@ -262,135 +248,3 @@ export const favMenu = [
   },
 ];
 
-// export const navigations = [
-//   {
-//     name: "Price Book",
-//     icon: <FolderIcon fontSize="small" />,
-//     children: [
-//       {
-//         name: "Print Price Book",
-//         path: "/pages/view-price-book",
-//         iconText: "P",
-//         accessID: "PPB002",
-//         icon: <DescriptionIcon fontSize="small" />,
-//         role: authRoles.user,
-//         fav : false,
-//       },
-//       // {
-//       //   name: "Build Custom Price Book",
-//       //   path: "/pages/price-book/build-custom",
-//       //   iconText: "B",
-//       //   accessID: "PPB003",
-//       //   icon: <DescriptionIcon fontSize="small" />,
-//       //   role: authRoles.user,
-//       //   fav : false,
-//       // },
-//       {
-//         name: "Print Price Book Group",
-//         path: "/pages/run-price-book",
-//         iconText: "PP",
-//         accessID: "PPB004",
-//         icon: <DescriptionIcon fontSize="small" />,
-//         role: authRoles.user,
-//         fav : false,
-//       },
-//     ],
-//   },
-//   {
-//     name: "Quote",
-//     icon: <DescriptionIcon fontSize="small" />,
-//     path: "/pages/quote-form",
-//     role: authRoles.user,
-//     accessID: "PPB005",
-//     iconText: "V",
-//     fav : false,
-//   },
-//   {
-//     name: "Price Book Directory",
-//     icon: <FolderIcon fontSize="small" />,
-//     children: [
-//       {
-//         name: "View Directory",
-//         path: "/pages/view-directory",
-//         iconText: "V",
-//         icon: <DescriptionIcon fontSize="small" />,
-//         accessID: "PPB006",
-//         role: authRoles.user,
-//         fav : false,
-//       },
-//       {
-//         name: "Add New Contact",
-//         path: "/pages/add-new-contact",
-//         accessID: "PPB007",
-//         iconText: "V",
-//         icon: <DescriptionIcon fontSize="small" />,
-//         role: authRoles.user,
-//         fav : false,
-//         // mode:add
-//       },
-//     ],
-//   },
-//   {
-//     name: "Edit Price Book",
-//     icon: <DescriptionIcon fontSize="small" />,
-//     path: "/pages/edit-price-book",
-//     role: authRoles.user,
-//     accessID: "PPB008",
-//     iconText: "E",
-//     fav : false,
-//   },
-//   {
-//     name: "Price Book Templates",
-//     icon: <DescriptionIcon fontSize="small" />,
-//     path: "/pages/price-book-template",
-//     role: authRoles.user,
-//     accessID: "PPB009",
-//     iconText: "P",
-//     fav : false,
-//   },
-//   {
-//     name: "Quote Templates",
-//     icon: <DescriptionIcon fontSize="small" />,
-//     path: "/pages/quote-template",
-//     role: authRoles.user,
-//     accessID: "PPB0010",
-//     iconText: "QT",
-//     fav : false,
-//   },
-//   {
-//     name: "Specials",
-//     icon: <DescriptionIcon fontSize="small" />,
-//     path: "/pages/specials",
-//     role: authRoles.user,
-//     accessID: "PPB0011",
-//     iconText: "S",
-//   },
-//   {
-//     name: "Configure Price Book",
-//     icon: <DescriptionIcon fontSize="small" />,
-//     path: "/pages/price-book/configure",
-//     role: authRoles.admin,
-//     accessID: "PPB0012",
-//     iconText: "C",
-//     fav : false,
-//   },
-
-//   //     {
-//   //       name: "Add New Contact",
-//   //       path: "/pages/add-new-contact",
-//   //       iconText: "B",
-//   //       accessID: null,
-//   //       icon: <DescriptionIcon fontSize="small" />,
-//   //       role: authRoles.user,
-//   //     },
-//   //     {
-//   //       name: "Run Price Book",
-//   //       path: "/pages/run-price-book",
-//   //       iconText: "B",
-//   //       accessID: null,
-//   //       icon: <DescriptionIcon fontSize="small" />,
-//   //       role: authRoles.user,
-//   //     },
-//   //   ],
-//   // },
-// ];

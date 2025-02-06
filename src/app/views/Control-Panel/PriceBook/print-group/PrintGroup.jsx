@@ -41,6 +41,8 @@ import {
 import { Formik } from "formik";
 import { useState } from "react";
 import { postPrintGroupData, runGroupPost } from "app/redux/slice/postSlice";
+import { FormikCustomSelectCompanyPriceList } from "app/components/SingleAutocompletelist";
+import useAuth from "app/hooks/useAuth";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -58,6 +60,7 @@ const PrintGroup = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useAuth()
   // ********************** LOCAL STATE ********************** //
   const isNonMobile = useMediaQuery("(min-width:900px)");
   const [isSide, setIsSide] = useState(false);
@@ -68,7 +71,8 @@ const PrintGroup = () => {
   );
 
   const [priceBookCateData, setPriceBookCateData] = useState({});
-  console.log("🚀 ~ PrintGroup ~ priceBookCateData:", priceBookCateData);
+    const [companyID, setCompanyID] = useState(user.companyCode);
+  
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
@@ -118,7 +122,7 @@ const PrintGroup = () => {
                   navigate(
                     "/pages/control-panel/print-group/print-group-detail/edit",
                     {
-                      state: { id: params.row.RecordID },
+                      state: { id: params.row.RecordID,companyID },
                     }
                   );
                 }}
@@ -135,7 +139,7 @@ const PrintGroup = () => {
                   navigate(
                     "/pages/control-panel/print-group/print-group-detail/delete",
                     {
-                      state: { id: params.row.RecordID },
+                      state: { id: params.row.RecordID,companyID },
                     }
                   );
                 }}
@@ -150,7 +154,7 @@ const PrintGroup = () => {
   ];
 
   useEffect(() => {
-    dispatch(getPrintGroupListView());
+    dispatch(getPrintGroupListView(companyID));
     dispatch(clearPrintGroupState());
   }, [dispatch]);
 
@@ -170,12 +174,28 @@ const PrintGroup = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
             gap: 2,
             paddingX: 2,
+            width: "100%",
           }}
         >
+          <FormikCustomSelectCompanyPriceList
+            name="company"
+            id="company"
+            multiple={false}
+            value={companyID}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+              dispatch(getPrintGroupListView(e.target.value));
+            }}
+            label="Company"
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+          />
+          <Stack direction={"row"} gap={1}>
+
+          
           <GridToolbarQuickFilter />
           <Tooltip title="Create New Category">
             <IconButton
@@ -185,18 +205,20 @@ const PrintGroup = () => {
                 navigate(
                   "/pages/control-panel/print-group/print-group-detail/add",
                   {
-                    state: { id: 0 },
+                    state: { id: 0,companyID },
                   }
                 );
               }}
             >
-              <Add sx={{
+              <Add
+                sx={{
                   fontSize: 30, // Increased icon size
                   color: theme.palette.success.main,
-                }} />
+                }}
+              />
             </IconButton>
           </Tooltip>
-
+          </Stack>
           {/* <Button
             variant="contained"
             color="info"
@@ -229,14 +251,15 @@ const PrintGroup = () => {
       sortorder: values.SortOrder,
       disable: "N",
       printList: [],
-      Headeronly:true
+      Headeronly: true,
+      CompanyCode:companyID
     };
     try {
       const response = await dispatch(postPrintGroupData({ PGdata: postData }));
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
-        dispatch(getPrintGroupListView());
+        dispatch(getPrintGroupListView(companyID));
         setIsSide(false);
       } else {
         setOpenAlert(true);
@@ -252,10 +275,7 @@ const PrintGroup = () => {
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[
-            { name: "Control Panel" },
-            { name: "Categories" },
-          ]}
+          routeSegments={[{ name: "Control Panel" }, { name: "Categories" }]}
         />
       </div>
 
