@@ -528,15 +528,23 @@ export default function BuildCustomPriceBook() {
     };
     const response = await dispatch(priceListClearFilter({ data }));
     if (response.payload.status === "Y") {
+      setFieldValue("brandInEx", "IncludeAll");
+      setFieldValue("commodityInEx", "IncludeAll");
+      setFieldValue("altClassInEx", "IncludeAll");
+      setFieldValue("vendorInEx", "IncludeAll");
+      setFieldValue("frshForzInEx", "IncludeAll");
+      setFieldValue("SecondClassInEx", "IncludeAll");
+      setFieldValue("classIDInEx", "IncludeAll");
       setOpenAlert4(true);
       setFieldValue("brand", []);
       setFieldValue("com", []);
       setFieldValue("alt", []);
       setFieldValue("vendor", []);
-
       setFieldValue("fsfz", []);
       setFieldValue("classID", []);
       setFieldValue("secondary", []);
+      setFieldValue("PriceLists", []);
+      setFieldValue("adHocItems", []);
       setFieldValue("brokenItems", false);
       setFieldValue("damagedItems", false);
       setFieldValue("combinationFilter", false);

@@ -187,6 +187,7 @@ export const getPriceListData = createAsyncThunk(
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
       });
+      console.log("🚀 ~ response:", response)
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -195,6 +196,7 @@ export const getPriceListData = createAsyncThunk(
     }
   }
 );
+      
 
 export const getPriceListData2 = createAsyncThunk(
   "getPriceListData2/GET",

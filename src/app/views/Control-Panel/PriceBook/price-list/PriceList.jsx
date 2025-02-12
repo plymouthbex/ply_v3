@@ -10,6 +10,8 @@ import {
   Stack,
   Tooltip,
   IconButton,
+  useMediaQuery,
+  TextField,
 } from "@mui/material";
 import {
   DataGrid,
@@ -36,6 +38,7 @@ import {
   getPrintGroupListView,
 } from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
+import SaveIcon from "@mui/icons-material/Save";
 import {
   clearPriceListState,
   clearPrintGroupState,
@@ -52,6 +55,8 @@ import {
   PrintGroupOptimizedAutocomplete,
 } from "app/components/SingleAutocompletelist";
 import useAuth from "app/hooks/useAuth";
+import { Formik } from "formik";
+import { UpdateSeqPriceList } from "app/redux/slice/postSlice";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -72,6 +77,9 @@ const PriceList = () => {
   const location = useLocation();
   const state = location.state;
   const { user } = useAuth();
+  const isNonMobile = useMediaQuery("(min-width:900px)");
+  const [isSide, setIsSide] = useState(false);
+  const [priceBookCateData, setPriceBookCateData] = useState({});
 
   // ********************** LOCAL STATE ********************** //
 
@@ -104,13 +112,29 @@ const PriceList = () => {
       hide: true,
     },
     {
-      headerName: " Price List Description",
+      headerName: "Price List Description",
       field: "PRICELISTDESCRIPTION",
       minWidth: 250,
       flex: 1,
       align: "left",
       headerAlign: "left",
       hide: false,
+    },
+    {
+      headerName: "Print Sequence",
+      field: "PrintSequence",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
+      headerName: "Item Count",
+      field: "PriceListItemCount",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: true,
     },
     {
       field: "Action",
@@ -132,7 +156,10 @@ const PriceList = () => {
                   naviate(
                     "/pages/control-panel/price-list/price-list-detail/edit",
                     {
-                      state: { id: params.row.PRICELISTID, companyCode: companyID },
+                      state: {
+                        id: params.row.PRICELISTID,
+                        companyCode: companyID,
+                      },
                     }
                   );
                 }}
@@ -149,7 +176,10 @@ const PriceList = () => {
                   naviate(
                     "/pages/control-panel/price-list/price-list-detail/delete",
                     {
-                      state: { id: params.row.PRICELISTID, companyCode: companyID },
+                      state: {
+                        id: params.row.PRICELISTID,
+                        companyCode: companyID,
+                      },
                     }
                   );
                 }}
@@ -166,7 +196,10 @@ const PriceList = () => {
                   naviate(
                     "/pages/control-panel/price-list/price-list-detail/view",
                     {
-                      state: { id: params.row.PRICELISTID, companyCode: companyID },
+                      state: {
+                        id: params.row.PRICELISTID,
+                        companyCode: companyID,
+                      },
                     }
                   );
                 }}
@@ -187,172 +220,99 @@ const PriceList = () => {
   const [companyID, setCompanyID] = useState(user.companyCode);
   useEffect(() => {
     dispatch(getPriceListView({ ID: companyID }));
-    dispatch(getPrintGroupListView());
     dispatch(clearPriceListState());
-    dispatch(clearPrintGroupState());
-    dispatch(clearCustomerListState());
-  }, [dispatch]);
+    // dispatch(getPrintGroupListView());
+    // dispatch(clearPrintGroupState());
+    // dispatch(clearCustomerListState());
+  }, []);
 
-//   function CustomToolbar() {
-//     return (
-//       <GridToolbarContainer
-//         sx={{
-//           display: "flex",
-//           flexDirection: "row",
-//           justifyContent: "space-between",
-//           width: "100%",
-//           padding: 2,
-//         }}
-//       >
-//         <Box
-//           sx={{
-//             display: "flex",
-//             flexDirection: "row",
-//             justifyContent: "space-between",
-//             alignItems: "center",
-//             gap: 2,
-//             paddingX: 2,
-//             width: "100%",
-//           }}
-//         >
-//           <FormikCustomSelectCompanyPriceList
-//             name="company"
-//             id="company"
-//             // sx={{ gridColumn: "span 2" }}
-//             multiple={false}
-//             // disabled={user.role == "USER"}
-//             value={companyID}
-//             onChange={(e) => {
-//               setCompanyID(e.target.value);
-//               dispatch(getPriceListView({ ID: e.target.value }));
-//             }}
-//             label="Company"
-//             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-//           />
-//           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-//   <GridToolbarQuickFilter />
-//   {/* <Tooltip title="Create Price List"> */}
-//   <Tooltip title="Create Price List">
-//   <IconButton
-//     color="info"
-//     // size="medium"
-//     sx={{ height: 50, width: 50 }}
-//     onClick={() => {
-//       naviate(
-//         "/pages/control-panel/price-list/price-list-detail/add",
-//         {
-//           state: { id: 0, companyCode: companyID },
-//         }
-//       );
-//     }}
-//   >
-//     <Add
-//       sx={{
-//         color: "#174c4f", 
-//       }}
-//     />
-//   </IconButton>
-// </Tooltip>
-
-
-
-
-//             {/* <IconButton
-//               variant="contained"
-//               color="info"
-//               size="small"
-//               startIcon={ <Add
-//                 fontSize="small"
-//                 sx={{
-//                   color: "#174c4f", // Set the icon color
-//                   fontWeight: "bold", // Make it bold (some icons reflect this via SVG paths)
-//                 }}
-//               />}
-//               onClick={() => {
-//                 // if (rowSelectionModelRows.length === 0) {
-//                 //   return toast.error("Please Select a Price List Items");
-//                 // }
-//                 try {
-//                   dispatch(printGroupSelectedItems(rowSelectionModelRows));
-
-//                   naviate(
-//                     "/pages/control-panel/print-group/print-group-detail/add",
-//                     {
-//                       state: { id: 0, company: companyID },
-//                     }
-//                   );
-//                 } catch (e) {}
-//               }}
-//             >
-//               Create New Category
-//             </IconButton> */}
-//           </Box>
-//         </Box>
-//       </GridToolbarContainer>
-//     );
-//   }
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        padding: 2,
-      }}
-    >
-      <Box
+  const CustomToolbar = React.memo(() => {
+    return (
+      <GridToolbarContainer
         sx={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          alignItems: "center",
-          gap: 2,
-          paddingX: 2,
           width: "100%",
+          padding: 2,
         }}
       >
-        <FormikCustomSelectCompanyPriceList
-          name="company"
-          id="company"
-          multiple={false}
-          value={companyID}
-          onChange={(e) => {
-            setCompanyID(e.target.value);
-            dispatch(getPriceListView({ ID: e.target.value }));
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+            paddingX: 2,
+            width: "100%",
           }}
-          label="Company"
-          url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-        />
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <GridToolbarQuickFilter />
-          <Tooltip title="Create Price List">
-            <IconButton
-              color="info"
-
-              onClick={() => {
-                naviate(
-                  "/pages/control-panel/price-list/price-list-detail/add",
-                  {
-                    state: { id: 0, companyCode: companyID },
-                  }
-                );
-              }}
-            >
-              <Add
-                sx={{
-                  fontSize:30, // Increased icon size
-                  color: theme.palette.success.main,
+        >
+          <FormikCustomSelectCompanyPriceList
+            name="company"
+            id="company"
+            multiple={false}
+            value={companyID}
+            onChange={(e) => {
+              setCompanyID(e.target.value);
+              dispatch(getPriceListView({ ID: e.target.value }));
+            }}
+            label="Company"
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+          />
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+            <GridToolbarQuickFilter />
+            <Tooltip title="Create Price List">
+              <IconButton
+                color="info"
+                onClick={() => {
+                  naviate(
+                    "/pages/control-panel/price-list/price-list-detail/add",
+                    {
+                      state: { id: 0, companyCode: companyID },
+                    }
+                  );
                 }}
-              />
-            </IconButton>
-          </Tooltip>
+              >
+                <Add
+                  sx={{
+                    fontSize: 30, // Increased icon size
+                    color: theme.palette.success.main,
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
-      </Box>
-    </GridToolbarContainer>
-  );
-}
+      </GridToolbarContainer>
+    );
+  });
+
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
+
+  const PriceListSaveFn = async (values, setSubmitting) => {
+    const postData = {
+      PriceListID: values.PriceListID,
+      PrintSequence: values.PrintSequence,
+    };
+    try {
+      const response = await dispatch(UpdateSeqPriceList({ data: postData }));
+
+      if (response.payload.status === "Y") {
+        setOpenAlert(true);
+        dispatch(getPriceListView({ ID: companyID }));
+        setIsSide(false);
+      } else {
+        setOpenAlert(true);
+        setPostError(true);
+        setIsSide(false);
+      }
+    } catch (error) {
+      console.error("Error during HandleSave:", error);
+    }
+    setSubmitting(false);
+  };
 
   return (
     <Container>
@@ -368,44 +328,71 @@ function CustomToolbar() {
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <Stack sx={{ gridColumn: "span 3" }} direction="column" gap={3}>
+        <Box
+          display="grid"
+          gap="20px"
+          gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+          sx={{
+            "& > div": {
+              gridColumn: isNonMobile ? undefined : "span 4",
+            },
+            padding: "10px",
+          }}
+        >
           <Box
             sx={{
+              gridColumn: isSide ? "span 3" : "span 4",
               height: dataGridHeight,
               "& .MuiDataGrid-root": {
                 border: "none",
               },
+
               "& .name-column--cell": {
                 color: theme.palette.info.contrastText,
               },
+
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: theme.palette.info.main,
+
                 color: theme.palette.info.contrastText,
+
                 fontWeight: "bold",
+
                 fontSize: theme.typography.subtitle2.fontSize,
               },
+
               "& .MuiDataGrid-virtualScroller": {
                 backgroundColor: theme.palette.info.light,
               },
+
               "& .MuiDataGrid-footerContainer": {
                 borderTop: "none",
+
                 backgroundColor: theme.palette.info.main,
+
                 color: theme.palette.info.contrastText,
               },
+
               "& .MuiCheckbox-root": {
                 color: "black !important",
               },
+
               "& .MuiCheckbox-root.Mui-checked": {
                 color: "black !important",
               },
+
               "& .MuiDataGrid-row:nth-of-type(even)": {
                 backgroundColor: theme.palette.action.hover,
               },
+
               "& .MuiDataGrid-row:nth-of-type(odd)": {
                 backgroundColor: theme.palette.background.default,
               },
               "& .MuiDataGrid-row.Mui-selected:hover": {
-                backgroundColor: `${theme.palette.action.selected} !important`,
+                backgroundColor: `none !important`,
+              },
+              "& .MuiDataGrid-row.Mui-selected": {
+                border: `1px solid ${theme.palette.success.main}`,
               },
               "& .MuiTablePagination-root": {
                 color: "white !important", // Ensuring white text color for the pagination
@@ -417,6 +404,19 @@ function CustomToolbar() {
 
               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
                 color: "white !important", // Ensuring white icons for pagination
+              },
+              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+                backgroundColor: `transparent !important`,
+              },
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-cell:hover": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-row": {
+                transition: "none !important", // Disable any transition effects
               },
             }}
           >
@@ -437,9 +437,13 @@ function CustomToolbar() {
               rows={priceRows}
               columns={columns}
               loading={loading}
-              checkboxSelection
-              disableSelectionOnClick
-              disableRowSelectionOnClick
+              // checkboxSelection
+              onRowClick={(params) => {
+                setPriceBookCateData(params.row);
+                setIsSide(true);
+              }}
+              // disableSelectionOnClick
+              // disableRowSelectionOnClick
               getRowId={(row) => row.PRICELISTID}
               initialState={{
                 pagination: { paginationModel: { pageSize: dataGridPageSize } },
@@ -456,112 +460,103 @@ function CustomToolbar() {
                   showQuickFilter: true,
                 },
               }}
-              onRowSelectionModelChange={(newRowSelectionModel) => {
-                const filterArray = priceRows.filter((v) =>
-                  newRowSelectionModel.includes(v.PRICELISTID)
-                );
-                setRowSelectionModel(newRowSelectionModel);
-                setRowSelectionModelRows(filterArray);
-              }}
-              rowSelectionModel={rowSelectionModel}
+              // onRowSelectionModelChange={(newRowSelectionModel) => {
+              //   const filterArray = priceRows.filter((v) =>
+              //     newRowSelectionModel.includes(v.PRICELISTID)
+              //   );
+              //   setRowSelectionModel(newRowSelectionModel);
+              //   setRowSelectionModelRows(filterArray);
+              // }}
+              // rowSelectionModel={rowSelectionModel}
             />
           </Box>
-          <Stack direction="row" gap={3}>
-            <TableContainer
-              component={Paper}
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                padding: 2,
-                gap: 2,
-              }}
-            >
-              <PrintGroupOptimizedAutocomplete
-                sx={{ maxWidth: 300 }}
-                fullWidth
-                name="printGroup"
-                id="printGroup"
-                value={printSelectedData}
-                onChange={handlePrintSelectedData}
-                label="Price Book Category"
-                url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${companyID}`}
-              />
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {
-                  if (!printSelectedData) {
-                    return toast.error("Please Select a Print Group ");
-                  }
-                  if (rowSelectionModelRows.length === 0) {
-                    return toast.error("Please Select a Price List");
-                  }
-                  try {
-                    dispatch(printGroupSelectedItems(rowSelectionModelRows));
-
-                    naviate(
-                      "/pages/control-panel/print-group/print-group-detail/edit",
-                      {
-                        state: { id: printSelectedData.RecordID,
-                          YearFlag: true
-                         },
-                      }
-                    );
-                  } catch (e) {}
+          {isSide && (
+            <Box sx={{ gridColumn: "span 1", marginTop: 8 }}>
+              <Formik
+                initialValues={{
+                  PriceListID: priceBookCateData.PRICELISTID,
+                  PrintSequence: priceBookCateData.PrintSequence,
+                }}
+                enableReinitialize={true}
+                onSubmit={(values, { setSubmitting }) => {
+                  PriceListSaveFn(values, setSubmitting);
                 }}
               >
-                Add Price List To Price Book Category
-              </Button>
-            </TableContainer>
-            {/* <TableContainer
-              component={Paper}
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                padding: 2,
-                gap: 2,
-                // maxWidth: 300,
-              }}
-            >
-              <CustomerPriceListOptimizedAutocomplete
-                sx={{ maxWidth: 300 }}
-                fullWidth
-                name="customerPriceList"
-                id="customerPriceList"
-                value={customerSelectData}
-                onChange={handleCustomerSelectData}
-                label="Customer Price Lists"
-                url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList`}
-              />
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() => {
-                  if (!customerSelectData) {
-                    return toast.error("Please Select a Customer");
-                  }
-                  if (rowSelectionModelRows.length === 0) {
-                    return toast.error("Please Select a Price List");
-                  }
-                  try {
-                    dispatch(customerListSelectedItems(rowSelectionModelRows));
+                {({
+                  errors,
+                  touched,
+                  handleBlur,
+                  handleChange,
+                  isSubmitting,
+                  values,
+                  handleSubmit,
+                  setFieldValue,
+                  setSubmitting,
+                }) => (
+                  <form onSubmit={handleSubmit}>
+                    <Stack direction="column" gap={2}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        type="text"
+                        id="PriceListID"
+                        name="PriceListID"
+                        label="Price List ID"
+                        size="small"
+                        onChange={handleChange}
+                        value={values.PriceListID}
+                        required
+                        autoComplete="off"
+                        InputLabelProps={{
+                          sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                        }}
+                        disabled={true}
+                        // error={!!touched.groupCode && !!errors.groupCode}
+                        // helperText={touched.groupCode && errors.groupCode}
+                      />
 
-                    naviate(
-                      "/pages/control-panel/customer-price-lists/customer-price-lists-detail/edit",
-                      {
-                        state: { id: customerSelectData.CustomerNumber },
-                      }
-                    );
-                  } catch (e) {}
-                }}
-              >
-                Add Price List To Customer
-              </Button>
-            </TableContainer> */}
-          </Stack>
-        </Stack>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        type="text"
+                        id="PrintSequence"
+                        name="PrintSequence"
+                        label="Sequence"
+                        size="small"
+                        onChange={handleChange}
+                        value={values.PrintSequence}
+                      />
+
+                      <Stack direction={"row"} gap={1}>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          disabled={isSubmitting}
+                          startIcon={<SaveIcon size="small" />}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          // startIcon={<ArrowBackIcon size="small" />}
+                          onClick={() => {
+                            setIsSide(false);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Stack>
+                    </Stack>
+                  </form>
+                )}
+              </Formik>
+            </Box>
+          )}
+        </Box>
       </Paper>
     </Container>
   );

@@ -193,6 +193,14 @@ const ConfigureCompanyEdit = () => {
       hide: false,
     },
     {
+      headerName: "Item Count",
+      field: "PriceListItemCount",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
       field: "Action",
       headerName: "Action",
       minWidth: 200,

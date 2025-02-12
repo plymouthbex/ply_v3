@@ -182,7 +182,7 @@ const ConfigureContactEdit = () => {
           flexDirection: "row",
           justifyContent: "flex-end",
           width: "100%",
-          padding: 2,
+          padding: 0.5,
         }}
       >
         <Box
@@ -192,7 +192,6 @@ const ConfigureContactEdit = () => {
             justifyContent: "flex-end",
             alignItems: "center",
             gap: 2,
-            paddingX: 2,
           }}
         >
           <GridToolbarQuickFilter />
@@ -401,7 +400,7 @@ const ConfigureContactEdit = () => {
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <Box
                   display="grid"
-                  gap="20px"
+                  gap="10px"
                   gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                   sx={{
                     "& > div": {
@@ -410,7 +409,7 @@ const ConfigureContactEdit = () => {
                     padding: "10px",
                   }}
                 >
-                  {/* <Stack sx={{ gridColumn: "span 4" }} direction="row" gap={1}>
+                  <Stack sx={{ gridColumn: "span 4" }} direction="row" gap={1}>
                     <Typography fontSize={"16px"}>
                       <Typography
                         component="span"
@@ -436,8 +435,8 @@ const ConfigureContactEdit = () => {
                       </Typography>{" "}
                       {State.Code} || {State.Name}
                     </Typography>
-                  </Stack> */}
-                </Box>
+                  </Stack>
+           
 
                 <Box
                   sx={{
@@ -531,6 +530,7 @@ const ConfigureContactEdit = () => {
                       },
                     }}
                   />
+                </Box>
                 </Box>
               </Paper>
               <MessageAlertDialog

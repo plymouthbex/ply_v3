@@ -71,7 +71,7 @@ const PrintGroup = () => {
   );
 
   const [priceBookCateData, setPriceBookCateData] = useState({});
-    const [companyID, setCompanyID] = useState(user.companyCode);
+  const [companyID, setCompanyID] = useState(user.companyCode);
   
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
@@ -205,7 +205,7 @@ const PrintGroup = () => {
                 navigate(
                   "/pages/control-panel/print-group/print-group-detail/add",
                   {
-                    state: { id: 0,companyID },
+                    state: { id: 0,companyID:companyID },
                   }
                 );
               }}
@@ -321,7 +321,6 @@ const PrintGroup = () => {
               "& .MuiCheckbox-root": {
                 color: "black !important", // Set checkbox color to black
               },
-              // Ensure the checkbox color reflects the selected state
               "& .MuiCheckbox-root.Mui-checked": {
                 color: "black !important", // Set checkbox color to black when checked
               },
@@ -332,9 +331,11 @@ const PrintGroup = () => {
               "& .MuiDataGrid-row:nth-of-type(odd)": {
                 backgroundColor: theme.palette.background.default, // Color for odd rows
               },
-              // Prevent selected row background color from changing on hover
               "& .MuiDataGrid-row.Mui-selected:hover": {
-                backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+                backgroundColor: `none !important`,
+              },
+              "& .MuiDataGrid-row.Mui-selected": {
+                border: `1px solid ${theme.palette.success.main}`,
               },
               "& .MuiTablePagination-root": {
                 color: "white !important", // Ensuring white text color for the pagination
@@ -346,6 +347,19 @@ const PrintGroup = () => {
 
               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
                 color: "white !important", // Ensuring white icons for pagination
+              },
+              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+                backgroundColor: `transparent !important`,
+              },
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-cell:hover": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-row": {
+                transition: "none !important", // Disable any transition effects
               },
             }}
           >
@@ -386,8 +400,8 @@ const PrintGroup = () => {
                   showQuickFilter: true,
                 },
               }}
-              disableSelectionOnClick
-              disableRowSelectionOnClick
+              // disableSelectionOnClick
+              // disableRowSelectionOnClick
             />
           </Box>
 

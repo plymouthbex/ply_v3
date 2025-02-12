@@ -64,7 +64,10 @@ import {
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
-import { CompanyPriceListAutoComplete, CompanyPriceListAutoCompleteMemo } from "app/components/FormikAutocomplete";
+import {
+  CompanyPriceListAutoComplete,
+  CompanyPriceListAutoCompleteMemo,
+} from "app/components/FormikAutocomplete";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -136,7 +139,7 @@ const ConfigureEdit = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
-  const { user } = useAuth()
+  const { user } = useAuth();
   // ******************** LOCAL STATE ******************** //
 
   const [addPriceListData, setAddPriceListData] = useState([]);
@@ -167,7 +170,7 @@ const ConfigureEdit = () => {
   const status = useSelector((state) => state.getSlice.getconfigureStatus);
   const error = useSelector((state) => state.getSlice.getconfigureError);
 
-  const handleSelectionAddPriceListData = (e,newValue) => {
+  const handleSelectionAddPriceListData = (e, newValue) => {
     setAddPriceListData(newValue);
   };
   //==================================GETAPI=====================================//
@@ -192,6 +195,14 @@ const ConfigureEdit = () => {
       align: "left",
       headerAlign: "left",
       hide: false,
+    },
+    {
+      headerName: "Item Count",
+      field: "PriceListItemCount",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: true,
     },
     {
       field: "Action",
@@ -266,7 +277,7 @@ const ConfigureEdit = () => {
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
               size="small"
-              onClick={ async() => {
+              onClick={async () => {
                 if (addPriceListData) {
                   const isItem = [...getRows, ...filteredSelectedItems].some(
                     (item) =>
@@ -292,12 +303,11 @@ const ConfigureEdit = () => {
                   const response = await dispatch(
                     PostConfigurePriceListID({ pricedata })
                   );
-                  
+
                   if (response.payload.status === "Y") {
                     setOpenAlert(true);
                     setAddPriceListData(null);
                     dispatch(getConfigPriceBook({ ID: State.RecordID }));
-
                   } else {
                     setOpenAlert(true);
                     setPostError(true);
@@ -311,14 +321,14 @@ const ConfigureEdit = () => {
                     setIsPriceListExistsError(false);
                   }, 2000);
                 }
-
-              
               }}
             >
-              <Add sx={{
+              <Add
+                sx={{
                   fontSize: 30, // Increased icon size
                   color: theme.palette.success.main,
-                }} />
+                }}
+              />
             </IconButton>
           </Tooltip>
         </Box>
@@ -326,32 +336,35 @@ const ConfigureEdit = () => {
     );
   }
 
-  const handleAddPriceList = async() => {
-      if (addPriceListData.length > 0) {
-        // Prepare price data and dispatch the action
-        const pricedata = {
-          RecordID: data.RecordID,
-          priceListID: addPriceListData.PRICELISTID,
-        };
-  
-      const response = await  dispatch(PostConfigurePriceListID({ pricedata:addPriceListData,RecordID: data.RecordID, }));
+  const handleAddPriceList = async () => {
+    if (addPriceListData.length > 0) {
+      // Prepare price data and dispatch the action
+      const pricedata = {
+        RecordID: data.RecordID,
+        priceListID: addPriceListData.PRICELISTID,
+      };
 
-        if (response.payload.status === "Y") {
-          // dispatch(configureAddedPriceList);
-          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
-          setAddPriceListData([])
-        }
-      } else {
-        // Handle case where no price list data is selected
-        setIsPriceListExistsError(true);
-        setTimeout(() => {
-          setIsPriceListExistsError(false);
-        }, 2000);
+      const response = await dispatch(
+        PostConfigurePriceListID({
+          pricedata: addPriceListData,
+          RecordID: data.RecordID,
+        })
+      );
+
+      if (response.payload.status === "Y") {
+        // dispatch(configureAddedPriceList);
+        dispatch(getConfigPriceBook2({ ID: State.RecordID }));
+        setAddPriceListData([]);
       }
-    };
+    } else {
+      // Handle case where no price list data is selected
+      setIsPriceListExistsError(true);
+      setTimeout(() => {
+        setIsPriceListExistsError(false);
+      }, 2000);
+    }
+  };
   const CustomToolBar = React.memo(() => {
-    
-  
     return (
       <GridToolbarContainer
         sx={{
@@ -359,7 +372,7 @@ const ConfigureEdit = () => {
           flexDirection: "row",
           justifyContent: "flex-end",
           width: "100%",
-          padding: 2,
+          padding: 0.5,
         }}
       >
         <GridToolbarQuickFilter />
@@ -404,7 +417,8 @@ const ConfigureEdit = () => {
 
   return (
     <Container>
-       {status === "fulfilled" && !error ? (<Formik
+      {status === "fulfilled" && !error ? (
+        <Formik
           initialValues={{
             RecordID: data.RecordID,
             email: data.EmailId,
@@ -489,53 +503,9 @@ const ConfigureEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
-              <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            padding: 2,
-            
-          }}
-        >
-         
-
-          <CompanyPriceListAutoComplete
-           key={JSON.stringify(getRows)} 
-            errors={isPriceListExistsError}
-            helper={isPriceListExistsError && "Please select price list!"}
-            disabled={params.mode === "delete" || params.mode === "view"}
-            name="addPriceList"
-            id="addPriceList"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Include Price List"
-            url={`${
-              process.env.REACT_APP_BASE_URL
-            }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
-            filterData={[...getRows, ...filteredSelectedItems]}
-          />
-          <Tooltip title="Add">
-            <IconButton
-              disabled={params.mode === "delete" || params.mode === "view"}
-              color="black"
-              size="small"
-              onClick={handleAddPriceList}
-            >
-              <Add
-                sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }}
-              />
-            </IconButton>
-          </Tooltip>
-        </Box>
                 <Box
                   display="grid"
-                  gap="20px"
+                  gap="10px"
                   gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                   sx={{
                     "& > div": {
@@ -544,10 +514,9 @@ const ConfigureEdit = () => {
                     padding: "10px",
                   }}
                 >
-           
-                  {/* {params.mode === "edit-Customer" && (
+
                     <Stack
-                      sx={{ gridColumn: "span 4" }}
+                      sx={{ gridColumn: "span 2" }}
                       direction="row"
                       gap={1}
                     >
@@ -577,105 +546,141 @@ const ConfigureEdit = () => {
                         {State.Code} || {State.Name}
                       </Typography>
                     </Stack>
-                  )} */}
-                </Box>
+               
+                  <Stack direction={"row"} gap={1} sx={{gridColumn:"span 2"}} justifyContent={"flex-end"}>
+                    <CompanyPriceListAutoComplete
+                      key={JSON.stringify(getRows)}
+                      errors={isPriceListExistsError}
+                      helper={
+                        isPriceListExistsError && "Please select price list!"
+                      }
+                      disabled={
+                        params.mode === "delete" || params.mode === "view"
+                      }
+                      name="addPriceList"
+                      id="addPriceList"
+                      value={addPriceListData}
+                      onChange={handleSelectionAddPriceListData}
+                      label="Include Price List"
+                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+                      filterData={[...getRows, ...filteredSelectedItems]}
+                    />
+                    <Tooltip title="Add">
+                      <IconButton
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                        color="black"
+                        size="small"
+                        onClick={handleAddPriceList}
+                      >
+                        <Add
+                          sx={{
+                            fontSize: 30, // Increased icon size
+                            color: theme.palette.success.main,
+                          }}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
 
-                <Box
-                  sx={{
-                    height: 400,
-                    gridColumn: "span 4",
-                    "& .MuiDataGrid-root": {
-                      border: "none",
-                    },
-                    "& .MuiDataGrid-cell": {
-                      borderBottom: "none",
-                    },
-                    "& .name-column--cell": {
-                      color: theme.palette.info.contrastText,
-                    },
-                    "& .MuiDataGrid-columnHeaders": {
-                      backgroundColor: theme.palette.info.main,
-                      color: theme.palette.info.contrastText,
-                      fontWeight: "bold",
-                      fontSize: theme.typography.subtitle2.fontSize,
-                    },
-                    "& .MuiDataGrid-virtualScroller": {
-                      backgroundColor: theme.palette.info.light,
-                    },
-                    "& .MuiDataGrid-footerContainer": {
-                      borderTop: "none",
-                      backgroundColor: theme.palette.info.main,
-                      color: theme.palette.info.contrastText,
-                    },
-                    "& .MuiCheckbox-root": {
-                      color: "black !important", // Set checkbox color to black
-                    },
-
-                    "& .MuiCheckbox-root.Mui-checked": {
-                      color: "black !important", // Set checkbox color to black when checked
-                    },
-                    "& .MuiDataGrid-row:nth-of-type(even)": {
-                      backgroundColor: theme.palette.action.hover,
-                    },
-                    "& .MuiDataGrid-row:nth-of-type(odd)": {
-                      backgroundColor: theme.palette.background.default, // Color for odd rows
-                    },
-
-                    "& .MuiDataGrid-row.Mui-selected:hover": {
-                      backgroundColor: `${theme.palette.action.selected} !important`,
-                    },
-                    "& .MuiTablePagination-root": {
-                      color: "white !important", // Ensuring white text color for the pagination
-                    },
-
-                    "& .MuiTablePagination-root .MuiTypography-root": {
-                      color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                    },
-
-                    "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                      color: "white !important", // Ensuring white icons for pagination
-                    },
-                  }}
-                >
-                  <DataGrid
-                    columnHeaderHeight={dataGridHeaderFooterHeight}
+                  <Box
                     sx={{
-                      // This is to override the default height of the footer row
+                      height: 400,
+                      gridColumn: "span 4",
+                      "& .MuiDataGrid-root": {
+                        border: "none",
+                      },
+                      "& .MuiDataGrid-cell": {
+                        borderBottom: "none",
+                      },
+                      "& .name-column--cell": {
+                        color: theme.palette.info.contrastText,
+                      },
+                      "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: theme.palette.info.main,
+                        color: theme.palette.info.contrastText,
+                        fontWeight: "bold",
+                        fontSize: theme.typography.subtitle2.fontSize,
+                      },
+                      "& .MuiDataGrid-virtualScroller": {
+                        backgroundColor: theme.palette.info.light,
+                      },
                       "& .MuiDataGrid-footerContainer": {
-                        height: dataGridHeaderFooterHeight,
-                        minHeight: dataGridHeaderFooterHeight,
+                        borderTop: "none",
+                        backgroundColor: theme.palette.info.main,
+                        color: theme.palette.info.contrastText,
+                      },
+                      "& .MuiCheckbox-root": {
+                        color: "black !important", // Set checkbox color to black
+                      },
+
+                      "& .MuiCheckbox-root.Mui-checked": {
+                        color: "black !important", // Set checkbox color to black when checked
+                      },
+                      "& .MuiDataGrid-row:nth-of-type(even)": {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                      "& .MuiDataGrid-row:nth-of-type(odd)": {
+                        backgroundColor: theme.palette.background.default, // Color for odd rows
+                      },
+
+                      "& .MuiDataGrid-row.Mui-selected:hover": {
+                        backgroundColor: `${theme.palette.action.selected} !important`,
+                      },
+                      "& .MuiTablePagination-root": {
+                        color: "white !important", // Ensuring white text color for the pagination
+                      },
+
+                      "& .MuiTablePagination-root .MuiTypography-root": {
+                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                      },
+
+                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                        color: "white !important", // Ensuring white icons for pagination
                       },
                     }}
-                    slots={{
-                      loadingOverlay: LinearProgress,
-                      toolbar: CustomToolBar,
-                    }}
-                    rowHeight={dataGridRowHeight}
-                    rows={[...getRows, ...filteredSelectedItems]}
-                    columns={columns}
-                    disableSelectionOnClick
-                    disableRowSelectionOnClick
-                    getRowId={(row) => row.PRICELISTID}
-                    initialState={{
-                      pagination: { paginationModel: { pageSize: 20 } },
-                    }}
-                    pageSizeOptions={[5, 10, 20, 25]}
-                    columnVisibilityModel={{
-                      item_key: false,
-                    }}
-                    disableColumnFilter
-                    disableColumnSelector
-                    disableDensitySelector
-                    slotProps={{
-                      toolbar: {
-                        showQuickFilter: true,
-                      },
-                    }}
-                  />
+                  >
+                    <DataGrid
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      sx={{
+                        // This is to override the default height of the footer row
+                        "& .MuiDataGrid-footerContainer": {
+                          height: dataGridHeaderFooterHeight,
+                          minHeight: dataGridHeaderFooterHeight,
+                        },
+                      }}
+                      slots={{
+                        loadingOverlay: LinearProgress,
+                        toolbar: CustomToolBar,
+                      }}
+                      rowHeight={dataGridRowHeight}
+                      rows={[...getRows, ...filteredSelectedItems]}
+                      columns={columns}
+                      disableSelectionOnClick
+                      disableRowSelectionOnClick
+                      getRowId={(row) => row.PRICELISTID}
+                      initialState={{
+                        pagination: { paginationModel: { pageSize: 20 } },
+                      }}
+                      pageSizeOptions={[5, 10, 20, 25]}
+                      columnVisibilityModel={{
+                        item_key: false,
+                      }}
+                      disableColumnFilter
+                      disableColumnSelector
+                      disableDensitySelector
+                      slotProps={{
+                        toolbar: {
+                          showQuickFilter: true,
+                        },
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Paper>
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isRemovePriceList}
                 tittle={removePriceListdDesc}
                 message={`Are you sure you want to exclude price list ?`}
@@ -722,7 +727,7 @@ const ConfigureEdit = () => {
                 }
               />
               <MessageAlertDialog
-               logo={`data:image/png;base64,${user.logo}`}
+                logo={`data:image/png;base64,${user.logo}`}
                 open={isPriceListExists}
                 error={true}
                 tittle={
@@ -730,9 +735,7 @@ const ConfigureEdit = () => {
                     ? addPriceListData.PRICELISTDESCRIPTION
                     : "Please select price list!"
                 }
-                message={
-                  "Oops! This price list is already exists"
-                }
+                message={"Oops! This price list is already exists"}
                 Actions={
                   <DialogActions>
                     <Button
@@ -751,16 +754,17 @@ const ConfigureEdit = () => {
               />
             </form>
           )}
-        </Formik>  ) : (
+        </Formik>
+      ) : (
         false
       )}
       <AlertDialog
-       logo={`data:image/png;base64,${user.logo}`}
+        logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={"Price List added successfully"}
         Actions={
-          <Box sx={{display:'flex',justifyContent:"flex-end"}}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               variant="contained"
               color="info"
@@ -768,9 +772,9 @@ const ConfigureEdit = () => {
               onClick={() => {
                 setOpenAlert(false);
               }}
-              sx={{height:25}}
+              sx={{ height: 25 }}
             >
-             close
+              close
             </Button>
           </Box>
         }

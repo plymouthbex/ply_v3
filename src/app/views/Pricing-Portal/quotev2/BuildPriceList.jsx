@@ -620,6 +620,13 @@ export default function BuildCustomPriceBook() {
     const response = await dispatch(priceListClearFilter({ data }));
     if (response.payload.status === "Y") {
       setOpenAlert4(true);
+      setFieldValue("brandInEx", "IncludeAll");
+      setFieldValue("commodityInEx", "IncludeAll");
+      setFieldValue("altClassInEx", "IncludeAll");
+      setFieldValue("vendorInEx", "IncludeAll");
+      setFieldValue("frshForzInEx", "IncludeAll");
+      setFieldValue("SecondClassInEx", "IncludeAll");
+      setFieldValue("classIDInEx", "IncludeAll");
       setFieldValue("brand", []);
       setFieldValue("com", []);
       setFieldValue("alt", []);
@@ -628,6 +635,8 @@ export default function BuildCustomPriceBook() {
       setFieldValue("fsfz", []);
       setFieldValue("classID", []);
       setFieldValue("secondary", []);
+      setFieldValue("PriceLists", []);
+      setFieldValue("adHocItems", []);
       setFieldValue("brokenItems", false);
       setFieldValue("damagedItems", false);
       setFieldValue("combinationFilter", false);
@@ -957,7 +966,7 @@ export default function BuildCustomPriceBook() {
               );
               if (!hasData) {
                 errors.filters =
-                  "At least one filter  must have selected filter";
+                  "At least one filter must have selected filter";
               }
               // Checkbox validation: At least one must be checked
               if (!values.PreferedPdf && !values.PreferedExcel) {

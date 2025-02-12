@@ -285,6 +285,7 @@ const Customer = () => {
                         Code: params.row.CustomerNumber,
                         Name: params.row.CustomerName,
                         CompanyCode: State.Code,
+                        company: State,
                       },
                     }
                   );
@@ -323,7 +324,6 @@ const Customer = () => {
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const handleSave = async (values) => {
-    console.log("🚀 ~ handleSave ~ values:", values);
     const data1 = {
       RecordID: values.RecordID,
       Classification: "CS",

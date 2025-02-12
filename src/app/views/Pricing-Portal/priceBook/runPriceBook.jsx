@@ -20,6 +20,8 @@ import { Add } from "@mui/icons-material";
 import React from "react";
 import { Breadcrumb, SimpleCard } from "app/components";
 import { useEffect, useState } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import {
   DataGrid,
   GridToolbarContainer,
@@ -43,6 +45,8 @@ import {
 import {
   CustomerAddPrintGroup,
   CustomerConfig,
+  deletePriceBookGroup,
+  runGroupDelete,
   runGroupMailData,
 } from "app/redux/slice/postSlice";
 import {
@@ -52,6 +56,7 @@ import {
 import { pdf } from "@react-pdf/renderer";
 import LoadingApiDialog, {
   PriceGroupAlertApiDialog,
+  QuoteTempAlertApiDialog,
 } from "app/components/LoadindgDialog";
 import {
   exportToExcelBuildCustomPriceBookBlob,
@@ -123,8 +128,6 @@ export default function RunPriceBook() {
   useEffect(() => {
     dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup })).then(
       (res) => {
-        console.log("🚀 ~ dispatch ~ res:", res);
-
         const allRowIds = res.payload.rows.map((row) => row.id);
         setRowSelectionModel(allRowIds);
       }
@@ -184,6 +187,40 @@ export default function RunPriceBook() {
     (state) => state.postData.runGroupMailIsAction
   );
 
+  const [isRemoveItem, setIsRemoveItem] = useState(false);
+  const [openAlert6, setOpenAlert6] = useState(false);
+  const [postError6, setPostError6] = useState(false);
+  const [deleteID, setDeleteID] = useState(0);
+  const [deleteCustomer, setDeleteCustomer] = useState("");
+  
+  const runGroupDeleteFn = async (values) => {
+    try {
+     
+      dispatch(deletePriceBookGroup({
+               Recordid:deleteID,
+               CustomerNumber:deleteCustomer})).then((response) => {
+        if (response.payload.status === "Y") {
+          setPostError6(false);
+          setOpenAlert6(true);
+          setDeleteID(0);
+          setDeleteCustomer("");
+          dispatch(fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name })).then(
+            (res) => {
+              const allRowIds = res.payload.rows.map((row) => row.id);
+              setRowSelectionModel(allRowIds);
+            }
+          );
+        } else {
+          setOpenAlert6(true);
+          setPostError6(true);
+          setDeleteID(0);
+          setDeleteCustomer("");
+        }
+      });
+    } catch (e) {
+      console.log("🚀 ~ priceListSaveFn ~ e:", e);
+    }
+  };
   const columns = [
     {
       field: "customernumber",
@@ -212,7 +249,10 @@ export default function RunPriceBook() {
           <Checkbox
             checked={params.row.fpexcel}
             onChange={(e) => {
-              console.log("🚀 ~ RunPriceBook ~ e.target.checked:", e.target.checked)
+              console.log(
+                "🚀 ~ RunPriceBook ~ e.target.checked:",
+                e.target.checked
+              );
               if (
                 user.role === "USER" &&
                 (selectedRunGrpOptions.Name === user.defaultRunGroup ||
@@ -310,8 +350,7 @@ export default function RunPriceBook() {
     {
       field: "customerCustomPriceBook",
       headerName: "Custom Price Book",
-      minWidth: 200,
-      flex: 1,
+      width: 200,
       align: "left",
       headerAlign: "left",
       sortable: false,
@@ -323,7 +362,6 @@ export default function RunPriceBook() {
           <Checkbox
             checked={params.row.cpexcel}
             onChange={(e) => {
-              console.log("🚀 ~ RunPriceBook ~ e.target.checked:", e.target.checked)
               if (
                 user.role === "USER" &&
                 (selectedRunGrpOptions.Name === user.defaultRunGroup ||
@@ -416,6 +454,33 @@ export default function RunPriceBook() {
           />
           PDF
         </div>
+      ),
+    },
+    {
+      field: "Action",
+      headerName: "Action",
+      minWidth: 100,
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      disableExport: true,
+      renderCell: (params1) => (
+        <Tooltip title="Delete">
+          <IconButton
+            color="error"
+            size="small"
+            onClick={() => {
+              setDeleteID(params1.row.id);
+              setDeleteCustomer(params1.row.customernumber);
+              setIsRemoveItem(true);
+            }}
+          >
+            <DeleteIcon color="error" fontSize="small" />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
@@ -543,7 +608,6 @@ export default function RunPriceBook() {
                   CustomerNumber: row.customernumber,
                 })
               ).then((fpResData) => {
-                console.log("🚀 ~ ).then ~ fpResData:", fpResData);
                 if (fpResData.payload.length > 0) {
                   dispatch(runGrpMsgUpdate(`Full PDF for ${row.customer}...`));
                   const excelBlobfp = exportToExcelBuildFullPriceBookBlob({
@@ -606,7 +670,6 @@ export default function RunPriceBook() {
                   filterparameters: "",
                 })
               ).then((cpResData) => {
-                console.log("🚀 ~ ).then ~ cpResData:", cpResData);
                 if (cpResData.payload.length > 0) {
                   dispatch(
                     runGrpMsgUpdate(`Custom PDF for ${row.customer}...`)
@@ -796,8 +859,6 @@ export default function RunPriceBook() {
         dispatch(
           fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name })
         ).then((res) => {
-          // console.log("🚀 ~ dispatch ~ res:", res)
-
           const allRowIds = res.payload.rows.map((row) => row.id);
           setRowSelectionModel(allRowIds);
         });
@@ -1204,6 +1265,46 @@ export default function RunPriceBook() {
               message={runGrpProcessingMsg}
               loading={processFunLoading}
               error={processError}
+            />
+            <QuoteTempAlertApiDialog
+              logo={`data:image/png;base64,${user.logo}`}
+              open={isRemoveItem}
+              //  tittle={values.itemDescription}
+              error={true}
+              message={`Are you sure you want to delete this price list?`}
+              Actions={
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    width: "100%",
+                  }}
+                >
+                  <Button
+                    sx={{ mr: 1, height: 25 }}
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={() => {
+                      setIsRemoveItem(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    sx={{ height: 25 }}
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={() => {
+                      runGroupDeleteFn();
+                      setIsRemoveItem(false);
+                    }}
+                  >
+                    Confirm
+                  </Button>
+                </Box>
+              }
             />
 
             <Button

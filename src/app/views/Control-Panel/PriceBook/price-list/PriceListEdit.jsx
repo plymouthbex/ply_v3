@@ -46,6 +46,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   FormikOptimizedAutocomplete,
   OptimizedAutocomplete,
+  PrintGroupOptimizedAutocomplete,
+  PrintGroupOptimizedAutocompletePriceList,
 } from "app/components/SingleAutocompletelist";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -370,6 +372,8 @@ const PriceListEdit = () => {
             buyer: values.buyer ? JSON.stringify(values.buyer) : null,
             createdBy: values.createdBy,
             companyCode: state.companyCode,
+            PrintGroupName: values.catName ? values.catName.GroupName: "",
+            PrintGroupRecordID: values.catName ? values.catName.RecordID: 0,
             forcePageBreak: "N",
             overridesequence: values.overrideSeq,
             customer: values.propCustomer
@@ -393,11 +397,17 @@ const PriceListEdit = () => {
                 companyCode: state.companyCode,
               },
             });
+            // setTimeout(() => {
+            //   setOpenAlert(false);
+            // }, 5000);
           }
         } else {
           if (params.mode === "add") {
             setOpenAlert(true);
             setPostError(response.payload.message);
+            // setTimeout(() => {
+            //   setOpenAlert(false);
+            // }, 2000);
           }
         }
       });
@@ -521,6 +531,7 @@ const PriceListEdit = () => {
   // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
     dispatch(getPriceListData({ id: state.id }));
+    
     if (params.mode === "edit" || params.mode === "view") {
       setShowGridData(0);
     } else setShowGridData(3);
@@ -757,6 +768,9 @@ const PriceListEdit = () => {
             createdBy:
               params.mode === "add" ? user.name : priceListHeaderData.CreatedBy,
             comments: priceListHeaderData.Comments,
+            catId: priceListHeaderData.PrintGroupRecordID,
+            catName:priceListHeaderData.PrintGroupRecordID ? {RecordID:priceListHeaderData.PrintGroupRecordID, GroupName:priceListHeaderData.PrintGroupName} : null,
+
             brandInEx:
               params.mode === "add"
                 ? "IncludeAll"
@@ -848,6 +862,10 @@ const PriceListEdit = () => {
               }
               return errors;
             }
+            // else{
+            //   errors.filters = "At least one filter must have selected filter";
+            //   return errors;
+            // }
           }}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
@@ -996,25 +1014,16 @@ const PriceListEdit = () => {
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Buyer`}
                     />
 
-                    {/* <PrintGroupOptimizedAutocomplete
-                      sx={{ maxWidth: 300 }}
-                      fullWidth
-                      name="printGroup"
-                      id="printGroup"
-                      value={printSelectedData}
-                      onChange={handlePrintSelectedData}
-                      label="Price Book Category"
-                      url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${companyID}`}
-                    /> */}
+                  
                   </Stack>
                   <TextField
-                    sx={{ gridColumn: "span 1" }}
+                  
                     fullWidth
                     variant="outlined"
                     type="text"
                     id="overrideSeq"
                     name="overrideSeq"
-                    label="Override Sequence"
+                    label="Print Sequence"
                     value={values.overrideSeq}
                     onChange={handleChange}
                     // required
@@ -1029,6 +1038,23 @@ const PriceListEdit = () => {
                         : false
                     }
                   />
+                    <PrintGroupOptimizedAutocompletePriceList
+                     disabled={
+                      params.mode === "delete" || params.mode === "view"
+                        ? true
+                        : false
+                    }
+                        sx={{ gridColumn: "span 1" }}
+                      fullWidth
+                      name="catName"
+                      id="catName"
+                      value={values.catName}
+                      onChange={(newValue) =>
+                        setFieldValue("catName", newValue)
+                      }
+                      label="Categories"
+                      url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${state.companyCode}`}
+                    />
                 </Box>
                 <Box
                   display="grid"
@@ -1449,8 +1475,9 @@ const PriceListEdit = () => {
                         color="info"
                         size="small"
                         startIcon={<CheckIcon size="small" />}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || params.mode === "delete" || params.mode === "view"}
                         type="submit"
+                       
                       >
                         Apply Filters & Save
                       </Button>
@@ -1654,7 +1681,7 @@ const PriceListEdit = () => {
                         setFieldValue("priceListID", "");
                         SetIsPriceListOpen(false);
                       }}
-                      autoFocus
+                      
                     >
                       Try Another
                     </Button>
@@ -1700,7 +1727,7 @@ const PriceListEdit = () => {
                         setSuccessMessage(null);
                         setPostError(null);
                       }}
-                      autoFocus
+                      
                     >
                       No
                     </Button>
@@ -1789,7 +1816,7 @@ const PriceListEdit = () => {
         </Formik>
       )}
       <AlertDialog
-        key={23131}
+        key={7846694}
         logo={`data:image/png;base64,${user.logo}`}
         open={openAlert11}
         error={postError11}
@@ -1821,7 +1848,7 @@ const PriceListEdit = () => {
         }
       />
       <AlertDialog
-        key={23131}
+        key={854946}
         logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
@@ -1856,9 +1883,8 @@ const PriceListEdit = () => {
                 onClick={() => {
                   dispatch(getPriceListData({ id: 0 }));
                   setOpenAlert(false);
-                  dispatch(clearPriceListState());
                 }}
-                autoFocus
+                
               >
                 Add New Price List
               </Button>
@@ -1893,7 +1919,6 @@ const PriceListEdit = () => {
                 size="small"
                 onClick={() => {
                   navigate("/pages/control-panel/price-list");
-                  dispatch(clearPriceListState());
                   setOpenAlert(false);
                   setSuccessMessage(null);
                   setPostError(null);

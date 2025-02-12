@@ -67,6 +67,10 @@ const initialState = {
   configureCustomerListViewData: [],
   configureAddressListViewData: [],
   configureContactListViewData: [],
+
+  userGrpUserListViewData: [],
+  userGrpUserTemploading: false,
+  userGrpUserTempstatus: "idle",
 };
 
 export const fetchListviewPriveTemplate = createAsyncThunk(
@@ -354,6 +358,28 @@ export const getUserGroupListView = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}UserGroup/UserGroupListView`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      // console.log("🚀 ~ response.data:", response.data)
+      return response.data; // returns the response data
+    } catch (error) {
+      // Handle errors
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+export const getUserGroupUserListView = createAsyncThunk(
+  "listview/getUserGroupUserListView", // action type
+  async (id, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}UserModule/GetUserBYUserGroupID?userID=${id}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -765,6 +791,21 @@ const listviewSlice = createSlice({
         state.status = "failed";
         state.loading = false;
         state.error = action.error.message;
+      })
+
+      .addCase(getUserGroupUserListView.pending, (state, action) => {
+        state.userGrpUserTempstatus = "loading";
+        state.userGrpUserTemploading = true;
+        state.userGrpUserListViewData = [];
+      })
+      .addCase(getUserGroupUserListView.fulfilled, (state, action) => {
+        state.userGrpUserTempstatus = "succeeded";
+        state.userGrpUserTemploading = false;
+        state.userGrpUserListViewData = action.payload.data;
+      })
+      .addCase(getUserGroupUserListView.rejected, (state, action) => {
+        state.userGrpUserTempstatus = "failed";
+        state.userGrpUserTemploading = false;
       })
       //==========================USERGROUP=================================//
       .addCase(getUserGroupCompanyListView.pending, (state, action) => {

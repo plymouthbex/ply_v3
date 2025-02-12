@@ -265,7 +265,9 @@ const RunGroupEdit = () => {
 
   const runGroupCusDeleteFn = async () => {
     try {
-      dispatch(deletePriceBookGroup({ Recordid:removeCustomerID,CustomerNumber:removeCustomerdDesc})).then((response) => {
+      dispatch(deletePriceBookGroup({
+         Recordid:removeCustomerID,
+         CustomerNumber:removeCustomerdDesc})).then((response) => {
         if (response.payload.status === "Y") {
           dispatch(getRunGroupData2({ id: state.ID }));
           setIsRemoveCustomer(false);

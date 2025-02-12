@@ -1024,6 +1024,77 @@ export const PrintGroupOptimizedAutocomplete = ({
   );
 };
 
+export const PrintGroupOptimizedAutocompletePriceList
+ = ({
+  value = null,
+  onChange,
+  url,
+  height = 20,
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      size="small"
+      limitTags={1}
+      options={options}
+      loading={loading}
+      value={value}
+      isOptionEqualToValue={(option, value) =>
+        option.RecordID === value.RecordID
+      }
+      onChange={(event, newValue) => onChange(newValue)}
+      getOptionLabel={(option) => option.GroupName}
+      ListboxComponent={ListboxComponent} // Custom listbox component
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select Options"}
+          error={!!error}
+          helperText={error}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+};
+
 export const CustomerPriceListOptimizedAutocomplete = ({
   value = null,
   onChange,

@@ -949,6 +949,25 @@ export const quoteAddHocItem = createAsyncThunk(
     }
   }
 );
+export const UpdateSeqPriceList = createAsyncThunk(
+  "post/UpdateSeqPriceList", // Action type string
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/UpdatePriceListSequence `;
+      const response = await axios.put(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 
 export const QuoteUpdateDate = createAsyncThunk(
   "data/QuoteUpdateDate", // Action type string

@@ -114,10 +114,7 @@ const PrintGroupEdit = () => {
   const filteredSelectedItems = addedRows.filter(
     (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
   );
-  console.log(
-    "🚀 ~ PrintGroupEdit ~ filteredSelectedItems:",
-    filteredSelectedItems
-  );
+
 
   // ********************** COLUMN ********************** //
   const columns = [
@@ -144,6 +141,14 @@ const PrintGroupEdit = () => {
       align: "right",
       headerAlign: "center",
       hide: false,
+    },
+    {
+      headerName: "Item Count",
+      field: "PriceListItemCount",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: true,
     },
     {
       field: "Action",
@@ -346,14 +351,14 @@ const PrintGroupEdit = () => {
 
   const printGroupSaveFn = async (values, setSubmitting) => {
     const postData = {
-      recordId: data.RecordId,
-      groupcode: values.groupCode,
-      groupName: values.groupName,
-      sortorder: values.SortOrder,
-      disable: "N",
+      RecordId: data.RecordId,
+      Groupcode: values.groupCode,
+      GroupName: values.groupName,
+      Sortorder: values.SortOrder,
+      Disable: "N",
       Headeronly: false,
       CompanyCode: state.companyID,
-      printList: [...getRows, ...filteredSelectedItems],
+      PrintList: [...getRows, ...filteredSelectedItems],
     };
     try {
       const response = await dispatch(postPrintGroupData({ PGdata: postData }));
@@ -361,7 +366,7 @@ const PrintGroupEdit = () => {
       if (response.payload.status === "Y") {
         if (params.mode === "add") {
           navigate("/pages/control-panel/print-group/print-group-detail/edit", {
-            state: { id: response.payload.RecordId },
+            state: { id: response.payload.RecordId ,companyID:state.companyID },
           });
           // dispatch(getprintGroupData({id:response.payload.RecordId}))
         }
