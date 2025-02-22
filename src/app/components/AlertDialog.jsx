@@ -63,7 +63,7 @@ const AlertDialog = ({
             display: "flex",
             flexDirection: "column",
             gap: 1,
-            height: 30,
+            height: 45,
             width: "100%",
             overflowY: "scroll",
             scrollbarWidth: "none",

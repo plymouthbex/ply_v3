@@ -122,7 +122,9 @@ const HomePage = () => {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN)${formatDateLong(sunday)} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week (SUN)${formatDateLong(
+        sunday
+      )} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -132,9 +134,154 @@ const HomePage = () => {
 
   const { shortSunday, shortSaturday, sunday, saturday, formatedDate } =
     getWeekDates();
-  const blob = `data:image;base64,${user.homePagelogo}` ;
+  const blob = `data:image;base64,${user.homePagelogo}`;
 
   const [isGenerating, setIsGenerating] = useState(false);
+  // const getPriceBookFull = (priceListOutType) => {
+  //   setIsGenerating(true);
+  //   dispatch(
+  //     genricPriceBookPdfGenrationg({
+  //       Type: "LOADING",
+  //       loading: true,
+  //       message: "Preparing Full Price Book...",
+  //     })
+  //   );
+
+  //   dispatch(
+  //     getGenricPriceList({
+  //       CompanyCode: user.companyCode,
+  //       FromDate: sunday,
+  //       ToDate: saturday,
+  //     })
+  //   )
+  //     .then(async (response) => {
+  //       if (response.payload.length > 0) {
+  //         if (priceListOutType === "EXCEL") {
+  //           exportToExcelFullPriceBookV1({
+  //             excelData: response.payload,
+  //             fileName: `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`,
+  //             isPrice: isChecked,
+  //           });
+  //           dispatch(
+  //             genricPriceBookPdfGenrationg({
+  //               Type: "SUCCESS",
+  //               loading: false,
+  //               message: "Full Price Book Succesfully Prepared-PDF",
+  //             })
+  //           );
+  //           setIsGenerating(false);
+  //           return;
+  //         }
+
+  //         try {
+  //           const instance = pdf(
+  //             <GenricFullPriceDocument
+  //               key={isNextWeek}
+  //               data={response.payload}
+  //               coverPageData={{
+  //                 logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                 subtitle1: "Price List for",
+  //                 subtitle2: "Wholesale Pricelist",
+  //                 effectiveDate: formatedDate,
+  //                 preparedByName: user.name,
+  //                 preparedByPhone: user.userMobile,
+  //                 preparedByEmail: user.email,
+  //                 phone1: user.phone1,
+  //                 phone2: user.phone2,
+  //                 fax: user.fax,
+  //                 coverImg: user.genFullPrcieBookImg,
+  //               }}
+  //               isPrice={isChecked}
+  //               onRenderFinish={() => {
+  //                 dispatch(
+  //                   genricPriceBookPdfGenrationg({
+  //                     Type: "SUCCESS",
+  //                     loading: false,
+  //                     message: "Full Price Book Succesfully Prepared",
+  //                   })
+  //                 );
+  //                 setTimeout(() => {
+  //                   setIsGenerating(false);
+  //                 }, 500);
+  //               }}
+  //               onError={(e) => {
+  //                 console.error("Render Error:", e);
+  //                 dispatch(
+  //                   genricPriceBookPdfGenrationg({
+  //                     Type: "ERROR",
+  //                     message: "An error occurred while rendering the PDF.",
+  //                     loading: false,
+  //                     error: true,
+  //                   })
+  //                 );
+  //                 setIsGenerating(false);
+  //               }}
+  //             />
+  //           );
+
+  //           const blob = await instance.toBlob();
+  //           const url = URL.createObjectURL(blob);
+
+  //           if (priceListOutType === "PDF") {
+  //             const link = document.createElement("a");
+  //             link.href = url;
+  //             link.download = `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`;
+  //             document.body.appendChild(link);
+
+  //             link.click();
+  //             document.body.removeChild(link);
+  //             URL.revokeObjectURL(url);
+  //           }
+
+  //           if (priceListOutType === "PRINT") {
+  //             window.open(url, `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`);
+  //             setTimeout(() => {
+  //               URL.revokeObjectURL(url);
+  //             }, 100);
+  //           }
+  //         } catch (e) {
+  //           dispatch(
+  //             genricPriceBookPdfGenrationg({
+  //               Type: "ERROR",
+  //               message: "An error occurred while rendering the PDF.",
+  //               loading: false,
+  //               error: true,
+  //             })
+  //           );
+  //           setTimeout(() => {
+  //             setIsGenerating(false);
+  //           }, 1500);
+  //         }
+  //       } else {
+  //         dispatch(
+  //           genricPriceBookPdfGenrationg({
+  //             Type: "ERROR",
+  //             message: response.payload.message,
+  //             loading: false,
+  //             error: true,
+  //           })
+  //         );
+  //         setTimeout(() => {
+  //           setIsGenerating(false);
+  //         }, 2000);
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       dispatch(
+  //         genricPriceBookPdfGenrationg({
+  //           Type: "ERROR",
+  //           message: "An error occurred while rendering the PDF.",
+  //           loading: false,
+  //           error: true,
+  //         })
+  //       );
+  //       setTimeout(() => {
+  //         setIsGenerating(false);
+  //       }, 2000);
+  //     });
+  // };
+
+
   const getPriceBookFull = (priceListOutType) => {
     setIsGenerating(true);
     dispatch(
@@ -144,111 +291,124 @@ const HomePage = () => {
         message: "Preparing Full Price Book...",
       })
     );
-
     dispatch(
       getGenricPriceList({
-        CompanyCode: user.companyCode,
-        FromDate: sunday,
-        ToDate: saturday,
+        URL:
+          priceListOutType == "EXCEL"
+            ? `${process.env.REACT_APP_BASE_URL}Email/GetCompanyExcel?CompanyCode=${user.companyCode}&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${user.id}`
+            : `${process.env.REACT_APP_BASE_URL}Email/GetCompanyPdf?CompanyCode=${user.companyCode}&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${user.id}`,
       })
     )
       .then(async (response) => {
-        if (response.payload.length > 0) {
+        if (response.payload.status === "Y") {
           if (priceListOutType === "EXCEL") {
-            exportToExcelFullPriceBookV1({
-              excelData: response.payload,
-              fileName: `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`,
-              isPrice: isChecked,
+            const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+            const byteNumbers = Array.from(byteCharacters).map((char) =>
+              char.charCodeAt(0)
+            ); // Convert binary string to byte array
+            const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+            // Create a Blob from the byte array
+            const blob = new Blob([byteArray], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
             });
+
+            // Create a temporary URL for the Blob
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Create a temporary <a> element for downloading
+
+            // Create a temporary <a> element for downloading
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `${user.company}_Full Price Book_${sunday} TO ${saturday}.xlsx`;
+
+            // Append the link to the document and trigger the download
+            document.body.appendChild(link);
+            link.click();
             dispatch(
               genricPriceBookPdfGenrationg({
                 Type: "SUCCESS",
                 loading: false,
-                message: "Full Price Book Succesfully Prepared-PDF",
-              })
-            );
-            setIsGenerating(false);
-            return;
-          }
-
-          try {
-            const instance = pdf(
-              <GenricFullPriceDocument
-                key={isNextWeek}
-                data={response.payload}
-                coverPageData={{
-                  logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  subtitle1: "Price List for",
-                  subtitle2: "Wholesale Pricelist",
-                  effectiveDate: formatedDate,
-                  preparedByName: user.name,
-                  preparedByPhone: user.userMobile,
-                  preparedByEmail: user.email,
-                  phone1: user.phone1,
-                  phone2: user.phone2,
-                  fax: user.fax,
-                  coverImg: user.genFullPrcieBookImg,
-                }}
-                isPrice={isChecked}
-                onRenderFinish={() => {
-                  dispatch(
-                    genricPriceBookPdfGenrationg({
-                      Type: "SUCCESS",
-                      loading: false,
-                      message: "Full Price Book Succesfully Prepared",
-                    })
-                  );
-                  setTimeout(() => {
-                    setIsGenerating(false);
-                  }, 500);
-                }}
-                onError={(e) => {
-                  console.error("Render Error:", e);
-                  dispatch(
-                    genricPriceBookPdfGenrationg({
-                      Type: "ERROR",
-                      message: "An error occurred while rendering the PDF.",
-                      loading: false,
-                      error: true,
-                    })
-                  );
-                  setIsGenerating(false);
-                }}
-              />
-            );
-
-            const blob = await instance.toBlob();
-            const url = URL.createObjectURL(blob);
-
-            if (priceListOutType === "PDF") {
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`;
-              document.body.appendChild(link);
-
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-            }
-
-            if (priceListOutType === "PRINT") {
-              window.open(url, `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`);
-              setTimeout(() => {
-                URL.revokeObjectURL(url);
-              }, 100);
-            }
-          } catch (e) {
-            dispatch(
-              genricPriceBookPdfGenrationg({
-                Type: "ERROR",
-                message: "An error occurred while rendering the PDF.",
-                loading: false,
-                error: true,
+                message: "Full Price Book Succesfully Prepared",
               })
             );
             setTimeout(() => {
               setIsGenerating(false);
-            }, 1500);
+            }, 500);
+            // Clean up
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+          }
+
+          if (priceListOutType === "PDF") {
+            function downloadPDFBytes(byteString, fileName) {
+              // Decode the base64 string into binary data
+              const byteCharacters = atob(byteString); // Decode base64 to binary string
+              const byteNumbers = Array.from(byteCharacters).map((char) =>
+                char.charCodeAt(0)
+              ); // Convert binary string to byte array
+              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+          
+              // Create a Blob from the byte array
+              const blob = new Blob([byteArray], { type: "application/pdf" });
+          
+              // Create a temporary URL for the Blob
+              const blobUrl = URL.createObjectURL(blob);
+          
+              // Create a temporary <a> element for downloading
+                // Create a temporary <a> element for downloading
+                const link = document.createElement("a");
+                link.href = blobUrl;
+                link.download = fileName;
+          
+                // Append the link to the document and trigger the download
+                document.body.appendChild(link);
+                link.click();
+          
+                // Clean up
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+              }
+
+              downloadPDFBytes(response.payload.path, `${user.company}_Full Price Book_${sunday} TO ${saturday}.pdf`);
+              dispatch(
+                genricPriceBookPdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message: "Full Price Book Succesfully Prepared",
+                })
+              );
+              setTimeout(() => {
+                setIsGenerating(false);
+              }, 1000);
+          }
+
+          if (priceListOutType === "PRINT") {
+            // Decode the base64 string into binary data
+            const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+            const byteNumbers = Array.from(byteCharacters).map((char) =>
+              char.charCodeAt(0)
+            ); // Convert binary string to byte array
+            const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+            // Create a Blob from the byte array
+            const blob = new Blob([byteArray], { type: "application/pdf" });
+
+            // Create a temporary URL for the Blob
+            const blobUrl = URL.createObjectURL(blob);
+            dispatch(
+              genricPriceBookPdfGenrationg({
+                Type: "SUCCESS",
+                loading: false,
+                message: "Full Price Book Succesfully Prepared",
+              })
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 1000);
+            window.open(blobUrl, "_blank");
+         
           }
         } else {
           dispatch(
@@ -265,6 +425,7 @@ const HomePage = () => {
         }
       })
       .catch((e) => {
+        console.log("🚀 ~ getPriceBookFull ~ e:", e)
         dispatch(
           genricPriceBookPdfGenrationg({
             Type: "ERROR",
@@ -390,26 +551,24 @@ const HomePage = () => {
 
                 <Tooltip title="Mail" placement="top">
                   <CustomIconButton
-                  // disabled={true}
+                    // disabled={true}
                     bgcolor={theme.palette.error.main}
                     aria-label="mail"
                     onClick={() =>
                       navigate("/sent-mail", {
                         state: {
                           customernumber: user.company,
-                          fppdf:  true ,
-                          fpexcel:  true ,
-                          cppdf:  false,
-                          cpexcel:  false,
+                          fppdf: true,
+                          fpexcel: true,
+                          cppdf: false,
+                          cpexcel: false,
                           FromDate: sunday,
                           ToDate: saturday,
                         },
                       })
                     }
                   >
-                    <IoIosMailOpen
-                    
-                style={{ fontSize: "21px" }} />
+                    <IoIosMailOpen style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
               </Stack>
@@ -436,15 +595,21 @@ const HomePage = () => {
           </Tooltip>
         </Box>
         <Box sx={{ height: "250px" }}>
-          <IMG alt={user.companyName} sx={{opacity: 0.5,filter: "grayscale(100%)"}} src={`data:image/png;base64,${user.logo}`} width={"100%"} height={"100%"} />
+          <IMG
+            alt={user.companyName}
+            sx={{ opacity: 0.5, filter: "grayscale(100%)" }}
+            src={`data:image/png;base64,${user.logo}`}
+            width={"100%"}
+            height={"100%"}
+          />
         </Box>
 
         <GenricPriceBookLoadingApiDialog
-         logo={`data:image/png;base64,${user.logo}`}
+          logo={`data:image/png;base64,${user.logo}`}
           tittle={""}
           open={isGenerating}
           message={genricPriceBookPdfGenratingMsg}
-          loading={genricPriceBookIsPdfGenrating} 
+          loading={genricPriceBookIsPdfGenrating}
           error={genricPriceBookIsPdfError}
         />
       </Box>

@@ -200,8 +200,8 @@ const ConfigureEdit = () => {
       headerName: "Item Count",
       field: "PriceListItemCount",
       width: 150,
-      align: "left",
-      headerAlign: "left",
+      align: "right",
+      headerAlign: "center",
       hide: true,
     },
     {
@@ -364,7 +364,7 @@ const ConfigureEdit = () => {
       }, 2000);
     }
   };
-  const CustomToolBar = React.memo(() => {
+  const CustomToolBar = () => {
     return (
       <GridToolbarContainer
         sx={{
@@ -373,12 +373,14 @@ const ConfigureEdit = () => {
           justifyContent: "flex-end",
           width: "100%",
           padding: 0.5,
+          gap:1
         }}
       >
+         <Typography>Total Item Count: {data.PriceListItemCount}</Typography>
         <GridToolbarQuickFilter />
       </GridToolbarContainer>
     );
-  });
+  }
 
   //====================================================================================//
 

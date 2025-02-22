@@ -193,10 +193,7 @@ const Customer = () => {
           <Checkbox
             checked={params.row.CustomPriceBookExcel}
             onChange={(e) => {
-              // handleSave({
-              //   ...params.row,
-              //   CustomPriceBookExcel: e.target.checked,
-              // });
+
 
               dispatch(
                 CustomerConfig({
@@ -223,10 +220,6 @@ const Customer = () => {
           <Checkbox
             checked={params.row.CustomPriceBookPdf}
             onChange={(e) => {
-              // handleSave({
-              //   ...params.row,
-              //   CustomPriceBookPdf: e.target.checked,
-              // });
               dispatch(
                 CustomerConfig({
                   CustomerNumber: params.row.CustomerNumber,
@@ -249,6 +242,74 @@ const Customer = () => {
             }}
           />
           PDF
+        </div>
+      ),
+    },
+    {
+      field: "ItemType",
+      headerName: "Include/Exclude Items",
+      minWidth: 300,
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      disableExport: true,
+      renderCell: (params) => (
+        <div>
+          <Checkbox
+            checked={params.row.BrokenItem}
+            onChange={(e) => {
+
+
+              dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "BrokenItem",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              dispatch(
+                onCheckboxChangeCustomer({
+                  id: params.row.RecordID,
+                  field: "BrokenItem",
+                })
+              );
+            }}
+            sx={{
+              color: "#174c4f",
+              "&.Mui-checked": {
+                color: "#174c4f",
+              },
+            }}
+          />
+          Broken Items
+          <Checkbox
+            checked={params.row.DamageItem}
+            onChange={(e) => {
+              dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "DamageItem",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              dispatch(
+                onCheckboxChangeCustomer({
+                  id: params.row.RecordID,
+                  field: "DamageItem",
+                })
+              );
+            }}
+            sx={{
+              color: "#174c4f",
+              "&.Mui-checked": {
+                color: "#174c4f",
+              },
+            }}
+          />
+          Damaged Items
         </div>
       ),
     },
@@ -383,6 +444,7 @@ const Customer = () => {
             gap: 2,
           }}
         >
+          
           <GridToolbarQuickFilter />
         </Box>
       </GridToolbarContainer>

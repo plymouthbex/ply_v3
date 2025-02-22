@@ -51,7 +51,9 @@ import {
 } from "app/redux/slice/postSlice";
 import {
   getCustomerViewPriceCustomBook,
+  getCustomerViewPriceCustomBookRun,
   getCustomerViewPriceFullBook,
+  getCustomerViewPriceFullBookRun,
 } from "app/redux/slice/priceListSlice";
 import { pdf } from "@react-pdf/renderer";
 import LoadingApiDialog, {
@@ -472,11 +474,22 @@ export default function RunPriceBook() {
           <IconButton
             color="error"
             size="small"
-            onClick={() => {
-              setDeleteID(params1.row.id);
+            onClick={(e) => {
+              if (
+                user.role === "USER" &&
+                (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+                  user.SalesReps.includes(selectedRunGrpOptions.Name))
+              ) {
+                setDeleteID(params1.row.id);
+                setDeleteCustomer(params1.row.customernumber);
+                setIsRemoveItem(true);
+              } else if (user.role !== "USER") {
+                setDeleteID(params1.row.id);
               setDeleteCustomer(params1.row.customernumber);
               setIsRemoveItem(true);
+              }
             }}
+           
           >
             <DeleteIcon color="error" fontSize="small" />
           </IconButton>
@@ -601,7 +614,7 @@ export default function RunPriceBook() {
               rowSelectionModel.includes(row.id)
             ) {
               const fpPromise = dispatch(
-                getCustomerViewPriceFullBook({
+                getCustomerViewPriceFullBookRun({
                   CompanyCode: user.companyCode,
                   FromDate: sunday,
                   ToDate: saturday,
@@ -662,7 +675,7 @@ export default function RunPriceBook() {
               rowSelectionModel.includes(row.id)
             ) {
               const cpPromise = dispatch(
-                getCustomerViewPriceCustomBook({
+                getCustomerViewPriceCustomBookRun({
                   CompanyCode: user.companyCode,
                   FromDate: sunday,
                   ToDate: saturday,
@@ -1146,12 +1159,7 @@ export default function RunPriceBook() {
             rowHeight={dataGridRowHeight}
             pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
-              RecordID: false,
-              SortOrder: false,
-              CreatedDateTime: false,
-              ImgApp: false,
-              Sap: false,
-              Contact: false,
+              Action: user.role !== "USER" ?  true :  user.role === "USER" && (selectedRunGrpOptions ?selectedRunGrpOptions.Name === user.defaultRunGroup: false) ?  true : user.role === "USER" && ( user.SalesReps.includes(selectedRunGrpOptions? selectedRunGrpOptions.Name : "")) ?  true : false
             }}
             disableColumnFilter
             disableColumnSelector
@@ -1271,7 +1279,7 @@ export default function RunPriceBook() {
               open={isRemoveItem}
               //  tittle={values.itemDescription}
               error={true}
-              message={`Are you sure you want to delete this price list?`}
+              message={`Are you sure you want to delete the Customer?`}
               Actions={
                 <Box
                   sx={{

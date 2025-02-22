@@ -146,8 +146,8 @@ const PrintGroupEdit = () => {
       headerName: "Item Count",
       field: "PriceListItemCount",
       width: 150,
-      align: "left",
-      headerAlign: "left",
+      align: "right",
+      headerAlign: "center",
       hide: true,
     },
     {

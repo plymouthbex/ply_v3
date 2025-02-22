@@ -43,7 +43,7 @@ import {
 
 import { useTheme } from "@emotion/react";
 
-import { FormikCustomSelectCompany } from "app/components/SingleAutocompletelist";
+import { FormikCustomSelectCompany, FormikCustomSelectCompanyPriceLevel, FormikCustomSelectProvider } from "app/components/SingleAutocompletelist";
 import { getPriceListView } from "app/redux/slice/listviewSlice";
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -328,6 +328,7 @@ const NewProspect = () => {
                     label="Company"
                     url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
                   />
+                
                   <TextField
                     variant="outlined"
                     id="prospectDate"
@@ -389,20 +390,6 @@ const NewProspect = () => {
                     helperText={touched.prospectName && errors.prospectName}
                     autoComplete="off"
                   />
-                  {/* <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="description"
-                    name="description"
-                    label="Description"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    value={values.description}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                  /> */}
-
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -419,28 +406,15 @@ const NewProspect = () => {
                     error={!!touched.mobile && !!errors.mobile}
                     helperText={touched.mobile && errors.mobile}
                   />
-                  <FormControl
+                   < FormikCustomSelectProvider
+                    name="serviceProvider"
+                    id="serviceProvider"
                     sx={{ gridColumn: "span 2" }}
-                    fullWidth
-                    size="small"
-                  >
-                    <InputLabel id="demo-simple-select-label">
-                      Service Provider
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      value={values.serviceProvider}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      id="serviceProvider"
-                      name="serviceProvider"
-                      label="Price Book Type"
-                    >
-                      <MenuItem value={"AT&T"}>AT&T</MenuItem>
-                      <MenuItem value={"V"}>Verizon</MenuItem>
-                      <MenuItem value={"TM"}>T-Mobile</MenuItem>
-                    </Select>
-                  </FormControl>
+                    value={values.serviceProvider}
+                    onChange={handleChange}
+                    label="Service Provider"
+                    url={`${process.env.REACT_APP_BASE_URL}ProviderDropDown`}
+                  />
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -502,68 +476,18 @@ const NewProspect = () => {
                     helperText={touched.zip && errors.zip}
                   />
 
-                  {/* <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="number"
-                    id="priceBookLevel"
+
+                    <FormikCustomSelectCompanyPriceLevel
                     name="priceBookLevel"
-                    label="price Book Level"
-                    size="small"
-                    required
-                    InputLabelProps={{
-                      sx: {
-                        "& .MuiInputLabel-asterisk": { color: "red" },
-                      },
-                    }}
+                    id="priceBookLevel"
                     sx={{ gridColumn: "span 2" }}
                     value={values.priceBookLevel}
                     onChange={handleChange}
-                    onBlur={handleBlur}
-                  /> */}
+                    label="price Book Level"
+                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyCode=${values.company}`}
+                  />
+                    
 
-                  <Stack
-                    sx={{ gridColumn: "span 2" }}
-                    direction="column"
-                    gap={2}
-                  >
-                    <Autocomplete
-                      fullWidth
-                      id="priceBookLevel"
-                      name="priceBookLevel"
-                      options={
-                        values.company == "PM"
-                          ? priceBookLevel1
-                          : priceBookLevel2
-                      }
-                      getOptionLabel={(option) => `Level ${option}`}
-                      value={values.priceBookLevel}
-                      onChange={(event, newValue) =>
-                        handleChange({
-                          target: {
-                            name: "priceBookLevel",
-                            value: newValue,
-                          },
-                        })
-                      }
-                      onBlur={handleBlur}
-                      disableClearable
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          required
-                          InputLabelProps={{
-                            sx: {
-                              "& .MuiInputLabel-asterisk": { color: "red" },
-                            },
-                          }}
-                          label="Price Book Level"
-                          size="small"
-                          sx={{ gridColumn: "span 2" }}
-                        />
-                      )}
-                    />
-                  </Stack>
 
                   <TextField
                     fullWidth
@@ -580,12 +504,6 @@ const NewProspect = () => {
                     error={!!touched.email && !!errors.email}
                     helperText={touched.email && errors.email}
                     autoComplete="off"
-                    // required
-                    // InputLabelProps={{
-                    //   sx: {
-                    //     "& .MuiInputLabel-asterisk": { color: "red" },
-                    //   },
-                    // }}
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -710,15 +628,6 @@ const NewProspect = () => {
       ) : (
         false
       )}
-
-      {/* <GenricPriceBookLoadingApiDialog
-        logo={`data:image/png;base64,${user.logo}`}
-        tittle={""}
-        open={isGenerating}
-        message={genricPriceBookPdfGenratingMsg}
-        loading={genricPriceBookIsPdfGenrating}
-        error={genricPriceBookIsPdfError}
-      /> */}
 
       <PriceGroupAlertApiDialog
         logo={`data:image/png;base64,${user.logo}`}

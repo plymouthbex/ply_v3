@@ -51,7 +51,7 @@ import Publish from "@mui/icons-material/Publish";
 import Cover from "../../../../../assets/plylogo.png";
 import { FlexAlignCenter, FlexBox } from "app/components/FlexBox";
 import { convertHexToRGB } from "app/utils/constant";
-import { PGOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
+import { FormikCustomSelectCompanyPriceLevel, PGOptimizedAutocomplete } from "app/components/SingleAutocompletelist";
 import { useDispatch, useSelector } from "react-redux";
 import {
   configureAddedPriceList,
@@ -196,8 +196,8 @@ const ConfigureCompanyEdit = () => {
       headerName: "Item Count",
       field: "PriceListItemCount",
       width: 150,
-      align: "left",
-      headerAlign: "left",
+      align: "right",
+      headerAlign: "center",
       hide: true,
     },
     {
@@ -265,7 +265,7 @@ const ConfigureCompanyEdit = () => {
       }, 2000);
     }
   };
-  const CustomToolBar = React.memo(() => {
+  const CustomToolBar = () => {
     return (
       <GridToolbarContainer
         sx={{
@@ -286,6 +286,7 @@ const ConfigureCompanyEdit = () => {
             paddingX: 2,
           }}
         >
+          <Typography>Total Item Count: {data.PriceListItemCount}</Typography>
           <GridToolbarQuickFilter />
 
           {/* <CompanyPriceListAutoCompleteMemo
@@ -319,7 +320,7 @@ const ConfigureCompanyEdit = () => {
         </Box>
       </GridToolbarContainer>
     );
-  });
+  };
 
   const handleSave = async (values) => {
     const Cdata = {
@@ -332,6 +333,8 @@ const ConfigureCompanyEdit = () => {
       disable: "0",
       fullPriceBookTitle: values.name,
       priceLevel: values.priceBookLevels,
+      BrokenItem: values.brokenItems,
+      DamageItem: values.damagedItems,
     };
     const response = await dispatch(postConfigureCompany({ Cdata }));
     if (response.payload.status === "Y") {
@@ -357,7 +360,6 @@ const ConfigureCompanyEdit = () => {
           { id: 9, level: "Price Book Level 9" },
         ];
 
-        
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -369,10 +371,11 @@ const ConfigureCompanyEdit = () => {
             pdf: data.FullPriceBookPdf === "1" ? true : false,
             priceBookLevels: data.PriceLevel,
             disable: data.Disable === "1" ? true : false,
+            brokenItems: data.BrokenItem,
+            damagedItems: data.DamageItem,
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
-            console.log(values);
             handleSave(values);
           }}
         >
@@ -471,45 +474,46 @@ const ConfigureCompanyEdit = () => {
                       helperText={touched.name && errors.name}
                       autoComplete="off"
                     />
-                    <Autocomplete
-                      fullWidth
-                      id="priceBookLevels"
-                      name="priceBookLevels"
-                      // Map through priceBookLevels to get the 'level' values for the options list
-                      options={priceBookLevels.map(
-                        (levelObj) => levelObj.level
-                      )}
-                      disabled={params?.mode === "delete"}
-                      // Set the value by finding the corresponding 'level' based on the id stored in Formik's values
-                      value={
-                        priceBookLevels.find(
-                          (levelObj) => levelObj.id === values.priceBookLevels
-                        )?.level || ""
-                      }
-                      onChange={(event, newValue) => {
-                        // Find the corresponding 'id' based on the selected 'level' value
-                        const selectedLevel = priceBookLevels.find(
-                          (levelObj) => levelObj.level === newValue
-                        );
 
-                        handleChange({
-                          target: {
-                            name: "priceBookLevels",
-                            value: selectedLevel?.id || null,
-                          }, // If no match, set to null
-                        });
-                      }}
-                      onBlur={handleBlur}
-                      disableClearable
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Price Book Level"
-                          size="small"
-                          sx={{ gridColumn: "span 2" }}
-                        />
-                      )}
+                    <FormikCustomSelectCompanyPriceLevel
+                      name="priceBookLevels"
+                      id="priceBookLevels"
+                      sx={{ gridColumn: "span 2" }}
+                      value={values.priceBookLevels}
+                      onChange={handleChange}
+                      label="price Book Level"
+                      disabled={params?.mode === "delete"}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyCode=${data.CompanyCode}`}
                     />
+                   
+                    <Stack direction="row" gap={1}>
+                      <FormControlLabel
+                        sx={{ height: 37.13 }}
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="brokenItems"
+                            name="brokenItems"
+                            checked={values.brokenItems}
+                            onChange={handleChange}
+                          />
+                        }
+                        label="Broken Items"
+                      />
+                      <FormControlLabel
+                        sx={{ height: 37.13 }}
+                        control={
+                          <Checkbox
+                            size="small"
+                            id="damagedItems"
+                            name="damagedItems"
+                            checked={values.damagedItems}
+                            onChange={handleChange}
+                          />
+                        }
+                        label="Damaged Items"
+                      />
+                    </Stack>
                   </Stack>
                 </Box>
                 <Box
@@ -525,7 +529,7 @@ const ConfigureCompanyEdit = () => {
                   {/* <GridToolbarQuickFilter /> */}
 
                   <CompanyPriceListAutoComplete
-                  key={JSON.stringify(getRows)} 
+                    key={JSON.stringify(getRows)}
                     errors={isPriceListExistsError}
                     helper={
                       isPriceListExistsError && "Please select price list!"

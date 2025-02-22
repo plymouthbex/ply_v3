@@ -47,9 +47,10 @@ const initialState = {
 
 export const getGenricPriceList = createAsyncThunk(
   "posts/getGenricPriceList", // action type
-  async ({ CompanyCode, FromDate, ToDate }, { rejectWithValue }) => {
+  async ({ URL }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}Pdf/GetGenricFullPriceBook_V1?CompanyCode=${CompanyCode}&FromDate=${FromDate}&ToDate=${ToDate}`;
+      // const URL = `${process.env.REACT_APP_BASE_URL}Pdf/GetGenricFullPriceBook_V1?CompanyCode=${CompanyCode}&FromDate=${FromDate}&ToDate=${ToDate}`;
+
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -98,7 +99,30 @@ export const getCustomerCustomViewPriceList = createAsyncThunk(
 export const getCustomerViewPriceFullBook = createAsyncThunk(
   "view-price-book/customer-price-full-book", // action type
   async (
-    { CompanyCode, FromDate, ToDate, CustomerNumber },
+    { URL },
+    { rejectWithValue }
+  ) => {
+    try {
+      // const URL = `${process.env.REACT_APP_BASE_URL}Pdf/GetCustomerFullPriceBook_V3?CompanyCode=${CompanyCode}&FromDate=${FromDate}&ToDate=${ToDate}&CustomerNumber=${CustomerNumber}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      // If the request fails, return a custom error message
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const getCustomerViewPriceFullBookRun = createAsyncThunk(
+  "run-price-book/customer-price-full-book", // action type
+  async (
+    {CompanyCode, FromDate, ToDate, CustomerNumber,},
     { rejectWithValue }
   ) => {
     try {
@@ -120,6 +144,29 @@ export const getCustomerViewPriceFullBook = createAsyncThunk(
 
 export const getCustomerViewPriceCustomBook = createAsyncThunk(
   "view-price-book/customer-price-custom-book", // action type
+  async (
+    { CompanyCode, FromDate, ToDate, CustomerNumber, filterparameters, URL },
+    { rejectWithValue }
+  ) => {
+    try {
+      // const URL = `${process.env.REACT_APP_BASE_URL}Pdf/GetCustomerCustomPriceBook_V1?CompanyCode=${CompanyCode}&FromDate=${FromDate}&ToDate=${ToDate}&CustomerNumber=${CustomerNumber}&filterparameters=${filterparameters}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      // If the request fails, return a custom error message
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const getCustomerViewPriceCustomBookRun = createAsyncThunk(
+  "run-price-book/customer-price-custom-book", // action type
   async (
     { CompanyCode, FromDate, ToDate, CustomerNumber, filterparameters },
     { rejectWithValue }

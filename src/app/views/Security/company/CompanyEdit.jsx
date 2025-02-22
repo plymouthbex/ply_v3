@@ -108,7 +108,6 @@ const CompanyEdit = () => {
     const [postMessage, setPostMessage] = useState(false);
   // ******************** REDUX STATE ******************** //
   const data = useSelector((state) => state.getSlice.companyFormData);
-  console.log("🚀 ~ CompanyEdit ~ data:", data);
 
   const status = useSelector((state) => state.getSlice.companyStatus);
 
@@ -155,7 +154,7 @@ const CompanyEdit = () => {
     }
   };
 
-  const CompanyID = user.companyID;
+  const CompanyID = state.RecordID ? state.RecordID : user.id ;
   //==============================================IMAGE==================================================/
   const [imageList1, setImageList1] = useState([]);
   const [previewImages1, setPreviewImages1] = useState([]);
@@ -474,6 +473,7 @@ const CompanyEdit = () => {
                     onBlur={handleBlur}
                     error={!!touched.code && !!errors.code}
                     helperText={touched.code && errors.code}
+                    disabled={params.mode === "edit"}
                     autoFocus
                   />
                   <TextField
@@ -682,7 +682,7 @@ const CompanyEdit = () => {
                     type="text"
                     id="custom"
                     name="custom"
-                    label="Custom Full Price Book"
+                    label="Customer Full Price Book"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     value={values.custom}

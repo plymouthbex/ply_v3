@@ -233,48 +233,7 @@ const ViewPriceBook = () => {
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-  // const fnRunGrpEmailProcess = async () => {
-  //   if (!selectedCustomerOptions) {
-  //     setIsCustomer("Please Choose Customer");
 
-  //     setTimeout(() => {
-  //       setIsCustomer(null);
-  //     }, 1000);
-  //     return;
-  //   }
-
-  //   const data = [
-  //     {
-  //       CustomerNumber: selectedCustomerOptions.Code,
-  //       FullPriceBookPdf: selectPriceListtype === "FP" ? "1" : "0",
-  //       FullPriceBookExcel: selectPriceListtype === "FP" ? "1" : "0",
-  //       CustomPriceBooPdf: selectPriceListtype === "CP" ? "1" : "0",
-  //       CustomPriceBookExcel: selectPriceListtype === "CP" ? "1" : "0",
-  //       FromDate: sunday,
-  //       ToDate: saturday,
-  //       UserID: user.id,
-  //       CompnayID: user.companyID,
-  //       CompanyCode: user.companyCode,
-  //       TemplateID: "",
-  //     },
-  //   ];
-  //   console.log("🚀 ~ data ~ data:", data);
-
-  //   try {
-  //     const response = await dispatch(runGroupMailData({ data }));
-
-  //     if (response.payload.status === "Y") {
-  //       setOpenAlert(true);
-  //     } else {
-  //       setOpenAlert(true);
-  //       setPostError(true);
-  //     }
-  //   } catch (error) {
-  //     setOpenAlert(true);
-  //     setPostError(true);
-  //     console.error("Error during HandleSave:", error);
-  //   }
-  // };
   const fnRunGrpEmailProcess = async () => {
     if (!selectedCustomerOptions) {
       setIsCustomer("Please Choose Customer");
@@ -325,8 +284,191 @@ const ViewPriceBook = () => {
     }
   };
 
-  const getPriceListCustomerFull = (priceListOutType) => {
+  // const getPriceListCustomerFull = (priceListOutType) => {
 
+  //   setIsGenerating(true);
+  //   dispatch(
+  //     viewPricePdfGenrationg({
+  //       Type: "LOADING",
+  //       loading: true,
+  //       message:
+  //         priceListOutType === "EXCEL"
+  //           ? "Generating Price Book Excel"
+  //           : "Generating Price Book PDF",
+  //     })
+  //   );
+
+  //   dispatch(
+  //     getCustomerViewPriceFullBook({
+  //       CompanyCode: user.companyCode,
+  //       FromDate: sunday,
+  //       ToDate: saturday,
+  //       CustomerNumber: selectedCustomerOptions
+  //         ? selectedCustomerOptions.Code
+  //         : "",
+  //     })
+  //   )
+  //     .then(async (response) => {
+  //       // return;
+  //       if (response.payload.length > 0) {
+  //         if (priceListOutType === "EXCEL") {
+  //           exportToExcelFullPriceBookV1({
+  //             excelData: response.payload,
+  //             fileName: `${user.company}_${
+  //               selectedCustomerOptions
+  //                 ? selectedCustomerOptions.Name
+  //                 : "Customer"
+  //             }_FPB_${sunday} TO ${saturday}`,
+  //             isPrice: isChecked,
+  //           });
+  //           dispatch(
+  //             viewPricePdfGenrationg({
+  //               Type: "SUCCESS",
+  //               loading: false,
+  //               message:
+  //                 "Price book successfully created! Please wait while it is automatically downloaded",
+  //             })
+  //           );
+  //           setIsGenerating(false);
+  //           return;
+  //         }
+  //         try {
+  //           const instance = pdf(
+  //             <CustomerFullPriceDocument
+  //               data={response.payload}
+  //               coverPageData={{
+  //                 logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                 subtitle1: "Price Book for",
+  //                 subtitle2:
+  //                   selectPriceListtype === "FP"
+  //                     ? `${
+  //                         selectedCustomerOptions
+  //                           ? selectedCustomerOptions.Name
+  //                           : ""
+  //                       }`
+  //                     : "Customer Full Pricelist",
+  //                 effectiveDate: formatedDate,
+  //                 preparedByName: user.name,
+  //                 preparedByPhone: user.userMobile,
+  //                 preparedByEmail: user.email,
+  //                 phone1: user.phone1,
+  //                 phone2: user.phone2,
+  //                 fax: user.fax,
+  //                 coverImg:
+  //                   selectPriceListtype === "FP"
+  //                     ? user.customerFullPriceBookImg
+  //                     : user.customerCustomPriceBookImg,
+  //               }}
+  //               isPrice={isChecked}
+  //               onRenderFinish={() => {
+  //                 dispatch(
+  //                   viewPricePdfGenrationg({
+  //                     Type: "SUCCESS",
+  //                     loading: false,
+  //                     message:
+  //                       "Price book successfully created! Please wait while it is automatically downloaded.",
+  //                   })
+  //                 );
+  //                 setTimeout(() => {
+  //                   setIsGenerating(false);
+  //                 }, 1000);
+  //               }}
+  //               onError={(e) => {
+  //                 console.error("Render Error:", e);
+  //                 dispatch(
+  //                   viewPricePdfGenrationg({
+  //                     Type: "ERROR",
+  //                     message: "An error occurred while rendering the PDF.",
+  //                     loading: false,
+  //                     error: true,
+  //                   })
+  //                 );
+  //                 setTimeout(() => {
+  //                   setIsGenerating(false);
+  //                 }, 1000);
+  //               }}
+  //             />
+  //           );
+
+  //           const blob = await instance.toBlob();
+  //           const url = URL.createObjectURL(blob);
+
+  //           if (priceListOutType === "PDF") {
+  //             const link = document.createElement("a");
+  //             link.href = url;
+  //             link.download = `${user.company}_${
+  //               selectedCustomerOptions
+  //                 ? selectedCustomerOptions.Name
+  //                 : "Customer"
+  //             }_${
+  //               selectPriceListtype === "FP" ? "FPB" : "CPB"
+  //             }_${sunday} TO ${saturday}.pdf`;
+  //             document.body.appendChild(link);
+
+  //             link.click();
+  //             document.body.removeChild(link);
+  //             URL.revokeObjectURL(url);
+  //           }
+
+  //           if (priceListOutType === "PRINT") {
+  //             window.open(
+  //               url,
+  //               `${
+  //                 selectedCustomerOptions
+  //                   ? selectedCustomerOptions.Name
+  //                   : "Customer"
+  //               }_${
+  //                 selectPriceListtype === "FP" ? "FPB" : "CPB"
+  //               }_${sunday} TO ${saturday}`
+  //             );
+  //             setTimeout(() => {
+  //               URL.revokeObjectURL(url);
+  //             }, 100);
+  //           }
+  //         } catch (e) {
+  //           console.error("Generation Error:", e);
+  //           dispatch(
+  //             viewPricePdfGenrationg({
+  //               Type: "ERROR",
+  //               message: "An error occurred while rendering the PDF.",
+  //               loading: false,
+  //               error: true,
+  //             })
+  //           );
+  //           setTimeout(() => {
+  //             setIsGenerating(false);
+  //           }, 2000);
+  //         }
+  //       } else {
+  //         dispatch(
+  //           viewPricePdfGenrationg({
+  //             Type: "ERROR",
+  //             message: response.payload.message,
+  //             loading: false,
+  //             error: true,
+  //           })
+  //         );
+  //         setTimeout(() => {
+  //           setIsGenerating(false);
+  //         }, 1000);
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       dispatch(
+  //         viewPricePdfGenrationg({
+  //           Type: "ERROR",
+  //           message: "An error occurred while rendering the PDF.",
+  //           loading: false,
+  //           error: true,
+  //         })
+  //       );
+  //       setTimeout(() => {
+  //         setIsGenerating(false);
+  //       }, 2000);
+  //     });
+  // };
+
+  const getPriceListCustomerFull = (priceListOutType) => {
     setIsGenerating(true);
     dispatch(
       viewPricePdfGenrationg({
@@ -341,137 +483,149 @@ const ViewPriceBook = () => {
 
     dispatch(
       getCustomerViewPriceFullBook({
-        CompanyCode: user.companyCode,
-        FromDate: sunday,
-        ToDate: saturday,
-        CustomerNumber: selectedCustomerOptions
-          ? selectedCustomerOptions.Code
-          : "",
+        URL:
+          priceListOutType == "EXCEL"
+            ? `${
+                process.env.REACT_APP_BASE_URL
+              }Email/GetFullPriceExcel?CustomerNumber=${
+                selectedCustomerOptions ? selectedCustomerOptions.Code : ""
+              }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
+                user.id
+              }`
+            : `${
+                process.env.REACT_APP_BASE_URL
+              }Email/GetFullpricePdf_V1?CustomerNumber=${
+                selectedCustomerOptions ? selectedCustomerOptions.Code : ""
+              }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
+                user.id
+              }`,
       })
     )
       .then(async (response) => {
         // return;
-        if (response.payload.length > 0) {
-          if (priceListOutType === "EXCEL") {
-            exportToExcelFullPriceBookV1({
-              excelData: response.payload,
-              fileName: `${user.company}_${
-                selectedCustomerOptions
-                  ? selectedCustomerOptions.Name
-                  : "Customer"
-              }_FPB_${sunday} TO ${saturday}`,
-              isPrice: isChecked,
-            });
-            dispatch(
-              viewPricePdfGenrationg({
-                Type: "SUCCESS",
-                loading: false,
-                message:
-                  "Price book successfully created! Please wait while it is automatically downloaded",
-              })
-            );
-            setIsGenerating(false);
-            return;
-          }
-          try {
-            const instance = pdf(
-              <CustomerFullPriceDocument
-                data={response.payload}
-                coverPageData={{
-                  logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  subtitle1: "Price Book for",
-                  subtitle2:
-                    selectPriceListtype === "FP"
-                      ? `${
-                          selectedCustomerOptions
-                            ? selectedCustomerOptions.Name
-                            : ""
-                        }`
-                      : "Customer Full Pricelist",
-                  effectiveDate: formatedDate,
-                  preparedByName: user.name,
-                  preparedByPhone: user.userMobile,
-                  preparedByEmail: user.email,
-                  phone1: user.phone1,
-                  phone2: user.phone2,
-                  fax: user.fax,
-                  coverImg:
-                    selectPriceListtype === "FP"
-                      ? user.customerFullPriceBookImg
-                      : user.customerCustomPriceBookImg,
-                }}
-                isPrice={isChecked}
-                onRenderFinish={() => {
-                  dispatch(
-                    viewPricePdfGenrationg({
-                      Type: "SUCCESS",
-                      loading: false,
-                      message:
-                        "Price book successfully created! Please wait while it is automatically downloaded.",
-                    })
-                  );
-                  setTimeout(() => {
-                    setIsGenerating(false);
-                  }, 1000);
-                }}
-                onError={(e) => {
-                  console.error("Render Error:", e);
-                  dispatch(
-                    viewPricePdfGenrationg({
-                      Type: "ERROR",
-                      message: "An error occurred while rendering the PDF.",
-                      loading: false,
-                      error: true,
-                    })
-                  );
-                  setTimeout(() => {
-                    setIsGenerating(false);
-                  }, 1000);
-                }}
-              />
-            );
 
-            const blob = await instance.toBlob();
-            const url = URL.createObjectURL(blob);
+          if (response.payload.status === "Y") {
+            if (priceListOutType === "EXCEL") {
+              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+              const byteNumbers = Array.from(byteCharacters).map((char) =>
+                char.charCodeAt(0)
+              ); // Convert binary string to byte array
+              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
 
-            if (priceListOutType === "PDF") {
+              // Create a Blob from the byte array
+              const blob = new Blob([byteArray], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
+              });
+
+              // Create a temporary URL for the Blob
+              const blobUrl = URL.createObjectURL(blob);
+
+              // Create a temporary <a> element for downloading
+
+              // Create a temporary <a> element for downloading
               const link = document.createElement("a");
-              link.href = url;
-              link.download = `${user.company}_${
-                selectedCustomerOptions
-                  ? selectedCustomerOptions.Name
-                  : "Customer"
-              }_${
-                selectPriceListtype === "FP" ? "FPB" : "CPB"
-              }_${sunday} TO ${saturday}.pdf`;
-              document.body.appendChild(link);
+              link.href = blobUrl;
+              link.download = `${user.company}_${selectedCustomerOptions ? selectedCustomerOptions.Name: "Customer"}_"FPB"_${sunday} TO ${saturday}.xlsx`;
 
+              // Append the link to the document and trigger the download
+              document.body.appendChild(link);
               link.click();
+              dispatch(
+                viewPricePdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
+                })
+              );
+              setTimeout(() => {
+                setIsGenerating(false);
+              }, 1);
+              // Clean up
               document.body.removeChild(link);
-              URL.revokeObjectURL(url);
+              URL.revokeObjectURL(blobUrl);
             }
 
-            if (priceListOutType === "PRINT") {
-              window.open(
-                url,
-                `${
+            if (priceListOutType === "PDF") {
+              function downloadPDFBytes(byteString, fileName) {
+                // Decode the base64 string into binary data
+                const byteCharacters = atob(byteString); // Decode base64 to binary string
+                const byteNumbers = Array.from(byteCharacters).map((char) =>
+                  char.charCodeAt(0)
+                ); // Convert binary string to byte array
+                const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+                // Create a Blob from the byte array
+                const blob = new Blob([byteArray], { type: "application/pdf" });
+
+                // Create a temporary URL for the Blob
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Create a temporary <a> element for downloading
+                // Create a temporary <a> element for downloading
+                const link = document.createElement("a");
+                link.href = blobUrl;
+                link.download = fileName;
+
+                // Append the link to the document and trigger the download
+                document.body.appendChild(link);
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+              }
+
+              downloadPDFBytes(
+                response.payload.path,
+                `${user.company}_${
                   selectedCustomerOptions
                     ? selectedCustomerOptions.Name
                     : "Customer"
-                }_${
-                  selectPriceListtype === "FP" ? "FPB" : "CPB"
-                }_${sunday} TO ${saturday}`
+                }_"FPB"_${sunday} TO ${saturday}.pdf`
+              );
+              dispatch(
+                viewPricePdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message:  "Price book successfully created! Please wait while it is automatically downloaded.",
+
+                })
               );
               setTimeout(() => {
-                URL.revokeObjectURL(url);
-              }, 100);
+                setIsGenerating(false);
+              }, 1000);
             }
-          } catch (e) {
-            console.error("Generation Error:", e);
+
+            if (priceListOutType === "PRINT") {
+              // Decode the base64 string into binary data
+              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+              const byteNumbers = Array.from(byteCharacters).map((char) =>
+                char.charCodeAt(0)
+              ); // Convert binary string to byte array
+              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+              // Create a Blob from the byte array
+              const blob = new Blob([byteArray], { type: "application/pdf" });
+
+              // Create a temporary URL for the Blob
+              const blobUrl = URL.createObjectURL(blob);
+              dispatch(
+                viewPricePdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
+                })
+              );
+              setTimeout(() => {
+                setIsGenerating(false);
+              }, 1000);
+              window.open(blobUrl, "_blank");
+            }
+          } else {
             dispatch(
               viewPricePdfGenrationg({
                 Type: "ERROR",
-                message: "An error occurred while rendering the PDF.",
+                message: response.payload.message,
                 loading: false,
                 error: true,
               })
@@ -480,19 +634,7 @@ const ViewPriceBook = () => {
               setIsGenerating(false);
             }, 2000);
           }
-        } else {
-          dispatch(
-            viewPricePdfGenrationg({
-              Type: "ERROR",
-              message: response.payload.message,
-              loading: false,
-              error: true,
-            })
-          );
-          setTimeout(() => {
-            setIsGenerating(false);
-          }, 1000);
-        }
+     
       })
       .catch((e) => {
         dispatch(
@@ -510,14 +652,6 @@ const ViewPriceBook = () => {
   };
 
   const getPriceListCustomerCustom = (priceListOutType) => {
-    if (!selectedCustomerOptions) {
-      setIsCustomer("Please Choose Customer");
-
-      setTimeout(() => {
-        setIsCustomer(null);
-      }, 1000);
-      return;
-    }
     setIsGenerating(true);
     dispatch(
       viewPricePdfGenrationg({
@@ -532,157 +666,158 @@ const ViewPriceBook = () => {
 
     dispatch(
       getCustomerViewPriceCustomBook({
-        CompanyCode: user.companyCode,
-        FromDate: sunday,
-        ToDate: saturday,
-        CustomerNumber: selectedCustomerOptions
-          ? selectedCustomerOptions.Code
-          : "",
-        filterparameters: "",
+        URL:
+          priceListOutType == "EXCEL"
+            ? `${
+                process.env.REACT_APP_BASE_URL
+              }Email/GetCustomExcel?CustomerNumber=${
+                selectedCustomerOptions ? selectedCustomerOptions.Code : ""
+              }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
+                user.id
+              }`
+            : `${
+                process.env.REACT_APP_BASE_URL
+              }Email/GetCustomPdf?CustomerNumber=${
+                selectedCustomerOptions ? selectedCustomerOptions.Code : ""
+              }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
+                user.id
+              }`,
       })
     )
       .then(async (response) => {
-        if (response.payload.length > 0) {
-          if (priceListOutType === "EXCEL") {
-            exportToExcelCustomPriceBook({
-              excelData: response.payload,
-              fileName: `${user.company}_${
-                selectedCustomerOptions
-                  ? selectedCustomerOptions.Name
-                  : "Customer"
-              }_CPB_${sunday} TO ${saturday}`,
-              isPrice: isChecked,
-            });
-            dispatch(
-              viewPricePdfGenrationg({
-                Type: "SUCCESS",
-                loading: false,
-                message:
-                  "Price book successfully created! Please wait while it is automatically downloaded.",
-              })
-            );
-            setIsGenerating(false);
-            return;
-          }
-          try {
-            const instance = pdf(
-              <CustomerCustomPriceDocument
-                data={response.payload}
-                headerData={{
-                  logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  customerName: selectedCustomerOptions
-                    ? selectedCustomerOptions.Name
-                    : "Claus Meats",
-                  effectiveDate: formatedDate,
-                }}
-                coverPageData={{
-                  logo: user.homePagelogo, // Replace with the actual path to the logo image
-                  subtitle1: "Price list for",
-                  subtitle2: `${
-                    selectedCustomerOptions
-                      ? selectedCustomerOptions.Name
-                      : "Customer Custom Pricelist"
-                  }`,
-                  effectiveDate: formatedDate,
-                  preparedByName: user.name,
-                  preparedByPhone: user.userMobile,
-                  preparedByEmail: user.email,
-                  phone1: user.phone1,
-                  phone2: user.phone2,
-                  fax: user.fax,
-                  coverImg:
-                    selectPriceListtype === "FP"
-                      ? user.customerFullPriceBookImg
-                      : user.customerCustomPriceBookImg,
-                }}
-                isPrice={isChecked}
-                onRenderFinish={() => {
-                  dispatch(
-                    viewPricePdfGenrationg({
-                      Type: "SUCCESS",
-                      loading: false,
-                      message:
-                        "Price book successfully created! Please wait while it is automatically downloaded.",
-                    })
-                  );
-                  setIsGenerating(false);
-                }}
-                onError={(e) => {
-                  console.error("Render Error:", e);
-                  dispatch(
-                    viewPricePdfGenrationg({
-                      Type: "ERROR",
-                      message: "An error occurred while rendering the PDF.",
-                      loading: false,
-                      error: true,
-                    })
-                  );
-                }}
-              />
-            );
+        // return;
 
-            const blob = await instance.toBlob();
+          if (response.payload.status === "Y") {
+            if (priceListOutType === "EXCEL") {
+              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+              const byteNumbers = Array.from(byteCharacters).map((char) =>
+                char.charCodeAt(0)
+              ); // Convert binary string to byte array
+              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
 
-            const url = URL.createObjectURL(blob);
+              // Create a Blob from the byte array
+              const blob = new Blob([byteArray], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
+              });
 
-            if (priceListOutType === "PDF") {
+              // Create a temporary URL for the Blob
+              const blobUrl = URL.createObjectURL(blob);
+
+              // Create a temporary <a> element for downloading
+
+              // Create a temporary <a> element for downloading
               const link = document.createElement("a");
-              link.href = url;
-              link.download = `${user.company}_${
-                selectedCustomerOptions
-                  ? selectedCustomerOptions.Name
-                  : "Customer"
-              }_${
-                selectPriceListtype === "FP" ? "FPB" : "CPB"
-              }_${sunday} TO ${saturday}.pdf`;
-              document.body.appendChild(link);
+              link.href = blobUrl;
+              link.download = `${user.company}_${selectedCustomerOptions ? selectedCustomerOptions.Name: "Customer"}_"CPB"_${sunday} TO ${saturday}.xlsx`;
 
+              // Append the link to the document and trigger the download
+              document.body.appendChild(link);
               link.click();
+              dispatch(
+                viewPricePdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
+                })
+              );
+              setTimeout(() => {
+                setIsGenerating(false);
+              }, 1);
+              // Clean up
               document.body.removeChild(link);
-              URL.revokeObjectURL(url);
+              URL.revokeObjectURL(blobUrl);
             }
 
-            if (priceListOutType === "PRINT") {
-              window.open(
-                url,
+            if (priceListOutType === "PDF") {
+              function downloadPDFBytes(byteString, fileName) {
+                // Decode the base64 string into binary data
+                const byteCharacters = atob(byteString); // Decode base64 to binary string
+                const byteNumbers = Array.from(byteCharacters).map((char) =>
+                  char.charCodeAt(0)
+                ); // Convert binary string to byte array
+                const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+                // Create a Blob from the byte array
+                const blob = new Blob([byteArray], { type: "application/pdf" });
+
+                // Create a temporary URL for the Blob
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Create a temporary <a> element for downloading
+                // Create a temporary <a> element for downloading
+                const link = document.createElement("a");
+                link.href = blobUrl;
+                link.download = fileName;
+
+                // Append the link to the document and trigger the download
+                document.body.appendChild(link);
+                link.click();
+
+                // Clean up
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+              }
+
+              downloadPDFBytes(
+                response.payload.path,
                 `${user.company}_${
                   selectedCustomerOptions
                     ? selectedCustomerOptions.Name
                     : "Customer"
-                }_${
-                  selectPriceListtype === "FP" ? "FPB" : "CPB"
-                }_${sunday} TO ${saturday}`
+                }_"CPB"_${sunday} TO ${saturday}.pdf`
+              );
+              dispatch(
+                viewPricePdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message:  "Price book successfully created! Please wait while it is automatically downloaded.",
+
+                })
               );
               setTimeout(() => {
-                URL.revokeObjectURL(url);
-              }, 100);
+                setIsGenerating(false);
+              }, 1000);
             }
-          } catch (e) {
-            console.error("Generation Error:", e);
+
+            if (priceListOutType === "PRINT") {
+              // Decode the base64 string into binary data
+              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+              const byteNumbers = Array.from(byteCharacters).map((char) =>
+                char.charCodeAt(0)
+              ); // Convert binary string to byte array
+              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+              // Create a Blob from the byte array
+              const blob = new Blob([byteArray], { type: "application/pdf" });
+
+              // Create a temporary URL for the Blob
+              const blobUrl = URL.createObjectURL(blob);
+              dispatch(
+                viewPricePdfGenrationg({
+                  Type: "SUCCESS",
+                  loading: false,
+                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
+                })
+              );
+              setTimeout(() => {
+                setIsGenerating(false);
+              }, 1000);
+              window.open(blobUrl, "_blank");
+            }
+          } else {
             dispatch(
               viewPricePdfGenrationg({
                 Type: "ERROR",
-                message: "An error occurred while rendering the PDF.",
+                message: response.payload.message,
                 loading: false,
                 error: true,
               })
             );
-            setIsGenerating(false);
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 2000);
           }
-        } else {
-          // toast.error('Price Boook not found')
-          dispatch(
-            viewPricePdfGenrationg({
-              Type: "ERROR",
-              message: response.payload.message,
-              loading: false,
-              error: true,
-            })
-          );
-          setTimeout(() => {
-            setIsGenerating(false);
-          }, 1000);
-        }
+     
       })
       .catch((e) => {
         dispatch(
@@ -693,9 +828,192 @@ const ViewPriceBook = () => {
             error: true,
           })
         );
-        setIsGenerating(false);
+        setTimeout(() => {
+          setIsGenerating(false);
+        }, 2000);
       });
   };
+
+  // const getPriceListCustomerCustom = (priceListOutType) => {
+
+  //   setIsGenerating(true);
+  //   dispatch(
+  //     viewPricePdfGenrationg({
+  //       Type: "LOADING",
+  //       loading: true,
+  //       message:
+  //         priceListOutType === "EXCEL"
+  //           ? "Generating Price Book Excel"
+  //           : "Generating Price Book PDF",
+  //     })
+  //   );
+
+  //   dispatch(
+  //     getCustomerViewPriceCustomBook({
+  //       CompanyCode: user.companyCode,
+  //       FromDate: sunday,
+  //       ToDate: saturday,
+  //       CustomerNumber: selectedCustomerOptions
+  //         ? selectedCustomerOptions.Code
+  //         : "",
+  //       filterparameters: "",
+  //     })
+  //   )
+  //     .then(async (response) => {
+  //       if (response.payload.length > 0) {
+  //         if (priceListOutType === "EXCEL") {
+  //           exportToExcelCustomPriceBook({
+  //             excelData: response.payload,
+  //             fileName: `${user.company}_${
+  //               selectedCustomerOptions
+  //                 ? selectedCustomerOptions.Name
+  //                 : "Customer"
+  //             }_CPB_${sunday} TO ${saturday}`,
+  //             isPrice: isChecked,
+  //           });
+  //           dispatch(
+  //             viewPricePdfGenrationg({
+  //               Type: "SUCCESS",
+  //               loading: false,
+  //               message:
+  //                 "Price book successfully created! Please wait while it is automatically downloaded.",
+  //             })
+  //           );
+  //           setIsGenerating(false);
+  //           return;
+  //         }
+  //         try {
+  //           const instance = pdf(
+  //             <CustomerCustomPriceDocument
+  //               data={response.payload}
+  //               headerData={{
+  //                 logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                 customerName: selectedCustomerOptions
+  //                   ? selectedCustomerOptions.Name
+  //                   : "Claus Meats",
+  //                 effectiveDate: formatedDate,
+  //               }}
+  //               coverPageData={{
+  //                 logo: user.homePagelogo, // Replace with the actual path to the logo image
+  //                 subtitle1: "Price list for",
+  //                 subtitle2: `${
+  //                   selectedCustomerOptions
+  //                     ? selectedCustomerOptions.Name
+  //                     : "Customer Custom Pricelist"
+  //                 }`,
+  //                 effectiveDate: formatedDate,
+  //                 preparedByName: user.name,
+  //                 preparedByPhone: user.userMobile,
+  //                 preparedByEmail: user.email,
+  //                 phone1: user.phone1,
+  //                 phone2: user.phone2,
+  //                 fax: user.fax,
+  //                 coverImg:
+  //                   selectPriceListtype === "FP"
+  //                     ? user.customerFullPriceBookImg
+  //                     : user.customerCustomPriceBookImg,
+  //               }}
+  //               isPrice={isChecked}
+  //               onRenderFinish={() => {
+  //                 dispatch(
+  //                   viewPricePdfGenrationg({
+  //                     Type: "SUCCESS",
+  //                     loading: false,
+  //                     message:
+  //                       "Price book successfully created! Please wait while it is automatically downloaded.",
+  //                   })
+  //                 );
+  //                 setIsGenerating(false);
+  //               }}
+  //               onError={(e) => {
+  //                 console.error("Render Error:", e);
+  //                 dispatch(
+  //                   viewPricePdfGenrationg({
+  //                     Type: "ERROR",
+  //                     message: "An error occurred while rendering the PDF.",
+  //                     loading: false,
+  //                     error: true,
+  //                   })
+  //                 );
+  //               }}
+  //             />
+  //           );
+
+  //           const blob = await instance.toBlob();
+
+  //           const url = URL.createObjectURL(blob);
+
+  //           if (priceListOutType === "PDF") {
+  //             const link = document.createElement("a");
+  //             link.href = url;
+  //             link.download = `${user.company}_${
+  //               selectedCustomerOptions
+  //                 ? selectedCustomerOptions.Name
+  //                 : "Customer"
+  //             }_${
+  //               selectPriceListtype === "FP" ? "FPB" : "CPB"
+  //             }_${sunday} TO ${saturday}.pdf`;
+  //             document.body.appendChild(link);
+
+  //             link.click();
+  //             document.body.removeChild(link);
+  //             URL.revokeObjectURL(url);
+  //           }
+
+  //           if (priceListOutType === "PRINT") {
+  //             window.open(
+  //               url,
+  //               `${user.company}_${
+  //                 selectedCustomerOptions
+  //                   ? selectedCustomerOptions.Name
+  //                   : "Customer"
+  //               }_${
+  //                 selectPriceListtype === "FP" ? "FPB" : "CPB"
+  //               }_${sunday} TO ${saturday}`
+  //             );
+  //             setTimeout(() => {
+  //               URL.revokeObjectURL(url);
+  //             }, 100);
+  //           }
+  //         } catch (e) {
+  //           console.error("Generation Error:", e);
+  //           dispatch(
+  //             viewPricePdfGenrationg({
+  //               Type: "ERROR",
+  //               message: "An error occurred while rendering the PDF.",
+  //               loading: false,
+  //               error: true,
+  //             })
+  //           );
+  //           setIsGenerating(false);
+  //         }
+  //       } else {
+  //         // toast.error('Price Boook not found')
+  //         dispatch(
+  //           viewPricePdfGenrationg({
+  //             Type: "ERROR",
+  //             message: response.payload.message,
+  //             loading: false,
+  //             error: true,
+  //           })
+  //         );
+  //         setTimeout(() => {
+  //           setIsGenerating(false);
+  //         }, 1000);
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       dispatch(
+  //         viewPricePdfGenrationg({
+  //           Type: "ERROR",
+  //           message: "An error occurred while rendering the PDF.",
+  //           loading: false,
+  //           error: true,
+  //         })
+  //       );
+  //       setIsGenerating(false);
+  //     });
+  // };
 
   return (
     <Container>
@@ -772,7 +1090,7 @@ const ViewPriceBook = () => {
                     onClick={() => {
                       if (!selectedCustomerOptions) {
                         setIsCustomer("Please Choose Customer");
-                  
+
                         setTimeout(() => {
                           setIsCustomer(null);
                         }, 1000);
@@ -804,7 +1122,7 @@ const ViewPriceBook = () => {
                     onClick={() => {
                       if (!selectedCustomerOptions) {
                         setIsCustomer("Please Choose Customer");
-                  
+
                         setTimeout(() => {
                           setIsCustomer(null);
                         }, 1000);
@@ -814,7 +1132,8 @@ const ViewPriceBook = () => {
                         selectPriceListtype === "FP"
                           ? getPriceListCustomerFull("EXCEL")
                           : getPriceListCustomerCustom("EXCEL");
-                      } else setAlertMessage(true);
+                      } else setAlertMessage1(true);
+
                     }}
                   >
                     <SiMicrosoftexcel style={{ fontSize: "21px" }} />
@@ -826,7 +1145,7 @@ const ViewPriceBook = () => {
                     onClick={() => {
                       if (!selectedCustomerOptions) {
                         setIsCustomer("Please Choose Customer");
-                  
+
                         setTimeout(() => {
                           setIsCustomer(null);
                         }, 1000);

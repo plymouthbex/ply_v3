@@ -13,6 +13,7 @@ import mailRoutes from "./views/Pricing-Portal/Mail/mailRoutes";
 import controlPanelRoutes from "./views/Control-Panel/PriceBook/PriceBookRoutes";
 import SecurityRoutes from "./views/Security/SecurityRoutes";
 import contactRoutes from "./views/Pricing-Portal/contact/contactRoutes";
+import AnalyticsRoutes from "./views/Analytics/AnalyticsRoutes";
 const routes = [
   {
     element: (
@@ -30,6 +31,7 @@ const routes = [
       ...controlPanelRoutes,
       ...SecurityRoutes,
       ...contactRoutes,
+      ...AnalyticsRoutes
       // { path: '*', element: <UnderDevelopment /> },
     ],
   },

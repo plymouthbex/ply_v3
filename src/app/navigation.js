@@ -155,6 +155,20 @@ export const navigations = [
       },
     ],
   },
+  {
+    name: "Analytics",
+    icon: <FolderIcon fontSize="small" />,
+    role: authRoles.sa,
+    children: [
+      {
+        name: "Mail",
+        path: "/pages/analytics/mail-analytics",
+        iconText: "MA",
+        accessID: "A001",
+        icon: <DescriptionIcon fontSize="small" />,
+      },
+    ],
+  },
 ];
 export const favMenu = [
   {

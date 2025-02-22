@@ -25,7 +25,6 @@ const initialState = {
   runGrpProcessingMsg: "",
   runGrpProcessedData: [],
 
-
   //=========================CONTROL-PANEL=======================================//
 
   itemListViewData: [],
@@ -43,7 +42,6 @@ const initialState = {
   proprietaryItemsListviewData: [],
   proprietaryItemsListviewLoading: false,
   proprietaryItemsListviewStatus: "idle",
-
 
   printGroupListViewData: [],
   printGroupTemploading: false,
@@ -71,7 +69,33 @@ const initialState = {
   userGrpUserListViewData: [],
   userGrpUserTemploading: false,
   userGrpUserTempstatus: "idle",
+
+  // Mail Analytics
+  mailAnalyticsData: [],
+  mailAnalyticsLoading: false,
+  mailAnalyticsStatus: "idle",
+  mailAnalyticsError: null,
 };
+
+export const getMailAnalyticsdata = createAsyncThunk(
+  "get/getMailAnalyticsdata", // action type
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}EmailTemplate/GetAnalytics`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: data,
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 
 export const fetchListviewPriveTemplate = createAsyncThunk(
   "posts/fetchListviewPriveTemplate", // action type
@@ -169,14 +193,14 @@ export const getLocalListview = createAsyncThunk(
 //==========================================================CONTROL-PANEL=================================================//
 export const getItemListView = createAsyncThunk(
   "listview/itemList", // action type
-  async (data ={Type:"C"}, { rejectWithValue }) => {
+  async (data = { Type: "C" }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
-        params:data
+        params: data,
       });
       return response.data;
     } catch (error) {
@@ -228,7 +252,7 @@ export const getRunGroupListView = createAsyncThunk(
 
 export const getProprietaryItemsListView = createAsyncThunk(
   "listview/PRoprietaryItems", // action type
-  async ({ id}, { rejectWithValue }) => {
+  async ({ id }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItemsList`;
       const response = await axios.get(URL, {
@@ -374,7 +398,6 @@ export const getUserGroupListView = createAsyncThunk(
   }
 );
 
-
 export const getUserGroupUserListView = createAsyncThunk(
   "listview/getUserGroupUserListView", // action type
   async (id, { rejectWithValue }) => {
@@ -441,7 +464,7 @@ export const getConfigureCompanyListView = createAsyncThunk(
 //=====================Configure Company-ListView=================================//
 export const getConfigureCustomerListView = createAsyncThunk(
   "listview/ConfigureCustomer", // action type
-  async ({ ID ,PriceBookGroup ="" ,Role}, { rejectWithValue }) => {
+  async ({ ID, PriceBookGroup = "", Role }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CS&CompanyRecordID=${ID}&PriceBookGroup=${PriceBookGroup}&Role=${Role}`;
       const response = await axios.get(URL, {
@@ -505,6 +528,12 @@ const listviewSlice = createSlice({
   name: "listview",
   initialState,
   reducers: {
+    resetMailAnalyticsstate: (state, action) => {
+      state.mailAnalyticsStatus = "idle";
+      state.mailAnalyticsLoading = false;
+      state.mailAnalyticsError =null;
+      state.mailAnalyticsData = [];
+    },
     onCheckboxChange: (state, action) => {
       const { id, rows, field } = action.payload;
       const updatedRow = rows.map((row) =>
@@ -513,7 +542,7 @@ const listviewSlice = createSlice({
 
       state.runbGrpRowData = updatedRow;
     },
-    
+
     onCheckboxChangeMenu: (state, action) => {
       const { id, rows, field } = action.payload;
       const updatedRow = state.applicationListViewData.map((row) =>
@@ -543,6 +572,23 @@ const listviewSlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      .addCase(getMailAnalyticsdata.pending, (state, action) => {
+        state.mailAnalyticsStatus = "pending";
+        state.mailAnalyticsLoading = true;
+        state.mailAnalyticsError =null;
+        state.mailAnalyticsData = [];
+      })
+      .addCase(getMailAnalyticsdata.fulfilled, (state, action) => {
+        state.mailAnalyticsStatus = "fulfilled";
+        state.mailAnalyticsLoading = false;
+        state.mailAnalyticsData = action.payload.data;
+      })
+      .addCase(getMailAnalyticsdata.rejected, (state, action) => {
+        state.mailAnalyticsStatus = "rejected";
+        state.mailAnalyticsLoading = false;
+        state.mailAnalyticsError = action.error.message;
+        state.mailAnalyticsData = [];
+      })
       .addCase(fetchListviewPriveTemplate.pending, (state, action) => {
         state.priceTempstatus = "loading";
         state.priceTemploading = true;
@@ -891,6 +937,7 @@ const listviewSlice = createSlice({
 });
 
 export const {
+  resetMailAnalyticsstate,
   onCheckboxChangeMenu,
   onCheckboxChange,
   onCheckboxChangeCustomer,

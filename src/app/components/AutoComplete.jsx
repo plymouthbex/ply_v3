@@ -333,7 +333,6 @@ export const SingleAutocompleteWithDefault2 = ({
   value = null,
   onChange,
   url,
-  defaultValueId, // The ID of the default value to be pre-selected
   height = 20,
   ...props
 }) => {
@@ -363,16 +362,16 @@ export const SingleAutocompleteWithDefault2 = ({
     fetchData();
   }, [url]);
 
-  useEffect(() => {
-    if (defaultValueId) {
-      const defaultOption = options.find(
-        (option) => option.RecordID === defaultValueId
-      );
-      if (defaultOption && !value) {
-        onChange(defaultOption); // Set the default selected value when the data is fetched
-      }
-    }
-  }, [options, defaultValueId, onChange]);
+  // useEffect(() => {
+  //   if (defaultValueId) {
+  //     const defaultOption = options.find(
+  //       (option) => option.RecordID === defaultValueId
+  //     );
+  //     if (defaultOption && !value) {
+  //       onChange(defaultOption); // Set the default selected value when the data is fetched
+  //     }
+  //   }
+  // }, [options, defaultValueId, onChange]);
 
   return (
     <Autocomplete

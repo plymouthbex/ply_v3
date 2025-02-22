@@ -101,7 +101,7 @@ const Company = () => {
                 color="black"
                 onClick={() => {
                   navigate("/pages/security/company/company-edit-detail/edit", {
-                    state: { ID: params.row.CompanyCode },
+                    state: { ID: params.row.CompanyCode,RecordID:params.row.RecordID },
                   });
                 }}
               >

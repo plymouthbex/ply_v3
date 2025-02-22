@@ -215,6 +215,143 @@ export const FormikCustomSelectCompany = ({
     </FormControl>
   );
 };
+export const FormikCustomSelectProvider = ({
+  value = null,
+  onChange = () => {},
+  url,
+  height = 20,
+  label = "Price Book Level",
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <FormControl {...props} fullWidth error={!!error} size="small" >
+      <InputLabel
+        // sx={{
+        //   "& .MuiInputLabel-asterisk": {
+        //     color: "red",
+        //   },
+        // }}
+      >
+        {label}
+      </InputLabel>
+      <Select
+        value={value}
+        onChange={onChange}
+        label={label}
+        displayEmpty
+        {...props}
+      >
+        {loading ? (
+          <MenuItem disabled>
+            <CircularProgress size={24} />
+          </MenuItem>
+        ) : (
+          options.map((option) => (
+            <MenuItem key={option} value={option}>
+             {option}
+            </MenuItem>
+          ))
+        )}
+      </Select>
+      {error && <TextField helperText={error} />}
+    </FormControl>
+  );
+};
+
+export const FormikCustomSelectCompanyPriceLevel = ({
+  value = null,
+  onChange = () => {},
+  url,
+  height = 20,
+  label = "Price Book Level",
+  ...props
+}) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []); // Assuming API response has `Data` array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return (
+    <FormControl {...props} fullWidth error={!!error} size="small" required>
+      <InputLabel
+        sx={{
+          "& .MuiInputLabel-asterisk": {
+            color: "red",
+          },
+        }}
+      >
+        {label}
+      </InputLabel>
+      <Select
+        value={value}
+        onChange={onChange}
+        label={label}
+        displayEmpty
+        {...props}
+      >
+        {loading ? (
+          <MenuItem disabled>
+            <CircularProgress size={24} />
+          </MenuItem>
+        ) : (
+          options.map((option) => (
+            <MenuItem key={option} value={option}>
+              Price Level {option}
+            </MenuItem>
+          ))
+        )}
+      </Select>
+      {error && <TextField helperText={error} />}
+    </FormControl>
+  );
+};
 
 export const FormikCustomSelectCompanyPriceList2= ({
   value = null,

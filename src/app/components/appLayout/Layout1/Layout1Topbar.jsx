@@ -137,7 +137,7 @@ const Layout1Topbar = () => {
 
   const handleDownload = () => {
     // Path to the PDF file in the public folder
-    const filePath = `/assets/menul.pdf`;
+    const filePath = `/assets/Manual.pdf`;
 
     // Create an anchor element and trigger the download
     const link = document.createElement("a");
@@ -206,10 +206,10 @@ const Layout1Topbar = () => {
                 navigate("/profile/setting");
 
               }}>
-              <Link to="/user-settings">
+              {/* <Link to="/user-settings"> */}
                 <Icon> settings </Icon>
                 <Span> Settings </Span>
-              </Link>
+              {/* </Link> */}
             </StyledItem>
 
             <StyledItem

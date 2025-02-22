@@ -740,3 +740,169 @@ export function FormikCustomAutocompleteMultiPriceList({
     />
   );
 }
+
+
+
+
+export function FormikCustomAutocompleteMultiCompany({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "200px" },
+      }}
+      size="small"
+      multiple={multiple}
+      fullWidth
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.RecordID === value.RecordID}
+      getOptionLabel={(option) => `${option.CompanyCode} || ${option.CompanyName}`}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox
+            size="small"
+            sx={{ marginLeft: -1 }}
+            checked={selected}
+          />
+          {`${option.CompanyCode} || ${option.CompanyName}`}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+export function FormikCustomAutocompleteMultiCustomer({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+    sx={{
+      "& .MuiAutocomplete-tag": { maxWidth: "200px" },
+    }}
+      size="small"
+      multiple={multiple}
+      fullWidth
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.RecordID === value.RecordID}
+      getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox
+            size="small"
+            sx={{ marginLeft: -1 }}
+            checked={selected}
+          />
+          {`${option.CustomerNumber} || ${option.CustomerName}`}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+

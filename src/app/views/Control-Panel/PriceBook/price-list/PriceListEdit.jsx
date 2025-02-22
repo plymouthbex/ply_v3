@@ -112,9 +112,8 @@ const PriceListEdit = () => {
   const [isItemExists, setIsItemExists] = useState(false);
   const [isItemExistsError, setIsItemExistsError] = useState(false);
   const [isRemoveItem, setIsRemoveItem] = useState(false);
-  const [removeItemID, setRemoveItemID] = useState("");
-  const [removeItemDesc, setRemoveItemDesc] = useState("");
-
+  const [isShowOtherDisabled, setIsOtherDisabled] = useState(true);
+  const [isShowOtherItem, setIsOtherItem] = useState(true);
   //======================= ADD PRICE LIST ===================================//
   const [addPriceListData, setAddPriceListData] = useState(null);
   const handleSelectionAddPriceListData = (newValue) => {
@@ -144,15 +143,16 @@ const PriceListEdit = () => {
   const getMessage = useSelector((state) => state.getSlice.priceListMessage);
   const getError = useSelector((state) => state.getSlice.priceListError);
 
-  const addItemsSet = new Set(addedRows.map((item) => item.Item_Number));
-
-  const filteredSelectedItems = selectedRows.filter(
-    (selectedItem) => !addItemsSet.has(selectedItem.Item_Number)
-  );
-
   // ********************** COLUMN AND ROWS ********************** //
-
   const columns = [
+    {
+      headerName: "Price List ID",
+      field: "OtherItemPriceListID",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
     {
       headerName: "Item Number",
       field: "Item_Number",
@@ -164,7 +164,7 @@ const PriceListEdit = () => {
     {
       headerName: "Item Description",
       field: "Item_Description",
-      width: "350",
+      minWidth: 400,
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -276,7 +276,10 @@ const PriceListEdit = () => {
       setSubmitting(false);
     }
   };
+
   const priceListSaveFn = async (values, setSubmitting, isDerct = false) => {
+    setIsOtherItem(true);
+    setIsOtherDisabled(false);
     const filterData = {
       filterType: "PL",
       headerRecordID: "",
@@ -372,8 +375,8 @@ const PriceListEdit = () => {
             buyer: values.buyer ? JSON.stringify(values.buyer) : null,
             createdBy: values.createdBy,
             companyCode: state.companyCode,
-            PrintGroupName: values.catName ? values.catName.GroupName: "",
-            PrintGroupRecordID: values.catName ? values.catName.RecordID: 0,
+            PrintGroupName: values.catName ? values.catName.GroupName : "",
+            PrintGroupRecordID: values.catName ? values.catName.RecordID : 0,
             forcePageBreak: "N",
             overridesequence: values.overrideSeq,
             customer: values.propCustomer
@@ -385,12 +388,12 @@ const PriceListEdit = () => {
             modifyUser: user.name,
           },
         })
-      ).then((response) => {
+      ).then(async (response) => {
         if (response.payload.status === "Y") {
-          dispatch(getPriceListFilterData(filterData));
+          const res = await dispatch(getPriceListFilterData(filterData));
+          setOpenAlert(true);
+          setSuccessMessage(res.payload.message);
           if (params.mode === "add") {
-            setOpenAlert(true);
-            setSuccessMessage(response.payload.message);
             navigate("/pages/control-panel/price-list/price-list-detail/edit", {
               state: {
                 id: response.payload.PriceListID,
@@ -402,13 +405,13 @@ const PriceListEdit = () => {
             // }, 5000);
           }
         } else {
-          if (params.mode === "add") {
-            setOpenAlert(true);
-            setPostError(response.payload.message);
-            // setTimeout(() => {
-            //   setOpenAlert(false);
-            // }, 2000);
-          }
+          // if (params.mode === "add") {
+          setOpenAlert(true);
+          setPostError(response.payload.message);
+          // setTimeout(() => {
+          //   setOpenAlert(false);
+          // }, 2000);
+          // }
         }
       });
     } catch (e) {
@@ -416,27 +419,9 @@ const PriceListEdit = () => {
     }
   };
 
-  const priceListDeleteFn = async (values, setSubmitting) => {
-    try {
-      dispatch(priceListDelete({ id: priceListHeaderData.RecordId })).then(
-        (response) => {
-          if (response.payload.status === "Y") {
-            setOpenAlert(true);
-            setSuccessMessage(response.payload.message);
-          } else {
-            setOpenAlert(true);
-            setPostError(response.payload.message);
-          }
-        }
-      );
-    } catch (e) {
-      console.log("🚀 ~ priceListSaveFn ~ e:", e);
-    }
-  };
-
-  const getFilteredData = async (values) => {
+  const getOtherItems = async (values, type) => {
     const filterData = {
-      filterType: "PL",
+      filterType: type,
       headerRecordID: "",
       Brand: {
         PriceListID: values.priceListID,
@@ -520,9 +505,26 @@ const PriceListEdit = () => {
         Value: values.damagedItems ? "1" : "0",
       },
     };
-
     try {
       dispatch(getPriceListFilterData(filterData));
+    } catch (e) {
+      console.log("🚀 ~ priceListSaveFn ~ e:", e);
+    }
+  };
+
+  const priceListDeleteFn = async (values, setSubmitting) => {
+    try {
+      dispatch(priceListDelete({ id: priceListHeaderData.RecordId })).then(
+        (response) => {
+          if (response.payload.status === "Y") {
+            setOpenAlert(true);
+            setSuccessMessage(response.payload.message);
+          } else {
+            setOpenAlert(true);
+            setPostError(response.payload.message);
+          }
+        }
+      );
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
@@ -531,162 +533,14 @@ const PriceListEdit = () => {
   // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
     dispatch(getPriceListData({ id: state.id }));
-    
-    if (params.mode === "edit" || params.mode === "view") {
-      setShowGridData(0);
-    } else setShowGridData(3);
+
+    // if (params.mode === "edit" || params.mode === "view" || params.mode === "delete") {
+    //   setShowGridData(0);
+    // } else setShowGridData(3);
   }, [loaction.key]);
 
   const [openAlert1, setOpenAlert1] = useState(false);
-  const [postError1, setPostError1] = useState(false);
-  // ********************** TOOLBAR ********************** //
-  function CustomToolbar() {
-    return (
-      <GridToolbarContainer
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          padding: "5px",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            width: "100%",
-          }}
-        >
-          <GridToolbarQuickFilter />
-          <TextField
-            size="small"
-            name="viewitems"
-            id="viewitems"
-            select
-            label="View Items"
-            value={showGridData}
-            onChange={(e) => setShowGridData(e.target.value)}
-            fullWidth
-            sx={{ maxWidth: 200 }}
-          >
-            <MenuItem value={0}>All</MenuItem>
-            <MenuItem value={1}>Filtered</MenuItem>
-            <MenuItem value={3}>Ad Hoc</MenuItem>
-          </TextField>
-        </Box>
-        {showGridData === 3 && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: 2,
-              width: "100%",
-            }}
-          >
-            <OptimizedAutocomplete
-              errors={isItemExistsError}
-              helper={isItemExistsError && "please select an item!"}
-              disabled={
-                params.mode === "delete" || params.mode === "view"
-                  ? true
-                  : false
-              }
-              name="adHocItem"
-              id="adHocItem"
-              value={addPriceListData}
-              onChange={handleSelectionAddPriceListData}
-              label="Ad Hoc Item"
-              url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type='C'`}
-            />
-
-            {state.id ? (
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={async () => {
-                  if (addPriceListData) {
-                    const isItem = [...priceListItemsData, ...addedRows].some(
-                      (item) =>
-                        lodash.isEqual(
-                          item.Item_Number,
-                          addPriceListData.Item_Number
-                        )
-                    );
-                    if (isItem) {
-                      setIsItemExists(true);
-                      setTimeout(() => {
-                        setIsItemExists(false);
-                        setAddPriceListData(null);
-                      }, 5000);
-                      return;
-                    }
-
-                    const response = await dispatch(
-                      PostAdHocItem({
-                        idata: {
-                          PriceListID: priceListHeaderData.PriceListID,
-                          QuotationRecordID: "0",
-                          FilterType: "PL",
-                          ItemNo: addPriceListData.Item_Number,
-                          ItemDescription: addPriceListData.Item_Description,
-                        },
-                      })
-                    );
-                    if (response.payload.status === "Y") {
-                      setOpenAlert1(true);
-                      dispatch(
-                        getPriceListData2({
-                          id: priceListHeaderData.PriceListID,
-                        })
-                      );
-                      setAddPriceListData(null);
-                    } else {
-                      setOpenAlert1(true);
-                      setPostError1(true);
-                    }
-                  } else {
-                    setIsItemExistsError(true);
-                    setTimeout(() => {
-                      setIsItemExistsError(false);
-                    }, 2000);
-                  }
-                }}
-                startIcon={<Add size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                Ad Hoc Item
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                color="info"
-                size="small"
-                type="submit"
-                startIcon={<Add size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                Ad Hoc Item
-              </Button>
-            )}
-          </Box>
-        )}
-      </GridToolbarContainer>
-    );
-  }
+  const [postError1, setPostError1] = useState(null);
 
   const [openAlert2, setOpenAlert2] = useState(false);
   const [postError2, setPostError2] = useState(false);
@@ -751,6 +605,156 @@ const PriceListEdit = () => {
     }
   };
 
+  // ********************** TOOLBAR ********************** //
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          padding: "5px",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            width: "100%",
+          }}
+        >
+          <GridToolbarQuickFilter />
+          <TextField
+            size="small"
+            name="viewitems"
+            id="viewitems"
+            select
+            label="View Items"
+            value={showGridData}
+            onChange={(e) => setShowGridData(e.target.value)}
+            fullWidth
+            sx={{ maxWidth: 200 }}
+          >
+            <MenuItem value={0}>All</MenuItem>
+            <MenuItem value={1}>Filtered</MenuItem>
+            <MenuItem value={3}>Ad Hoc</MenuItem>
+          </TextField>
+        </Box>
+        {showGridData === 3 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              gap: 2,
+              width: "100%",
+            }}
+          >
+            <OptimizedAutocomplete
+              errors={isItemExistsError}
+              helper={isItemExistsError && "please select an item!"}
+              disabled={
+                params.mode === "delete" || params.mode === "view"
+                  ? true
+                  : false
+              }
+              name="adHocItem"
+              id="adHocItem"
+              value={addPriceListData}
+              onChange={handleSelectionAddPriceListData}
+              label="Ad Hoc Item"
+              url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
+            />
+
+            {state.id ? (
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={async () => {
+                  if (addPriceListData) {
+                    const isItem = [...priceListItemsData, ...addedRows].some(
+                      (item) =>
+                        lodash.isEqual(
+                          item.Item_Number,
+                          addPriceListData.Item_Number
+                        )
+                    );
+                    if (isItem) {
+                      setIsItemExists(true);
+                      setTimeout(() => {
+                        setIsItemExists(false);
+                        setAddPriceListData(null);
+                      }, 5000);
+                      return;
+                    }
+
+                    const response = await dispatch(
+                      PostAdHocItem({
+                        idata: {
+                          PriceListID: priceListHeaderData.PriceListID,
+                          QuotationRecordID: "0",
+                          FilterType: "PL",
+                          ItemNo: addPriceListData.Item_Number,
+                          ItemDescription: addPriceListData.Item_Description,
+                        },
+                      })
+                    );
+                    if (response.payload.status === "Y") {
+                      setPostError1(null);
+                      setOpenAlert1(true);
+                      dispatch(
+                        getPriceListData2({
+                          id: priceListHeaderData.PriceListID,
+                        })
+                      );
+                      setAddPriceListData(null);
+                    } else {
+                      setOpenAlert1(true);
+                      setPostError1(response.payload.message);
+                    }
+                  } else {
+                    setIsItemExistsError(true);
+                    setTimeout(() => {
+                      setIsItemExistsError(false);
+                    }, 2000);
+                  }
+                }}
+                startIcon={<Add size="small" />}
+                disabled={
+                  params.mode === "delete" || params.mode === "view"
+                    ? true
+                    : false
+                }
+              >
+                Ad Hoc Item
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="info"
+                size="small"
+                type="submit"
+                startIcon={<Add size="small" />}
+                disabled={
+                  params.mode === "delete" || params.mode === "view"
+                    ? true
+                    : false
+                }
+              >
+                Ad Hoc Item
+              </Button>
+            )}
+          </Box>
+        )}
+      </GridToolbarContainer>
+    );
+  }
+
   return (
     <Container>
       {getStatus === "fulfilled" && !getError && (
@@ -769,7 +773,12 @@ const PriceListEdit = () => {
               params.mode === "add" ? user.name : priceListHeaderData.CreatedBy,
             comments: priceListHeaderData.Comments,
             catId: priceListHeaderData.PrintGroupRecordID,
-            catName:priceListHeaderData.PrintGroupRecordID ? {RecordID:priceListHeaderData.PrintGroupRecordID, GroupName:priceListHeaderData.PrintGroupName} : null,
+            catName: priceListHeaderData.PrintGroupRecordID
+              ? {
+                  RecordID: priceListHeaderData.PrintGroupRecordID,
+                  GroupName: priceListHeaderData.PrintGroupName,
+                }
+              : null,
 
             brandInEx:
               params.mode === "add"
@@ -1013,11 +1022,8 @@ const PriceListEdit = () => {
                       label="Buyer"
                       url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Buyer`}
                     />
-
-                  
                   </Stack>
                   <TextField
-                  
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -1038,23 +1044,21 @@ const PriceListEdit = () => {
                         : false
                     }
                   />
-                    <PrintGroupOptimizedAutocompletePriceList
-                     disabled={
+                  <PrintGroupOptimizedAutocompletePriceList
+                    disabled={
                       params.mode === "delete" || params.mode === "view"
                         ? true
                         : false
                     }
-                        sx={{ gridColumn: "span 1" }}
-                      fullWidth
-                      name="catName"
-                      id="catName"
-                      value={values.catName}
-                      onChange={(newValue) =>
-                        setFieldValue("catName", newValue)
-                      }
-                      label="Categories"
-                      url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${state.companyCode}`}
-                    />
+                    sx={{ gridColumn: "span 1" }}
+                    fullWidth
+                    name="catName"
+                    id="catName"
+                    value={values.catName}
+                    onChange={(newValue) => setFieldValue("catName", newValue)}
+                    label="Categories"
+                    url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${state.companyCode}`}
+                  />
                 </Box>
                 <Box
                   display="grid"
@@ -1470,14 +1474,51 @@ const PriceListEdit = () => {
                     </Stack>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
+                      {state.id ? (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          // startIcon={<Add size="small" />}
+                          onClick={() => {
+                            getOtherItems(
+                              values,
+                              isShowOtherItem ? "OT" : "PL"
+                            );
+                            setIsOtherItem(!isShowOtherItem);
+                          }}
+                          disabled={
+                            params.mode === "delete" || isShowOtherDisabled
+                              ? true
+                              : false
+                          }
+                        >
+                          {isShowOtherItem
+                            ? "Excluded Items"
+                            : "Price List Items"}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<Add size="small" />}
+                          disabled={true}
+                        >
+                          Excluded Items
+                        </Button>
+                      )}
                       <Button
                         variant="contained"
                         color="info"
                         size="small"
                         startIcon={<CheckIcon size="small" />}
-                        disabled={isSubmitting || params.mode === "delete" || params.mode === "view"}
+                        disabled={
+                          isSubmitting ||
+                          params.mode === "delete" ||
+                          params.mode === "view"
+                        }
                         type="submit"
-                       
                       >
                         Apply Filters & Save
                       </Button>
@@ -1606,11 +1647,12 @@ const PriceListEdit = () => {
                         },
                       }}
                       pageSizeOptions={dataGridpageSizeOptions}
-                      columnVisibilityModel={
-                        {
-                          // Action: showGridData === 0 ? false : true,
-                        }
-                      }
+                      columnVisibilityModel={{
+                        print: isShowOtherItem,
+                        AdHocItem: isShowOtherItem,
+                        Action: isShowOtherItem,
+                        OtherItemPriceListID: !isShowOtherItem,
+                      }}
                       disableColumnFilter
                       disableColumnSelector
                       disableDensitySelector
@@ -1681,7 +1723,6 @@ const PriceListEdit = () => {
                         setFieldValue("priceListID", "");
                         SetIsPriceListOpen(false);
                       }}
-                      
                     >
                       Try Another
                     </Button>
@@ -1727,7 +1768,6 @@ const PriceListEdit = () => {
                         setSuccessMessage(null);
                         setPostError(null);
                       }}
-                      
                     >
                       No
                     </Button>
@@ -1884,7 +1924,6 @@ const PriceListEdit = () => {
                   dispatch(getPriceListData({ id: 0 }));
                   setOpenAlert(false);
                 }}
-                
               >
                 Add New Price List
               </Button>
@@ -1930,17 +1969,12 @@ const PriceListEdit = () => {
           )
         }
       />
-
       <AlertDialog
         key={85963}
         logo={`data:image/png;base64,${user.logo}`}
         open={openAlert1}
         error={postError1}
-        message={
-          postError1
-            ? "Error while saving and please try again"
-            : "AddHoc Item Added Successfully"
-        }
+        message={postError1 ? postError1 : "AddHoc Item Added Successfully"}
         // message={"Item Deleted Successfully"}
         Actions={
           <Box
@@ -1956,6 +1990,9 @@ const PriceListEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert1(false);
+                setTimeout(() => {
+                  setPostError1(null);
+                }, 1000);
               }}
               sx={{ mr: 1, height: 25 }}
             >
@@ -2035,8 +2072,6 @@ const PriceListEdit = () => {
           </Box>
         }
       />
-
-      {/* {getLoading &&<Box sx={{display:'flex',flexGrow:1}}> <Loading/></Box>} */}
     </Container>
   );
 };

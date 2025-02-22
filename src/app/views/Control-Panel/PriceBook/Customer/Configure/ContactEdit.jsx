@@ -49,6 +49,7 @@ import { convertHexToRGB } from "app/utils/constant";
 import { useDropzone } from "react-dropzone";
 import Publish from "@mui/icons-material/Publish";
 import {
+  FormikCustomSelectProvider,
   FormikOptimizedAutocomplete,
   PGOptimizedAutocomplete,
 } from "app/components/SingleAutocompletelist";
@@ -136,7 +137,6 @@ const ContactEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getConfigContactData);
-  console.log("🚀 ~ ContactEdit ~ data:", data);
   const loading = useSelector(
     (state) => state.getSlice.getConfigContactLoading
   );
@@ -409,8 +409,16 @@ const ContactEdit = () => {
                     required
                     disabled={params?.mode === "delete"}
                   />
-
-                  <FormControl
+ < FormikCustomSelectProvider
+                    name="provider"
+                    id="provider"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.provider}
+                    onChange={handleChange}
+                    label="Service Provider"
+                    url={`${process.env.REACT_APP_BASE_URL}ProviderDropDown`}
+                  />
+                  {/* <FormControl
                     sx={{ gridColumn: "span 2" }}
                     fullWidth
                     size="small"
@@ -432,7 +440,7 @@ const ContactEdit = () => {
                       <MenuItem value={"V"}>Verizon</MenuItem>
                       <MenuItem value={"TM"}>T-Mobile</MenuItem>
                     </Select>
-                  </FormControl>
+                  </FormControl> */}
                   <TextField
                     fullWidth
                     variant="outlined"

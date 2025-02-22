@@ -142,14 +142,14 @@ const MailForm = () => {
   const Classification = [
     { type: "CM", name: "Company Email Template" },
     { type: "CS", name: "Customer Email Template" },
-    { type: "QT", name: "Quote Email Template" },
+    { type: "QT", name: "Quotation Email Template" },
   ];
 
   return (
     <Container>
       <Formik
         initialValues={{
-          email: data.FromEmailID,
+          email: data.AuthorizedEmailID,
           emailPassword: data.AuthorizedPassword,
           confirmPassword: data.AuthorizedPassword,
           smtpHost: data.SMPTServer,

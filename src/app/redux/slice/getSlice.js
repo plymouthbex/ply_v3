@@ -1369,6 +1369,7 @@ const getSlice = createSlice({
       })
 
       .addCase(getConfigPriceBook2.fulfilled, (state, action) => {
+        state.getconfigureData = action.payload.data;
         state.configurePriceListGetData = action.payload.data.PriceList;
         state.configurePriceListContactData = action.payload.data.Contacts;
       })
