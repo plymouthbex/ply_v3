@@ -181,13 +181,15 @@ export const getPriceListData = createAsyncThunk(
   "priceList/GET",
   async ({ id }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceList?PricelistId=${id}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceList`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
+        params:{
+          PricelistId:id
+        }
       });
-      console.log("🚀 ~ response:", response)
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -202,11 +204,14 @@ export const getPriceListData2 = createAsyncThunk(
   "getPriceListData2/GET",
   async ({ id }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceList?PricelistId=${id}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetPriceList`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
+        params:{
+          PricelistId:id
+        }
       });
       return response.data;
     } catch (error) {
@@ -315,13 +320,14 @@ export const getRunGroupData2 = createAsyncThunk(
 
 export const getProprietaryItemsData = createAsyncThunk(
   "getProprietaryItemsData/GET",
-  async ({ itemsNumber }, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItem?ItemNumber=${itemsNumber}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}ProprietaryItems/GetProprietaryItem`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
+        params:data
       });
       return response.data;
     } catch (error) {
@@ -1176,6 +1182,7 @@ const getSlice = createSlice({
       .addCase(getProprietaryItemsData.pending, (state) => {
         state.proprietaryItemStatus = "pending";
         state.proprietaryItemLoading = true;
+        state.proprietaryItemError = false;
       })
       .addCase(getProprietaryItemsData.fulfilled, (state, action) => {
         state.proprietaryItemStatus = "fulfilled";

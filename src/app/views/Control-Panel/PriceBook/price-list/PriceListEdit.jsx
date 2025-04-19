@@ -114,6 +114,7 @@ const PriceListEdit = () => {
   const [isRemoveItem, setIsRemoveItem] = useState(false);
   const [isShowOtherDisabled, setIsOtherDisabled] = useState(true);
   const [isShowOtherItem, setIsOtherItem] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
   //======================= ADD PRICE LIST ===================================//
   const [addPriceListData, setAddPriceListData] = useState(null);
   const handleSelectionAddPriceListData = (newValue) => {
@@ -278,11 +279,14 @@ const PriceListEdit = () => {
   };
 
   const priceListSaveFn = async (values, setSubmitting, isDerct = false) => {
+    console.log("--",state.companyCode)
     setIsOtherItem(true);
     setIsOtherDisabled(false);
     const filterData = {
       filterType: "PL",
       headerRecordID: "",
+      companyID:state.companyCode,
+      User:user.name,
       Brand: {
         PriceListID: values.priceListID,
         Attribute: "Brand",
@@ -382,10 +386,10 @@ const PriceListEdit = () => {
             customer: values.propCustomer
               ? JSON.stringify(values.propCustomer)
               : null,
-            comments: values.comments,
-            createdDate: values.createdDateTime,
-            modifyDate: values.lastModifiedDateTime,
-            modifyUser: user.name,
+            Comments: values.comments,
+            CreatedDate: values.createdDateTime,
+            ModifyDate: values.lastModifiedDateTime,
+            ModifyUser: user.name,
           },
         })
       ).then(async (response) => {
@@ -701,6 +705,7 @@ const PriceListEdit = () => {
                           FilterType: "PL",
                           ItemNo: addPriceListData.Item_Number,
                           ItemDescription: addPriceListData.Item_Description,
+                          User:user.name,
                         },
                       })
                     );
@@ -950,17 +955,24 @@ const PriceListEdit = () => {
                     padding: "10px",
                   }}
                 >
-                  <TextField
+                  {/* <TextField
                     sx={{ gridColumn: "span 1" }}
                     fullWidth
                     variant="outlined"
                     type="text"
                     id="priceListID"
                     name="priceListID"
-                    label="Price List Name"
+                    label="Price List ID"
                     value={values.priceListID}
                     onFocus={() => setSubmitting(true)}
-                    onChange={handleChange}
+                    //onChange={handleChange}
+                    onChange={(e) => {
+                      // Remove commas before updating state
+                      const newValue = e.target.value.replace(/,/g, "");
+                      handleChange({
+                        target: { name: e.target.name, value: newValue },
+                      });
+                    }}
                     onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
                     required
                     InputLabelProps={{
@@ -974,6 +986,44 @@ const PriceListEdit = () => {
                       params.mode === "edit"
                         ? true
                         : false
+                    }
+                  /> */}
+                  <TextField
+                    sx={{ gridColumn: "span 1" }}
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="priceListID"
+                    name="priceListID"
+                    label="Price List ID"
+                    value={values.priceListID}
+                    onFocus={() => setSubmitting(true)}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+
+                      // Allow only letters, numbers, spaces, and the '&' symbol
+                      if (/^[a-zA-Z0-9 &]*$/.test(newValue)) {
+                        setErrorMsg("");
+                        handleChange(e);
+                      } else {
+                        setErrorMsg(
+                          "Only letters, numbers, spaces, and '&' are allowed."
+                        );
+                      }
+                    }}
+                    onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
+                    required
+                    InputLabelProps={{
+                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    }}
+                    autoComplete="off"
+                    size="small"
+                    error={Boolean(errorMsg)}
+                    helperText={errorMsg}
+                    disabled={
+                      params.mode === "delete" ||
+                      params.mode === "view" ||
+                      params.mode === "edit"
                     }
                   />
                   <TextField
@@ -1516,7 +1566,7 @@ const PriceListEdit = () => {
                         disabled={
                           isSubmitting ||
                           params.mode === "delete" ||
-                          params.mode === "view"
+                          params.mode === "view" || errorMsg != ""
                         }
                         type="submit"
                       >

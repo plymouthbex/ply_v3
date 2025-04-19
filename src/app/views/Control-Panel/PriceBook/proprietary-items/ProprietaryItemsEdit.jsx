@@ -60,6 +60,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import useAuth from "app/hooks/useAuth";
 import { CusListRunGrpOptimizedAutocomplete } from "app/components/FormikAutocomplete";
 import {
+  FormikProprietaryBrandOptimizedAutocomplete,
   FormikProprietaryItemsOptimizedAutocomplete,
   FormikSalesPersonOptimizedAutocomplete,
 } from "app/components/SingleAutocompletelist";
@@ -139,7 +140,7 @@ const ProprietaryItemsEdit = () => {
   const error = useSelector((state) => state.getSlice.proprietaryItemError);
 
   useEffect(() => {
-    dispatch(getProprietaryItemsData({ itemsNumber: state.ID }));
+    dispatch(getProprietaryItemsData({ ItemNumber: state.ID }));
   }, [location.key]);
 
   // ********************** COLUMN AND ROWS ********************** //
@@ -390,7 +391,7 @@ const ProprietaryItemsEdit = () => {
                   }}
                 >
                   {params.mode === "add" ? (
-                    <FormikProprietaryItemsOptimizedAutocomplete
+                    <FormikProprietaryBrandOptimizedAutocomplete
                       required={true}
                       sx={{ gridColumn: "span 2" }}
                       disabled={
@@ -441,7 +442,7 @@ const ProprietaryItemsEdit = () => {
                       value={addCustomerListData}
                       onChange={handleSelectionAddCustomerListData}
                       label="Unassigned Customers"
-                      url={`${process.env.REACT_APP_BASE_URL}CustomerPriceList/CustomerPriceList?CompanyCode=${user.companyCode}&PriceBookGroup=All`}
+                      url={`${process.env.REACT_APP_BASE_URL}ProprietaryItems/ProprietaryCustomers?CompanyCode=${user.companyCode}`}
                       addedCustomers={getRows} // Pass added customers to exclude them
                     />
                     <Tooltip title="Add Customers">

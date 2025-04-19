@@ -43,9 +43,7 @@ const ListboxComponent = React.forwardRef((props, ref) => {
           innerElementType="ul"
           overscanCount={5}
         >
-          {({ index, style }) =>
-            React.cloneElement(itemData[index], { style })
-          }
+          {({ index, style }) => React.cloneElement(itemData[index], { style })}
         </VariableSizeList>
       </OuterElementContext.Provider>
     </div>
@@ -55,8 +53,6 @@ const ListboxComponent = React.forwardRef((props, ref) => {
 ListboxComponent.propTypes = {
   children: PropTypes.node,
 };
-
-
 
 const ListboxComponent1 = React.forwardRef((props, ref) => {
   const { children, ...other } = props;
@@ -82,9 +78,7 @@ const ListboxComponent1 = React.forwardRef((props, ref) => {
           innerElementType="ul"
           overscanCount={5}
         >
-          {({ index, style }) =>
-            React.cloneElement(itemData[index], { style })
-          }
+          {({ index, style }) => React.cloneElement(itemData[index], { style })}
         </VariableSizeList>
       </OuterElementContext.Provider>
     </div>
@@ -94,7 +88,6 @@ const ListboxComponent1 = React.forwardRef((props, ref) => {
 ListboxComponent1.propTypes = {
   children: PropTypes.node,
 };
-
 
 // export function CusListRunGrpOptimizedAutocomplete({
 //   value = [],
@@ -234,11 +227,16 @@ export function CusListRunGrpOptimizedAutocomplete({
       value={value}
       onChange={onChange}
       options={options}
-      isOptionEqualToValue={(option, value) => option.CustomerNumber === value.CustomerNumber}
-      getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+      isOptionEqualToValue={(option, value) =>
+        option.CustomerNumber === value.CustomerNumber
+      }
+      getOptionLabel={(option) =>
+        `${option.CustomerNumber} || ${option.CustomerName}`
+      }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
+      ListboxComponent={ListboxComponent1}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
           <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
@@ -267,7 +265,6 @@ export function CusListRunGrpOptimizedAutocomplete({
   );
 }
 
-
 export function CompanyPriceListAutoComplete({
   value = [],
   onChange,
@@ -282,7 +279,8 @@ export function CompanyPriceListAutoComplete({
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-
+  const [inputValue, setInputValue] = React.useState("");
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -290,11 +288,13 @@ export function CompanyPriceListAutoComplete({
         const { data } = await axios.get(url, {
           headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
-        const existingItems = new Set(filterData.map(item => item.PRICELISTID));
-        const filteredOptions = (data.data || []).filter(
-          option => !existingItems.has(option.PRICELISTID)
+        const existingItems = new Set(
+          filterData.map((item) => item.PRICELISTID)
         );
-  
+        const filteredOptions = (data.data || []).filter(
+          (option) => !existingItems.has(option.PRICELISTID)
+        );
+
         setOptions(filteredOptions);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -304,7 +304,7 @@ export function CompanyPriceListAutoComplete({
       }
     };
     const timeout = setTimeout(fetchData, 500); // Debounce API call
-  
+
     return () => clearTimeout(timeout); // Cleanup timeout
   }, []);
 
@@ -312,32 +312,40 @@ export function CompanyPriceListAutoComplete({
     <Autocomplete
       sx={{
         "& .MuiAutocomplete-tag": { maxWidth: "90px" },
-        maxWidth:500,minWidth:450
+        maxWidth: 500,
+        minWidth: 450,
       }}
       size="small"
       multiple={multiple}
       limitTags={2}
       open={open}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       value={value}
       onChange={onChange}
       options={options}
-      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
-      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      isOptionEqualToValue={(option, value) =>
+        option.PRICELISTID === value.PRICELISTID
+      }
+      getOptionLabel={(option) =>
+        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+      }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
       ListboxComponent={ListboxComponent}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
-          <Checkbox
-            size="small"
-            sx={{ marginLeft: -1 }}
-            checked={selected}
-          />
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
           {`${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
-          </li>
+        </li>
       )}
       renderInput={(params) => (
         <TextField
@@ -449,7 +457,7 @@ export function CompanyPriceListAutoComplete({
 //   );
 //   // return (
 //   //   <Autocomplete
-  
+
 //   //     size="small"
 //   //     limitTags={1}
 //   //     sx={{maxWidth:500,minWidth:450}}
@@ -537,11 +545,7 @@ export function FormikCustomAutocompleteMulti({
       ListboxComponent={ListboxComponent}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
-          <Checkbox
-            size="small"
-            sx={{ marginLeft: -1 }}
-            checked={selected}
-          />
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
           {option.Name}
         </li>
       )}
@@ -565,24 +569,20 @@ export function FormikCustomAutocompleteMulti({
   );
 }
 
-
-
 export function FormikCustomAutocompleteMultiAdHocItems({
   value = [],
   onChange,
   url,
   label = "Select Options",
   multiple = true,
-  height= 30,
+  height = 30,
   filterData = [],
   ...props
 }) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  
 
-  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -590,12 +590,14 @@ export function FormikCustomAutocompleteMultiAdHocItems({
         const { data } = await axios.get(url, {
           headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
-  
-        const existingItems = new Set(filterData.map(item => item.Item_Number));
-        const filteredOptions = (data.data || []).filter(
-          option => !existingItems.has(option.Item_Number)
+
+        const existingItems = new Set(
+          filterData.map((item) => item.Item_Number)
         );
-  
+        const filteredOptions = (data.data || []).filter(
+          (option) => !existingItems.has(option.Item_Number)
+        );
+
         setOptions(filteredOptions);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -604,9 +606,9 @@ export function FormikCustomAutocompleteMultiAdHocItems({
         setLoading(false);
       }
     };
-  
+
     const timeout = setTimeout(fetchData, 500); // Debounce API call
-  
+
     return () => clearTimeout(timeout); // Cleanup timeout
   }, [url, filterData]);
 
@@ -624,19 +626,19 @@ export function FormikCustomAutocompleteMultiAdHocItems({
       value={value}
       onChange={onChange}
       options={options}
-      isOptionEqualToValue={(option, value) => option.item_key === value.item_key}
-      getOptionLabel={(option) => `${option.Item_Number} || ${option.Item_Description}`}
+      isOptionEqualToValue={(option, value) =>
+        option.item_key === value.item_key
+      }
+      getOptionLabel={(option) =>
+        `${option.Item_Number} || ${option.Item_Description}`
+      }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
       ListboxComponent={ListboxComponent1}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 40 }}>
-          <Checkbox
-            size="small"
-            sx={{ marginLeft: -1 }}
-            checked={selected}
-          />
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
           {`${option.Item_Number} || ${option.Item_Description}`}
         </li>
       )}
@@ -659,7 +661,6 @@ export function FormikCustomAutocompleteMultiAdHocItems({
     />
   );
 }
-
 
 export function FormikCustomAutocompleteMultiPriceList({
   value = [],
@@ -705,19 +706,19 @@ export function FormikCustomAutocompleteMultiPriceList({
       value={value}
       onChange={onChange}
       options={options}
-      isOptionEqualToValue={(option, value) => option.PRICELISTID === value.PRICELISTID}
-      getOptionLabel={(option) => `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+      isOptionEqualToValue={(option, value) =>
+        option.PRICELISTID === value.PRICELISTID
+      }
+      getOptionLabel={(option) =>
+        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+      }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
       ListboxComponent={ListboxComponent}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
-          <Checkbox
-            size="small"
-            sx={{ marginLeft: -1 }}
-            checked={selected}
-          />
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
           {`${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
         </li>
       )}
@@ -740,9 +741,6 @@ export function FormikCustomAutocompleteMultiPriceList({
     />
   );
 }
-
-
-
 
 export function FormikCustomAutocompleteMultiCompany({
   value = [],
@@ -789,19 +787,19 @@ export function FormikCustomAutocompleteMultiCompany({
       value={value}
       onChange={onChange}
       options={options}
-      isOptionEqualToValue={(option, value) => option.RecordID === value.RecordID}
-      getOptionLabel={(option) => `${option.CompanyCode} || ${option.CompanyName}`}
+      isOptionEqualToValue={(option, value) =>
+        option.RecordID === value.RecordID
+      }
+      getOptionLabel={(option) =>
+        `${option.CompanyCode} || ${option.CompanyName}`
+      }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
       ListboxComponent={ListboxComponent}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
-          <Checkbox
-            size="small"
-            sx={{ marginLeft: -1 }}
-            checked={selected}
-          />
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
           {`${option.CompanyCode} || ${option.CompanyName}`}
         </li>
       )}
@@ -856,9 +854,9 @@ export function FormikCustomAutocompleteMultiCustomer({
 
   return (
     <Autocomplete
-    sx={{
-      "& .MuiAutocomplete-tag": { maxWidth: "200px" },
-    }}
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "200px" },
+      }}
       size="small"
       multiple={multiple}
       fullWidth
@@ -869,19 +867,19 @@ export function FormikCustomAutocompleteMultiCustomer({
       value={value}
       onChange={onChange}
       options={options}
-      isOptionEqualToValue={(option, value) => option.RecordID === value.RecordID}
-      getOptionLabel={(option) => `${option.CustomerNumber} || ${option.CustomerName}`}
+      isOptionEqualToValue={(option, value) =>
+        option.RecordID === value.RecordID
+      }
+      getOptionLabel={(option) =>
+        `${option.CustomerNumber} || ${option.CustomerName}`
+      }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
       ListboxComponent={ListboxComponent}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
-          <Checkbox
-            size="small"
-            sx={{ marginLeft: -1 }}
-            checked={selected}
-          />
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
           {`${option.CustomerNumber} || ${option.CustomerName}`}
         </li>
       )}
@@ -904,5 +902,3 @@ export function FormikCustomAutocompleteMultiCustomer({
     />
   );
 }
-
-

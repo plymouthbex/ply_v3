@@ -60,8 +60,9 @@ const RunGroup = () => {
   // ********************** REDUX STATE ********************** //
   const dispatch = useDispatch();
   const [companyID, setCompanyID] = useState(user.companyCode);
+    const [companyRecordID, setCompanyRecordID] = useState(user.companyID);
   useEffect(() => {
-    dispatch(getRunGroupListView({ ID: companyID }));
+    dispatch(getRunGroupListView({ ID: companyRecordID }));
     dispatch(clearRunGroupState());
   }, [dispatch]);
   const loading = useSelector((state) => state.listview.rungroupTemploading);
@@ -114,6 +115,7 @@ const RunGroup = () => {
                         ID: params.row.RecordID,
                         CompanyCode: companyID,
                         Name:params.row.RunGroupCode,
+                        companyRecordID:companyRecordID
                       },
                     }
                   );
@@ -132,7 +134,7 @@ const RunGroup = () => {
                   navigate(
                     "/pages/control-panel/run-group/run-group-getail/delete",
                     {
-                      state: { ID: params.row.RecordID, CompanyCode: companyID,},
+                      state: { ID: params.row.RecordID, CompanyCode: companyID, companyRecordID:companyRecordID},
                     }
                   );
                 }}
@@ -174,9 +176,11 @@ const RunGroup = () => {
             name="company"
             id="company"
             multiple={false}
-            value={companyID}
+            value={companyRecordID}
             onChange={(e) => {
+            
               setCompanyID(e.target.value);
+              setCompanyRecordID(e.target.value);
               dispatch(getRunGroupListView({ ID: e.target.value }));
             }}
             label="Company"

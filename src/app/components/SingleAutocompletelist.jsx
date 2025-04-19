@@ -487,7 +487,7 @@ export const FormikCustomSelectCompanyPriceList = ({
           </MenuItem>
         ) : (
           options.map((option) => (
-            <MenuItem key={option.CompanyCode} value={option.CompanyCode}>
+            <MenuItem key={option.RecordID} value={option.RecordID}>
               {option.CompanyName}
             </MenuItem>
           ))
@@ -1679,7 +1679,7 @@ export const FormikSalesPersonOptimizedAutocomplete = ({
   );
 };
 
-export const FormikProprietaryItemsOptimizedAutocomplete = ({
+export const FormikProprietaryBrandOptimizedAutocomplete = ({
   required,
   value = null,
   onChange = () => {},
@@ -1724,7 +1724,7 @@ export const FormikProprietaryItemsOptimizedAutocomplete = ({
       // isOptionEqualToValue={(option, value) => option.Name === value.Name}
       onChange={onChange}
       // getOptionLabel={(option) => option.Name}
-      isOptionEqualToValue={(option, value) => option.ItemNumber === value.ItemNumber}
+      isOptionEqualToValue={(option, value) => option.RecordID === value.RecordID}
       // onChange={(event, newValue) => onChange(newValue)}
       getOptionLabel={(option) => `${option.ItemNumber} || ${option.ItemDescription}`}
       ListboxComponent={ListboxComponent} // Custom listbox component

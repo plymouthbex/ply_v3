@@ -214,7 +214,7 @@ export const getPriceListView = createAsyncThunk(
   "listview/priceList", // action type
   async ({ ID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyID=${ID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -233,7 +233,7 @@ export const getRunGroupListView = createAsyncThunk(
   "listview/RunGroup", // action type
   async ({ ID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GpRunGroupList?CompanyCode=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}GPRungroup/GpRunGroupList?CompanyID=${ID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -274,7 +274,7 @@ export const getPrintGroupListView = createAsyncThunk(
   "listview/printGroup", // action type
   async (companyID, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${companyID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyID=${companyID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,

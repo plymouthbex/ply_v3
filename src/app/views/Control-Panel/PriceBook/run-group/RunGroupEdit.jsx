@@ -214,10 +214,11 @@ const RunGroupEdit = () => {
       Sortorder: values.sortOrder,
       // AllSalesMan: values.AllSalesMan,
       AllSalesMan: false,
-      CompanyCode: state.CompanyCode,
+      CompanyCode: state.CompanyCode.toString(),
       SalesPerson: slectedSalesName || data.SalesPersonName,
       Disable: "N",
       LastModifiedDate: "",
+      CompanyID:state.companyRecordID,
       RunGroupList: [],
     };
     try {
@@ -423,7 +424,7 @@ const RunGroupEdit = () => {
                       required={true}
                     sx={{ gridColumn: "span 2" }}
                     disabled={
-                      params.mode === "delete" || params.mode === "view" 
+                      params.mode === "delete" || params.mode === "view" || params.mode === "edit" 
                         ? true
                         : false
                     }
@@ -464,8 +465,8 @@ const RunGroupEdit = () => {
                       label="Unassigned Customers"
                       url={`${
                         process.env.REACT_APP_BASE_URL
-                      }CustomerPriceList/CustomerPriceList?CompanyCode=${
-                        state.CompanyCode
+                      }CustomerPriceList/CustomerPriceList?CompanyID=${
+                        state.companyRecordID
                       }&PriceBookGroup=${
                         slectedSalesName || data.SalesPersonName
                       }`}

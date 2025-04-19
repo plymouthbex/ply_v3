@@ -119,15 +119,7 @@ const PrintGroupEdit = () => {
   // ********************** COLUMN ********************** //
   const columns = [
     {
-      headerName: "Price List Name",
-      field: "PRICELISTID",
-      width: "170",
-      align: "left",
-      headerAlign: "left",
-      hide: false,
-    },
-    {
-      headerName: "Price List Description",
+      headerName: "Price List",
       field: "PRICELISTDESCRIPTION",
       width: "300",
       align: "left",
@@ -135,17 +127,9 @@ const PrintGroupEdit = () => {
       hide: false,
     },
     {
-      headerName: "Print Group",
-      field: "GroupCode",
-      width: "100",
-      align: "right",
-      headerAlign: "center",
-      hide: false,
-    },
-    {
       headerName: "Item Count",
       field: "PriceListItemCount",
-      width: 150,
+      width: 150, 
       align: "right",
       headerAlign: "center",
       hide: true,
@@ -357,7 +341,10 @@ const PrintGroupEdit = () => {
       Sortorder: values.SortOrder,
       Disable: "N",
       Headeronly: false,
-      CompanyCode: state.companyID,
+      CompanyCode: state.companyID.toString(),
+      CreatedUser:user.name,
+      ModifyUser:user.name,
+      CompanyID:state.companyRecordID,
       PrintList: [...getRows, ...filteredSelectedItems],
     };
     try {
@@ -366,7 +353,7 @@ const PrintGroupEdit = () => {
       if (response.payload.status === "Y") {
         if (params.mode === "add") {
           navigate("/pages/control-panel/print-group/print-group-detail/edit", {
-            state: { id: response.payload.RecordId ,companyID:state.companyID },
+            state: { id: response.payload.RecordId ,companyID:state.companyID,companyRecordID:state.companyRecordID },
           });
           // dispatch(getprintGroupData({id:response.payload.RecordId}))
         }
@@ -508,7 +495,7 @@ const PrintGroupEdit = () => {
                     direction="column"
                     gap={1}
                   >
-                    <TextField
+                    {/* <TextField
                       fullWidth
                       variant="outlined"
                       type="text"
@@ -530,14 +517,14 @@ const PrintGroupEdit = () => {
                       }}
                       // error={!!touched.groupCode && !!errors.groupCode}
                       // helperText={touched.groupCode && errors.groupCode}
-                    />
+                    /> */}
                     <TextField
                       fullWidth
                       variant="outlined"
                       type="text"
                       id="groupName"
                       name="groupName"
-                      label="Category Description"
+                      label="Category"
                       size="small"
                       onChange={handleChange}
                       value={values.groupName}
@@ -636,7 +623,7 @@ const PrintGroupEdit = () => {
                       value={addPriceListData}
                       onChange={handleSelectionAddPriceListData}
                       label="Include Price List"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${state.companyID}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyID=${state.companyRecordID}`}
                       filterData={[...getRows, ...filteredSelectedItems]}
                     />
                     <Tooltip title="Add">

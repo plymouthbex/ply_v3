@@ -122,9 +122,9 @@ const HomePage = () => {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN)${formatDateLong(
+      formatedDate: `Pricing Week ${formatDateLong(
         sunday
-      )} TO (SAT)${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      )} (Sun) to ${formatDateLong(saturday)} (Sat)`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 

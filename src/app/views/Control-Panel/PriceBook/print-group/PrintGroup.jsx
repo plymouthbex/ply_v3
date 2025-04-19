@@ -72,19 +72,12 @@ const PrintGroup = () => {
 
   const [priceBookCateData, setPriceBookCateData] = useState({});
   const [companyID, setCompanyID] = useState(user.companyCode);
+  const [companyRecordID, setCompanyRecordID] = useState(user.companyID);
   
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
       headerName: "Category",
-      field: "GroupCode",
-      width: "170",
-      align: "left",
-      headerAlign: "left",
-      hide: false,
-    },
-    {
-      headerName: "Description",
       field: "GroupName",
       width: "300",
       align: "left",
@@ -122,7 +115,7 @@ const PrintGroup = () => {
                   navigate(
                     "/pages/control-panel/print-group/print-group-detail/edit",
                     {
-                      state: { id: params.row.RecordID,companyID },
+                      state: { id: params.row.RecordID,companyID,companyRecordID:companyRecordID },
                     }
                   );
                 }}
@@ -139,7 +132,7 @@ const PrintGroup = () => {
                   navigate(
                     "/pages/control-panel/print-group/print-group-detail/delete",
                     {
-                      state: { id: params.row.RecordID,companyID },
+                      state: { id: params.row.RecordID,companyID,companyRecordID:companyRecordID },
                     }
                   );
                 }}
@@ -154,7 +147,7 @@ const PrintGroup = () => {
   ];
 
   useEffect(() => {
-    dispatch(getPrintGroupListView(companyID));
+    dispatch(getPrintGroupListView(companyRecordID));
     dispatch(clearPrintGroupState());
   }, [dispatch]);
 
@@ -185,9 +178,10 @@ const PrintGroup = () => {
             name="company"
             id="company"
             multiple={false}
-            value={companyID}
+            value={companyRecordID}
             onChange={(e) => {
               setCompanyID(e.target.value);
+              setCompanyRecordID(e.target.value);
               dispatch(getPrintGroupListView(e.target.value));
             }}
             label="Company"
@@ -205,7 +199,7 @@ const PrintGroup = () => {
                 navigate(
                   "/pages/control-panel/print-group/print-group-detail/add",
                   {
-                    state: { id: 0,companyID:companyID },
+                    state: { id: 0,companyID:companyID,companyRecordID:companyRecordID },
                   }
                 );
               }}
@@ -252,14 +246,15 @@ const PrintGroup = () => {
       disable: "N",
       printList: [],
       Headeronly: true,
-      CompanyCode:companyID
+      CompanyCode:companyID,
+      CompanyID:companyRecordID
     };
     try {
       const response = await dispatch(postPrintGroupData({ PGdata: postData }));
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
-        dispatch(getPrintGroupListView(companyID));
+        dispatch(getPrintGroupListView(companyRecordID));
         setIsSide(false);
       } else {
         setOpenAlert(true);
@@ -432,7 +427,7 @@ const PrintGroup = () => {
                 }) => (
                   <form onSubmit={handleSubmit}>
                     <Stack direction="column" gap={2}>
-                      <TextField
+                      {/* <TextField
                         fullWidth
                         variant="outlined"
                         type="text"
@@ -450,14 +445,14 @@ const PrintGroup = () => {
                         disabled={true}
                         // error={!!touched.groupCode && !!errors.groupCode}
                         // helperText={touched.groupCode && errors.groupCode}
-                      />
+                      /> */}
                       <TextField
                         fullWidth
                         variant="outlined"
                         type="text"
                         id="groupName"
                         name="groupName"
-                        label="Category Description"
+                        label="Category"
                         size="small"
                         onChange={handleChange}
                         value={values.groupName}

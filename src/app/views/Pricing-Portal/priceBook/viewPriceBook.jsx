@@ -156,7 +156,8 @@ const ViewPriceBook = () => {
   const [isNextWeek, setIsNextWeek] = useState(false);
   const [isCustomerPdf, setIsCustomerPdf] = useState(null);
   const [isCustomerExcel, setIsCustomerExcel] = useState(null);
-  const [isCustomerMail, setIsCustomerMail] = useState(null);
+  const [isCustomerMail, setIsCustomerMail] = useState(0);
+  const [isCustomerConfigMail, setIsCustomerConfigMail] = useState(0);
   const [alertMessage, setAlertMessage] = useState(false);
   const [alertMessage1, setAlertMessage1] = useState(false);
   const [alertMessage2, setAlertMessage2] = useState(false);
@@ -178,13 +179,15 @@ const ViewPriceBook = () => {
       setIsCustomerPdf(newValue.Pdf);
       setIsCustomerExcel(newValue.Excel);
       setIsCustomerMail(newValue.ContactCount);
+      setIsCustomerConfigMail(newValue.Configuration);
     } else {
       // Set values to null if newValue is not provided
       setSelectedCustomerOptions(null);
       setSelectedCustomerName(null);
       setIsCustomerPdf(null);
       setIsCustomerExcel(null);
-      setIsCustomerMail(null);
+      setIsCustomerMail(0);
+      setIsCustomerConfigMail(0);
     }
   };
 
@@ -209,9 +212,7 @@ const ViewPriceBook = () => {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week (SUN) ${formatDateLong(
-        sunday
-      )} TO (SAT) ${formatDateLong(saturday)}`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week  ${formatDateLong(sunday)} (Sun) to ${formatDateLong(saturday)} (Sat)`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -244,7 +245,7 @@ const ViewPriceBook = () => {
       return;
     }
 
-    if (isCustomerMail > 0) {
+    if (isCustomerMail > 0 && isCustomerConfigMail >0) {
       const data = [
         {
           CustomerNumber: selectedCustomerOptions.Code,
@@ -1096,7 +1097,7 @@ const ViewPriceBook = () => {
                         }, 1000);
                         return;
                       }
-                      if (isCustomerPdf === "1") {
+                      if (isCustomerPdf == 1) {
                         selectPriceListtype === "FP"
                           ? getPriceListCustomerFull("PDF")
                           : getPriceListCustomerCustom("PDF");
@@ -1128,7 +1129,7 @@ const ViewPriceBook = () => {
                         }, 1000);
                         return;
                       }
-                      if (isCustomerExcel === "1") {
+                      if (isCustomerExcel == 1) {
                         selectPriceListtype === "FP"
                           ? getPriceListCustomerFull("EXCEL")
                           : getPriceListCustomerCustom("EXCEL");
@@ -1151,7 +1152,7 @@ const ViewPriceBook = () => {
                         }, 1000);
                         return;
                       }
-                      if (isCustomerPdf === "1") {
+                      if (isCustomerPdf == 1) {
                         selectPriceListtype === "FP"
                           ? getPriceListCustomerFull("PRINT")
                           : getPriceListCustomerCustom("PRINT");
@@ -1223,7 +1224,7 @@ const ViewPriceBook = () => {
                   process.env.REACT_APP_BASE_URL
                 }Customer/GetCustomer?CompanyCode=${user.companyCode}&Type=${
                   selectPriceListtype == "CP" ? "Custom" : "Full"
-                }`}
+                }&FromDate=${sunday}`}
               />
 
               <Box></Box>
@@ -1379,7 +1380,7 @@ const ViewPriceBook = () => {
         logo={`data:image/png;base64,${user.logo}`}
         open={alertMessage2}
         tittle={"PDF"}
-        message={`The selected customer does not have any contacts(Email) `}
+        message={`The selected customer does not have any Configure Price Book or contacts(Email)`}
         Actions={
           <DialogActions>
             <Button

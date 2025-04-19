@@ -104,16 +104,17 @@ const PriceList = () => {
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
-      headerName: "Price List ID",
-      field: "PRICELISTID",
-      width: "200",
+      headerName: "Price List",
+      field: "PRICELISTDESCRIPTION",
+      minWidth: 250,
+      flex: 1,
       align: "left",
       headerAlign: "left",
-      hide: true,
+      hide: false,
     },
     {
-      headerName: "Price List Description",
-      field: "PRICELISTDESCRIPTION",
+      headerName: "Category",
+      field: "Categories",
       minWidth: 250,
       flex: 1,
       align: "left",
@@ -159,6 +160,7 @@ const PriceList = () => {
                       state: {
                         id: params.row.PRICELISTID,
                         companyCode: companyID,
+                        companyRecordID:companyRecordID
                       },
                     }
                   );
@@ -179,6 +181,7 @@ const PriceList = () => {
                       state: {
                         id: params.row.PRICELISTID,
                         companyCode: companyID,
+                        companyRecordID:companyRecordID
                       },
                     }
                   );
@@ -199,6 +202,7 @@ const PriceList = () => {
                       state: {
                         id: params.row.PRICELISTID,
                         companyCode: companyID,
+                        companyRecordID:companyRecordID
                       },
                     }
                   );
@@ -218,8 +222,9 @@ const PriceList = () => {
   // ********************** TOOLBAR ********************** //
 
   const [companyID, setCompanyID] = useState(user.companyCode);
+    const [companyRecordID, setCompanyRecordID] = useState(user.companyID);
   useEffect(() => {
-    dispatch(getPriceListView({ ID: companyID }));
+    dispatch(getPriceListView({ ID: companyRecordID }));
     dispatch(clearPriceListState());
     // dispatch(getPrintGroupListView());
     // dispatch(clearPrintGroupState());
@@ -252,9 +257,10 @@ const PriceList = () => {
             name="company"
             id="company"
             multiple={false}
-            value={companyID}
+            value={companyRecordID}
             onChange={(e) => {
               setCompanyID(e.target.value);
+              setCompanyRecordID(e.target.value);
               dispatch(getPriceListView({ ID: e.target.value }));
             }}
             label="Company"
@@ -269,7 +275,7 @@ const PriceList = () => {
                   naviate(
                     "/pages/control-panel/price-list/price-list-detail/add",
                     {
-                      state: { id: 0, companyCode: companyID },
+                      state: { id: 0, companyCode: companyID,companyRecordID:companyRecordID },
                     }
                   );
                 }}
@@ -295,13 +301,14 @@ const PriceList = () => {
     const postData = {
       PriceListID: values.PriceListID,
       PrintSequence: values.PrintSequence,
+      priceListDescription:values.priceListDescription,
     };
     try {
       const response = await dispatch(UpdateSeqPriceList({ data: postData }));
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
-        dispatch(getPriceListView({ ID: companyID }));
+        dispatch(getPriceListView({ ID: companyRecordID }));
         setIsSide(false);
       } else {
         setOpenAlert(true);
@@ -476,6 +483,7 @@ const PriceList = () => {
                 initialValues={{
                   PriceListID: priceBookCateData.PRICELISTID,
                   PrintSequence: priceBookCateData.PrintSequence,
+                  priceListDescription: priceBookCateData.PRICELISTDESCRIPTION,
                 }}
                 enableReinitialize={true}
                 onSubmit={(values, { setSubmitting }) => {
@@ -499,12 +507,12 @@ const PriceList = () => {
                         fullWidth
                         variant="outlined"
                         type="text"
-                        id="PriceListID"
-                        name="PriceListID"
-                        label="Price List ID"
+                        id="priceListDescription"
+                        name="priceListDescription"
+                        label="Price List"
                         size="small"
                         onChange={handleChange}
-                        value={values.PriceListID}
+                        value={values.priceListDescription}
                         required
                         autoComplete="off"
                         InputLabelProps={{
