@@ -14,6 +14,7 @@ import controlPanelRoutes from "./views/Control-Panel/PriceBook/PriceBookRoutes"
 import SecurityRoutes from "./views/Security/SecurityRoutes";
 import contactRoutes from "./views/Pricing-Portal/contact/contactRoutes";
 import AnalyticsRoutes from "./views/Analytics/AnalyticsRoutes";
+import enquiryRoutes from "./views/Pricing-Portal/Enquiry/enquiryRoutes";
 const routes = [
   {
     element: (
@@ -31,7 +32,8 @@ const routes = [
       ...controlPanelRoutes,
       ...SecurityRoutes,
       ...contactRoutes,
-      ...AnalyticsRoutes
+      ...AnalyticsRoutes,
+      ...enquiryRoutes,
       // { path: '*', element: <UnderDevelopment /> },
     ],
   },

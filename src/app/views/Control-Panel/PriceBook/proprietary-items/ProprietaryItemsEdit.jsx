@@ -442,7 +442,7 @@ const ProprietaryItemsEdit = () => {
                       value={addCustomerListData}
                       onChange={handleSelectionAddCustomerListData}
                       label="Unassigned Customers"
-                      url={`${process.env.REACT_APP_BASE_URL}ProprietaryItems/ProprietaryCustomers?CompanyCode=${user.companyCode}`}
+                      url={`${process.env.REACT_APP_BASE_URL}ProprietaryItems/ProprietaryCustomers?CompanyID=${user.companyID}`}
                       addedCustomers={getRows} // Pass added customers to exclude them
                     />
                     <Tooltip title="Add Customers">

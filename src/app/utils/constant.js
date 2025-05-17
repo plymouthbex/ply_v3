@@ -6,7 +6,7 @@ export const containedLayoutWidth = 1200
 
 
 export const dataGridRowHeight = 30
-export const dataGridHeight = 500;
+export const dataGridHeight = 600;
 export const dataGridPageSize = 100;
 export const dataGridpageSizeOptions = [20,50,100,];
 export const dataGridHeightC = 300;

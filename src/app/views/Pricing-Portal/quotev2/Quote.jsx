@@ -300,6 +300,7 @@ export default function BuildCustomPriceBook() {
       Width: 100,
       align: "left",
       headerAlign: "left",
+      hide:true,
       renderCell: (param) => {
         return param.row.AdHocItem === "Y" ? "Yes" : "No";
       },
@@ -402,6 +403,7 @@ export default function BuildCustomPriceBook() {
     try {
       const data = {
         RecordID: getQuoteHeaderData.RecordID,
+        CompanyID:getQuoteHeaderData.CompanyID,
         CompanyCode: getQuoteHeaderData.CompanyCode,
         UserID: user.id,
         FromDate: sunday,
@@ -856,7 +858,7 @@ export default function BuildCustomPriceBook() {
               ) {
               } else {
                 errors.filters =
-                  "At least one Ad Hoc Item/Price List must have selected";
+                  "At least one Item/Price List must have selected";
                 return errors;
               }
             }
@@ -1335,7 +1337,7 @@ export default function BuildCustomPriceBook() {
                           setFieldValue("PriceLists", newValue)
                         }
                         label="Price Lists"
-                        url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${user.companyCode}`}
+                        url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyID=${user.companyID}`}
                       />
 
                       <FormikCustomAutocompleteMultiAdHocItems
@@ -1345,7 +1347,7 @@ export default function BuildCustomPriceBook() {
                         onChange={(event, newValue) =>
                           setFieldValue("adHocItems", newValue)
                         }
-                        label="Ad Hoc Items"
+                        label="Items"
                         url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
                         filterData={getQuoteFilterItemData}
                       />
@@ -1594,6 +1596,7 @@ export default function BuildCustomPriceBook() {
                       pageSizeOptions={[20, 50, 100]}
                       columnVisibilityModel={{
                         item_key: true,
+                        AdHocItem:false
                       }}
                       disableColumnFilter
                       disableColumnSelector

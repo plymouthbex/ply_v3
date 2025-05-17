@@ -123,6 +123,8 @@ export default function RunPriceBook() {
   const colors = themeColors;
 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+  const [rowSelectionModel11, setRowSelectionModel11] = React.useState([]);
+  
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isNextWeek, setIsNextWeek] = useState(false);
@@ -131,13 +133,14 @@ export default function RunPriceBook() {
     dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup })).then(
       (res) => {
         const allRowIds = res.payload.rows.map((row) => row.id);
+        
         setRowSelectionModel(allRowIds);
       }
     );
     const today = new Date();
     setCurrentDate(today);
   }, []);
-
+console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const getWeekDates = () => {
     const date = new Date(currentDate);
 
@@ -167,6 +170,15 @@ export default function RunPriceBook() {
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
+  console.log("🚀 ~ RunPriceBook ~ runGrpRows:", runGrpRows)
+  const filteredRows = runGrpRows.filter(row =>
+    !row.fppdf && !row.fpexcel && !row.cppdf && !row.cpexcel
+  );
+  console.log("🚀 ~ RunPriceBook ~ filteredRows:", filteredRows)
+  
+  // If you only need the record IDs
+  const filteredIds = filteredRows.map(row => row.id);
+  console.log("🚀 ~ RunPriceBook ~ filteredIds:", filteredIds)
   const runGrpProcessingMsg = useSelector(
     (state) => state.listview.runGrpProcessingMsg
   );
@@ -456,44 +468,44 @@ export default function RunPriceBook() {
         </div>
       ),
     },
-    {
-      field: "Action",
-      headerName: "Action",
-      minWidth: 100,
-      flex: 1,
-      align: "center",
-      headerAlign: "center",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      disableExport: true,
-      renderCell: (params1) => (
-        <Tooltip title="Delete">
-          <IconButton
-            color="error"
-            size="small"
-            onClick={(e) => {
-              if (
-                user.role === "USER" &&
-                (selectedRunGrpOptions.Name === user.defaultRunGroup ||
-                  user.SalesReps.includes(selectedRunGrpOptions.Name))
-              ) {
-                setDeleteID(params1.row.id);
-                setDeleteCustomer(params1.row.customernumber);
-                setIsRemoveItem(true);
-              } else if (user.role !== "USER") {
-                setDeleteID(params1.row.id);
-              setDeleteCustomer(params1.row.customernumber);
-              setIsRemoveItem(true);
-              }
-            }}
+    // {
+    //   field: "Action",
+    //   headerName: "Action",
+    //   minWidth: 100,
+    //   flex: 1,
+    //   align: "center",
+    //   headerAlign: "center",
+    //   sortable: false,
+    //   filterable: false,
+    //   disableColumnMenu: true,
+    //   disableExport: true,
+    //   renderCell: (params1) => (
+    //     <Tooltip title="Delete">
+    //       <IconButton
+    //         color="error"
+    //         size="small"
+    //         onClick={(e) => {
+    //           if (
+    //             user.role === "USER" &&
+    //             (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+    //               user.SalesReps.includes(selectedRunGrpOptions.Name))
+    //           ) {
+    //             setDeleteID(params1.row.id);
+    //             setDeleteCustomer(params1.row.customernumber);
+    //             setIsRemoveItem(true);
+    //           } else if (user.role !== "USER") {
+    //             setDeleteID(params1.row.id);
+    //           setDeleteCustomer(params1.row.customernumber);
+    //           setIsRemoveItem(true);
+    //           }
+    //         }}
            
-          >
-            <DeleteIcon color="error" fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      ),
-    },
+    //       >
+    //         <DeleteIcon color="error" fontSize="small" />
+    //       </IconButton>
+    //     </Tooltip>
+    //   ),
+    // },
   ];
 
   const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(
@@ -519,21 +531,21 @@ export default function RunPriceBook() {
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(null);
   const fnRunGrpEmailProcess = async () => {
-    if (!selectedRunGrpOptions) {
-      setOpenAlert(true);
-      setPostError("Please Select Price Book Group");
-      return;
-    }
-    if (rowSelectionModel.length == 0) {
-      setOpenAlert(true);
-      setPostError("Please Select Customer");
-      return;
-    }
+    // if (!selectedRunGrpOptions) {
+    //   setOpenAlert(true);
+    //   setPostError("Please Select Price Book Group");
+    //   return;
+    // }
+    // if (rowSelectionModel.length == 0) {
+    //   setOpenAlert(true);
+    //   setPostError("Please Select Customer");
+    //   return;
+    // }
     const data = runGrpRows
+     
       .filter(
         (v) =>
-          rowSelectionModel.includes(v.id) &&
-          (v.fppdf || v.fpexcel || v.cppdf || v.cpexcel)
+         v.fppdf || v.fpexcel || v.cppdf || v.cpexcel
       )
       .map((v) => ({
         id: v.id,
@@ -549,7 +561,8 @@ export default function RunPriceBook() {
         CompanyCode: user.companyCode,
         TemplateID: "",
       }));
-
+      console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
+      // return;
     try {
       const response = await dispatch(runGroupMailData({ data }));
 
@@ -776,6 +789,9 @@ export default function RunPriceBook() {
 
     processData
       .then((result) => {
+      console.log("🚀 ~ .then ~ result:", result)
+      // return;
+        
         if (result.length > 0) {
           setProcessFunLoading(false);
           dispatch(runGrpMsgUpdate(`Successfully Processed`));
@@ -1012,7 +1028,7 @@ export default function RunPriceBook() {
               value={selectedRunGrpOptions}
               onChange={handleSelectionRunGrpChange}
               label="Price Book Group"
-              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
             />
 
             {(user.defaultRunGroup ==
@@ -1029,7 +1045,7 @@ export default function RunPriceBook() {
                 gap={2}
                 justifyContent={"flex-end"}
               >
-                <CusListRunGrpOptimizedAutocomplete
+                {/* <CusListRunGrpOptimizedAutocomplete
                   sx={{ width: "100%" }}
                   errors={isCustomerListExistsError}
                   helper={
@@ -1042,13 +1058,13 @@ export default function RunPriceBook() {
                   label="Unassigned Customers"
                   url={`${
                     process.env.REACT_APP_BASE_URL
-                  }CustomerPriceList/CustomerPriceList?CompanyCode=${
-                    user.companyCode
+                  }CustomerPriceList/CustomerPriceList?CompanyID=${
+                    user.companyID
                   }&PriceBookGroup=${
                     selectedRunGrpOptions ? selectedRunGrpOptions.Name : ""
                   }`}
                   addedCustomers={runGrpRows} // Pass added customers to exclude them
-                />
+                /> */}
                 {/* <Button
                
                 sx={{ width: 200, height: 40, gridColumn: "span 1" }}
@@ -1060,7 +1076,7 @@ export default function RunPriceBook() {
               >
                 Add Customers
               </Button> */}
-                <Tooltip title="Add Customers">
+                {/* <Tooltip title="Add Customers">
                   <IconButton
                     sx={{ height: 37.6 }}
                     color="info"
@@ -1072,8 +1088,8 @@ export default function RunPriceBook() {
                         color: theme.palette.success.main,
                       }}
                     />
-                  </IconButton>
-                </Tooltip>
+                  </IconButton> 
+                </Tooltip>*/}
               </Stack>
             ) : (
               <Stack width={"100%"}></Stack>
@@ -1121,6 +1137,13 @@ export default function RunPriceBook() {
             "& .MuiTablePagination-actions .MuiSvgIcon-root": {
               color: "white !important", // Ensuring white icons for pagination
             },
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: theme.palette.action.hover,
+            },
+
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
+            },
           }}
         >
           <DataGrid
@@ -1137,18 +1160,18 @@ export default function RunPriceBook() {
               loadingOverlay: LinearProgress,
               toolbar: SecondaryCustomToolbar,
             }}
-            onRowSelectionModelChange={(newRowSelectionModel) => {
-              // const filterArray = runGrpRows.filter((v) =>
-              //   newRowSelectionModel.includes(v.id)
-              // );
-              setRowSelectionModel(newRowSelectionModel);
-              // setRowSelectionModelRows(filterArray);
-            }}
-            rowSelectionModel={rowSelectionModel}
+            // onRowSelectionModelChange={(newRowSelectionModel) => {
+            //   // const filterArray = runGrpRows.filter((v) =>
+            //   //   newRowSelectionModel.includes(v.id)
+            //   // );
+            //   setRowSelectionModel(newRowSelectionModel);
+            //   // setRowSelectionModelRows(filterArray);
+            // }}
+            // rowSelectionModel={rowSelectionModel}
             rows={runGrpRows}
             columns={columns}
             loading={runGrpIsLoading}
-            checkboxSelection
+            // checkboxSelection
             disableRowSelectionOnClick
             getRowId={(row) => row.id}
             initialState={{
@@ -1187,23 +1210,23 @@ export default function RunPriceBook() {
 
               padding: 2,
 
-              border: rowSelectionModel.length > 5 ? "1px solid red" : "none",
+              //border: rowSelectionModel.length > 5 ? "1px solid red" : "none",
 
               borderRadius: 1,
 
-              backgroundColor:
-                rowSelectionModel.length > 5 ? "#ffe6e6" : "transparent",
+              // backgroundColor:
+              //   rowSelectionModel.length > 5 ? "#ffe6e6" : "transparent",
 
               minHeight: 50, // Ensure consistent height
 
               minWidth: 300, // Ensure consistent width
             }}
           >
-            {rowSelectionModel.length > 5 && (
+            {/* {rowSelectionModel.length > 5 && (
               <Typography color="error" align="center">
                 Note: To View Price Book, select no more than 5 rows at a time
               </Typography>
-            )}
+            )} */}
           </Box>
 
           {/* Buttons on the right side */}
@@ -1313,7 +1336,7 @@ export default function RunPriceBook() {
               }
             />
 
-            <Button
+            {/* <Button
               variant="contained"
               disabled={rowSelectionModel.length > 5}
               sx={{
@@ -1330,7 +1353,7 @@ export default function RunPriceBook() {
               onClick={fnProcess}
             >
               View Price Book
-            </Button>
+            </Button> */}
           </Stack>
         </Stack>
 

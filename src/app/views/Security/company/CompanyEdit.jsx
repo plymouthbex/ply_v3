@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 
+
 // ******************** ICONS ******************** //
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -112,10 +113,10 @@ const CompanyEdit = () => {
   const status = useSelector((state) => state.getSlice.companyStatus);
 
   const error = useSelector((state) => state.getSlice.companyError);
-
+  const CompanyID = state.RecordID ? state.RecordID : user.id ;
   ///===========API CALL GET============================//
   useEffect(() => {
-    dispatch(getCompanyData({ ID: state.ID }));
+    dispatch(getCompanyData({ ID: CompanyID}));
   }, []);
   //=============================SAVE==================================//
 
@@ -154,7 +155,7 @@ const CompanyEdit = () => {
     }
   };
 
-  const CompanyID = state.RecordID ? state.RecordID : user.id ;
+  
   //==============================================IMAGE==================================================/
   const [imageList1, setImageList1] = useState([]);
   const [previewImages1, setPreviewImages1] = useState([]);

@@ -414,7 +414,8 @@ const ConfigureContactEdit = () => {
 
                 <Box
                   sx={{
-                    height: 400,
+                   // height: 400,
+                    height:dataGridHeight,
                     gridColumn: "span 4",
                     "& .MuiDataGrid-root": {
                       border: "none",

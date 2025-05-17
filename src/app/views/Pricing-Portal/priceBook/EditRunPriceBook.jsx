@@ -140,6 +140,13 @@ export default function EditRunPriceBook() {
 
 
   const columns = [
+
+    {
+      field: "customernumber",
+      headerName: "Customer Number",
+      minWidth: 200,
+      // flex: 1,
+    },
     {
       field: "customer",
       headerName: "Customer Name",
@@ -155,7 +162,7 @@ export default function EditRunPriceBook() {
           alignItems={"flex-end"}
           justifyContent={"center"}
         >
-          {params.row.fppdf ? (
+          {params.row.fppdf && params.row.blobfp ? (
             <Tooltip title="PDF" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
@@ -171,7 +178,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.fpexcel ? (
+          {params.row.fpexcel  && params.row.excelBlobfp ? (
             <Tooltip title="Excel" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.success.main}
@@ -187,7 +194,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.fppdf ? (
+          {params.row.fppdf  && params.row.blobfp ? (
             <Tooltip title="Print" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.warning.main}
@@ -230,7 +237,7 @@ export default function EditRunPriceBook() {
           alignItems={"flex-end"}
           justifyContent={"center"}
         >
-          {params.row.cppdf ? (
+          {params.row.cppdf  && params.row.blobcp ? (
             <Tooltip title="PDF" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
@@ -246,7 +253,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.cpexcel ? (
+          {params.row.cpexcel && params.row.excelBlobcp ? (
             <Tooltip title="Excel" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.success.main}
@@ -262,7 +269,7 @@ export default function EditRunPriceBook() {
             false
           )}
 
-          {params.row.cppdf ? (
+          {params.row.cppdf && params.row.blobcp ? (
             <Tooltip title="Print" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.warning.main}

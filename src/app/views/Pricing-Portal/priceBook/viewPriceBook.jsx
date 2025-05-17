@@ -1222,7 +1222,7 @@ const ViewPriceBook = () => {
                 label="Customer"
                 url={`${
                   process.env.REACT_APP_BASE_URL
-                }Customer/GetCustomer?CompanyCode=${user.companyCode}&Type=${
+                }Customer/GetCustomer?CompanyID=${user.companyID}&Type=${
                   selectPriceListtype == "CP" ? "Custom" : "Full"
                 }&FromDate=${sunday}`}
               />

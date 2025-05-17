@@ -315,6 +315,7 @@ export default function BuildCustomPriceBook() {
       Width: 100,
       align: "left",
       headerAlign: "left",
+      hide:true,
       renderCell: (param) => {
         return param.row.AdHocItem === "Y" ? "Yes" : "No";
       },
@@ -477,7 +478,8 @@ export default function BuildCustomPriceBook() {
     try {
       const data = {
         RecordID: params.mode == "copy" ? 0 : getQuoteHeaderData.RecordID,
-        CompanyCode: values.company ? values.company : "",
+        CompanyCode: values.company ? values.company.toString() : 0,
+        companyID:values.company ? values.company : "",
         UserID: user.id,
         FromDate: sunday,
         ToDate: saturday,
@@ -865,7 +867,7 @@ export default function BuildCustomPriceBook() {
           <Breadcrumb
             routeSegments={[
               { name: "Price Book" },
-              { name: "Build A Price List" },
+              { name: "Build Price List" },
             ]}
           />
         </Box>
@@ -887,9 +889,9 @@ export default function BuildCustomPriceBook() {
       {getQuteFiltStatus === "fulfilled" && !getQuteFiltLoading ? (
         <Formik
           initialValues={{
-            company: getQuoteHeaderData.CompanyCode
-              ? getQuoteHeaderData.CompanyCode
-              : user.companyCode,
+            company: getQuoteHeaderData.CompanyID
+              ? getQuoteHeaderData.CompanyID
+              : user.companyID,
             pricelistName: getQuoteHeaderData.Name,
             salesRepName: getQuoteHeaderData.Salesrepresentative || user.name,
             priceBookLevel: getQuoteHeaderData.PriceLevel
@@ -1213,8 +1215,8 @@ export default function BuildCustomPriceBook() {
                       label="Customer"
                       url={`${
                         process.env.REACT_APP_BASE_URL
-                      }Customer/GetCustomer?CompanyCode=${
-                        values.company ? values.company : user.companyCode
+                      }Customer/GetCustomer?CompanyID=${
+                        values.company ? values.company : user.companyID
                       }`}
                     />
 
@@ -1562,7 +1564,7 @@ export default function BuildCustomPriceBook() {
                           marginLeft: 1,
                         }}
                       >
-                        Ad Hoc Items
+                        Items
                       </Typography>
                       <FormikCustomAutocompleteMultiAdHocItems
                       key={JSON.stringify(getQuoteFilterItemData)}
@@ -1573,7 +1575,7 @@ export default function BuildCustomPriceBook() {
                         onChange={(event, newValue) =>
                           setFieldValue("adHocItems", newValue)
                         }
-                        label="Ad Hoc Items"
+                        label="Items"
                         url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
                         filterData={getQuoteFilterItemData}
                       />
@@ -1829,6 +1831,7 @@ export default function BuildCustomPriceBook() {
                         pageSizeOptions={[20, 50, 100]}
                         columnVisibilityModel={{
                           item_key: true,
+                          AdHocItem:false,
                         }}
                         disableColumnFilter
                         disableColumnSelector

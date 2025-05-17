@@ -180,7 +180,7 @@ const ItemAttributesEdit = () => {
                 routeSegments={[
                   { name: "Price Book" },
                   {
-                    name: "Build A Price List",
+                    name: "Build Price List",
                     path: -1,
                     state: {
                       headerID:state.RecordID, 

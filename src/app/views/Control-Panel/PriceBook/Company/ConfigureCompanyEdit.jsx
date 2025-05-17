@@ -177,15 +177,23 @@ const ConfigureCompanyEdit = () => {
   // ********************** COLUMN ********************** //
   const columns = [
     {
+      headerName: "RecordID",
+      field: "RecordID",
+      width: "170",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
       headerName: "Name",
       field: "PRICELISTID",
       width: "170",
       align: "left",
       headerAlign: "left",
-      hide: false,
+      hide: true,
     },
     {
-      headerName: "Description",
+      headerName: "Price List",
       field: "PRICELISTDESCRIPTION",
       width: "300",
       align: "left",
@@ -222,7 +230,7 @@ const ConfigureCompanyEdit = () => {
                     color="black"
                     size="small"
                     onClick={() => {
-                      setremovePriceListID(param.row.PRICELISTID);
+                      setremovePriceListID(param.row.RecordID);
                       setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
                       setIsRemovePriceList(true);
                     }}
@@ -242,7 +250,7 @@ const ConfigureCompanyEdit = () => {
       // Prepare price data and dispatch the action
       const pricedata = {
         RecordID: data.RecordID,
-        priceListID: addPriceListData.PRICELISTID,
+        priceListID: addPriceListData.RecordID,
       };
 
       const response = await dispatch(
@@ -435,7 +443,132 @@ const ConfigureCompanyEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
-                <Box
+              <Box
+  display="grid"
+  gap="20px"
+  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+  sx={{
+    "& > div": {
+      gridColumn: isNonMobile ? undefined : "span 4",
+    },
+    padding: "10px",
+  }}
+>
+  {/* Company Info */}
+  <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
+    <Typography fontSize="16px">
+      <Typography component="span" fontWeight="bold">
+        Company:
+      </Typography>{" "}
+      {State.Code} || {State.Name}
+    </Typography>
+  </Stack>
+
+  {/* Spacer or future content */}
+  <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}></Stack>
+
+  {/* Price Book Title & Level Selection */}
+  <Stack sx={{ gridColumn: "span 2" }} direction="column" gap={2}>
+    <TextField
+      fullWidth
+      variant="outlined"
+      type="text"
+      id="name"
+      name="name"
+      label="Price Book Title"
+      size="small"
+      value={values.name}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      error={touched.name && Boolean(errors.name)}
+      helperText={touched.name && errors.name}
+      autoComplete="off"
+    />
+
+    <FormikCustomSelectCompanyPriceLevel
+      name="priceBookLevels"
+      id="priceBookLevels"
+      value={values.priceBookLevels}
+      onChange={handleChange}
+      label="Price Book Level"
+      disabled={params?.mode === "delete"}
+      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyID=${data.CompanyID}`}
+    />
+    <Stack direction="row" gap={1}>
+      <FormControlLabel
+        sx={{ height: 37.13 }}
+        control={
+          <Checkbox
+            size="small"
+            id="brokenItems"
+            name="brokenItems"
+            checked={values.brokenItems}
+            onChange={handleChange}
+          />
+        }
+        label="Broken Items"
+      />
+      <FormControlLabel
+        sx={{ height: 37.13 }}
+        control={
+          <Checkbox
+            size="small"
+            id="damagedItems"
+            name="damagedItems"
+            checked={values.damagedItems}
+            onChange={handleChange}
+          />
+        }
+        label="Damaged Items"
+      />
+    </Stack>
+  </Stack>
+
+  {/* Checkboxes & Autocomplete */}
+  <Stack
+    sx={{ gridColumn: isNonMobile ? "span 2" : "span 4" }}
+    direction="column"
+    gap={1}
+  >
+    
+
+    {/* Autocomplete & Add Button */}
+    <Box display="flex" direction="row" alignItems="center" gap={1}>
+      <CompanyPriceListAutoComplete
+        key={JSON.stringify(getRows)}
+        errors={isPriceListExistsError}
+        helper={isPriceListExistsError && "Please select price list!"}
+        disabled={params.mode === "delete" || params.mode === "view"}
+        name="addPriceList"
+        id="addPriceList"
+        value={addPriceListData}
+        onChange={handleSelectionAddPriceListData}
+        label="Include Price List"
+        url={`${process.env.REACT_APP_BASE_URL}PriceList/GetConfigurePriceList?CompanyID=${data.CompanyID}`}
+        filterData={getRows}
+        sx={{ flex: 1 }} 
+      />
+
+      <Tooltip title="Add">
+        <IconButton
+          disabled={params.mode === "delete" || params.mode === "view"}
+          color="black"
+          size="small"
+          onClick={handleAddPriceList}
+        >
+          <Add
+            sx={{
+              fontSize: 30,
+              color: theme.palette.success.main,
+            }}
+          />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  </Stack>
+</Box>
+
+                {/* <Box
                   display="grid"
                   gap="20px"
                   gridTemplateColumns="repeat(4, minmax(0, 1fr))"
@@ -451,12 +584,24 @@ const ConfigureCompanyEdit = () => {
                     direction="column"
                     gap={2}
                   >
-                    <Typography fontSize={"16px"}>
+                   <Typography fontSize={"16px"}>
                       <Typography component="span" fontWeight="bold">
                         Company:
                       </Typography>{" "}
                       {State.Code} || {State.Name}
                     </Typography>
+                    </Stack>
+                    <Stack
+                    sx={{ gridColumn: "span 2" }}
+                    direction="column"
+                    gap={2}
+                  ></Stack>
+                  <Stack
+                    sx={{ gridColumn: "span 2" }}
+                    direction="column"
+                    gap={2}
+                  >
+                   
                     <TextField
                       fullWidth
                       variant="outlined"
@@ -483,10 +628,19 @@ const ConfigureCompanyEdit = () => {
                       onChange={handleChange}
                       label="price Book Level"
                       disabled={params?.mode === "delete"}
-                      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyCode=${data.CompanyCode}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyID=${data.CompanyID}`}
                     />
                    
-                    <Stack direction="row" gap={1}>
+                   
+                  </Stack>
+                 <Stack
+                   sx={{
+                     gridColumn: isNonMobile ? "span 2" : "span 4", // responsive behavior
+                   }}
+                   direction="column"
+                   gap={1}
+                 >
+                     <Stack direction="row" gap={1}>
                       <FormControlLabel
                         sx={{ height: 37.13 }}
                         control={
@@ -514,19 +668,7 @@ const ConfigureCompanyEdit = () => {
                         label="Damaged Items"
                       />
                     </Stack>
-                  </Stack>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                    gap: 2,
-                    paddingX: 2,
-                  }}
-                >
-                  {/* <GridToolbarQuickFilter /> */}
+                   
 
                   <CompanyPriceListAutoComplete
                     key={JSON.stringify(getRows)}
@@ -542,7 +684,7 @@ const ConfigureCompanyEdit = () => {
                     value={addPriceListData}
                     onChange={handleSelectionAddPriceListData}
                     label="Include Price List"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+                    url={`${process.env.REACT_APP_BASE_URL}PriceList/GetConfigurePriceList?CompanyID=${data.CompanyID}`}
                     filterData={getRows}
                   />
                   <Tooltip title="Add">
@@ -562,7 +704,11 @@ const ConfigureCompanyEdit = () => {
                       />
                     </IconButton>
                   </Tooltip>
-                </Box>
+                
+                  </Stack>
+                </Box> */}
+                
+              
                 <Box
                   sx={{
                     height: 400,
@@ -638,7 +784,7 @@ const ConfigureCompanyEdit = () => {
                     columns={columns}
                     disableSelectionOnClick
                     disableRowSelectionOnClick
-                    getRowId={(row) => row.PRICELISTID}
+                    getRowId={(row) => row.RecordID}
                     initialState={{
                       pagination: {
                         paginationModel: { pageSize: dataGridPageSize },
@@ -647,6 +793,8 @@ const ConfigureCompanyEdit = () => {
                     pageSizeOptions={dataGridpageSizeOptions}
                     columnVisibilityModel={{
                       item_key: false,
+                      RecordID:false,
+                      PRICELISTID:false
                     }}
                     disableColumnFilter
                     disableColumnSelector
@@ -671,8 +819,8 @@ const ConfigureCompanyEdit = () => {
                       size="small"
                       onClick={async () => {
                         const Pdata = {
-                          PriceListID: removePriceListID,
-                          PriceBookRecordID: data.RecordID,
+                          RecordID: removePriceListID,
+                          
                         };
                         const response = await dispatch(
                           ConfigurepriceListClear({

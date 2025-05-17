@@ -15,6 +15,8 @@ const initialState = {
   runGroupMailLoading: false,
   runGroupMailError: false,
   runGroupMailIsAction: false,
+
+
 };
 
 export const updateContactData = createAsyncThunk(
@@ -1341,7 +1343,49 @@ export const deletePriceBookGroup = createAsyncThunk(
       );
     }
   }
-)
+);
+
+export const deleteCategoriesData = createAsyncThunk(
+  "deleteCategoriesData/DELETE",
+  async ({id}, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PrintGroup/RemoveCategoryPriceList?RecordID=${id}`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      // toast.success('Favorite removed successfully')
+      return response.data;
+    } catch (error) {
+      // toast.error('Something went wrong')
+    }
+  }
+);
+
+
+
+
+export const PostPriceListDetail = createAsyncThunk(
+  "post/PostPriceListDetail", // Action type string
+  async ({ filterData}, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/PostPriceListDetail`;
+      const response = await axios.post(URL, filterData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,
@@ -1382,7 +1426,8 @@ const postData = createSlice({
         state.runGroupMailLoading = false;
         state.runGroupMailError = true;
         state.runGroupMailIsAction = true;
-      });
+      })
+    
   },
 });
 

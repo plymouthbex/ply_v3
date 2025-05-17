@@ -359,6 +359,7 @@ const MailSidebar = () => {
                           setTimeout(() => {
                             setPostError(null);
                           }, 1000);
+                          navigate("/home")
                         }}
                         sx={{ height: 25 }}
                       >

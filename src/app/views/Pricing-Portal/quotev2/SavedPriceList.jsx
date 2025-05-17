@@ -324,7 +324,8 @@ const SavedPriceList = () => {
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
           sx={{
-            height: "400px",
+            // height: "400px",
+             height:dataGridHeight,
             "& .MuiDataGrid-root": {
               border: "none",
             },
@@ -349,7 +350,13 @@ const SavedPriceList = () => {
             "& .MuiCheckbox-root": {
               color: "#174c4f !important",
             },
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: theme.palette.action.hover,
+            },
 
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
+            },
             "& .MuiCheckbox-root.Mui-checked": {
               color: "#174c4f !important",
             },

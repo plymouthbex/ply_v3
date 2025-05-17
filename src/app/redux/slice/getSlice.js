@@ -156,6 +156,18 @@ const initialState = {
   mailError: null,
   mailLoading: false,
   mailData: {},
+
+  postAdHocData:[],
+  postAdHocLoading:false,
+  postAdHocStatus:'idle',
+  postAdHocError:null,
+
+//ENQUIRY
+
+  getEnquiryData:[],
+  getEnquiryLoading:false,
+  getEnquiryStatus:'idle',
+  getEnquiryError:null,
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -187,7 +199,7 @@ export const getPriceListData = createAsyncThunk(
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
         params:{
-          PricelistId:id
+          RecordID:id
         }
       });
       return response.data;
@@ -210,7 +222,7 @@ export const getPriceListData2 = createAsyncThunk(
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
         params:{
-          PricelistId:id
+          RecordID:id
         }
       });
       return response.data;
@@ -342,7 +354,7 @@ export const getCompanyData = createAsyncThunk(
   "companyData/GET",
   async ({ ID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}CompanyModule/GetCompanyData?CompanyCode=${ID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}CompanyModule/GetCompanyData?RecordID=${ID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -733,7 +745,44 @@ export const getCompanyMailConfig = createAsyncThunk(
     }
   }
 );
-
+export const PostAddHocItems = createAsyncThunk(
+  "post/PostConfigurePriceListID", // Action type string
+  async ({ adhocdata,compID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/PostAdHocItem_V1?CompanyID=${compID}`;
+      const response = await axios.post(URL, adhocdata, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+// ItemMaster/GetItemEnquiry?ItemNumber=017973&CompanyID=5
+export const getEnquiryItems = createAsyncThunk(
+  "get/getEnquiryItems", // action type
+  async ({ ID, CompanyID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemEnquiry?ItemNumber=${ID}&CompanyID=${CompanyID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -769,12 +818,14 @@ const getSlice = createSlice({
       state.priceListItemsData = [];
       state.priceListAddedData = [];
       state.priceListSelectedData = [];
+      state.postAdHocData=[];
     },
 
     clreatFilterAndItems: (state, action) => {
       state.priceListItemsData = [];
       state.priceListAddedData = [];
       state.priceListSelectedData = [];
+       state.postAdHocData=[]
     },
 
     //PRINT GROUP ACTION
@@ -788,7 +839,7 @@ const getSlice = createSlice({
       action.payload.forEach((newItem) => {
         const exists = state.printGroupAddedData.some(
           (existingItem) =>
-            existingItem.PRICELISTID === newItem.PRICELISTID
+            existingItem.RecordID === newItem.RecordID
         );
         if (!exists) {
           state.printGroupAddedData.push(newItem);
@@ -950,10 +1001,19 @@ const getSlice = createSlice({
       }
     },
     configureSelectedPriceList: (state, action) => {
-      state.configurePriceListGetData = action.payload;
+      state.configurePriceListAddedData = action.payload;
     },
     configureAddedPriceList: (state, action) => {
-      state.configurePriceListGetData.push(action.payload);
+      // state.configurePriceListAddedData.push(action.payload);
+      action.payload.forEach((newItem) => {
+        const exists = state.configurePriceListAddedData.some(
+          (existingItem) =>
+            existingItem.RecordID === newItem.RecordID
+        );
+        if (!exists) {
+          state.configurePriceListAddedData.push(newItem);
+        }
+      });
     },
     configurePriceListDeleted: (state, action) => {
       let id = action.payload.id;
@@ -999,6 +1059,32 @@ const getSlice = createSlice({
         state.priceListItemsData = updatedRow;
       }
     },
+    adHocPriceListDeleted: (state, action) => {
+      const idToDelete = action.payload.idToDelete;
+    
+      console.log("Before deletion:", state.priceListItemsData.map(i => i.RecordId));
+      console.log("Deleting RecordId:", idToDelete);
+    
+      const indexToRemove = state.priceListItemsData.findIndex(
+        (item) => item.RecordId === idToDelete
+      );
+      console.log("After deletion:", state.priceListItemsData.map(i => i.RecordId));
+      if (indexToRemove !== -1) {
+        state.priceListItemsData.splice(indexToRemove, 1); // ✅ in-place mutation
+      }
+
+      console.log("Before deletion:", state.postAdHocData.map(i => i.RecordId));
+      const indexToRemove1 = state.postAdHocData.findIndex(
+        (item) => item.RecordId === idToDelete
+      );
+    
+      if (indexToRemove1 !== -1) {
+        state.postAdHocData.splice(indexToRemove, 1); // ✅ in-place mutation
+      }
+    
+      console.log("After deletion:", state.postAdHocData.map(i => i.RecordId));
+    },
+    
   },
   extraReducers: (builder) => {
     builder
@@ -1100,8 +1186,10 @@ const getSlice = createSlice({
         state.priceListLoading = false;
         state.priceListHeaderData = action.payload.data.headerData;
         state.priceListFilterData = action.payload.data.filterData;
-        state.priceListItemsData = action.payload.data.itemData;
-        state.priceListAddedData = action.payload.data.addHocItems;
+        state.priceListItemsData = action.payload.data.itemData.filter(x => x.AdHocItem != "Y");
+        state.postAdHocData = action.payload.data.addHocItems;
+        // state.priceListAddedData = action.payload.data.addHocItems;
+
       })
       .addCase(getPriceListData.rejected, (state, action) => {
         state.priceListStatus = "rejected";
@@ -1435,6 +1523,55 @@ const getSlice = createSlice({
         state.mailStatus = "rejected";
         state.mailLoading = false;
         state.mailError = true;
+      })
+      .addCase(PostAddHocItems.pending, (state) => {
+        // state.postAdHocData = [];
+        state.postAdHocLoading = true;
+        state.postAdHocStatus = "pending";
+      })
+      .addCase(PostAddHocItems.fulfilled, (state, action) => {
+        // console.log("🚀 ~ action.payload.data.forEach ~  state.postAdHocData:",  state.postAdHocData)
+        // console.log("🚀 ~ .addCase ~ action.payload:", action.payload)
+        // state.postAdHocData = [...state.postAdHocData,...action.payload.data];
+        if (Array.isArray(action.payload?.data)) {
+          action.payload.data.forEach((newItem) => {
+            state.postAdHocData.push(newItem);
+          });
+        } else {
+          console.warn('Expected array in action.payload.data, but got:', action.payload?.data);
+        }
+        
+        // action.payload.data.forEach((newItem) => {
+
+     
+        //     state.postAdHocData.push(newItem);
+          
+        //   });
+          // console.log("🚀 ~ action.payload.data.forEach ~  state.postAdHocData:",  state.postAdHocData)
+        state.postAdHocLoading = false;
+        state.postAdHocStatus = "fulfilled";
+        
+      })
+       
+      .addCase(PostAddHocItems.rejected, (state, action) => {
+        state.postAdHocError = action.error.message;
+        state.postAdHocLoading = false;
+        state.postAdHocStatus = "rejected";
+      })
+      .addCase(getEnquiryItems.pending, (state) => {
+        state.getEnquiryData = [];
+        state.getEnquiryLoading = true;
+        state.getEnquiryStatus = "pending";
+      })
+      .addCase(getEnquiryItems.fulfilled, (state, action) => {
+        state.getEnquiryData = action.payload.data;
+        state.getEnquiryLoading = false;
+        state.getEnquiryStatus = "fulfilled";
+      })
+      .addCase(getEnquiryItems.rejected, (state, action) => {
+        state.getEnquiryError = action.error.message;
+        state.getEnquiryLoading = false;
+        state.getEnquiryStatus = "rejected";
       });
   },
 });
@@ -1482,5 +1619,9 @@ export const {
   configureAddedPriceList,
   configurePriceListDeleted,
   clearConfigurePriceList,
+
+
+ // ===
+ adHocPriceListDeleted,
 } = getSlice.actions;
 export default getSlice.reducer;

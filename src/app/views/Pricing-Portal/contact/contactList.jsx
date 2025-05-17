@@ -222,7 +222,7 @@ const Customer = () => {
               value={selectedRunGrpOptions}
               onChange={handleSelectionRunGrpChange}
               label="Price Book Group"
-              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${user.companyCode}`}
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
             />
           ) : (
             <FormikCustomSelectCompanyPriceList2

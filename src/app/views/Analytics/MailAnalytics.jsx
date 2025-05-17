@@ -214,6 +214,14 @@ const MailAnalitics = () => {
       headerAlign: "left",
       hide: false,
     },
+    {
+      headerName: "ResponseMessage",
+      field: "ResponseMessage",
+      width: "200",
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
 
     {
       headerName: "Format",
@@ -254,7 +262,7 @@ const MailAnalitics = () => {
   const getFilterData = async (values) => {
     const data = {
       CompanyID: values.company
-        ? values.company.map((item) => item.CompanyCode).join(", ")
+        ? values.company.map((item) => item.RecordID).join(", ")
         : "",
       SalesPersonID: values.salesPerson
         ? values.salesPerson.map((item) => item.Code).join(", ")
@@ -502,9 +510,9 @@ const MailAnalitics = () => {
                     label="Sales Person"
                     url={`${
                       process.env.REACT_APP_BASE_URL
-                    }PriceBookDirectory/GetRungroupByCompany_V1?CompanyCode=${values.company
-                      .map((item) => item.CompanyCode)
-                      .join(", ")}`}
+                    }PriceBookDirectory/GetRungroupByCompany_V1?CompanyID=${values.company
+                      .map((item) => item.RecordID)
+                      .join(",")}`}
                   />
                   <FormikCustomAutocompleteMultiCustomer
                     disabled={values.salesPerson.length === 0}

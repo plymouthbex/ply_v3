@@ -120,7 +120,8 @@ const NewProspect = () => {
     }
     const data = {
       RecordID: params.mode === "copy" ? 0 : getQuoteProspectInfoData.RecordID,
-      CompanyCode: values.company ? values.company : "",
+      CompanyCode: "",
+      CompanyID:values.company,
       UserID: user.id,
       FromDate: getQuoteProspectInfoData.FromDate,
       ToDate: getQuoteProspectInfoData.ToDate,
@@ -223,9 +224,9 @@ const NewProspect = () => {
       !getQuoteProspectInfoLoading ? (
         <Formik
           initialValues={{
-            company: getQuoteProspectInfoData.CompanyCode
-              ? getQuoteProspectInfoData.CompanyCode
-              : user.companyCode,
+            company: getQuoteProspectInfoData.CompanyID
+              ? getQuoteProspectInfoData.CompanyID
+              : user.companyID,
             prospectName: getQuoteProspectInfoData.Name,
             description: getQuoteProspectInfoData.Description,
             address1: getQuoteProspectInfoData.Address1,
@@ -484,7 +485,7 @@ const NewProspect = () => {
                     value={values.priceBookLevel}
                     onChange={handleChange}
                     label="price Book Level"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyCode=${values.company}`}
+                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyID=${values.company}`}
                   />
                     
 

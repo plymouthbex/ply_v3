@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import {
   LinearProgress,
   Paper,
@@ -16,6 +16,13 @@ import {
   DialogActions,
   IconButton,
   Tooltip,
+  List,
+  ListItem,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Divider
 } from "@mui/material";
 import {
   DataGrid,
@@ -33,6 +40,7 @@ import { Formik } from "formik";
 import lodash from "lodash";
 import { FormikCustomAutocomplete } from "app/components/AutoComplete";
 import {
+  adHocPriceListDeleted,
   clearPriceListState,
   clreatFilterAndItems,
   getPriceListData,
@@ -41,11 +49,13 @@ import {
   onCheckboxChangePriceListEdit,
   priceListAddedItems,
   priceListDeletedItem,
+  PostAddHocItems
+
 } from "app/redux/slice/getSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FormikOptimizedAutocomplete,
-  OptimizedAutocomplete,
+  OptimizedAutocomplete,OptimizedAdHocAutocomplete,
   PrintGroupOptimizedAutocomplete,
   PrintGroupOptimizedAutocompletePriceList,
 } from "app/components/SingleAutocompletelist";
@@ -53,6 +63,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   DeleteAdHocItem,
   PostAdHocItem,
+  PostPriceListDetail,
   priceListClearFilter,
   priceListConditionsPost,
   priceListDelete,
@@ -73,7 +84,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import Loading from "app/components/AppLoading";
 import { FormikCustomAutocompleteMulti } from "app/components/FormikAutocomplete";
-
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -100,7 +111,8 @@ const PriceListEdit = () => {
   const loaction = useLocation();
   const { user } = useAuth();
   const state = loaction.state;
-
+  console.log("🚀 ~ state:", state)
+  const submitActionRef = useRef(null)
   // ********************** LOCAL STATE ********************** //
 
   const [openAlert, setOpenAlert] = useState(false);
@@ -115,8 +127,15 @@ const PriceListEdit = () => {
   const [isShowOtherDisabled, setIsOtherDisabled] = useState(true);
   const [isShowOtherItem, setIsOtherItem] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [adHocRows,setAdhocRows]=useState([]);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   //======================= ADD PRICE LIST ===================================//
-  const [addPriceListData, setAddPriceListData] = useState(null);
+  const [addPriceListData, setAddPriceListData] = useState([]);
+  const [priceListRecordID, setpriceListRecordID] = useState(state.id.toString());
+  console.log("🚀 ~ priceListRecordID:", priceListRecordID)
   const handleSelectionAddPriceListData = (newValue) => {
     setAddPriceListData(newValue);
   };
@@ -127,6 +146,7 @@ const PriceListEdit = () => {
     (state) => state.getSlice.priceListSelectedData
   );
   const addedRows = useSelector((state) => state.getSlice.priceListAddedData);
+  console.log("🚀 ~ addedRows:", addedRows);
   const priceListHeaderData = useSelector(
     (state) => state.getSlice.priceListHeaderData
   );
@@ -136,6 +156,7 @@ const PriceListEdit = () => {
   const priceListItemsData = useSelector(
     (state) => state.getSlice.priceListItemsData
   );
+  console.log("🚀 ~ priceListItemsData:", priceListItemsData)
   const priceListItemLoading = useSelector(
     (state) => state.getSlice.priceListItemLoading
   );
@@ -143,11 +164,16 @@ const PriceListEdit = () => {
   const getLoading = useSelector((state) => state.getSlice.priceListLoading);
   const getMessage = useSelector((state) => state.getSlice.priceListMessage);
   const getError = useSelector((state) => state.getSlice.priceListError);
+  const AdHocRows= useSelector((state)=>state.getSlice.postAdHocData);
+  console.log("🚀 ~ AdHocRows:", AdHocRows)
+
+
+
 
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
-      headerName: "Price List ID",
+      headerName: "Price List",
       field: "OtherItemPriceListID",
       width: 150,
       align: "left",
@@ -180,7 +206,41 @@ const PriceListEdit = () => {
         return (
           <div>
             <Checkbox
-              checked={param.row.PrintItem}
+  checked={param.row.PrintItem === true}
+  onChange={(e) => {
+    const newValue = e.target.checked ? "1" : "0";
+console.log(e);
+    dispatch(
+      PutAdHocItem({
+        data: {
+          RecordID: param.row.RecordId,
+          PriceListID: priceListHeaderData.PriceListID,
+          QuotationRecordID: "0",
+          FilterType: "PL",
+          ItemNo: param.row.Item_Number,
+          PrintItem: newValue,
+        },
+      })
+    );
+
+    dispatch(
+      onCheckboxChangePriceListEdit({
+        id: param.row.RecordId,
+        field: "PrintItem",
+        adhocItem: param.row.AdHocItem,
+      })
+    );
+  }}
+  sx={{
+    color: "#174c4f",
+    "&.Mui-checked": {
+      color: "#174c4f",
+    },
+  }}
+/>
+
+            {/* <Checkbox
+              checked={param.row.PrintItem ==="1"}
               onChange={(e) => {
                 dispatch(
                   PutAdHocItem({
@@ -208,7 +268,7 @@ const PriceListEdit = () => {
                   color: "#174c4f",
                 },
               }}
-            />
+            /> */}
           </div>
         );
       },
@@ -219,6 +279,7 @@ const PriceListEdit = () => {
       minWidth: "100",
       align: "left",
       headerAlign: "left",
+      hide: true,
       renderCell: (param) => {
         return param.row.AdHocItem === "Y" ? "Yes" : "No";
       },
@@ -263,29 +324,184 @@ const PriceListEdit = () => {
       },
     },
   ];
-
+  const [quickFilterText, setQuickFilterText] = useState("");
   // **********************  FUNCTION ********************** //
 
-  const isPriceListIDExists = (e, setSubmitting) => {
-    const inputValue = e.target.value.trim();
-    const isPriceListID = priceRows.some(
-      (item) => item.PRICELISTID === inputValue
-    );
-    if (isPriceListID) {
-      SetIsPriceListOpen(true);
-    } else {
-      setSubmitting(false);
-    }
-  };
+  // const isPriceListIDExists = (e, setSubmitting) => {
+  //   const inputValue = e.target.value.trim();
+  //   const isPriceListID = priceRows.some(
+  //     (item) => item.PRICELISTID === inputValue
+  //   );
+  //   if (isPriceListID) {
+  //     SetIsPriceListOpen(true);
+  //   } else {
+  //     setSubmitting(false);
+  //   }
+  // };
 
   const priceListSaveFn = async (values, setSubmitting, isDerct = false) => {
     console.log("--",state.companyCode)
+ 
+
+  
+
+    try {
+      dispatch(
+        priceListHeaderPost({
+          data: {
+            recordId: priceListHeaderData.RecordId,
+            priceListID: values.priceListID,
+            pricelistDesc: values.priceListDescription,
+            buyer: values.buyer ? JSON.stringify(values.buyer) : null,
+            createdBy: values.createdBy,
+            companyCode: state.companyCode.toString(),
+            PrintGroupName: values.catName ? values.catName.GroupName : "",
+            PrintGroupRecordID: values.catName ? values.catName.RecordID : 0,
+            forcePageBreak: "N",
+            overridesequence: values.overrideSeq,
+            customer: values.propCustomer
+              ? JSON.stringify(values.propCustomer)
+              : null,
+            Comments: values.comments,
+            CreatedDate: values.createdDateTime,
+            ModifyDate: values.lastModifiedDateTime,
+            ModifyUser: user.name,
+            CompanyID:state.companyRecordID,
+            //IsProprietary:values.IsProprietary
+            IsProprietary:false,
+            
+          },
+        })
+      ).then(async (response) => {
+        if (response.payload.status === "Y") {
+          setpriceListRecordID(response.payload.PriceListID.toString())
+          const filterData = {
+            FilterType: "PL",
+            headerRecordID:response.payload.PriceListID.toString(),
+            companyID:state.companyRecordID,
+            User:user.name,
+            Brand: {
+              PriceListID: values.priceListID,
+              Attribute: "Brand",
+              Option: values.brandInEx,
+              Value:
+                values.brandInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.brandInExData),
+            },
+            Commodity: {
+              PriceListID: values.priceListID,
+              Attribute: "Commodity",
+              Option: values.commodityInEx,
+              Value:
+                values.commodityInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.commodityInExData),
+            },
+            AlternativeClass: {
+              PriceListID: values.priceListID,
+              Attribute: "AlternativeClass",
+              Option: values.altClassInEx,
+              Value:
+                values.altClassInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.altClassInExData),
+            },
+            Vendor: {
+              PriceListID: values.priceListID,
+              Attribute: "Vendor",
+              Option: values.vendorInEx,
+              Value:
+                values.vendorInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.vendorInExData),
+            },
+            Type: {
+              PriceListID: values.priceListID,
+              Attribute: "Type",
+              Option: values.frshForzInEx,
+              Value:
+                values.frshForzInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.frshForzInExData),
+            },
+            SecondaryClass: {
+              PriceListID: values.priceListID,
+              Attribute: "SecondaryClass",
+              Option: values.SecondClassInEx,
+              Value:
+                values.SecondClassInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.SecondClassInExData),
+            },
+            Class: {
+              PriceListID: values.priceListID,
+              Attribute: "Class",
+              Option: values.classIDInEx,
+              Value:
+                values.classIDInEx === "IncludeAll"
+                  ? ""
+                  : JSON.stringify(values.classIDInExData),
+            },
+            BrokenItem: {
+              PriceListID: values.priceListID,
+              Attribute: "BrokenItem",
+              Option: "Exclude",
+              Value: values.brokenItems ? "1" : "0",
+            },
+            Combination: {
+              PriceListID: values.priceListID,
+              Attribute: "Combination",
+              Option: "Exclude",
+              Value: values.combinationFilter ? "1" : "0",
+            },
+            DamageItem: {
+              PriceListID: values.priceListID,
+              Attribute: "DamageItem",
+              Option: "Exclude",
+              Value: values.damagedItems ? "1" : "0",
+            },
+            PriceListItemData :isFilterApplied ? FILTERADHoc : combined
+          };
+          console.log("🚀 ~ ).then ~ filterData:", filterData);
+           dispatch(PostPriceListDetail({filterData}));
+         
+        
+          setOpenAlert(true);
+          setSuccessMessage(response.payload.message);
+          if (params.mode === "add") {
+            navigate("/pages/control-panel/price-list/price-list-detail/edit", {
+              state: {
+                id: priceListRecordID,
+                companyCode: state.companyCode,
+                companyRecordID:state.companyRecordID,
+              },
+            });
+            // setTimeout(() => {
+            //   setOpenAlert(false);
+            // }, 5000);
+          } else {
+          // if (params.mode === "add") {
+          setOpenAlert(true);
+          // setPostError(res.payload.message);
+          // setTimeout(() => {
+          //   setOpenAlert(false);
+          // }, 2000);
+          // }
+      } }
+      });
+    } catch (e) {
+      console.log("🚀 ~ priceListSaveFn ~ e:", e);
+    }
+  };
+
+  const ApplyFilter= async(values)=>{
     setIsOtherItem(true);
     setIsOtherDisabled(false);
     const filterData = {
-      filterType: "PL",
-      headerRecordID: "",
-      companyID:state.companyCode,
+      FilterType: "AP",
+      headerRecordID:priceListRecordID,
+      companyID:state.companyRecordID,
       User:user.name,
       Brand: {
         PriceListID: values.priceListID,
@@ -369,64 +585,18 @@ const PriceListEdit = () => {
         Value: values.damagedItems ? "1" : "0",
       },
     };
-    try {
-      dispatch(
-        priceListHeaderPost({
-          data: {
-            recordId: priceListHeaderData.RecordId,
-            priceListID: values.priceListID,
-            pricelistDesc: values.priceListDescription,
-            buyer: values.buyer ? JSON.stringify(values.buyer) : null,
-            createdBy: values.createdBy,
-            companyCode: state.companyCode,
-            PrintGroupName: values.catName ? values.catName.GroupName : "",
-            PrintGroupRecordID: values.catName ? values.catName.RecordID : 0,
-            forcePageBreak: "N",
-            overridesequence: values.overrideSeq,
-            customer: values.propCustomer
-              ? JSON.stringify(values.propCustomer)
-              : null,
-            Comments: values.comments,
-            CreatedDate: values.createdDateTime,
-            ModifyDate: values.lastModifiedDateTime,
-            ModifyUser: user.name,
-          },
-        })
-      ).then(async (response) => {
-        if (response.payload.status === "Y") {
-          const res = await dispatch(getPriceListFilterData(filterData));
-          setOpenAlert(true);
-          setSuccessMessage(res.payload.message);
-          if (params.mode === "add") {
-            navigate("/pages/control-panel/price-list/price-list-detail/edit", {
-              state: {
-                id: response.payload.PriceListID,
-                companyCode: state.companyCode,
-              },
-            });
-            // setTimeout(() => {
-            //   setOpenAlert(false);
-            // }, 5000);
-          }
-        } else {
-          // if (params.mode === "add") {
-          setOpenAlert(true);
-          setPostError(response.payload.message);
-          // setTimeout(() => {
-          //   setOpenAlert(false);
-          // }, 2000);
-          // }
-        }
-      });
-    } catch (e) {
-      console.log("🚀 ~ priceListSaveFn ~ e:", e);
-    }
-  };
+    console.log("🚀 ~ ).then ~ filterData:", filterData)
+
+
+    const res = await dispatch(getPriceListFilterData(filterData));
+    setIsFilterApplied(true)
+  }
 
   const getOtherItems = async (values, type) => {
     const filterData = {
-      filterType: type,
-      headerRecordID: "",
+      FilterType: type,
+      companyID:state.companyRecordID,
+      headerRecordID: priceListRecordID,
       Brand: {
         PriceListID: values.priceListID,
         Attribute: "Brand",
@@ -533,11 +703,30 @@ const PriceListEdit = () => {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
   };
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  // Step 1: Combine both lists
+const combined = [...AdHocRows, ...priceListItemsData];
 
-  // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
+// Step 2: Count occurrences of each Item_Number
+const itemCountMap = combined.reduce((map, item) => {
+  const num = item.Item_Number;
+  map[num] = (map[num] || 0) + 1;
+  return map;
+}, {});
+ // Step 3: Filter out duplicates from both AdHocRows and priceListItemsData
+const FILTERADHoc = [
+  ...AdHocRows.filter(item => itemCountMap[item.Item_Number] === 1),
+  ...priceListItemsData.filter(item => itemCountMap[item.Item_Number] === 1)
+];
+  
+ 
+    console.log("🚀 ~ FILTERADHoc:", FILTERADHoc)
+    // ********************** USE EFFECT - PRICE LIST GET FUNCTION ********************** //
   useEffect(() => {
     dispatch(getPriceListData({ id: state.id }));
-
+// if(AdHocRows){
+//   setAdhocRows(AdHocRows)
+// }
     // if (params.mode === "edit" || params.mode === "view" || params.mode === "delete") {
     //   setShowGridData(0);
     // } else setShowGridData(3);
@@ -549,13 +738,13 @@ const PriceListEdit = () => {
   const [openAlert2, setOpenAlert2] = useState(false);
   const [postError2, setPostError2] = useState(false);
   const clearFilter = async (setFieldValue) => {
-    const data = {
-      QuotationRecordId: 0,
-      PriceListID: priceListHeaderData.PriceListID,
-      Type: "PL",
-    };
-    const response = await dispatch(priceListClearFilter({ data }));
-    if (response.payload.status === "Y") {
+    // const data = {
+    //   QuotationRecordId: 0,
+    //   PriceListID: priceListHeaderData.RecordId,
+    //   Type: "PL",
+    // };
+    // const response = await dispatch(priceListClearFilter({ data }));
+    // if (response.payload.status === "Y") {
       setFieldValue("brandInEx", "IncludeAll");
       setFieldValue("commodityInEx", "IncludeAll");
       setFieldValue("altClassInEx", "IncludeAll");
@@ -575,11 +764,11 @@ const PriceListEdit = () => {
       setFieldValue("damagedItems", false);
       setFieldValue("combinationFilter", false);
       dispatch(clreatFilterAndItems());
-      setOpenAlert2(true);
-    } else {
-      setOpenAlert2(true);
-      setPostError2(true);
-    }
+      // setOpenAlert2(true);
+    // } else {
+    //   setOpenAlert2(true);
+    //   setPostError2(true);
+    // }
   };
 
   const [isRemoveItem1, setIsRemoveItem1] = useState(false);
@@ -587,27 +776,26 @@ const PriceListEdit = () => {
   const [openAlert11, setOpenAlert11] = useState(false);
   const [postError11, setPostError11] = useState(false);
 
-  const itemDeleteFn = async (values) => {
-    const data = {
-      RecordID: isRemoveItem1ID,
-      priceListID: `${priceListHeaderData.PriceListID}`,
-      quotationRecordID: "0",
-      filterType: "PL",
-      itemNo: "",
-      printSequence: "",
-      printItem: "0",
-      comment: "",
-    };
-    const response = await dispatch(DeleteAdHocItem({ data }));
-    if (response.payload.status === "Y") {
-      dispatch(getPriceListData2({ id: priceListHeaderData.PriceListID }));
-      setOpenAlert11(true);
+  const itemDeleteFn = async () => {
+    const response = await dispatch(adHocPriceListDeleted({ idToDelete: isRemoveItem1ID }));
+  
+    console.log("Deleted item with ID:", isRemoveItem1ID);
+    console.log("Redux action response:", response);
+  
+    // Optional: Trigger other actions or UI changes
+    if (response) {
+      // Optional: if you want to reload full list again
+      //dispatch(getPriceListData2({ id: priceListHeaderData.RecordID }));
+  
+      // setOpenAlert11(true);
       setIsRemoveItem1ID(0);
+      setPostError11(false);
     } else {
       setOpenAlert11(true);
       setPostError11(true);
     }
   };
+  
 
   // ********************** TOOLBAR ********************** //
   function CustomToolbar() {
@@ -631,7 +819,9 @@ const PriceListEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <TextField
+        
+          
+          {/* <TextField
             size="small"
             name="viewitems"
             id="viewitems"
@@ -645,10 +835,10 @@ const PriceListEdit = () => {
             <MenuItem value={0}>All</MenuItem>
             <MenuItem value={1}>Filtered</MenuItem>
             <MenuItem value={3}>Ad Hoc</MenuItem>
-          </TextField>
-        </Box>
-        {showGridData === 3 && (
-          <Box
+          </TextField> */}
+
+        {/* {showGridData === 3 && ( */}
+          {/* <Box
             sx={{
               display: "flex",
               flexDirection: "row",
@@ -657,8 +847,8 @@ const PriceListEdit = () => {
               gap: 2,
               width: "100%",
             }}
-          >
-            <OptimizedAutocomplete
+          > */}
+            <OptimizedAdHocAutocomplete
               errors={isItemExistsError}
               helper={isItemExistsError && "please select an item!"}
               disabled={
@@ -670,58 +860,65 @@ const PriceListEdit = () => {
               id="adHocItem"
               value={addPriceListData}
               onChange={handleSelectionAddPriceListData}
-              label="Ad Hoc Item"
+              label="Item"
               url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
             />
 
-            {state.id ? (
+            {/* {state.id ? ( */}
               <Button
                 variant="contained"
                 color="info"
-                size="small"
                 onClick={async () => {
-                  if (addPriceListData) {
-                    const isItem = [...priceListItemsData, ...addedRows].some(
-                      (item) =>
-                        lodash.isEqual(
-                          item.Item_Number,
-                          addPriceListData.Item_Number
-                        )
+                  if (addPriceListData && addPriceListData.length > 0) {
+                
+                    // ✅ Check if any of the current new items already exist
+                    const isItem = [...priceListItemsData, ...addedRows].some((item) =>
+                      addPriceListData.some((newItem) =>
+                        lodash.isEqual(item.Item_Number, newItem.Item_Number)
+                      )
                     );
+                
                     if (isItem) {
                       setIsItemExists(true);
                       setTimeout(() => {
                         setIsItemExists(false);
-                        setAddPriceListData(null);
+                        setAddPriceListData([]);
+                       
                       }, 5000);
                       return;
                     }
-
-                    const response = await dispatch(
-                      PostAdHocItem({
-                        idata: {
-                          PriceListID: priceListHeaderData.PriceListID,
-                          QuotationRecordID: "0",
-                          FilterType: "PL",
-                          ItemNo: addPriceListData.Item_Number,
-                          ItemDescription: addPriceListData.Item_Description,
-                          User:user.name,
-                        },
-                      })
-                    );
-                    if (response.payload.status === "Y") {
+                
+                    // ✅ Transform new data to correct structure
+                    const newAdHocData = addPriceListData.map((row) => ({
+                      PriceListID: '',
+                      QuotationRecordID: "0",
+                      FilterType: "PL",
+                      Item_Number: row.Item_Number,
+                      Item_Description: row.Item_Description,
+                      User: user.role,
+                      PriceListRecordID: 0,
+                    }));
+                
+                    // ✅ Accumulate with previous adhoc rows
+                    const updatedAdhocRows = [...AdHocRows, ...newAdHocData];
+                    // setAdhocRows(updatedAdhocRows);  // Store it for future adds or posts
+                
+                    console.log("🚀 ~ updatedAdhocRows:", updatedAdhocRows);
+                
+                    const response1 = await dispatch(PostAddHocItems({
+                      compID: state.companyRecordID,
+                      adhocdata: updatedAdhocRows
+                    }));
+                
+                    if (response1.payload.status === "Y") {
                       setPostError1(null);
-                      setOpenAlert1(true);
-                      dispatch(
-                        getPriceListData2({
-                          id: priceListHeaderData.PriceListID,
-                        })
-                      );
-                      setAddPriceListData(null);
+                      setAddPriceListData([]);
+                      // Clear after successful post
                     } else {
                       setOpenAlert1(true);
-                      setPostError1(response.payload.message);
+                      setPostError1(response1.payload.message);
                     }
+                
                   } else {
                     setIsItemExistsError(true);
                     setTimeout(() => {
@@ -729,21 +926,81 @@ const PriceListEdit = () => {
                     }, 2000);
                   }
                 }}
-                startIcon={<Add size="small" />}
-                disabled={
-                  params.mode === "delete" || params.mode === "view"
-                    ? true
-                    : false
-                }
-              >
-                Ad Hoc Item
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                color="info"
+                
                 size="small"
-                type="submit"
+                // onClick={async () => {
+                //   if (addPriceListData) {
+                   
+                //     const isItem = [...priceListItemsData, ...addedRows].some(
+                //       (item) =>
+                //         lodash.isEqual(
+                //           item.Item_Number,
+                //           addPriceListData.Item_Number
+                //         )
+                //     );
+                //     if (isItem) {
+                //       setIsItemExists(true);
+                //       setTimeout(() => {
+                //         setIsItemExists(false);
+                //         setAddPriceListData([]);
+                //         setAdhocRows([])
+                //       }, 5000);
+                     
+                      
+                     
+                //       return;
+                //     }
+                //   //   {
+                //   //     "PriceListID": "",
+                //   //     "QuotationRecordID": "0",
+                //   //     "FilterType": "PL",
+                //   //     "Item_Number": "017978",
+                //   //     "Item_Description": "Shanks Sliced 1in - 10# Rdm Fz (Vanguard)",
+                //   //     "User": "Admin",
+                //   //     "PriceListRecordID": 414
+                //   // }
+
+
+                //   const adHocData = addPriceListData.map((row, index) => ({
+                //     return{
+                //     PriceListID: '',
+                //     QuotationRecordID: "0",
+                //     FilterType: "PL",
+                //     Item_Number: row.Item_Number,
+                //     Item_Description: row.Item_Description,
+                //     User: user.role,
+                //     PriceListRecordID: 0,}
+                //   }));
+                  
+                //   console.log("🚀 ~ adHocData ~ adHocData:", adHocData)
+                //     console.log("🚀 ~ onClick={ ~ addPriceListData:", addPriceListData) 
+                //     console.log("🚀 ~ adhocdata:addPriceListData", { adhocdata: addPriceListData });
+                //     console.log("🚀 ~ onClick={ ~ addPriceListData:", {compID:state.companyRecordID}) 
+                  
+                //     const response1 = await dispatch(PostAddHocItems({compID:state.companyRecordID,adhocdata:adHocData}));
+                //     console.log("🚀 ~ onClick={ ~ response1:", response1)
+                //     if (response1.payload.status === "Y") {
+                //       setPostError1(null);
+                //       // setOpenAlert1(true);
+                //       // setAdhocRows(AdHocRows)
+                //       // dispatch(
+                //       //   getPriceListData2({
+                //       //     id: priceListHeaderData.RecordId,
+                //       //   })
+                //       // );
+                //       setAddPriceListData([]);
+                //       setAdhocRows([])
+                //     } else {
+                //       setOpenAlert1(true);
+                //       setPostError1(response1.payload.message);
+                //     }
+                //   } else {
+                //     setIsItemExistsError(true);
+                //     setTimeout(() => {
+                //       setIsItemExistsError(false);
+                //     }, 2000);
+                //   }
+                // }}
                 startIcon={<Add size="small" />}
                 disabled={
                   params.mode === "delete" || params.mode === "view"
@@ -753,9 +1010,7 @@ const PriceListEdit = () => {
               >
                 Ad Hoc Item
               </Button>
-            )}
-          </Box>
-        )}
+              </Box>
       </GridToolbarContainer>
     );
   }
@@ -768,6 +1023,7 @@ const PriceListEdit = () => {
             priceListID: priceListHeaderData.PriceListID,
             priceListDescription: priceListHeaderData.PricelistDesc,
             buyer: JSON.parse(priceListHeaderData.Buyer),
+            IsProprietary:priceListHeaderData.IsProprietary,
             forcePageBreak:
               priceListHeaderData.ForcePageBreak === "Y" ? true : false,
             overrideSeq: priceListHeaderData.Overridesequence,
@@ -872,7 +1128,7 @@ const PriceListEdit = () => {
               );
               if (!hasData) {
                 errors.filters =
-                  "At least one filter must have selected filter";
+                  "At least one filter must be selected";
               }
               return errors;
             }
@@ -883,12 +1139,28 @@ const PriceListEdit = () => {
           }}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
-              if (params.mode === "delete") {
-                setIsDelete(true);
-              }
-              if (params.mode === "add" || params.mode === "edit") {
-                priceListSaveFn(values, setSubmitting);
-              }
+              // if (params.mode === "delete") {
+              //   setIsDelete(true);
+              // }
+              // if (params.mode === "add" || params.mode === "edit") {
+              //   priceListSaveFn(values, setSubmitting);
+              //   ApplyFilter(values);
+              // }
+              const action = submitActionRef.current;
+        console.log("Action triggered:", action);
+
+        if (params.mode === "delete") {
+          priceListDeleteFn()
+        }
+
+        if (params.mode === "add" || params.mode === "edit") {
+          if (action === "save") {
+            priceListSaveFn(values, setSubmitting);
+          } else if (action === "apply") {
+            ApplyFilter(values);
+            setSubmitting(false); // Manually end Formik submit state
+          }
+        }
             }, 400);
           }}
         >
@@ -917,7 +1189,23 @@ const PriceListEdit = () => {
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  {params.mode == "delete" && (
+                <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    startIcon={
+                      params.mode === "delete" ? (
+                        <DeleteIcon color="error" size="small" />
+                      ) : (
+                        <SaveIcon size="small" />
+                      )
+                    }
+                    type="submit"
+                    onClick={() => (submitActionRef.current = "save")}
+                  >
+                    {params.mode === "delete" ? "Confirm" : "Save"}
+                  </Button>
+                  {/* {params.mode == "delete" && (
                     <Button
                       variant="contained"
                       color="info"
@@ -928,7 +1216,7 @@ const PriceListEdit = () => {
                     >
                       Confirm
                     </Button>
-                  )}
+                  )} */}
                   <Button
                     variant="contained"
                     color="info"
@@ -936,14 +1224,20 @@ const PriceListEdit = () => {
                     startIcon={<ArrowBackIcon size="small" />}
                     onClick={() => {
                       navigate("/pages/control-panel/price-list");
+                  
                     }}
                   >
                     Back
                   </Button>
+                  <Tooltip title="Help">
+  <IconButton onClick={handleOpen}>
+    <HelpOutlineIcon />
+  </IconButton>
+</Tooltip>
                 </Stack>
               </div>
 
-              <Paper sx={{ width: "100%", mb: 2 }}>
+              <Paper sx={{ width: "100%", mb: 1 }}>
                 <Box
                   display="grid"
                   gap="20px"
@@ -988,7 +1282,7 @@ const PriceListEdit = () => {
                         : false
                     }
                   /> */}
-                  <TextField
+                  {/* <TextField
                     sx={{ gridColumn: "span 1" }}
                     fullWidth
                     variant="outlined"
@@ -1025,7 +1319,7 @@ const PriceListEdit = () => {
                       params.mode === "view" ||
                       params.mode === "edit"
                     }
-                  />
+                  /> */}
                   <TextField
                     sx={{ gridColumn: "span 1" }}
                     fullWidth
@@ -1033,7 +1327,7 @@ const PriceListEdit = () => {
                     type="text"
                     id="priceListDescription"
                     name="priceListDescription"
-                    label="Price List Description"
+                    label="Price List"
                     value={values.priceListDescription}
                     autoComplete="off"
                     onChange={handleChange}
@@ -1051,7 +1345,7 @@ const PriceListEdit = () => {
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
                   />
-
+                  
                   <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="column"
@@ -1107,8 +1401,21 @@ const PriceListEdit = () => {
                     value={values.catName}
                     onChange={(newValue) => setFieldValue("catName", newValue)}
                     label="Categories"
-                    url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyCode=${state.companyCode}`}
+                    url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyID=${state.companyRecordID}`}
                   />
+                    {/* <FormControlLabel
+                                          sx={{ height: 37.13 }}
+                                          control={
+                                            <Checkbox
+                                              size="small"
+                                              id="IsProprietary"
+                                              name="IsProprietary"
+                                              checked={values.IsProprietary}
+                                              onChange={handleChange}
+                                            />
+                                          }
+                                          label="Proprietary"
+                                        /> */}
                 </Box>
                 <Box
                   display="grid"
@@ -1525,6 +1832,7 @@ const PriceListEdit = () => {
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
                       {state.id ? (
+                        // <></>
                         <Button
                           variant="contained"
                           color="info"
@@ -1533,7 +1841,7 @@ const PriceListEdit = () => {
                           onClick={() => {
                             getOtherItems(
                               values,
-                              isShowOtherItem ? "OT" : "PL"
+                              isShowOtherItem ? "OT" : "AP"
                             );
                             setIsOtherItem(!isShowOtherItem);
                           }}
@@ -1567,10 +1875,10 @@ const PriceListEdit = () => {
                           isSubmitting ||
                           params.mode === "delete" ||
                           params.mode === "view" || errorMsg != ""
-                        }
-                        type="submit"
+                        }type="submit"
+                        onClick={() => (submitActionRef.current = "apply")}
                       >
-                        Apply Filters & Save
+                        Apply Filters
                       </Button>
 
                       {state.id ? (
@@ -1610,7 +1918,7 @@ const PriceListEdit = () => {
                   </Stack>
                   <Box
                     sx={{
-                      height: 440,
+                      height: 390,
                       gridColumn: "span 2",
                       "& .name-column--cell": {
                         color: theme.palette.info.contrastText,
@@ -1660,8 +1968,127 @@ const PriceListEdit = () => {
                       },
                     }}
                   >
+                     {/* Controls Section */}
+      <Box
+        sx={{
+          height: 30,
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 2,
+          width: "100%",
+          padding: "5px",
+          mb:2
+        }}
+      >
+          <TextField
+          label="Search"
+          variant="standard"
+          size="small"
+          // startIcon={<searcIco}
+          value={quickFilterText}
+          onChange={(e) => setQuickFilterText(e.target.value)}
+          sx={{ mb: 1, width: 300 }}
+        />
+        <OptimizedAdHocAutocomplete
+          errors={isItemExistsError}
+          helper={isItemExistsError && "please select an item!"}
+          disabled={params.mode === "delete" || params.mode === "view"}
+          name="adHocItem"
+          id="adHocItem"
+          value={addPriceListData}
+          // onChange={handleSelectionAddPriceListData}
+          onChange={(event, newValue) => {
+            setFieldValue("adHocItem", newValue);
+            setSubmitting(false);
+            setAddPriceListData(newValue);
+          }}
+          label="Item"
+          url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
+        />
+{/* <FormikCustomAutocompleteMulti
+                        name="adHocItem"
+                        id="adHocItem"
+                        value={values.adHocItem}
+                        onChange={(event, newValue) => {
+                          setFieldValue("adHocItem", newValue);
+                          setSubmitting(false);
+                        }}
+                        label="AdHocItem"
+                        url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
+                        // disabled={
+                        //   params.mode === "delete" ||
+                        //   values.classIDInEx === "IncludeAll" ||
+                        //   params.mode === "view"
+                        //     ? true
+                        //     : false
+                        // }
+                      /> */}
+        <Button
+          variant="contained"
+          color="info"
+          sx={{width:300,height:30}}
+          onClick={async () => {
+            if (addPriceListData && addPriceListData.length > 0) {
+              const isItem = [...priceListItemsData, ...AdHocRows].some((item) =>
+                addPriceListData.some((newItem) =>
+                  lodash.isEqual(item.Item_Number, newItem.Item_Number)
+                )
+              );
+
+              if (isItem) {
+                setIsItemExists(true);
+                setTimeout(() => {
+                  setIsItemExists(false);
+                  setAddPriceListData([]);
+                }, 5000);
+                return;
+              }
+
+              const newAdHocData = addPriceListData.map((row) => ({
+                PriceListID: '',
+                QuotationRecordID: "0",
+                FilterType: "PL",
+                Item_Number: row.Item_Number,
+                Item_Description: row.Item_Description,
+                User: user.role,
+                PriceListRecordID: 0,
+              }));
+
+              const updatedAdhocRows = [...AdHocRows, ...newAdHocData];
+              const response1 = await dispatch(
+                PostAddHocItems({
+                  compID: state.companyRecordID,
+                  adhocdata: newAdHocData,
+                })
+              );
+
+              if (response1.payload.status === "Y") {
+             
+                setOpenAlert1(true);
+                setPostError1(response1.payload.message);
+                setAddPriceListData([]);
+              } else {
+                setOpenAlert1(true);
+                setPostError1(response1.payload.message);
+              }
+                
+            } else {
+              setIsItemExistsError(true);
+              setTimeout(() => {
+                setIsItemExistsError(false);
+              }, 2000);
+            }
+          }}
+          size="small"
+          startIcon={<Add size="small" />}
+          disabled={params.mode === "delete" || params.mode === "view"}
+        > Item
+        </Button>
+      </Box> 
                     <DataGrid
-                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                    columnHeaderHeight={dataGridHeaderFooterHeight}
                       sx={{
                         // This is to override the default height of the footer row
                         "& .MuiDataGrid-footerContainer": {
@@ -1670,22 +2097,42 @@ const PriceListEdit = () => {
                         },
                       }}
                       key={showGridData}
-                      slots={{
-                        loadingOverlay: LinearProgress,
-                        toolbar: CustomToolbar,
-                      }}
+                      // slots={{
+                      //   loadingOverlay: LinearProgress,
+                      //   toolbar: CustomToolbar,
+                      // }}
                       rowHeight={dataGridRowHeight}
-                      rows={
-                        showGridData === 0
-                          ? priceListItemsData
-                          : showGridData === 1
-                          ? priceListItemsData.filter(
-                              (f) => f.AdHocItem === "N"
+                      // rows={[
+                      //   ...(isShowOtherItem 
+                      //       ?  AdHocRows
+                      //       : AdHocRows.filter((f) => f.AdHocItem !== "Y")),
+                      //       ...priceListItemsData
+                      //   // ...(showGridData === 0
+                      //   //   ? priceListItemsData
+                      //   //   : showGridData === 1
+                      //   //   ? .filter((f) => f.AdHocItem === "N")
+                      //   //   : priceListItemsData.filter((f) => f.AdHocItem === "Y"))
+                      // ]}
+                      rows={[
+                        ...(isFilterApplied
+                          ? (
+                              isShowOtherItem
+                                ? FILTERADHoc
+                                : FILTERADHoc.filter(f => f.AdHocItem !== "Y")
                             )
-                          : priceListItemsData.filter(
-                              (f) => f.AdHocItem === "Y"
-                            )
-                      }
+                          : [
+                              ...(isShowOtherItem
+                                ? AdHocRows
+                                : AdHocRows.filter(f => f.AdHocItem !== "Y")),
+                              ...(showGridData === 0
+                                ? priceListItemsData
+                                : showGridData === 1
+                                  ? priceListItemsData.filter(f => f.AdHocItem === "N")
+                                  : priceListItemsData.filter(f => f.AdHocItem === "Y"))
+                            ])
+                      ]}
+                      
+                      
                       columns={columns}
                       loading={priceListItemLoading}
                       disableSelectionOnClick
@@ -1695,6 +2142,9 @@ const PriceListEdit = () => {
                         pagination: {
                           paginationModel: { pageSize: dataGridPageSize },
                         },
+                      }} filterModel={{
+                        items: [],
+                        quickFilterValues: [quickFilterText],
                       }}
                       pageSizeOptions={dataGridpageSizeOptions}
                       columnVisibilityModel={{
@@ -1702,6 +2152,7 @@ const PriceListEdit = () => {
                         AdHocItem: isShowOtherItem,
                         Action: isShowOtherItem,
                         OtherItemPriceListID: !isShowOtherItem,
+                        AdHocItem: false,
                       }}
                       disableColumnFilter
                       disableColumnSelector
@@ -1721,7 +2172,7 @@ const PriceListEdit = () => {
                         border: "1px solid red",
                         borderRadius: 1,
                         backgroundColor: "#ffe6e6",
-                        minHeight: 40, // Ensure consistent heigh
+                        minHeight: 30, // Ensure consistent heigh
                         minWidth: 300, // Ensure consistent width
                       }}
                     >
@@ -1893,7 +2344,8 @@ const PriceListEdit = () => {
                       size="small"
                       onClick={() => {
                         setIsItemExists(false);
-                        setAddPriceListData(null);
+                        setAddPriceListData([]);
+                        
                       }}
                     >
                       Close
@@ -1961,6 +2413,7 @@ const PriceListEdit = () => {
                   // navigate(-1);
                   // dispatch(clearPriceListState());
                   setOpenAlert(false);
+                  
                 }}
               >
                 Close
@@ -1982,11 +2435,12 @@ const PriceListEdit = () => {
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "flex-end",
+                justifyContent: "center",
                 width: "100%",
               }}
             >
-              {params.mode != "delete" && (
+              {params.mode != "delete" ? (
+                <>
                 <Button
                   sx={{ mr: 1, height: 25 }}
                   variant="contained"
@@ -1995,13 +2449,31 @@ const PriceListEdit = () => {
                   onClick={() => {
                     setSuccessMessage(null);
                     setPostError(null);
+                    dispatch(getPriceListData({ id: priceListRecordID }));
                     setOpenAlert(false);
+
                   }}
                 >
                   Close
                 </Button>
-              )}
-              <Button
+                 <Button
+                 sx={{ mr: 1, height: 25 }}
+                 variant="contained"
+                 color="info"
+                 size="small"
+                 onClick={() => {
+                   navigate("/pages/control-panel/price-list");
+                   setOpenAlert(false);
+                   setSuccessMessage(null);
+                   setPostError(null);
+                 }}
+               >
+                 Back To Price List
+               </Button>
+               </>
+ 
+              ) : (
+                <Button
                 sx={{ mr: 1, height: 25 }}
                 variant="contained"
                 color="info"
@@ -2013,9 +2485,10 @@ const PriceListEdit = () => {
                   setPostError(null);
                 }}
               >
-                Back To Price List
+                OK
               </Button>
-            </Box>
+              )}
+                         </Box>
           )
         }
       />
@@ -2122,8 +2595,68 @@ const PriceListEdit = () => {
           </Box>
         }
       />
+   <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle>Price List Information</DialogTitle>
+        <DialogContent dividers>
+          <List>
+            {infoItems.map((item, index) => (
+              <React.Fragment key={index}>
+                <ListItem alignItems="flex-start">
+                  <ListItemText
+                    primary={<Typography variant="subtitle1" fontWeight="bold">{item.title}</Typography>}
+                    secondary={<Typography variant="body2" color="textSecondary">{item.description}</Typography>}
+                  />
+                </ListItem>
+                {index < infoItems.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
 
 export default PriceListEdit;
+const infoItems = [
+  {
+    title: 'Save',
+    description: `This button will save the entire page data, including Header Information (PRICELIST), 
+      Filter Conditions (PRICELISTCONDITIONS), Price List Items (PRICELISTITEMS), and Ad Hoc Items 
+      (also PRICELISTITEMS), to their respective tables.`
+  },
+  {
+    title: 'Apply Filter',
+    description: `This button is used to apply various filter combinations such as Brand, Commodity, 
+      Alternate Class, Vendor, Fresh/Frozen, etc., along with the inclusion or exclusion of broken 
+      and damaged items. Based on the selected filter conditions, it retrieves item information from 
+      the ITEMS_ORG table. Only items that are not already included in any other price list will be 
+      displayed. These displayed items will not be inserted into the table until the user clicks the Save button.`
+  },
+  {
+    title: 'Adhoc Item',
+    description: `This button is used to add random items that are not part of any existing price list. 
+      If a selected item already exists in another price list, it cannot be added as an ad hoc item. 
+      Only items not present in any existing price list can be added.`
+  },
+  {
+    title: 'Clear Filter',
+    description: `This button is used to clear the filter conditions and items, resetting everything to a fresh, empty state.`
+  },
+  {
+    title: 'Buyer Dropdown',
+    description: `It is used to list the buyers from the ITEMS_ORG table.`
+  },
+  {
+    title: 'Category Dropdown',
+    description: `It is used to display a list of categories that belong to the selected company 
+      (chosen from the Pricelist Listview Company dropdown) from the PRINTGROUP table.`
+  },
+  {
+    title: 'Adhoc Item Dropdown',
+    description: `It is used to display a list of items from the ITEMS_ORG table.`
+  }
+];

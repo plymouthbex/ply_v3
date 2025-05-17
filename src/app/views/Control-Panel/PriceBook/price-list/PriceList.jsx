@@ -94,7 +94,7 @@ const PriceList = () => {
   const handleCustomerSelectData = (newValue) => {
     setCustomerSelectData(newValue);
   };
-
+  const [rowSelectionID, setRowSelectionID] = React.useState("")
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
   // ********************** REDUX STATE ********************** //
@@ -158,7 +158,7 @@ const PriceList = () => {
                     "/pages/control-panel/price-list/price-list-detail/edit",
                     {
                       state: {
-                        id: params.row.PRICELISTID,
+                        id: params.row.RecordID,
                         companyCode: companyID,
                         companyRecordID:companyRecordID
                       },
@@ -179,7 +179,7 @@ const PriceList = () => {
                     "/pages/control-panel/price-list/price-list-detail/delete",
                     {
                       state: {
-                        id: params.row.PRICELISTID,
+                        id: params.row.RecordID,
                         companyCode: companyID,
                         companyRecordID:companyRecordID
                       },
@@ -200,7 +200,7 @@ const PriceList = () => {
                     "/pages/control-panel/price-list/price-list-detail/view",
                     {
                       state: {
-                        id: params.row.PRICELISTID,
+                        id: params.row.RecordID,
                         companyCode: companyID,
                         companyRecordID:companyRecordID
                       },
@@ -299,11 +299,13 @@ const PriceList = () => {
 
   const PriceListSaveFn = async (values, setSubmitting) => {
     const postData = {
+      RecordID:rowSelectionID,
       PriceListID: values.PriceListID,
       PrintSequence: values.PrintSequence,
       priceListDescription:values.priceListDescription,
     };
-    try {
+    console.log("🚀 ~ PriceListSaveFn ~ postData:", postData)
+        try {
       const response = await dispatch(UpdateSeqPriceList({ data: postData }));
 
       if (response.payload.status === "Y") {
@@ -447,11 +449,12 @@ const PriceList = () => {
               // checkboxSelection
               onRowClick={(params) => {
                 setPriceBookCateData(params.row);
+                setRowSelectionID(params.row.RecordID)
                 setIsSide(true);
               }}
               // disableSelectionOnClick
               // disableRowSelectionOnClick
-              getRowId={(row) => row.PRICELISTID}
+              getRowId={(row) => row.RecordID}
               initialState={{
                 pagination: { paginationModel: { pageSize: dataGridPageSize } },
               }}

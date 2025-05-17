@@ -67,6 +67,7 @@ import useAuth from "app/hooks/useAuth";
 import {
   CompanyPriceListAutoComplete,
   CompanyPriceListAutoCompleteMemo,
+  CompanyPriceListCusAutoComplete,
 } from "app/components/FormikAutocomplete";
 
 // ******************** STYLED COMPONENTS ******************** //
@@ -150,6 +151,7 @@ const ConfigureEdit = () => {
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
+  const [removeRecordID, setremoveRecordID] = useState(0);
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getconfigureData);
@@ -160,11 +162,13 @@ const ConfigureEdit = () => {
   const addedRows = useSelector(
     (state) => state.getSlice.configurePriceListAddedData
   );
+  console.log("🚀 ~ ConfigureEdit ~ addedRows:", addedRows)
 
-  const getRowsSet = new Set(getRows.map((item) => item.PRICELISTID));
-  const filteredSelectedItems = getRows.filter(
-    (selectedItem) => !getRowsSet.has(selectedItem.PRICELISTID)
+  const getRowsSet = new Set(getRows.map((item) => item.RecordID));
+  const filteredSelectedItems = addedRows.filter(
+    (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
   );
+  console.log("🚀 ~ ConfigureEdit ~ filteredSelectedItems:", filteredSelectedItems)
 
   const loading = useSelector((state) => state.getSlice.getconfigureLoading);
   const status = useSelector((state) => state.getSlice.getconfigureStatus);
@@ -180,16 +184,16 @@ const ConfigureEdit = () => {
   // ********************** COLUMN ********************** //
 
   const columns = [
+    // {
+    //   headerName: "Name",
+    //   field: "PRICELISTID",
+    //   width: "170",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: false,
+    // },
     {
-      headerName: "Name",
-      field: "PRICELISTID",
-      width: "170",
-      align: "left",
-      headerAlign: "left",
-      hide: false,
-    },
-    {
-      headerName: "Description",
+      headerName: "Price List",
       field: "PRICELISTDESCRIPTION",
       width: "300",
       align: "left",
@@ -225,6 +229,7 @@ const ConfigureEdit = () => {
                 size="small"
                 onClick={() => {
                   setremovePriceListID(param.row.PRICELISTID);
+                  setremoveRecordID(param.row.RecordID);
                   setremovePriceListDesc(param.row.PRICELISTDESCRIPTION);
                   setIsRemovePriceList(true);
                 }}
@@ -339,10 +344,7 @@ const ConfigureEdit = () => {
   const handleAddPriceList = async () => {
     if (addPriceListData.length > 0) {
       // Prepare price data and dispatch the action
-      const pricedata = {
-        RecordID: data.RecordID,
-        priceListID: addPriceListData.PRICELISTID,
-      };
+  
 
       const response = await dispatch(
         PostConfigurePriceListID({
@@ -350,11 +352,13 @@ const ConfigureEdit = () => {
           RecordID: data.RecordID,
         })
       );
-
+      dispatch(getConfigPriceBook({ ID: State.RecordID }));
+      const action = dispatch(getConfigPriceBook({ ID: State.RecordID }));
       if (response.payload.status === "Y") {
-        // dispatch(configureAddedPriceList);
-        dispatch(getConfigPriceBook2({ ID: State.RecordID }));
-        setAddPriceListData([]);
+        // dispatch(configureAddedPriceList(addPriceListData));
+ 
+        console.log("🚀 ~ handleAddPriceList ~ dispatched action:", action);
+                setAddPriceListData([]);
       }
     } else {
       // Handle case where no price list data is selected
@@ -550,7 +554,7 @@ const ConfigureEdit = () => {
                     </Stack>
                
                   <Stack direction={"row"} gap={1} sx={{gridColumn:"span 2"}} justifyContent={"flex-end"}>
-                    <CompanyPriceListAutoComplete
+                    <CompanyPriceListCusAutoComplete
                       key={JSON.stringify(getRows)}
                       errors={isPriceListExistsError}
                       helper={
@@ -564,7 +568,7 @@ const ConfigureEdit = () => {
                       value={addPriceListData}
                       onChange={handleSelectionAddPriceListData}
                       label="Include Price List"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceList/GetCustomerCategoryPriceList?CompanyID=${data.CompanyID}`}
                       filterData={[...getRows, ...filteredSelectedItems]}
                     />
                     <Tooltip title="Add">
@@ -661,7 +665,7 @@ const ConfigureEdit = () => {
                       columns={columns}
                       disableSelectionOnClick
                       disableRowSelectionOnClick
-                      getRowId={(row) => row.PRICELISTID}
+                      getRowId={(row) => row.RecordID}
                       initialState={{
                         pagination: { paginationModel: { pageSize: 20 } },
                       }}
@@ -694,7 +698,7 @@ const ConfigureEdit = () => {
                       size="small"
                       onClick={async () => {
                         const Pdata = {
-                          PriceListID: removePriceListID,
+                          RecordID: removeRecordID,
                           PriceBookRecordID: data.RecordID,
                         };
                         const response = await dispatch(
@@ -704,10 +708,11 @@ const ConfigureEdit = () => {
                         );
                         if (response.payload.status === "Y") {
                           // dispatch(configureAddedPriceList);
-                          dispatch(getConfigPriceBook2({ ID: State.RecordID }));
+                          dispatch(getConfigPriceBook({ ID: State.RecordID }));
                         }
                         setIsRemovePriceList(false);
                         setremovePriceListID(0);
+                        setremoveRecordID(0);
                         setremovePriceListDesc("");
                       }}
                     >
@@ -720,6 +725,7 @@ const ConfigureEdit = () => {
                       onClick={() => {
                         setIsRemovePriceList(false);
                         setremovePriceListID(0);
+                        setremoveRecordID(0);
                         setremovePriceListDesc("");
                       }}
                     >

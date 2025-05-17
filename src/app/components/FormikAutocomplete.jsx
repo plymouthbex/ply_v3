@@ -187,7 +187,7 @@ export function CusListRunGrpOptimizedAutocomplete({
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-
+  const [inputValue, setInputValue] = React.useState("");
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -222,6 +222,13 @@ export function CusListRunGrpOptimizedAutocomplete({
       multiple={multiple}
       limitTags={1}
       open={open}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       value={value}
@@ -280,7 +287,7 @@ export function CompanyPriceListAutoComplete({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = React.useState("");
-  
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -289,10 +296,10 @@ export function CompanyPriceListAutoComplete({
           headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
         const existingItems = new Set(
-          filterData.map((item) => item.PRICELISTID)
+          filterData.map((item) => item.RecordID)
         );
         const filteredOptions = (data.data || []).filter(
-          (option) => !existingItems.has(option.PRICELISTID)
+          (option) => !existingItems.has(option.RecordID)
         );
 
         setOptions(filteredOptions);
@@ -314,6 +321,7 @@ export function CompanyPriceListAutoComplete({
         "& .MuiAutocomplete-tag": { maxWidth: "90px" },
         maxWidth: 500,
         minWidth: 450,
+        marginLeft:30,
       }}
       size="small"
       multiple={multiple}
@@ -332,11 +340,9 @@ export function CompanyPriceListAutoComplete({
       onChange={onChange}
       options={options}
       isOptionEqualToValue={(option, value) =>
-        option.PRICELISTID === value.PRICELISTID
+        option.RecordID === value.RecordID
       }
-      getOptionLabel={(option) =>
-        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
-      }
+      getOptionLabel={(option) => `${option.PRICELISTDESCRIPTION}`}
       disableCloseOnSelect
       disableListWrap
       loading={loading}
@@ -344,7 +350,7 @@ export function CompanyPriceListAutoComplete({
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
           <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
-          {`${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+          {`${option.PRICELISTDESCRIPTION}`}
         </li>
       )}
       renderInput={(params) => (
@@ -368,6 +374,114 @@ export function CompanyPriceListAutoComplete({
     />
   );
 }
+
+
+export function CompanyPriceListCusAutoComplete({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  errors,
+  helper,
+  filterData,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = React.useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        const existingItems = new Set(
+          filterData.map((item) => item.PriceListRecordID)
+        );
+        const filteredOptions = (data.data || []).filter(
+          (option) => !existingItems.has(option.RecordID)
+        );
+
+        console.error("Error fetching data-------------1:", filterData);
+        console.error("Error fetching data-------------2:", filteredOptions);
+        setOptions(filteredOptions);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const timeout = setTimeout(fetchData, 500); // Debounce API call
+
+    return () => clearTimeout(timeout); // Cleanup timeout
+  }, []);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+        maxWidth: 500,
+        minWidth: 450,
+        marginLeft:30,
+      }}
+      size="small"
+      multiple={multiple}
+      limitTags={2}
+      open={open}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) =>
+        option.RecordID === value.RecordID
+      }
+      getOptionLabel={(option) => `${option.PRICELISTDESCRIPTION}`}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
+          {`${option.PRICELISTDESCRIPTION}`}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          error={errors}
+          helperText={helper}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+
 
 // export const CusListRunGrpOptimizedAutocomplete = ({
 //   value = [],
@@ -501,6 +615,7 @@ export function FormikCustomAutocompleteMulti({
   ...props
 }) {
   const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = React.useState("");
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -539,6 +654,14 @@ export function FormikCustomAutocompleteMulti({
       options={options}
       isOptionEqualToValue={(option, value) => option.Name === value.Name}
       getOptionLabel={(option) => option.Name || ""}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        //console.log("reason",reason)
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
       disableCloseOnSelect
       disableListWrap
       loading={loading}
@@ -580,6 +703,7 @@ export function FormikCustomAutocompleteMultiAdHocItems({
   ...props
 }) {
   const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = React.useState("");
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -635,6 +759,13 @@ export function FormikCustomAutocompleteMultiAdHocItems({
       disableCloseOnSelect
       disableListWrap
       loading={loading}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
+      inputValue={inputValue}
       ListboxComponent={ListboxComponent1}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 40 }}>
@@ -673,6 +804,7 @@ export function FormikCustomAutocompleteMultiPriceList({
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = React.useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -707,19 +839,26 @@ export function FormikCustomAutocompleteMultiPriceList({
       onChange={onChange}
       options={options}
       isOptionEqualToValue={(option, value) =>
-        option.PRICELISTID === value.PRICELISTID
+        option.RecordID === value.RecordID
       }
       getOptionLabel={(option) =>
-        `${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`
+        ` ${option.PRICELISTDESCRIPTION}`
       }
       disableCloseOnSelect
       disableListWrap
       loading={loading}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
+      inputValue={inputValue}
       ListboxComponent={ListboxComponent}
       renderOption={(props, option, { selected }) => (
         <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
           <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
-          {`${option.PRICELISTID} || ${option.PRICELISTDESCRIPTION}`}
+          {`${option.PRICELISTDESCRIPTION}`}
         </li>
       )}
       renderInput={(params) => (
@@ -752,6 +891,7 @@ export function FormikCustomAutocompleteMultiCompany({
 }) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [inputValue, setInputValue] = React.useState("");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -787,6 +927,13 @@ export function FormikCustomAutocompleteMultiCompany({
       value={value}
       onChange={onChange}
       options={options}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
       isOptionEqualToValue={(option, value) =>
         option.RecordID === value.RecordID
       }
@@ -832,6 +979,7 @@ export function FormikCustomAutocompleteMultiCustomer({
 }) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [inputValue, setInputValue] = React.useState("");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -873,6 +1021,13 @@ export function FormikCustomAutocompleteMultiCustomer({
       getOptionLabel={(option) =>
         `${option.CustomerNumber} || ${option.CustomerName}`
       }
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+              // prevent inputValue from being cleared on selection
+              if (reason !== "reset") {
+                setInputValue(newInputValue);
+              }
+            }}
       disableCloseOnSelect
       disableListWrap
       loading={loading}

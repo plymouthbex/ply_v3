@@ -13,7 +13,7 @@ import { Breadcrumb } from "app/components";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { themeColors } from "app/components/baseTheme/themeColors";
-import { dataGridHeaderFooterHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight } from "app/utils/constant";
+import { dataGridHeaderFooterHeight, dataGridHeight, dataGridPageSize, dataGridpageSizeOptions, dataGridRowHeight } from "app/utils/constant";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -159,7 +159,8 @@ const QuoteList = () => {
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Box
           sx={{
-            height: "400px",
+            // height: "400px",
+            height:dataGridHeight,
             "& .MuiDataGrid-root": {
               border: "none",
             },
@@ -180,6 +181,13 @@ const QuoteList = () => {
               borderTop: "none",
               backgroundColor: colors.blue.palette.info.main,
               color: colors.blue.palette.info.contrastText,
+            },
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: theme.palette.action.hover,
+            },
+
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
             },
             "& .MuiCheckbox-root": {
               color: "#174c4f !important",

@@ -96,7 +96,21 @@ const validationSchema = Yup.object({
     .email("Must be a valid email")
     .required("Email is required"),
 });
+const formatPhoneNumber = (value) => {
+  // Remove all non-digit characters
+  const phoneNumber = value.replace(/\D/g, '');
 
+  // Format only if 10 digits
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`; // Truncate after 10 digits
+  }
+};
 // ******************** Price List Edit SCREEN  ******************** //
 const ContactEdit = () => {
   // ******************** HOOKS AND CONSTANTS ******************** //
@@ -341,6 +355,7 @@ const ContactEdit = () => {
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
+                    disabled={params?.mode === "delete"}
                   />
                   <TextField
                     fullWidth
@@ -357,6 +372,7 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={!!touched.lastName && !!errors.lastName}
                     helperText={touched.lastName && errors.lastName}
+                    disabled={params?.mode === "delete"}
                   />
 
                   <TextField
@@ -369,8 +385,18 @@ const ContactEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     value={values.phonenumber}
+                    disabled={params?.mode === "delete"}
                     autoComplete="off"
-                    onChange={handleChange}
+                    //onChange={handleChange}
+                    onChange={(e) => {
+                      const formattedPhone = formatPhoneNumber(e.target.value);
+                      handleChange({
+                        target: {
+                          name: e.target.name,
+                          value: formattedPhone,
+                        },
+                      });
+                    }}
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
@@ -383,6 +409,7 @@ const ContactEdit = () => {
                     onChange={handleChange}
                     label="Service Provider"
                     url={`${process.env.REACT_APP_BASE_URL}ProviderDropDown`}
+                    disabled={params?.mode === "delete"}
                   />
                   {/* <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -425,6 +452,7 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
+                    disabled={params?.mode === "delete"}
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -436,6 +464,7 @@ const ContactEdit = () => {
                     </FormLabel>
                     <Stack direction="row" gap={2}>
                       <FormControlLabel
+                        disabled={params?.mode === "delete"}
                         control={
                           <Checkbox
                             id="preferedMail"
@@ -447,6 +476,7 @@ const ContactEdit = () => {
                         label="Email"
                       />
                       <FormControlLabel
+                        disabled={params?.mode === "delete"}
                         control={
                           <Checkbox
                             id="preferedMobile"
@@ -496,6 +526,7 @@ const ContactEdit = () => {
                   </Stack> */}
 
                   <FormControlLabel
+                    disabled={params?.mode === "delete"}
                     control={
                       <Checkbox
                         size="small"

@@ -275,9 +275,9 @@ const ProprietaryItems = () => {
             "& .MuiDataGrid-row:nth-of-type(even)": {
               backgroundColor: theme.palette.action.hover,
             },
-            // "& .MuiDataGrid-row:nth-of-type(odd)": {
-            //   backgroundColor: theme.palette.background.default,
-            // },
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: theme.palette.background.default,
+            },
             "& .MuiDataGrid-row.Mui-selected:hover": {
               backgroundColor: `${theme.palette.action.selected} !important`,
             },

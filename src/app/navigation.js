@@ -34,7 +34,7 @@ export const navigations = [
         fav: false,
       },
       {
-        name: "Build A Price List",
+        name: "Build Price List",
         icon: <DescriptionIcon fontSize="small" />,
         path: "/pages/pricing-portal/build-price-list/new",
         accessID: "PPB005",
@@ -54,6 +54,14 @@ export const navigations = [
         path: "/pages/pricing-portal/contact-directory",
         iconText: "C",
         accessID: "PPB015",
+        icon: <DescriptionIcon fontSize="small" />,
+        role: authRoles.admin,
+      },
+      {
+        name: "Enquiry",
+        path: "/pages/pricing-portal/enquiry",
+        iconText: "C",
+        accessID: "PPB016",
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },

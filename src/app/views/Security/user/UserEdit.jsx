@@ -132,6 +132,21 @@ const validationSchema = Yup.object({
   )
   .required("Phone number is required")
 });
+const formatPhoneNumber = (value) => {
+  // Remove all non-digit characters
+  const phoneNumber = value.replace(/\D/g, '');
+
+  // Format only if 10 digits
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`; // Truncate after 10 digits
+  }
+};
 
 // ******************** Price List Edit SCREEN  ******************** //
 const UserEdit = () => {
@@ -271,6 +286,7 @@ const UserEdit = () => {
   const [UserName, setSelectUserName] = useState(name);
   const [UserID, setSelectUserID] = useState(null);
   const [companyCode, setCompanyCode] = useState(null);
+  const [companyId, setCompanyId] = useState(null);
   console.log("🚀 ~ UserEdit ~ companyCode:", companyCode)
   
 
@@ -334,12 +350,7 @@ const UserEdit = () => {
       passwordChanged = 1;
     }
 
-    if (
-      UserName === "User" &&
-      (!values.runGroup || values.runGroup.length === 0)
-    ) {
-      setOpenUser(true);
-    } else {
+    //  else {
       userData = {
         recordID: data.RecordID,
         firstname: values.firstname,
@@ -369,7 +380,7 @@ const UserEdit = () => {
         setOpenAlert(true);
         setPostError(response.payload.message);
       }
-    }
+    // }
   };
 
   // ******************** DELETE ******************** //
@@ -391,6 +402,7 @@ const UserEdit = () => {
     }
   };
   function CustomToolbar() {
+    // console.log("🚀 ~ UserEdit ~ COMPID:", COMPID)
     return (
       <GridToolbarContainer
         sx={{
@@ -416,6 +428,10 @@ const UserEdit = () => {
       </GridToolbarContainer>
     );
   }
+  // const GETCOMPID=JSON.parse(data.Company)
+  // const COMPID=GETCOMPID.RecordID;
+  
+  // console.log("🚀 ~ UserEdit ~ COMPID:", COMPID)
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -620,6 +636,36 @@ const UserEdit = () => {
                       }}
                     />
                     <TextField
+  fullWidth
+  variant="outlined"
+  type="text"
+  id="phonenumber"
+  name="phonenumber"
+  required
+  InputLabelProps={{
+    sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+  }}
+  label="Phone"
+  size="small"
+  sx={{ gridColumn: "span 2" }}
+  value={values.phonenumber}
+  onChange={(e) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    handleChange({
+      target: {
+        name: e.target.name,
+        value: formattedPhone,
+      },
+    });
+  }}
+  autoComplete="off"
+  onBlur={handleBlur}
+  disabled={params?.mode === "delete"}
+  error={touched.phonenumber && Boolean(errors.phonenumber)}
+  helperText={touched.phonenumber && errors.phonenumber}
+/>
+
+                    {/* <TextField
                       fullWidth
                       variant="outlined"
                       type="text"
@@ -639,7 +685,7 @@ const UserEdit = () => {
                       disabled={params?.mode === "delete"}
                       error={touched.phonenumber && Boolean(errors.phonenumber)}
                       helperText={touched.phonenumber && errors.phonenumber}
-                    />
+                    /> */}
                     {/* <TextField
                     fullWidth
                     variant="outlined"
@@ -772,6 +818,7 @@ const UserEdit = () => {
                         setFieldValue("defaultCompany", newValue);
                         if(newValue){
                         setCompanyCode(newValue.Code);
+                        setCompanyId(newValue.RecordID)
                         }else{
                           setCompanyCode(null)
                         }
@@ -815,7 +862,7 @@ const UserEdit = () => {
                         setFieldValue("runGroup", newValue)
                       }
                       label="Default Price Book Group"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?CompanyCode=${companyCode}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${companyId || data.CompanyID}`}
                     />
                   </Stack>
                   <Card sx={{ gridColumn: "span 2" }}>

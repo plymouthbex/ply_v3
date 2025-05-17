@@ -110,7 +110,21 @@ const validationSchema = Yup.object({
     .email("Must be a valid email")
     .required("Email is required"),
 });
+const formatPhoneNumber = (value) => {
+  // Remove all non-digit characters
+  const phoneNumber = value.replace(/\D/g, '');
 
+  // Format only if 10 digits
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`; // Truncate after 10 digits
+  }
+};
 // ******************** Price List Edit SCREEN  ******************** //
 const ContactEdit = () => {
   // ******************** HOOKS AND CONSTANTS ******************** //
@@ -399,7 +413,16 @@ const ContactEdit = () => {
                     sx={{ gridColumn: "span 2" }}
                     value={values.phonenumber}
                     autoComplete="off"
-                    onChange={handleChange}
+                    //onChange={handleChange}
+                    onChange={(e) => {
+                      const formattedPhone = formatPhoneNumber(e.target.value);
+                      handleChange({
+                        target: {
+                          name: e.target.name,
+                          value: formattedPhone,
+                        },
+                      });
+                    }}
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}

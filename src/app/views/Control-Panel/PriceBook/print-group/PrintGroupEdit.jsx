@@ -50,6 +50,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
+  deleteCategoriesData,
   deletePrintGroupData,
   postPrintGroupData,
 } from "app/redux/slice/postSlice";
@@ -93,7 +94,7 @@ const PrintGroupEdit = () => {
   const [isRemovePriceList, setIsRemovePriceList] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
   const [removePriceListdDesc, setremovePriceListDesc] = useState("");
-  const [ID, setId] = useState("");
+  const [ID, setId] = useState({});
   const [addPriceListData, setAddPriceListData] = useState([]);
   const handleSelectionAddPriceListData = (e, newValue) => {
     setAddPriceListData(newValue);
@@ -112,8 +113,20 @@ const PrintGroupEdit = () => {
 
   const getRowsSet = new Set(getRows.map((item) => item.RecordID));
   const filteredSelectedItems = addedRows.filter(
-    (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
-  );
+      (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
+    );
+//   const getRowsSet = new Set(getRows.map((item) => item.RecordID));
+
+
+//   // console.log(getRowsSet,'================getrowsset')
+// let filteredSelectedItems = addedRows.filter(
+//   (selectedItem) => !getRowsSet.has(selectedItem.RecordID)
+// );
+// let filter=getRows.filter((selectedItem)=>selectedItem.RecordID);
+// console.log("🚀 ~ PrintGroupEdit ~ filter:", filter)
+// If removePriceListID is not in getRowsSet, insert it
+
+  console.log("🚀 ~ filteredSelectedItems:", filteredSelectedItems)
 
 
   // ********************** COLUMN ********************** //
@@ -192,120 +205,7 @@ const PrintGroupEdit = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          {/* <FormikCustomSelectCompanyPriceList
-            name="company"
-            id="company"
-            multiple={false}
-            value={companyID}
-            onChange={(e) => {
-              setCompanyID(e.target.value);
-            }}
-            label="Company"
-            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
-          /> */}
-          {/* <PriceListOptimizedAutocomplete
-            errors={isPriceListExistsError}
-            helper={isPriceListExistsError && "Please select price list!"}
-            disabled={params.mode === "delete" || params.mode === "view"}
-            name="addPriceList"
-            id="addPriceList"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Add Price List"
-            companyID={state.companyID}
-            url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${state.companyID}`}
-            // onOpen={handleOpen}
-            filterData={[...getRows, ...filteredSelectedItems]}
-          /> */}
-          {/* <CompanyPriceListAutoComplete
-            key={JSON.stringify(getRows)}
-            errors={isPriceListExistsError}
-            helper={isPriceListExistsError && "Please select price list!"}
-            disabled={params.mode === "delete" || params.mode === "view"}
-            name="addPriceList"
-            id="addPriceList"
-            value={addPriceListData}
-            onChange={handleSelectionAddPriceListData}
-            label="Include Price List"
-            url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyCode=${state.companyID}`}
-            filterData={[...getRows, ...filteredSelectedItems]}
-          />
-          <Tooltip title="Add">
-            <IconButton
-              color="black"
-              sx={{ height: 25 }}
-              size="small"
-              disabled={params.mode === "delete" || params.mode === "view"}
-              onClick={() => {
-                if (addPriceListData.length > 0) {
-                  console.log(
-                    "🚀 ~ CustomToolbar ~ addPriceListData:",
-                    addPriceListData
-                  );
-                  // return
-                  const isItem = [...getRows, ...filteredSelectedItems].some(
-                    (item) =>
-                      lodash.isEqual(item.RecordID, addPriceListData.RecordID)
-                  );
-                  if (isItem) {
-                    setIsPriceListExists(true);
-                    setTimeout(() => {
-                      setIsPriceListExists(false);
-                      setAddPriceListData([]);
-                    }, 5000);
-                    return;
-                  }
-                  dispatch(printGroupAddedItem(addPriceListData));
-                  setAddPriceListData([]);
-                } else {
-                  setIsPriceListExistsError(true);
-                  setTimeout(() => {
-                    setIsPriceListExistsError(false);
-                  }, 2000);
-                }
-              }}
-            >
-              <Add
-                sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }}
-              />
-            </IconButton>
-          </Tooltip> */}
-
-          {/* <Button
-            disabled={params.mode === "delete" || params.mode === "view"}
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => {
-              if (addPriceListData) {
-                const isItem = [...getRows, ...filteredSelectedItems].some(
-                  (item) =>
-                    lodash.isEqual(item.RecordID, addPriceListData.RecordID)
-                );
-                if (isItem) {
-                  setIsPriceListExists(true);
-                  setTimeout(() => {
-                    setIsPriceListExists(false);
-                    setAddPriceListData(null);
-                  }, 5000);
-                  return;
-                }
-                dispatch(printGroupAddedItem(addPriceListData));
-                setAddPriceListData(null);
-              } else {
-                setIsPriceListExistsError(true);
-                setTimeout(() => {
-                  setIsPriceListExistsError(false);
-                }, 2000);
-              }
-            }}
-          >
-            Add
-          </Button> */}
+          
         </Box>
       </GridToolbarContainer>
     );
@@ -479,78 +379,136 @@ const PrintGroupEdit = () => {
               </div>
 
               <Paper sx={{ width: "100%", mb: 2 }}>
+                
                 <Box
-                  display="grid"
-                  gap="20px"
-                  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                  sx={{
-                    "& > div": {
-                      gridColumn: isNonMobile ? undefined : "span 4",
-                    },
-                    padding: "10px",
-                  }}
-                >
-                  <Stack
-                    sx={{ gridColumn: "span 2" }}
-                    direction="column"
-                    gap={1}
-                  >
-                    {/* <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="text"
-                      id="groupCode"
-                      name="groupCode"
-                      label="Category Name"
-                      size="small"
-                      disabled={
-                        params?.mode === "delete" || params?.mode === "edit"
-                      }
-                      onFocus={() => setSubmitting(true)}
-                      onChange={handleChange}
-                      onBlur={(e) => isPrintGroupExists(e, setSubmitting)}
-                      value={values.groupCode}
-                      required
-                      autoComplete="off"
-                      InputLabelProps={{
-                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                      }}
-                      // error={!!touched.groupCode && !!errors.groupCode}
-                      // helperText={touched.groupCode && errors.groupCode}
-                    /> */}
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="text"
-                      id="groupName"
-                      name="groupName"
-                      label="Category"
-                      size="small"
-                      onChange={handleChange}
-                      value={values.groupName}
-                      disabled={params?.mode === "delete"}
-                      required
-                      InputLabelProps={{
-                        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                      }}
-                      autoComplete="off"
-                      // error={!!touched.groupName && !!errors.groupName}
-                      // helperText={touched.groupName && errors.groupName}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="text"
-                      id="SortOrder"
-                      name="SortOrder"
-                      label="Sequence"
-                      size="small"
-                      onChange={handleChange}
-                      value={values.SortOrder}
-                      disabled={params?.mode === "delete"}
-                    />
-                  </Stack>
-                </Box>
+  display="grid"
+  gap="20px"
+  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+  sx={{
+    "& > div": {
+      gridColumn: isNonMobile ? undefined : "span 4",
+    },
+    padding: "10px",
+  }}
+>
+  {/* Left Column */}
+  <Stack
+    sx={{
+      gridColumn: isNonMobile ? "span 2" : "span 4", // Responsive
+    }}
+    direction="column"
+    gap={1}
+  >
+    <TextField
+      fullWidth
+      variant="outlined"
+      type="text"
+      id="groupName"
+      name="groupName"
+      label="Category"
+      size="small"
+      onChange={handleChange}
+      value={values.groupName}
+      disabled={params?.mode === "delete"}
+      required
+      InputLabelProps={{
+        sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+      }}
+      autoComplete="off"
+    />
+    <TextField
+      fullWidth
+      variant="outlined"
+      type="text"
+      id="SortOrder"
+      name="SortOrder"
+      label="Sequence"
+      size="small"
+      onChange={handleChange}
+      value={values.SortOrder}
+      disabled={params?.mode === "delete"}
+    />
+  </Stack>
+
+  {/* Right Column */}
+  <Stack
+  sx={{
+    gridColumn: isNonMobile ? "span 2" : "span 4", // responsive behavior
+  }}
+  direction="column"
+  gap={1}
+>
+  {/* Row with autocomplete and add button */}
+  <Box display="flex" alignItems="center" gap={1}>
+    <CompanyPriceListAutoComplete
+      key={JSON.stringify([...getRows, ...filteredSelectedItems])}
+      errors={isPriceListExistsError}
+      helper={isPriceListExistsError && "Please select price list!"}
+      disabled={params.mode === "delete" || params.mode === "view"}
+      name="addPriceList"
+      id="addPriceList"
+      value={addPriceListData}
+      onChange={handleSelectionAddPriceListData}
+      label="Include Price List"
+      url={`${process.env.REACT_APP_BASE_URL}PriceList/GetCategoryPriceList?CompanyID=${state.companyRecordID}`}
+      filterData={[...getRows, ...filteredSelectedItems]}
+      sx={{ flex: 1 }} // allows autocomplete to take up remaining space
+    />
+    <Tooltip title="Add">
+      <IconButton
+        color="black"
+        sx={{ height: 40 }}
+        size="medium"
+        disabled={params.mode === "delete" || params.mode === "view"}
+        onClick={() => {
+          if (addPriceListData.length > 0) {
+            console.log(
+              "🚀 ~ CustomToolbar ~ addPriceListData:",
+              addPriceListData
+            );
+            // return
+            const isItem = [
+              ...getRows,
+              ...filteredSelectedItems,
+            ].some((item) =>
+              lodash.isEqual(
+                item.RecordID,
+                addPriceListData.RecordID
+              )
+            );
+            if (isItem) {
+              setIsPriceListExists(true);
+              setTimeout(() => {
+                setIsPriceListExists(false);
+                setAddPriceListData([]);
+              }, 5000);
+              return;
+            }
+            dispatch(printGroupAddedItem(addPriceListData));
+            setAddPriceListData([]);
+          } else {
+            setIsPriceListExistsError(true);
+            setTimeout(() => {
+              setIsPriceListExistsError(false);
+            }, 2000);
+          }
+        }}
+      >
+        <Add
+          sx={{
+            fontSize: 30,
+            color: theme.palette.success.main,
+          }}
+        />
+      </IconButton>
+    </Tooltip>
+  </Box>
+</Stack>
+
+
+
+</Box>
+
                 <Box
                   sx={{
                     height: 400,
@@ -608,7 +566,7 @@ const PrintGroupEdit = () => {
                     },
                   }}
                 >
-                  <Stack direction={"row"} gap={1} justifyContent={"flex-end"}>
+                  {/* <Stack direction={"row"} gap={1} justifyContent={"flex-end"}>
                     <CompanyPriceListAutoComplete
                       key={JSON.stringify([...getRows, ...filteredSelectedItems])}
                       errors={isPriceListExistsError}
@@ -623,7 +581,7 @@ const PrintGroupEdit = () => {
                       value={addPriceListData}
                       onChange={handleSelectionAddPriceListData}
                       label="Include Price List"
-                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyID=${state.companyRecordID}`}
+                      url={`${process.env.REACT_APP_BASE_URL}PriceList/GetCategoryPriceList?CompanyID=${state.companyRecordID}`}
                       filterData={[...getRows, ...filteredSelectedItems]}
                     />
                     <Tooltip title="Add">
@@ -676,7 +634,7 @@ const PrintGroupEdit = () => {
                         />
                       </IconButton>
                     </Tooltip>
-                  </Stack>
+                  </Stack> */}
                   <DataGrid
                     columnHeaderHeight={dataGridHeaderFooterHeight}
                     sx={{
@@ -695,7 +653,7 @@ const PrintGroupEdit = () => {
                     columns={columns}
                     disableSelectionOnClick
                     disableRowSelectionOnClick
-                    getRowId={(row) => row.PRICELISTID}
+                    getRowId={(row) => row.RecordID}
                     initialState={{
                       pagination: {
                         paginationModel: { pageSize: dataGridPageSize },
@@ -823,17 +781,33 @@ const PrintGroupEdit = () => {
                       sx={{ mr: 1, height: 25 }}
                       color="info"
                       size="small"
-                      onClick={() => {
-                        dispatch(
-                          printGroupDeletedItem({
-                            id: removePriceListID,
-                            printGroupAddedData: filteredSelectedItems,
-                          })
-                        );
-                        setIsRemovePriceList(false);
-                        setremovePriceListID(0);
-                        setremovePriceListDesc("");
+                      onClick={async () => {
+                        try {
+                          dispatch(
+                            printGroupDeletedItem({
+                              id: removePriceListID,
+                              printGroupAddedData: filteredSelectedItems,
+                            })
+                          );
+                          const response = await dispatch(
+                            deleteCategoriesData({ id: removePriceListID })
+                          );
+                      
+                          if (response.payload?.status === "Y") {
+                            dispatch(getprintGroupData({ id: state.id }));
+                          }
+                      
+                          const removedItem = getRows.find(item => item.RecordID === removePriceListID);
+                          console.log(removedItem, "====removedItem");
+                          setId(removedItem);
+                          setIsRemovePriceList(false);
+                          setremovePriceListID(0);
+                          setremovePriceListDesc("");
+                        } catch (error) {
+                          console.error("Error deleting category data:", error);
+                        }
                       }}
+                      
                     >
                       Yes
                     </Button>
@@ -866,6 +840,7 @@ const PrintGroupEdit = () => {
         error={postError}
         message={postError ? postError : successMessage}
         Actions={
+          params.mode != "delete" ? (
           <Box
             sx={{
               display: "flex",
@@ -914,6 +889,29 @@ const PrintGroupEdit = () => {
               </Button>
             )}
           </Box>
+          ) : (
+            <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <Button
+                sx={{ mr: 1, height: 25 }}
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() => {
+                  navigate("/pages/control-panel/print-group");
+                  setSuccessMessage(null);
+                  setPostError(null);
+                }}
+              >
+                OK
+              </Button>
+            </Box>
+          )
         }
       />
 
