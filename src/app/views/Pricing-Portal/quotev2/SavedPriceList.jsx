@@ -6,7 +6,8 @@ import {
   Button,
   styled,
   useTheme,
-  Stack,Tooltip,IconButton
+   Stack,IconButton,
+   Tooltip
 } from "@mui/material";
 import {
   DataGrid,
@@ -123,7 +124,7 @@ const SavedPriceList = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Copy">
+            {/* <Tooltip title="Copy"> */}
   <IconButton
     color="black"
     size="small"
@@ -137,9 +138,9 @@ const SavedPriceList = () => {
   >
     <ContentCopyIcon fontSize="small" />
   </IconButton>
-</Tooltip>
+{/* </Tooltip> */}
 
-<Tooltip title="Edit">
+{/* <Tooltip title="Edit"> */}
   <IconButton
     color="black"
     size="small"
@@ -153,9 +154,9 @@ const SavedPriceList = () => {
   >
     <ModeEditOutlineIcon fontSize="small" />
   </IconButton>
-</Tooltip>
+{/* </Tooltip> */}
 
-<Tooltip title="Delete">
+{/* <Tooltip title="Delete"> */}
   <IconButton
     color="error"
     size="small"
@@ -166,7 +167,7 @@ const SavedPriceList = () => {
   >
     <DeleteIcon fontSize="small" />
   </IconButton>
-</Tooltip>
+{/* </Tooltip> */}
 
             {/* <Button
               sx={{
@@ -326,51 +327,57 @@ const SavedPriceList = () => {
           sx={{
             // height: "400px",
              height:dataGridHeight,
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
             "& .name-column--cell": {
-              color: "black",
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: colors.blue.palette.info.main,
-              color: colors.blue.palette.info.contrastText,
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: colors.blueDark.palette.info.main,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              borderTop: "none",
-              backgroundColor: colors.blue.palette.info.main,
-              color: colors.blue.palette.info.contrastText,
-            },
-            "& .MuiCheckbox-root": {
-              color: "#174c4f !important",
-            },
-            "& .MuiDataGrid-row:nth-of-type(even)": {
-              backgroundColor: theme.palette.action.hover,
-            },
+                color: theme.palette.info.contrastText,
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+                fontWeight: "bold",
+                fontSize: theme.typography.subtitle2.fontSize,
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: theme.palette.info.light,
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "none",
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+              },
+              "& .MuiCheckbox-root": {
+                color: "black !important", // Set checkbox color to black
+              },
+              // Ensure the checkbox color reflects the selected state
+              "& .MuiCheckbox-root.Mui-checked": {
+                color: "black !important", // Set checkbox color to black when checked
+              },
+              // Alternating row colors
+              "& .MuiDataGrid-row:nth-of-type(even)": {
+                backgroundColor: theme.palette.action.hover, // Color for even rows
+              },
+              "& .MuiDataGrid-row:nth-of-type(odd)": {
+                backgroundColor: theme.palette.background.default, // Color for odd rows
+              },
+              "& .MuiDataGrid-row:hover": {
+                border: "3px solid #999999",
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: "4px", // Optional: Add rounded corners
+              },
+              // Prevent selected row background color from changing on hover
+              // "& .MuiDataGrid-row.Mui-selected:hover": {
+              //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+              // },
+              "& .MuiTablePagination-root": {
+                color: "white !important", // Ensuring white text color for the pagination
+              },
 
-            "& .MuiDataGrid-row:nth-of-type(odd)": {
-              backgroundColor: theme.palette.background.default,
-            },
-            "& .MuiCheckbox-root.Mui-checked": {
-              color: "#174c4f !important",
-            },
-            "& .MuiTablePagination-root": {
-              color: "white !important", // Ensuring white text color for the pagination
-            },
+              "& .MuiTablePagination-root .MuiTypography-root": {
+                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+              },
 
-            "& .MuiTablePagination-root .MuiTypography-root": {
-              color: "white !important", // Ensuring white text for "Rows per page" and numbers
-            },
-
-            "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-              color: "white !important", // Ensuring white icons for pagination
-            },
+              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                color: "white !important", // Ensuring white icons for pagination
+              },
           }}
         >
           <DataGrid

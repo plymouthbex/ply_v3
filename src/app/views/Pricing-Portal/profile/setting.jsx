@@ -185,6 +185,27 @@ const Settings = () => {
 
       const imageresponse1 = await dispatch(postImage({ idata }));
       if (imageresponse1.payload?.Status === "Y") {
+       const company = companyList.find(
+        (value) => value.companyCode === selectedCompanyOptions.Code
+      );
+
+      if (company) {
+        updateUser({
+          ...user,
+          ...company,
+          logo:images[1],
+          homePagelogo:images[1],
+          // defaultRunGroup: isDefaultRunGroupUpdated
+          //   ? selectedRungroupOptions.Name
+          //   : user.defaultRunGroup,
+        });
+        updateCompany();
+        // Check if the selected rungroup name is different from the user's defaultRunGroup
+      } else {
+      }
+     
+      
+      console.log(user)
         setImageList1([]);
         toast.success("Logo updated successfully!");
       } else {

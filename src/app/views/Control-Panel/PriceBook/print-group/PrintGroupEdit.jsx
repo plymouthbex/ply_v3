@@ -162,7 +162,7 @@ const PrintGroupEdit = () => {
       renderCell: (param) => {
         return (
           <Box>
-            <Tooltip title="Remove">
+            {/* <Tooltip title="Remove"> */}
               <IconButton
                 color="error"
                 size="small"
@@ -175,7 +175,7 @@ const PrintGroupEdit = () => {
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </Box>
         );
       },
@@ -369,7 +369,12 @@ const PrintGroupEdit = () => {
                       size="small"
                       startIcon={<ArrowBackIcon size="small" />}
                       onClick={() => {
-                        navigate("/pages/control-panel/print-group");
+                        navigate("/pages/control-panel/print-group",
+                          {
+                            state:  { id: state.companyRecordID, code: state.companyCode }
+                             ,
+                          }
+                        );
                       }}
                     >
                       Back
@@ -454,7 +459,7 @@ const PrintGroupEdit = () => {
       filterData={[...getRows, ...filteredSelectedItems]}
       sx={{ flex: 1 }} // allows autocomplete to take up remaining space
     />
-    <Tooltip title="Add">
+    {/* <Tooltip title="Add"> */}
       <IconButton
         color="black"
         sx={{ height: 40 }}
@@ -501,7 +506,7 @@ const PrintGroupEdit = () => {
           }}
         />
       </IconButton>
-    </Tooltip>
+    {/* </Tooltip> */}
   </Box>
 </Stack>
 
@@ -549,10 +554,14 @@ const PrintGroupEdit = () => {
                     "& .MuiDataGrid-row:nth-of-type(odd)": {
                       backgroundColor: theme.palette.background.default, // Color for odd rows
                     },
-
-                    "& .MuiDataGrid-row.Mui-selected:hover": {
-                      backgroundColor: `${theme.palette.action.selected} !important`,
+                    '& .MuiDataGrid-row:hover': {
+                      border: '3px solid #999999',
+                      // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                      borderRadius: '4px', // Optional: Add rounded corners
                     },
+                    // "& .MuiDataGrid-row.Mui-selected:hover": {
+                    //   backgroundColor: `${theme.palette.action.selected} !important`,
+                    // },
                     "& .MuiTablePagination-root": {
                       color: "white !important", // Ensuring white text color for the pagination
                     },
@@ -696,7 +705,7 @@ const PrintGroupEdit = () => {
                         navigate(
                           "/pages/control-panel/print-group/print-group-detail/edit",
                           {
-                            state: { id: printGroupID },
+                            state: { id: printGroupID, },
                           }
                         );
                         dispatch(getprintGroupData({ id: printGroupID }));
@@ -855,6 +864,7 @@ const PrintGroupEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert(false);
+                setPostError(null);
               }}
             >
               Close
@@ -866,7 +876,7 @@ const PrintGroupEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/price-list");
+                  navigate("/pages/control-panel/price-list",);
                   setSuccessMessage(null);
                   setPostError(null);
                 }}
@@ -880,7 +890,11 @@ const PrintGroupEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/print-group");
+                  navigate("/pages/control-panel/print-group",
+                    {
+                      state:  { id: state.companyRecordID, code: state.companyCode }
+                       ,
+                    });
                   setSuccessMessage(null);
                   setPostError(null);
                 }}
@@ -903,7 +917,11 @@ const PrintGroupEdit = () => {
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/print-group");
+                  navigate("/pages/control-panel/print-group",
+                    {
+                      state:  { id: state.companyRecordID, code: state.companyCode }
+                       ,
+                    });
                   setSuccessMessage(null);
                   setPostError(null);
                 }}

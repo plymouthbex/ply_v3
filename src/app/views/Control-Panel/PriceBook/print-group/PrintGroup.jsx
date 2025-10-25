@@ -6,7 +6,7 @@ import {
   Box,
   styled,
   useTheme,
-  Tooltip,
+  // Tooltip,
   IconButton,
   useMediaQuery,
   TextField,
@@ -31,7 +31,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Add } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
-import { useNavigate } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getPrintGroupListView } from "app/redux/slice/listviewSlice";
 import {
@@ -60,6 +60,9 @@ const PrintGroup = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const State = location.state;
+  console.log("🚀 ~ Category ~ state:", State)
   const { user } = useAuth()
   // ********************** LOCAL STATE ********************** //
   const isNonMobile = useMediaQuery("(min-width:900px)");
@@ -72,7 +75,7 @@ const PrintGroup = () => {
 
   const [priceBookCateData, setPriceBookCateData] = useState({});
   const [companyID, setCompanyID] = useState(user.companyCode);
-  const [companyRecordID, setCompanyRecordID] = useState(user.companyID);
+  const [companyRecordID, setCompanyRecordID] = useState(State.id ?? user.companyID);
   
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
@@ -107,7 +110,7 @@ const PrintGroup = () => {
       renderCell: (params) => {
         return (
           <div>
-            <Tooltip title="Edit">
+            {/* <Tooltip title="Edit"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -122,9 +125,9 @@ const PrintGroup = () => {
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
 
-            <Tooltip title="Delete">
+            {/* <Tooltip title="Delete"> */}
               <IconButton
                 color="error"
                 size="small"
@@ -139,7 +142,7 @@ const PrintGroup = () => {
               >
                 <DeleteIcon color="error" fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -191,7 +194,7 @@ const PrintGroup = () => {
 
           
           <GridToolbarQuickFilter />
-          <Tooltip title="Create New Category">
+          {/* <Tooltip title="Create New Category"> */}
             <IconButton
               color="black"
               size="small"
@@ -211,7 +214,7 @@ const PrintGroup = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
           </Stack>
           {/* <Button
             variant="contained"
@@ -326,11 +329,16 @@ const PrintGroup = () => {
               "& .MuiDataGrid-row:nth-of-type(odd)": {
                 backgroundColor: theme.palette.background.default, // Color for odd rows
               },
-              "& .MuiDataGrid-row.Mui-selected:hover": {
-                backgroundColor: `none !important`,
-              },
-              "& .MuiDataGrid-row.Mui-selected": {
-                border: `1px solid ${theme.palette.success.main}`,
+              // "& .MuiDataGrid-row.Mui-selected:hover": {
+              //   backgroundColor: `none !important`,
+              // },
+              // "& .MuiDataGrid-row.Mui-selected": {
+              //   border: `1px solid ${theme.palette.success.main}`,
+              // },
+              '& .MuiDataGrid-row:hover': {
+                border: '3px solid #999999',
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: '4px', // Optional: Add rounded corners
               },
               "& .MuiTablePagination-root": {
                 color: "white !important", // Ensuring white text color for the pagination
@@ -347,15 +355,15 @@ const PrintGroup = () => {
                 outline: "none !important",
                 backgroundColor: `transparent !important`,
               },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-cell:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-row": {
-                transition: "none !important", // Disable any transition effects
-              },
+              // "& .MuiDataGrid-row:hover": {
+              //   backgroundColor: "transparent !important",
+              // },
+              // "& .MuiDataGrid-cell:hover": {
+              //   backgroundColor: "transparent !important",
+              // },
+              // "& .MuiDataGrid-row": {
+              //   transition: "none !important", // Disable any transition effects
+              // },
             }}
           >
             <DataGrid

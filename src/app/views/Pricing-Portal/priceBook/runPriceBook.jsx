@@ -15,9 +15,10 @@ import {
   DialogActions,
   Tooltip,
   IconButton,
+  Switch,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import React from "react";
+import React, { useMemo } from "react";
 import { Breadcrumb, SimpleCard } from "app/components";
 import { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -198,6 +199,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const runGroupMailIsAction = useSelector(
     (state) => state.postData.runGroupMailIsAction
   );
+  const [isEmailButtonDisabled, setIsEmailButtonDisabled] = useState(false);
 
   const [isRemoveItem, setIsRemoveItem] = useState(false);
   const [openAlert6, setOpenAlert6] = useState(false);
@@ -516,20 +518,47 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
       : null
   );
 
+  // const handleSelectionRunGrpChange = (newValue) => {
+  //   setSelectedRunGrpOptions(newValue);
+  //   if (newValue) {
+  //     dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
+  //       (res) => {
+  //         const allRowIds = res.payload.rows.map((row) => row.id);
+  //         setRowSelectionModel(allRowIds);
+  //       }
+  //     );
+  //   }
+  //   setShowFiltered(false);
+  // };
   const handleSelectionRunGrpChange = (newValue) => {
     setSelectedRunGrpOptions(newValue);
+    setIsEmailButtonDisabled(false); // Re-enable button on selection change
+  
     if (newValue) {
-      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
-        (res) => {
-          const allRowIds = res.payload.rows.map((row) => row.id);
-          setRowSelectionModel(allRowIds);
-        }
-      );
+      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then((res) => {
+        const allRowIds = res.payload.rows.map((row) => row.id);
+        setRowSelectionModel(allRowIds);
+      });
     }
+  
+    setShowFiltered(false);
   };
+  
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(null);
+
+  const [showFiltered, setShowFiltered] = useState(false);
+  const data = runGrpRows
+  .filter(
+    (v) =>
+     v.fppdf || v.fpexcel || v.cppdf || v.cpexcel
+  );
+  console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
+
+  const displayDataRows = showFiltered ? data : runGrpRows;
+
+  console.log("🚀 ~ Displayed Data:", displayDataRows);
   const fnRunGrpEmailProcess = async () => {
     // if (!selectedRunGrpOptions) {
     //   setOpenAlert(true);
@@ -560,14 +589,15 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
         CompnayID: user.companyID,
         CompanyCode: user.companyCode,
         TemplateID: "",
+        ShowPrice:showPrice,
       }));
       console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
-      // return;
     try {
       const response = await dispatch(runGroupMailData({ data }));
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
+        setIsEmailButtonDisabled(true);
       } else {
         setOpenAlert(true);
         setPostError(response.payload.message);
@@ -1008,30 +1038,47 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
 
           {/* Second Row */}
           <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              width: "100%",
-              padding: 1,
-              justifyContent: "space-between",
-              gap: 1,
-            }}
-          >
-            <SingleAutocomplete
-              // sx={{ width: 200 }}
-              focused
-              fullWidth
-              required
-              name="rungroup"
-              id="rungroup"
-              value={selectedRunGrpOptions}
-              onChange={handleSelectionRunGrpChange}
-              label="Price Book Group"
-              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
-            />
+  sx={{
+    display: "flex",
+    flexDirection: "row",
+    // alignItems: "center",
+    width: "100%",
+    padding: 1,
+    justifyContent: "space-between",
+    gap: 2, // Slightly increased for visual clarity
+  }}
+>
+  <SingleAutocomplete
+    fullWidth
+    required
+    name="rungroup"
+    id="rungroup"
+    value={selectedRunGrpOptions}
+    onChange={handleSelectionRunGrpChange}
+    label="Price Book Group"
+    url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
+  />
+   <Stack
+                direction="row"
+                width={"100%"}
+                gap={2}
+                justifyContent={"flex-start"}
+              >
+  <FormControlLabel
 
-            {(user.defaultRunGroup ==
+    control={
+      <Switch
+        checked={showFiltered}
+        onChange={() => setShowFiltered((prev) => !prev)}
+        color="primary"
+      />
+    }
+    label="Show Only Customers Configured"
+  />
+  </Stack>
+</Box>
+</Box>
+            {/* {(user.defaultRunGroup ==
               (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
               user.role == "USER") ||
             (user.SalesReps.includes(
@@ -1089,13 +1136,13 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                       }}
                     />
                   </IconButton> 
-                </Tooltip>*/}
+                </Tooltip>
               </Stack>
             ) : (
               <Stack width={"100%"}></Stack>
-            )}
-          </Box>
-        </Box>
+            )} */}
+          {/* </Box> */}
+       
         <Box
           sx={{
             "& .MuiDataGrid-root": {
@@ -1144,6 +1191,11 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
+            '& .MuiDataGrid-row:hover': {
+                border: '3px solid #999999',
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: '4px', // Optional: Add rounded corners
+              },
           }}
         >
           <DataGrid
@@ -1168,7 +1220,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             //   // setRowSelectionModelRows(filterArray);
             // }}
             // rowSelectionModel={rowSelectionModel}
-            rows={runGrpRows}
+            rows={displayDataRows}
             columns={columns}
             loading={runGrpIsLoading}
             // checkboxSelection
@@ -1232,7 +1284,22 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
           {/* Buttons on the right side */}
 
           <Stack direction="row" justifyContent="end" gap={2}>
-            <Button
+          <Button
+  variant="contained"
+  disabled={isEmailButtonDisabled}
+  sx={{
+    "&:hover": {
+      backgroundColor: theme.palette.secondary.light,
+    },
+    color: theme.palette.secondary.contrastText,
+    bgcolor: theme.palette.secondary.light,
+    fontWeight: "bold",
+  }}
+  onClick={fnRunGrpEmailProcess}
+>
+  Email Price Book(s)
+</Button>
+            {/* <Button
               variant="contained"
               sx={{
                 "&:hover": {
@@ -1248,7 +1315,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
               onClick={fnRunGrpEmailProcess}
             >
               Email Price Book(s)
-            </Button>
+            </Button> */}
 
             <PriceGroupAlertApiDialog
               logo={`data:image/png;base64,${user.logo}`}

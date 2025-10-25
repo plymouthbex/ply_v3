@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   Typography,
   IconButton,
-  Tooltip,
+  // Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -107,7 +107,7 @@ const Contact = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Edit Communication">
+            {/* <Tooltip title="Edit Communication"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -125,7 +125,7 @@ const Contact = () => {
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -219,7 +219,7 @@ const Contact = () => {
           }}
         >
           <GridToolbarQuickFilter />
-          <Tooltip title="Add Contact">
+          {/* <Tooltip title="Add Contact"> */}
             <IconButton
               color="info"
               size="small"
@@ -240,7 +240,7 @@ const Contact = () => {
                   color: theme.palette.success.main,
                 }} />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -357,10 +357,14 @@ const Contact = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
+            '& .MuiDataGrid-row:hover': {
+              border: '3px solid #999999',
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: '4px', // Optional: Add rounded corners
             },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import {
   Box,
   LinearProgress,
@@ -8,6 +8,8 @@ import {
   useTheme,
   Tooltip,
   IconButton,
+  Stack,
+  DialogActions,
 } from "@mui/material";
 import {
   DataGrid,
@@ -16,15 +18,21 @@ import {
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
 import {
-  dataGridHeight, dataGridPageSize,
-  dataGridpageSizeOptions, dataGridRowHeight, dataGridHeaderFooterHeight
+  dataGridHeight,
+  dataGridPageSize,
+  dataGridpageSizeOptions,
+  dataGridRowHeight,
+  dataGridHeaderFooterHeight,
 } from "app/utils/constant";
 import { Add, MailOutline } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
-import MailIcon from '@mui/icons-material/Mail';
+import MailIcon from "@mui/icons-material/Mail";
+import { UploadContracts } from "app/redux/slice/postSlice";
+import AlertDialog from "app/components/AlertDialog";
+import useAuth from "app/hooks/useAuth";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -41,11 +49,15 @@ const Company = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+const {user}=useAuth();
   // ********************* LOCAL STATE ********************* //
-
+  const [openAlert, setOpenAlert] = useState(false);
+  const [postError, setPostError] = useState(false);
+    const [postMessage, setPostMessage] = useState(false);
   // ********************* REDUX STATE ********************* //
-  const companyRows = useSelector((state) => state.listview.comapnyListViewData);
+  const companyRows = useSelector(
+    (state) => state.listview.comapnyListViewData
+  );
 
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
@@ -60,19 +72,19 @@ const Company = () => {
     {
       headerName: "Company Name",
       field: "CompanyName",
-      width: "170",
+      width: "200",
       align: "left",
       headerAlign: "left",
       hide: true,
     },
-    {
-      headerName: "Email",
-      field: "EmailId",
-      width: "250",
-      align: "left",
-      headerAlign: "left",
-      hide: true,
-    },
+    // {
+    //   headerName: "Email",
+    //   field: "EmailId",
+    //   width: "250",
+    //   align: "left",
+    //   headerAlign: "left",
+    //   hide: true,
+    // },
     {
       headerName: "Address",
       field: "Address",
@@ -95,33 +107,35 @@ const Company = () => {
       renderCell: (params) => {
         return (
           <div gap={1}>
-            <Tooltip title="Edit">
-              <IconButton
-                sx={{ height: 25, width: 25 }}
-                color="black"
-                onClick={() => {
-                  navigate("/pages/security/company/company-edit-detail/edit", {
-                    state: { ID: params.row.CompanyCode,RecordID:params.row.RecordID },
-                  });
-                }}
-              >
-                <ModeEditOutlineIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Mail Config">
-              <IconButton
-                sx={{ height: 25, width: 25 }}
-                color="black"
-                onClick={() => {
-                  navigate("/pages/security/company/mail", {
-                    state: { ID: params.row.RecordID }
-                    
-                  });
-                }}
-              >
-                <MailIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {/* <Tooltip title="Edit"> */}
+            <IconButton
+              sx={{ height: 25, width: 25 }}
+              color="black"
+              onClick={() => {
+                navigate("/pages/security/company/company-edit-detail/edit", {
+                  state: {
+                    ID: params.row.CompanyCode,
+                    RecordID: params.row.RecordID,
+                  },
+                });
+              }}
+            >
+              <ModeEditOutlineIcon fontSize="small" />
+            </IconButton>
+            {/* </Tooltip> */}
+            {/* <Tooltip title="Mail Config"> */}
+            <IconButton
+              sx={{ height: 25, width: 25 }}
+              color="black"
+              onClick={() => {
+                navigate("/pages/security/company/mail", {
+                  state: { ID: params.row.RecordID },
+                });
+              }}
+            >
+              <MailIcon fontSize="small" />
+            </IconButton>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -129,9 +143,7 @@ const Company = () => {
   ];
   useEffect(() => {
     dispatch(getCompanyListView());
-
   }, [dispatch]);
-
 
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -157,33 +169,35 @@ const Company = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Create Company">
-            <IconButton
-              color="black"
-              sx={{ height: 30, width: 30 }}
-              onClick={() => {
-                navigate("/pages/security/company/company-edit-detail/add", {
-                  state: { ID: 0 },
-                });
+          {/* <Tooltip title="Create Company"> */}
+          <IconButton
+            color="black"
+            sx={{ height: 30, width: 30 }}
+            onClick={() => {
+              navigate("/pages/security/company/company-edit-detail/add", {
+                state: { ID: 0 },
+              });
+            }}
+          >
+            <Add
+              sx={{
+                fontSize: 30, // Increased icon size
+                color: theme.palette.success.main,
               }}
-            >
-              <Add sx={{
-                  fontSize: 30, // Increased icon size
-                  color: theme.palette.success.main,
-                }} />
-            </IconButton>
-          </Tooltip>
-
+            />
+          </IconButton>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
   }
 
+
   return (
     <Container>
       <div className="breadcrumb">
         <Breadcrumb
-          routeSegments={[{ name: "Security" }, { name: "Company" }]}
+          routeSegments={[{ name: "Control Panel" }, { name: "Company" }]}
         />
       </div>
 
@@ -237,10 +251,15 @@ const Company = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
-            }, "& .MuiTablePagination-root": {
+            "& .MuiDataGrid-row:hover": {
+              border: "3px solid #999999",
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: "4px", // Optional: Add rounded corners
+            },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
+            "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },
 
@@ -261,7 +280,7 @@ const Company = () => {
             columnHeaderHeight={dataGridHeaderFooterHeight}
             sx={{
               // This is to override the default height of the footer row
-              '& .MuiDataGrid-footerContainer': {
+              "& .MuiDataGrid-footerContainer": {
                 height: dataGridHeaderFooterHeight,
                 minHeight: dataGridHeaderFooterHeight,
               },
@@ -292,6 +311,93 @@ const Company = () => {
             }}
           />
         </Box>
+        <Stack direction="row" spacing={2} justifyContent="flex-start" p={3}>
+          <Button variant="contained" color="info" size="small"  
+          onClick={async()=>{
+const data={
+  "Type":"Buyer"
+  }
+  const response=await dispatch(UploadContracts({data}));
+  console.log("🚀 ~ onClick={async ~ response:", response)
+  if (response.payload.status === "Y") {
+    setOpenAlert(true);
+    setPostMessage(response.payload.message);
+   
+  } else {
+    setOpenAlert(true);
+    setPostError(response.payload.message);
+    // toast.error("Error occurred while saving data");
+  }
+          }}>
+            Upload Buyer Contracts
+          </Button>
+          <Button variant="contained" color="info" size="small"  onClick={async()=>{
+const data={
+  "Type":"Sales"
+  }
+  const response=await dispatch(UploadContracts({data}));
+  console.log("🚀 ~ onClick={async ~ response:", response)
+  if (response.payload.status === "Y") {
+    setOpenAlert(true);
+    setPostMessage(response.payload.message);
+   
+  } else {
+    setOpenAlert(true);
+    setPostError(response.payload.message);
+    // toast.error("Error occurred while saving data");
+  }
+}}>
+            Upload Sales Contracts
+          </Button>
+          <Button variant="contained" color="info" size="small"  onClick={async()=>{
+const data={
+  "Type":"SJ7A"
+  }
+  const response=await dispatch(UploadContracts({data}));
+  console.log("🚀 ~ onClick={async ~ response:", response);
+  if (response.payload.status === "Y") {
+    setOpenAlert(true);
+    setPostMessage(response.payload.message);
+   
+  } else {
+    setOpenAlert(true);
+    setPostError(response.payload.message);
+    // toast.error("Error occurred while saving data");
+  }
+  }}>
+            Upload SJ7A Pricing
+          </Button>
+        </Stack>
+        <AlertDialog
+               logo={`data:image/png;base64,${user.logo}`}
+                open={openAlert}
+                error={postError}
+                message={
+                  postError ? postError:
+                  postMessage
+                }
+                Actions={
+              
+                    <DialogActions>
+                      
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          // dispatch(getCompanyData({ ID: 0 }));
+                          setOpenAlert(false);
+                          setPostError(null);
+                          setPostMessage(null);
+                        }}
+                        autoFocus
+                      >
+                       Close
+                      </Button>
+                    </DialogActions>
+                  
+                }
+              />
       </Paper>
     </Container>
   );

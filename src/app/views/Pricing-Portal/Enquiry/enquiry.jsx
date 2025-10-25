@@ -57,9 +57,16 @@ const Enquiry = () => {
 
   const columns = [
     {
+      headerName: "Company Name",
+      field: "CompanyName",
+      width: 200,
+      align: "left",
+      headerAlign: "left",
+    },
+    {
         headerName: "Item",
         field: "Item", // just a placeholder, must be unique
-        width:600,
+        width:500,
         align: "left",
         headerAlign: "left",
         valueGetter: (params) =>
@@ -81,7 +88,7 @@ const Enquiry = () => {
     //   hide: true,
     // },
     {
-      headerName: "In Active",
+      headerName: "Inactive",
       field: "InActive",
       width: 150,
       align: "left",
@@ -166,7 +173,7 @@ const [showError,setShowError]=useState(false);
         {({ handleSubmit }) => (
           <form onSubmit={handleSubmit}>
             <div className="breadcrumb">
-              <Breadcrumb routeSegments={[{ name: "Enquiry" }]} />
+              <Breadcrumb routeSegments={[{ name: "Inquiry" }]} />
             </div>
 
             <Paper sx={{ width: "100%", mb: 2 }}>
@@ -256,15 +263,57 @@ const [showError,setShowError]=useState(false);
             { showDataGrid && <Box
                 sx={{
                   height: 400,
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: theme.palette.info.main,
-                    color: theme.palette.info.contrastText,
-                    fontWeight: "bold",
-                  },
-                  "& .MuiDataGrid-footerContainer": {
-                    backgroundColor: theme.palette.info.main,
-                    color: theme.palette.info.contrastText,
-                  },
+                 "& .name-column--cell": {
+                color: theme.palette.info.contrastText,
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+                fontWeight: "bold",
+                fontSize: theme.typography.subtitle2.fontSize,
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: theme.palette.info.light,
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "none",
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+              },
+              "& .MuiCheckbox-root": {
+                color: "black !important", // Set checkbox color to black
+              },
+              // Ensure the checkbox color reflects the selected state
+              "& .MuiCheckbox-root.Mui-checked": {
+                color: "black !important", // Set checkbox color to black when checked
+              },
+              // Alternating row colors
+              "& .MuiDataGrid-row:nth-of-type(even)": {
+                backgroundColor: theme.palette.action.hover, // Color for even rows
+              },
+              "& .MuiDataGrid-row:nth-of-type(odd)": {
+                backgroundColor: theme.palette.background.default, // Color for odd rows
+              },
+              "& .MuiDataGrid-row:hover": {
+                border: "3px solid #999999",
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: "4px", // Optional: Add rounded corners
+              },
+              // Prevent selected row background color from changing on hover
+              // "& .MuiDataGrid-row.Mui-selected:hover": {
+              //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+              // },
+              "& .MuiTablePagination-root": {
+                color: "white !important", // Ensuring white text color for the pagination
+              },
+
+              "& .MuiTablePagination-root .MuiTypography-root": {
+                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+              },
+
+              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                color: "white !important", // Ensuring white icons for pagination
+              },
                 }}
               >
                 <DataGrid
@@ -281,7 +330,7 @@ const [showError,setShowError]=useState(false);
                   rows={getRows}
                   columns={columns}
                   disableRowSelectionOnClick
-                  getRowId={(row) => row.ItemNumber}
+                  getRowId={(row) => row.RecordID}
                   slots={{
                     loadingOverlay: LinearProgress,
                     toolbar: CustomToolbar,

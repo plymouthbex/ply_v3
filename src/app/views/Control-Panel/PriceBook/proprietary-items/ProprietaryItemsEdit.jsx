@@ -10,7 +10,7 @@ import {
   TextField,
   Stack,
   DialogActions,
-  Tooltip,
+  // Tooltip,
   IconButton,
   FormControlLabel,
   Checkbox,
@@ -173,7 +173,8 @@ const ProprietaryItemsEdit = () => {
       align: "center",
       renderCell: (param) => {
         return (
-          <Tooltip title="Remove Customer">
+          <>
+          {/* // <Tooltip title="Remove Customer"> */}
             <IconButton
               color="error"
               size="small"
@@ -185,7 +186,8 @@ const ProprietaryItemsEdit = () => {
             >
               <DeleteIcon fontSize="small" />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
+          </>
         );
       },
     },
@@ -445,7 +447,7 @@ const ProprietaryItemsEdit = () => {
                       url={`${process.env.REACT_APP_BASE_URL}ProprietaryItems/ProprietaryCustomers?CompanyID=${user.companyID}`}
                       addedCustomers={getRows} // Pass added customers to exclude them
                     />
-                    <Tooltip title="Add Customers">
+                    {/* <Tooltip title="Add Customers"> */}
                       <IconButton
                         disabled={
                           params.mode === "delete" ||
@@ -467,7 +469,7 @@ const ProprietaryItemsEdit = () => {
                           }}
                         />
                       </IconButton>
-                    </Tooltip>
+                    {/* </Tooltip> */}
                   </Stack>
 
                   <Box
@@ -510,10 +512,14 @@ const ProprietaryItemsEdit = () => {
                       "& .MuiDataGrid-row:nth-of-type(odd)": {
                         backgroundColor: theme.palette.background.default,
                       },
-
-                      "& .MuiDataGrid-row.Mui-selected:hover": {
-                        backgroundColor: `${theme.palette.action.selected} !important`,
+                      '& .MuiDataGrid-row:hover': {
+                        border: '3px solid #999999',
+                        // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                        borderRadius: '4px', // Optional: Add rounded corners
                       },
+                      // "& .MuiDataGrid-row.Mui-selected:hover": {
+                      //   backgroundColor: `${theme.palette.action.selected} !important`,
+                      // },
                       "& .MuiTablePagination-root": {
                         color: "white !important", // Ensuring white text color for the pagination
                       },

@@ -11,7 +11,7 @@ import {
   Fab,
   Button,
   IconButton,
-  Tooltip,
+  // Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -107,6 +107,8 @@ import { Formik } from "formik";
 import {
   FormikCustomAutocompleteMulti,
   FormikCustomAutocompleteMultiAdHocItems,
+  FormikCustomAutocompleteMultiPriceList,
+  FormikCustomAutocompleteMultiSecCla,
 } from "app/components/FormikAutocomplete";
 import { dataGridHeaderFooterHeight } from "app/utils/constant";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -277,7 +279,9 @@ export default function BuildCustomPriceBook() {
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
       shortSunday: formatDateShort(sunday), // Short format (MM/DD) for Sunday
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
-      formatedDate: `Pricing Week  ${formatDateLong(sunday)} (Sun) to ${formatDateLong(saturday)} (Sat)`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
+      formatedDate: `Pricing Week  ${formatDateLong(
+        sunday
+      )} (Sun) to ${formatDateLong(saturday)} (Sat)`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
   };
 
@@ -315,7 +319,7 @@ export default function BuildCustomPriceBook() {
       Width: 100,
       align: "left",
       headerAlign: "left",
-      hide:true,
+      hide: true,
       renderCell: (param) => {
         return param.row.AdHocItem === "Y" ? "Yes" : "No";
       },
@@ -360,18 +364,18 @@ export default function BuildCustomPriceBook() {
             >
               Edit
             </Button> */}
-            <Tooltip title="Remove Item">
-              <IconButton
-                color="error"
-                size="small"
-                onClick={() => {
-                  setDeleteID(param.row.RecordId);
-                  setIsRemoveItem(true);
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {/* <Tooltip title="Remove Item"> */}
+            <IconButton
+              color="error"
+              size="small"
+              onClick={() => {
+                setDeleteID(param.row.RecordId);
+                setIsRemoveItem(true);
+              }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+            {/* </Tooltip> */}
 
             {/* 
             <Button
@@ -479,7 +483,7 @@ export default function BuildCustomPriceBook() {
       const data = {
         RecordID: params.mode == "copy" ? 0 : getQuoteHeaderData.RecordID,
         CompanyCode: values.company ? values.company.toString() : 0,
-        companyID:values.company ? values.company : "",
+        companyID: values.company ? values.company : "",
         UserID: user.id,
         FromDate: sunday,
         ToDate: saturday,
@@ -502,8 +506,10 @@ export default function BuildCustomPriceBook() {
         PreferedExcel: values.PreferedExcel,
         // ShowPrice: false,
         CurrentDate: values.CurrentDate,
+        // PriceListID: values.PriceLists,
       };
-
+// console.log("FILTERDATA",data);
+// return;
       const response = await dispatch(quoteInfoData({ data }));
       if (response.payload.status === "Y") {
         setSubmitting(false);
@@ -563,9 +569,10 @@ export default function BuildCustomPriceBook() {
             Option: "Exclude",
             Value: values.damagedItems ? "1" : "0",
           },
-          PriceLists: [],
+          PriceListID: values.PriceLists,
           AdHocItem: values.adHocItems,
         };
+        console.log("FILTERDATA",filterData);
         dispatch(getQuoteFilterData(filterData));
 
         if (params.mode == "copy") {
@@ -750,6 +757,8 @@ export default function BuildCustomPriceBook() {
       getQuotePdf({
         RecordID: getQuoteHeaderData.RecordID,
         ShowPrice: values.isShowPrice,
+        FromDate: sunday,
+        ToDate: saturday,
       })
     );
 
@@ -776,6 +785,8 @@ export default function BuildCustomPriceBook() {
       getQuoteExcel({
         RecordID: getQuoteHeaderData.RecordID,
         ShowPrice: values.isShowPrice,
+        FromDate: sunday,
+        ToDate: saturday,
       })
     );
 
@@ -838,6 +849,8 @@ export default function BuildCustomPriceBook() {
       HeaderID: getQuoteHeaderData.RecordID,
       UserID: user.id,
       TemplateID: 0,
+      FromDate: sunday,
+      ToDate: saturday,
     };
 
     try {
@@ -935,6 +948,7 @@ export default function BuildCustomPriceBook() {
             combinationFilter:
               getQuteFiltData.Combination.Value == "1" ? true : false,
             adHocItems: [],
+            PriceLists:getQuteFiltData.PriceListID
           }}
           validate={(values) => {
             const filters1 = [
@@ -945,6 +959,7 @@ export default function BuildCustomPriceBook() {
               "frshForzInEx",
               "classIDInEx",
               "SecondClassInEx",
+              "PriceLists",
               ,
             ];
             const hasDataCheck = filters1.some(
@@ -959,6 +974,7 @@ export default function BuildCustomPriceBook() {
               "fsfz",
               "classID",
               "secondary",
+              "PriceLists",
             ];
             if (hasDataCheck) {
               const hasData = filters.some(
@@ -1072,51 +1088,51 @@ export default function BuildCustomPriceBook() {
                         label="Show Price"
                       />
                       <Stack direction="row" alignItems={"flex-end"}>
-                        <Tooltip title="PDF" placement="top">
-                          <CustomIconButton
-                            sx={{
-                              bgcolor: theme.palette.primary.main, // Use sx for styling
-                              color: "white", // Ensure icon button text color is visible
-                              "&:hover": {
-                                bgcolor: theme.palette.primary.dark, // Darken color on hover
-                              },
-                            }}
-                            aria-label="pdf"
-                            onClick={() => getPdf("PDF", values)}
-                          >
-                            <FaFilePdf style={{ fontSize: "21px" }} />
-                          </CustomIconButton>
-                        </Tooltip>
+                        {/* <Tooltip title="PDF" placement="top"> */}
+                        <CustomIconButton
+                          sx={{
+                            bgcolor: theme.palette.primary.main, // Use sx for styling
+                            color: "white", // Ensure icon button text color is visible
+                            "&:hover": {
+                              bgcolor: theme.palette.primary.dark, // Darken color on hover
+                            },
+                          }}
+                          aria-label="pdf"
+                          onClick={() => getPdf("PDF", values)}
+                        >
+                          <FaFilePdf style={{ fontSize: "21px" }} />
+                        </CustomIconButton>
+                        {/* </Tooltip> */}
 
-                        <Tooltip title="Excel" placement="top">
-                          <CustomIconButton
-                            bgcolor={theme.palette.success.main}
-                            aria-label="excel"
-                            onClick={() => getExcel(values)}
-                          >
-                            <SiMicrosoftexcel style={{ fontSize: "21px" }} />
-                          </CustomIconButton>
-                        </Tooltip>
+                        {/* <Tooltip title="Excel" placement="top"> */}
+                        <CustomIconButton
+                          bgcolor={theme.palette.success.main}
+                          aria-label="excel"
+                          onClick={() => getExcel(values)}
+                        >
+                          <SiMicrosoftexcel style={{ fontSize: "21px" }} />
+                        </CustomIconButton>
+                        {/* </Tooltip> */}
 
-                        <Tooltip title="Print" placement="top">
-                          <CustomIconButton
-                            bgcolor={theme.palette.warning.main}
-                            onClick={() => getPdf("PRINT", values)}
-                          >
-                            <IoMdPrint style={{ fontSize: "21px" }} />
-                          </CustomIconButton>
-                        </Tooltip>
+                        {/* <Tooltip title="Print" placement="top"> */}
+                        <CustomIconButton
+                          bgcolor={theme.palette.warning.main}
+                          onClick={() => getPdf("PRINT", values)}
+                        >
+                          <IoMdPrint style={{ fontSize: "21px" }} />
+                        </CustomIconButton>
+                        {/* </Tooltip> */}
 
-                        <Tooltip title="Mail" placement="top">
-                          <CustomIconButton
-                            bgcolor={theme.palette.error.main}
-                            aria-label="mail"
-                            // disabled={true}
-                            onClick={fnQuoteSendMail}
-                          >
-                            <IoIosMailOpen style={{ fontSize: "21px" }} />
-                          </CustomIconButton>
-                        </Tooltip>
+                        {/* <Tooltip title="Mail" placement="top"> */}
+                        <CustomIconButton
+                          bgcolor={theme.palette.error.main}
+                          aria-label="mail"
+                          // disabled={true}
+                          onClick={fnQuoteSendMail}
+                        >
+                          <IoIosMailOpen style={{ fontSize: "21px" }} />
+                        </CustomIconButton>
+                        {/* </Tooltip> */}
                       </Stack>
                     </Stack>
                   </Box>
@@ -1220,6 +1236,7 @@ export default function BuildCustomPriceBook() {
                       }`}
                     />
 
+                    
                     <TextField
                       variant="outlined"
                       label="Price Book Level"
@@ -1505,7 +1522,7 @@ export default function BuildCustomPriceBook() {
                           <MenuItem value="Include">Include</MenuItem>
                           <MenuItem value="Exclude">Exclude</MenuItem>
                         </TextField>
-                        <FormikCustomAutocompleteMulti
+                        <FormikCustomAutocompleteMultiSecCla
                           name="classID"
                           id="classID"
                           value={values.classID}
@@ -1539,7 +1556,7 @@ export default function BuildCustomPriceBook() {
                           <MenuItem value="Exclude">Exclude</MenuItem>
                         </TextField>
 
-                        <FormikCustomAutocompleteMulti
+                        <FormikCustomAutocompleteMultiSecCla
                           name="secondary"
                           id="secondary"
                           value={values.secondary}
@@ -1567,7 +1584,7 @@ export default function BuildCustomPriceBook() {
                         Items
                       </Typography>
                       <FormikCustomAutocompleteMultiAdHocItems
-                      key={JSON.stringify(getQuoteFilterItemData)}
+                        key={JSON.stringify(getQuoteFilterItemData)}
                         height={40}
                         name="adHocItems"
                         id="adHocItems"
@@ -1579,6 +1596,26 @@ export default function BuildCustomPriceBook() {
                         url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList`}
                         filterData={getQuoteFilterItemData}
                       />
+                       <Typography
+                        sx={{
+                          gridColumn: "span 1",
+                          fontFamily: "inherit",
+                          fontWeight: "600",
+                          marginLeft: 1,
+                        }}
+                      >
+                      PriceLists
+                      </Typography>
+                      <FormikCustomAutocompleteMultiPriceList
+                      name="PriceLists"
+                      id="PriceLists"
+                      value={values.PriceLists}
+                      onChange={(event, newValue) =>
+                        setFieldValue("PriceLists", newValue)
+                      }
+                      label="Price Lists"
+                      url={`${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyID=${user.companyID}`}
+                    />
                       <Stack direction="row" gap={1}>
                         <FormControlLabel
                           sx={{ height: 37.13 }}
@@ -1589,9 +1626,7 @@ export default function BuildCustomPriceBook() {
                               name="brokenItems"
                               checked={values.brokenItems}
                               onChange={handleChange}
-                              disabled={
-                                params.mode === "delete" 
-                              }
+                              disabled={params.mode === "delete"}
                             />
                           }
                           label="Broken Items"
@@ -1605,9 +1640,7 @@ export default function BuildCustomPriceBook() {
                               name="damagedItems"
                               checked={values.damagedItems}
                               onChange={handleChange}
-                              disabled={
-                                params.mode === "delete" 
-                              }
+                              disabled={params.mode === "delete"}
                             />
                           }
                           label="Damaged Items"
@@ -1628,9 +1661,7 @@ export default function BuildCustomPriceBook() {
                               name="combinationFilter"
                               checked={values.combinationFilter}
                               onChange={handleChange}
-                              disabled={
-                                params.mode === "delete" 
-                              }
+                              disabled={params.mode === "delete"}
                             />
                           }
                           label="Combined Filter"
@@ -1737,10 +1768,14 @@ export default function BuildCustomPriceBook() {
                         "& .MuiDataGrid-row:nth-of-type(odd)": {
                           backgroundColor: theme.palette.background.default,
                         },
-
-                        "& .MuiDataGrid-row.Mui-selected:hover": {
-                          backgroundColor: `${theme.palette.action.selected} !important`,
+                        "& .MuiDataGrid-row:hover": {
+                          border: "3px solid #999999",
+                          // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                          borderRadius: "4px", // Optional: Add rounded corners
                         },
+                        // "& .MuiDataGrid-row.Mui-selected:hover": {
+                        //   backgroundColor: `${theme.palette.action.selected} !important`,
+                        // },
                         "& .MuiTablePagination-root": {
                           color: "white !important", // Ensuring white text color for the pagination
                         },
@@ -1831,7 +1866,7 @@ export default function BuildCustomPriceBook() {
                         pageSizeOptions={[20, 50, 100]}
                         columnVisibilityModel={{
                           item_key: true,
-                          AdHocItem:false,
+                          AdHocItem: false,
                         }}
                         disableColumnFilter
                         disableColumnSelector

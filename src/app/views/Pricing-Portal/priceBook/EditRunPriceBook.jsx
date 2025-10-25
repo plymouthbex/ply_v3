@@ -5,7 +5,7 @@ import {
   LinearProgress,
   Paper,
   TextField,
-  Tooltip,
+  // Tooltip,
   Typography,
   styled,
   useTheme,
@@ -163,7 +163,8 @@ export default function EditRunPriceBook() {
           justifyContent={"center"}
         >
           {params.row.fppdf && params.row.blobfp ? (
-            <Tooltip title="PDF" placement="top">
+            <>
+            {/* // <Tooltip title="PDF" placement="top"> */}
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
                 download={params.row.fileName1}
@@ -173,13 +174,15 @@ export default function EditRunPriceBook() {
               >
                 <FaFilePdf style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
+            </>
           ) : (
             false
           )}
 
           {params.row.fpexcel  && params.row.excelBlobfp ? (
-            <Tooltip title="Excel" placement="top">
+            <>
+            {/* // <Tooltip title="Excel" placement="top"> */}
               <CustomIconButton
                 bgcolor={theme.palette.success.main}
                 download={`${params.row.fileName1}.xlsx`}
@@ -189,13 +192,15 @@ export default function EditRunPriceBook() {
               >
                 <SiMicrosoftexcel style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
+            </>
           ) : (
             false
           )}
 
           {params.row.fppdf  && params.row.blobfp ? (
-            <Tooltip title="Print" placement="top">
+            <>
+            {/* // <Tooltip title="Print" placement="top"> */}
               <CustomIconButton
                 bgcolor={theme.palette.warning.main}
                 component="a"
@@ -206,13 +211,14 @@ export default function EditRunPriceBook() {
               >
                 <IoMdPrint style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
+            </>
           ) : (
             false
           )}
 
           {/* {params.row.fpexcel || params.row.fppdf ? (
-            <Tooltip title="Mail" placement="top">
+            // <Tooltip title="Mail" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
                 aria-label="mail"
@@ -220,7 +226,7 @@ export default function EditRunPriceBook() {
               >
                 <IoIosMailOpen style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            // </Tooltip>
           ) : (
             false
           )} */}
@@ -238,7 +244,8 @@ export default function EditRunPriceBook() {
           justifyContent={"center"}
         >
           {params.row.cppdf  && params.row.blobcp ? (
-            <Tooltip title="PDF" placement="top">
+            <>
+            {/* // <Tooltip title="PDF" placement="top"> */}
               <CustomIconButton
                 bgcolor={theme.palette.primary.main}
                 download={params.row.fileName2}
@@ -248,13 +255,15 @@ export default function EditRunPriceBook() {
               >
                 <FaFilePdf style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
+            </>
           ) : (
             false
           )}
 
           {params.row.cpexcel && params.row.excelBlobcp ? (
-            <Tooltip title="Excel" placement="top">
+            <>
+            {/* // <Tooltip title="Excel" placement="top"> */}
               <CustomIconButton
                 bgcolor={theme.palette.success.main}
                 download={`${params.row.fileName2}.xlsx`}
@@ -264,13 +273,15 @@ export default function EditRunPriceBook() {
               >
                 <SiMicrosoftexcel style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
+            </>
           ) : (
             false
           )}
 
           {params.row.cppdf && params.row.blobcp ? (
-            <Tooltip title="Print" placement="top">
+            <>
+            {/* // <Tooltip title="Print" placement="top"> */}
               <CustomIconButton
                 bgcolor={theme.palette.warning.main}
                 component="a"
@@ -281,13 +292,14 @@ export default function EditRunPriceBook() {
               >
                 <IoMdPrint style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
+            </>
           ) : (
             false
           )}
 
           {/* {params.row.cppdf || params.row.cpexcel ? (
-            <Tooltip title="Mail" placement="top">
+            // <Tooltip title="Mail" placement="top">
               <CustomIconButton
                 bgcolor={theme.palette.error.main}
                 aria-label="mail"
@@ -295,7 +307,7 @@ export default function EditRunPriceBook() {
               >
                 <IoIosMailOpen style={{ fontSize: "15px" }} />
               </CustomIconButton>
-            </Tooltip>
+            // </Tooltip>
           ) : (
             false
           )} */}

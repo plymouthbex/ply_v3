@@ -168,6 +168,9 @@ const initialState = {
   getEnquiryLoading:false,
   getEnquiryStatus:'idle',
   getEnquiryError:null,
+
+  getRefreshPriceList:[],
+
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -783,6 +786,18 @@ export const getEnquiryItems = createAsyncThunk(
     }
   }
 );
+
+
+
+
+
+
+
+
+
+
+//EFRESH
+
 const getSlice = createSlice({
   name: "getSlice",
   initialState,
@@ -1046,11 +1061,11 @@ const getSlice = createSlice({
     onCheckboxChangePriceListEdit: (state, action) => {
       const { id, field, adhocItem } = action.payload;
       if (adhocItem == "Y") {
-        const updatedRow = state.priceListAddedData.map((row) =>
+        const updatedRow = state.postAdHocData.map((row) =>
           row.RecordId === id ? { ...row, [field]: !row[field] } : row
         );
 
-        state.priceListAddedData = updatedRow;
+        state.postAdHocData = updatedRow;
       } else {
         const updatedRow = state.priceListItemsData.map((row) =>
           row.RecordId === id ? { ...row, [field]: !row[field] } : row

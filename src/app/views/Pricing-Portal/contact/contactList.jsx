@@ -58,6 +58,7 @@ const Customer = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
+  console.log("🚀 ~ Customer ~ State:", State)
   const { user } = useAuth();
   // ********************* LOCAL STATE ********************* //
 
@@ -74,7 +75,7 @@ const Customer = () => {
         PriceBookGroup:
           user.defaultRunGroup && user.role == "USER"
             ? user.defaultRunGroup
-            : "",
+            : user.defaultRunGroup??"",
             Role: "C",
       })
     );
@@ -82,14 +83,25 @@ const Customer = () => {
   }, [dispatch]);
   // ********************* COLUMN AND ROWS ********************* //
 
-    const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(
-      user.defaultRunGroup
-        ? {
-            Name: user.defaultRunGroup,
-          }
-        : null
-    );
-  
+  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(
+    user.defaultRunGroup || State.runGroup?.Name
+      ? {
+          Name: user.defaultRunGroup || State.runGroup?.Name,
+        }
+      : null
+  );
+  console.log("🚀 ~ Customer ~ selectedRunGrpOptions:", selectedRunGrpOptions)
+  useEffect(() => {
+    if (user?.companyID && State?.runGroup?.Name) {
+      dispatch(
+        getConfigureCustomerListView({
+          ID: user.companyID,
+          PriceBookGroup: selectedRunGrpOptions.Name,
+          Role: "C",
+        })
+      );
+    }
+  }, [user?.companyID,State?.runGroup?.Name, dispatch]);
     const handleSelectionRunGrpChange = (newValue) => {
       console.log("🚀 ~ handleSelectionRunGrpChange ~ newValue:", newValue)
       setSelectedRunGrpOptions(newValue);
@@ -98,6 +110,14 @@ const Customer = () => {
           getConfigureCustomerListView({
             ID: user.companyID,
             PriceBookGroup:newValue.Name,
+            Role: "C",
+          })
+        );
+      }else{
+        dispatch(
+          getConfigureCustomerListView({
+            ID: user.companyID,
+            PriceBookGroup:"",
             Role: "C",
           })
         );
@@ -143,7 +163,7 @@ const Customer = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Customer Contacts">
+            {/* <Tooltip title="Customer Contacts"> */}
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="black"
@@ -153,13 +173,14 @@ const Customer = () => {
                       RecordID: params.row.RecordID,
                       Code: params.row.CustomerNumber,
                       Name: params.row.CustomerName,
+                      runGroup:selectedRunGrpOptions
                     },
                   });
                 }}
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -338,10 +359,14 @@ const Customer = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
+            '& .MuiDataGrid-row:hover': {
+              border: '3px solid #999999',
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: '4px', // Optional: Add rounded corners
             },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },

@@ -83,19 +83,7 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ******************** Validation Schema ******************** //
-const validationSchema = Yup.object({
-  name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
-    .max(60, "Name must be at most 60 characters"),
 
-  phonenumber: Yup.string().matches(
-    /^\(\d{3}\) \d{3}-\d{4}$/,
-    "Phone number must be in the format (XXX) XXX-XXXX"
-  ),
-  email: Yup.string()
-    .email("Must be a valid email")
-    .required("Email is required"),
-});
 const formatPhoneNumber = (value) => {
   // Remove all non-digit characters
   const phoneNumber = value.replace(/\D/g, '');
@@ -123,6 +111,19 @@ const ContactEdit = () => {
   const State = location.state;
   console.log("🚀 ~ ContactEdit ~ State:", State);
 
+
+  const validationSchema = Yup.object({
+    name: Yup.string()
+      .min(3, "Name must be at least 3 characters")
+      .max(60, "Name must be at most 60 characters"),
+  
+  //  phonenumber: Yup.string()
+  //          .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+  //          .required("Phone number is required"),
+    email: Yup.string()
+      .email("Must be a valid email")
+      .required("Email is required"),
+  });
   // ******************** LOCAL STATE ******************** //
 
   const [addPriceListData, setAddPriceListData] = useState(null);
@@ -207,7 +208,7 @@ const ContactEdit = () => {
             preferedMobile: data.PreferedMobile === "1" ? true : false,
             disable: data.Disable === "1" ? true : false,
           }}
-          validationSchema={validationSchema}
+          validationSchema={params?.mode === "delete" ? null : validationSchema}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
             if (params.mode === "delete") {
@@ -388,6 +389,9 @@ const ContactEdit = () => {
                     disabled={params?.mode === "delete"}
                     autoComplete="off"
                     //onChange={handleChange}
+                    // InputLabelProps={{
+                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    // }}
                     onChange={(e) => {
                       const formattedPhone = formatPhoneNumber(e.target.value);
                       handleChange({
@@ -400,6 +404,7 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
+                    // required
                   />
  < FormikCustomSelectProvider
                     name="provider"
@@ -526,7 +531,7 @@ const ContactEdit = () => {
                   </Stack> */}
 
                   <FormControlLabel
-                    disabled={params?.mode === "delete"}
+                  
                     control={
                       <Checkbox
                         size="small"

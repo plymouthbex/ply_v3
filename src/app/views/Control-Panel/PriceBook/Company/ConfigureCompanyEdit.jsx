@@ -15,7 +15,7 @@ import {
   LinearProgress,
   Input,
   DialogActions,
-  Tooltip,
+  // Tooltip,
   IconButton,
   InputLabel,
   FormControl,
@@ -225,7 +225,7 @@ const ConfigureCompanyEdit = () => {
           <div>
             <Box gap={1}>
               <div style={{ display: "flex", gap: "10px" }}>
-                <Tooltip title="Exclude Price List">
+                {/* <Tooltip title="Exclude Price List"> */}
                   <IconButton
                     color="black"
                     size="small"
@@ -237,7 +237,7 @@ const ConfigureCompanyEdit = () => {
                   >
                     <DeleteIcon color="error" fontSize="small" />
                   </IconButton>
-                </Tooltip>
+                {/* </Tooltip> */}
               </div>
             </Box>
           </div>
@@ -310,7 +310,7 @@ const ConfigureCompanyEdit = () => {
               process.env.REACT_APP_BASE_URL
             }PriceListItems/GetPrictListList?CompanyCode=${data.CompanyCode}`}
           />
-          <Tooltip title="Add">
+          // <Tooltip title="Add">
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
@@ -324,7 +324,7 @@ const ConfigureCompanyEdit = () => {
                 }}
               />
             </IconButton>
-          </Tooltip> */}
+          // </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -549,7 +549,7 @@ const ConfigureCompanyEdit = () => {
         sx={{ flex: 1 }} 
       />
 
-      <Tooltip title="Add">
+      {/* <Tooltip title="Add"> */}
         <IconButton
           disabled={params.mode === "delete" || params.mode === "view"}
           color="black"
@@ -563,7 +563,7 @@ const ConfigureCompanyEdit = () => {
             }}
           />
         </IconButton>
-      </Tooltip>
+      {/* </Tooltip> */}
     </Box>
   </Stack>
 </Box>
@@ -687,7 +687,7 @@ const ConfigureCompanyEdit = () => {
                     url={`${process.env.REACT_APP_BASE_URL}PriceList/GetConfigurePriceList?CompanyID=${data.CompanyID}`}
                     filterData={getRows}
                   />
-                  <Tooltip title="Add">
+                  // <Tooltip title="Add">
                     <IconButton
                       disabled={
                         params.mode === "delete" || params.mode === "view"
@@ -703,7 +703,7 @@ const ConfigureCompanyEdit = () => {
                         }}
                       />
                     </IconButton>
-                  </Tooltip>
+                  // </Tooltip>
                 
                   </Stack>
                 </Box> */}
@@ -749,10 +749,14 @@ const ConfigureCompanyEdit = () => {
                     "& .MuiDataGrid-row:nth-of-type(odd)": {
                       backgroundColor: theme.palette.background.default, // Color for odd rows
                     },
-
-                    "& .MuiDataGrid-row.Mui-selected:hover": {
-                      backgroundColor: `${theme.palette.action.selected} !important`,
+                    '& .MuiDataGrid-row:hover': {
+                      border: '3px solid #999999',
+                      // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                      borderRadius: '4px', // Optional: Add rounded corners
                     },
+                    // "& .MuiDataGrid-row.Mui-selected:hover": {
+                    //   backgroundColor: `${theme.palette.action.selected} !important`,
+                    // },
                     "& .MuiTablePagination-root": {
                       color: "white !important", // Ensuring white text color for the pagination
                     },

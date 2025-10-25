@@ -105,6 +105,7 @@ const ConfigureContactEdit = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
+  console.log("🚀 ~ ConfigureContactEdit ~ State:", State)
   const { user } = useAuth()
 
   // ******************** LOCAL STATE ******************** //
@@ -166,7 +167,7 @@ const ConfigureContactEdit = () => {
           <GridToolbarQuickFilter />
 
           {(data.Rungroup === user.defaultRunGroup && user.role === 'USER') || user.SalesReps.includes(data.Rungroup) ? 
-          <Tooltip title="Add">
+          
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
@@ -187,8 +188,7 @@ const ConfigureContactEdit = () => {
                   color: theme.palette.success.main,
                 }}
               />
-            </IconButton>
-          </Tooltip>:user.role != 'USER' ? <Tooltip title="Add">
+            </IconButton>:user.role != 'USER' ? 
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
@@ -209,8 +209,7 @@ const ConfigureContactEdit = () => {
                   color: theme.palette.success.main,
                 }}
               />
-            </IconButton>
-          </Tooltip>:false }
+            </IconButton>:false }
         </Box>
       </GridToolbarContainer>
     );
@@ -364,13 +363,16 @@ const ConfigureContactEdit = () => {
                     color="info"
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate("/pages/pricing-portal/contact-directory",{
+                      state: {
+                        runGroup:State.runGroup
+                      },
+                    })}
                   >
                     Back
                   </Button>
                 </Stack>
               </div>
-
               <Paper sx={{ width: "100%", mb: 2 }}>
                 <Box
                   display="grid"
@@ -420,51 +422,64 @@ const ConfigureContactEdit = () => {
                     "& .MuiDataGrid-root": {
                       border: "none",
                     },
-                    "& .MuiDataGrid-cell": {
-                      borderBottom: "none",
-                    },
+        
                     "& .name-column--cell": {
                       color: theme.palette.info.contrastText,
                     },
+        
                     "& .MuiDataGrid-columnHeaders": {
                       backgroundColor: theme.palette.info.main,
+        
                       color: theme.palette.info.contrastText,
+        
                       fontWeight: "bold",
+        
                       fontSize: theme.typography.subtitle2.fontSize,
                     },
+        
                     "& .MuiDataGrid-virtualScroller": {
                       backgroundColor: theme.palette.info.light,
                     },
+        
                     "& .MuiDataGrid-footerContainer": {
                       borderTop: "none",
+        
                       backgroundColor: theme.palette.info.main,
+        
                       color: theme.palette.info.contrastText,
                     },
+        
                     "& .MuiCheckbox-root": {
-                      color: "black !important", // Set checkbox color to black
+                      color: "black !important",
                     },
-
+        
                     "& .MuiCheckbox-root.Mui-checked": {
-                      color: "black !important", // Set checkbox color to black when checked
+                      color: "black !important",
                     },
+        
                     "& .MuiDataGrid-row:nth-of-type(even)": {
                       backgroundColor: theme.palette.action.hover,
                     },
+        
                     "& .MuiDataGrid-row:nth-of-type(odd)": {
-                      backgroundColor: theme.palette.background.default, // Color for odd rows
+                      backgroundColor: theme.palette.background.default,
                     },
-
-                    "& .MuiDataGrid-row.Mui-selected:hover": {
-                      backgroundColor: `${theme.palette.action.selected} !important`,
+                    '& .MuiDataGrid-row:hover': {
+                      border: '3px solid #999999',
+                      // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                      borderRadius: '4px', // Optional: Add rounded corners
                     },
+                    // "& .MuiDataGrid-row.Mui-selected:hover": {
+                    //   backgroundColor: `${theme.palette.action.selected} !important`,
+                    // },
                     "& .MuiTablePagination-root": {
                       color: "white !important", // Ensuring white text color for the pagination
                     },
-
+        
                     "& .MuiTablePagination-root .MuiTypography-root": {
                       color: "white !important", // Ensuring white text for "Rows per page" and numbers
                     },
-
+        
                     "& .MuiTablePagination-actions .MuiSvgIcon-root": {
                       color: "white !important", // Ensuring white icons for pagination
                     },

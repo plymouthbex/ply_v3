@@ -263,6 +263,7 @@ const ViewPriceBook = () => {
           CompnayID: user.companyID,
           CompanyCode: user.companyCode,
           TemplateID: "",
+          ShowPrice:isChecked
         },
       ];
 
@@ -633,7 +634,7 @@ const ViewPriceBook = () => {
             );
             setTimeout(() => {
               setIsGenerating(false);
-            }, 2000);
+            }, 5000);
           }
      
       })
@@ -816,7 +817,7 @@ const ViewPriceBook = () => {
             );
             setTimeout(() => {
               setIsGenerating(false);
-            }, 2000);
+            }, 5000);
           }
      
       })

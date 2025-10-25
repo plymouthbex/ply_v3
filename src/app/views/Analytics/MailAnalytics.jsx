@@ -159,7 +159,7 @@ const MailAnalitics = () => {
     {
       headerName: "Date",
       field: "CreatedDateTime",
-      width: "150",
+      width: "100",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -167,7 +167,7 @@ const MailAnalitics = () => {
     {
       headerName: "Company",
       field: "CompanyName",
-      width: "150",
+      width: "100",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -175,7 +175,7 @@ const MailAnalitics = () => {
     {
       headerName: "Sales Person",
       field: "SalesPerson",
-      width: "200",
+      width: "150",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -183,7 +183,7 @@ const MailAnalitics = () => {
     {
       headerName: "Customer Name",
       field: "CustomerName",
-      width: "350",
+      width: "250",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -191,7 +191,7 @@ const MailAnalitics = () => {
     {
       headerName: "Contact",
       field: "Contact",
-      width: "200",
+      width: "150",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -217,7 +217,7 @@ const MailAnalitics = () => {
     {
       headerName: "ResponseMessage",
       field: "ResponseMessage",
-      width: "200",
+      width: "400",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -226,7 +226,7 @@ const MailAnalitics = () => {
     {
       headerName: "Format",
       field: "Formate",
-      width: "200",
+      width: "100",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -243,7 +243,7 @@ const MailAnalitics = () => {
     {
       headerName: "Status",
       field: "Status",
-      width: "200",
+      width: "100",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -642,11 +642,15 @@ const MailAnalitics = () => {
                     },
                     "& .MuiDataGrid-row:nth-of-type(odd)": {
                       backgroundColor: theme.palette.background.default, // Color for odd rows
+                    }, '& .MuiDataGrid-row:hover': {
+                      border: '3px solid #999999',
+                      // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                      borderRadius: '4px', // Optional: Add rounded corners
                     },
                     // Prevent selected row background color from changing on hover
-                    "& .MuiDataGrid-row.Mui-selected:hover": {
-                      backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
-                    },
+                    // "& .MuiDataGrid-row.Mui-selected:hover": {
+                    //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+                    // },
                     "& .MuiTablePagination-root": {
                       color: "white !important", // Ensuring white text color for the pagination
                     },

@@ -11,7 +11,7 @@ import {
   Typography,
   Stack,
   IconButton,
-  Tooltip
+  // Tooltip
 } from "@mui/material";
 import {
   DataGrid,
@@ -92,7 +92,7 @@ const dispatch=useDispatch();
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-         <Tooltip title="Contacts">
+         {/* <Tooltip title="Contacts"> */}
   <IconButton
     color="black"
     size="small"
@@ -109,10 +109,10 @@ const dispatch=useDispatch();
   >
     <ContactPageIcon fontSize="small" />
   </IconButton>
-</Tooltip>
+{/* </Tooltip> */}
 
       
-          <Tooltip title="Edit Communication">
+          {/* <Tooltip title="Edit Communication"> */}
             <IconButton
               color="black"
               size="small"
@@ -129,7 +129,7 @@ const dispatch=useDispatch();
             >
               <ModeEditOutlineIcon fontSize="small" />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </div>
         
           
@@ -301,12 +301,18 @@ const dispatch=useDispatch();
             backgroundColor: theme.palette.background.default, 
 
           }, 
+          '& .MuiDataGrid-row:hover': {
+            border: '3px solid #999999',
+            // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+            borderRadius: '4px', // Optional: Add rounded corners
+          },
 
-          "& .MuiDataGrid-row.Mui-selected:hover": { 
+          // "& .MuiDataGrid-row.Mui-selected:hover": { 
 
-            backgroundColor: `${theme.palette.action.selected} !important`, 
+          //   backgroundColor: `${theme.palette.action.selected} !important`, 
 
-          }, "& .MuiTablePagination-root": {
+          // }, 
+          "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             }, 
         

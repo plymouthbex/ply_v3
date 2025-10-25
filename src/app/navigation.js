@@ -58,7 +58,7 @@ export const navigations = [
         role: authRoles.admin,
       },
       {
-        name: "Enquiry",
+        name: "Inquiry",
         path: "/pages/pricing-portal/enquiry",
         iconText: "C",
         accessID: "PPB016",
@@ -125,6 +125,13 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
+      {
+        name: "Company",
+        path: "/pages/security/company",
+        iconText: "V",
+        accessID: "S001",
+        icon: <DescriptionIcon fontSize="small" />,
+      },
     ],
   },
 
@@ -133,13 +140,7 @@ export const navigations = [
     icon: <FolderIcon fontSize="small" />,
     role: authRoles.sa,
     children: [
-      {
-        name: "Company",
-        path: "/pages/security/company",
-        iconText: "V",
-        accessID: "S001",
-        icon: <DescriptionIcon fontSize="small" />,
-      },
+     
       {
         name: "Menu",
         path: "/pages/security/application",

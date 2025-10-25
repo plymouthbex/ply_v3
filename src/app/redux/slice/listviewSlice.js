@@ -34,6 +34,7 @@ const initialState = {
   priceListViewData: [],
   priceListloading: false,
   priceListstatus: "idle",
+  ItemCount:"",
 
   rungroupListViewData: [],
   rungroupTemploading: false,
@@ -524,6 +525,25 @@ export const getConfigureContactListView = createAsyncThunk(
     }
   }
 );
+
+export const gtRefeshPriceList = createAsyncThunk(
+  "get/gtRefeshPriceList", // action type
+  async ({ user, CompanyID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/RefreshPricelistItems?CompanyID=${CompanyID}&Username=${user}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const listviewSlice = createSlice({
   name: "listview",
   initialState,
@@ -700,11 +720,13 @@ const listviewSlice = createSlice({
         state.priceListstatus = "pending";
         state.priceListloading = true;
         state.priceListViewData = [];
+        state.ItemCount="";
       })
       .addCase(getPriceListView.fulfilled, (state, action) => {
         state.priceListstatus = "fulfilled";
         state.priceListloading = false;
         state.priceListViewData = action.payload.data;
+        state.ItemCount=action.payload.pricelistitemcount;
       })
       .addCase(getPriceListView.rejected, (state, action) => {
         state.priceListstatus = "rejected";
@@ -932,7 +954,7 @@ const listviewSlice = createSlice({
         state.status = "failed";
         state.loading = false;
         state.error = action.error.message;
-      });
+      })
   },
 });
 

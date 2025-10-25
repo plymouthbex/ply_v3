@@ -11,7 +11,7 @@ import {
   Fab,
   Button,
   IconButton,
-  Tooltip,
+  // Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -101,6 +101,7 @@ import {
   FormikCustomAutocompleteMulti,
   FormikCustomAutocompleteMultiAdHocItems,
   FormikCustomAutocompleteMultiPriceList,
+  FormikCustomAutocompleteMultiSecCla,
 } from "app/components/FormikAutocomplete";
 import { dataGridHeaderFooterHeight } from "app/utils/constant";
 // STYLED COMPONENTS
@@ -145,12 +146,13 @@ const formatDateShort = (date) => {
 
 // Format a full date into MM/DD/YYYY format
 const formatDateLong = (date) => {
+
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
   const year = date.getFullYear();
   return `${month}/${day}/${year}`;
 };
-
+  console.log("🚀 ~ formatDateLong ~ formatDateLong:", formatDateLong)
 export default function BuildCustomPriceBook() {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const theme = useTheme();
@@ -256,7 +258,8 @@ export default function BuildCustomPriceBook() {
       date.setDate(date.getDate() + 7);
     }
 
-    const { sunday, saturday } = getSaturdayAndSunday(date); // Get the Sunday and Saturday of the week
+    const { sunday, saturday } = getSaturdayAndSunday(date);
+    console.log("🚀 ~ getWeekDates ~ formatDateLong(sunday:", formatDateLong(sunday)); // Get the Sunday and Saturday of the week
     return {
       sunday: formatDateLong(sunday), // Full date for Sunday (MM/DD/YYYY)
       saturday: formatDateLong(saturday), // Full date for Saturday (MM/DD/YYYY)
@@ -264,6 +267,7 @@ export default function BuildCustomPriceBook() {
       shortSaturday: formatDateShort(saturday), // Short format (MM/DD) for Saturday
       formatedDate: `Pricing Week  ${formatDateLong(sunday)} (Sun) to ${formatDateLong(saturday)} (Sat)`, // Full format Pricing Week (SUN)(MM/DD/YYYY) TO (SAT)(MM/DD/YYYY)
     };
+      
   };
 
   const toggleWeek = () => {
@@ -373,7 +377,7 @@ export default function BuildCustomPriceBook() {
             >
               Remove
             </Button> */}
-            <Tooltip title="Remove">
+            {/* <Tooltip title="Remove"> */}
               <IconButton
                 sx={{
                   height: 25,
@@ -389,7 +393,7 @@ export default function BuildCustomPriceBook() {
               >
                 <DeleteIcon size="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </>
         );
       },
@@ -490,6 +494,7 @@ export default function BuildCustomPriceBook() {
           PriceListID: values.PriceLists,
           AdHocItem: values.adHocItems,
         };
+        console.log("FILTERDATA",filterData);
         dispatch(getQuoteFilterData(filterData));
         setOpenAlert(true);
 
@@ -633,6 +638,8 @@ export default function BuildCustomPriceBook() {
       getQuotePdf({
         RecordID: getQuoteHeaderData.RecordID,
         ShowPrice: values.isShowPrice,
+        FromDate:sunday,
+        ToDate:saturday
       })
     );
 
@@ -647,7 +654,9 @@ export default function BuildCustomPriceBook() {
       }, 2000);
     }
   };
-
+console.log("🚀 ~ getExcel ~ FromDate:sunday",
+        sunday,
+        saturday)
   const getExcel = async (values) => {
     // if (!getQuoteHeaderData.PreferedExcel ) {
     //   setOpenAlert9(true);
@@ -659,7 +668,10 @@ export default function BuildCustomPriceBook() {
       getQuoteExcel({
         RecordID: getQuoteHeaderData.RecordID,
         ShowPrice: values.isShowPrice,
+        FromDate:sunday,
+        ToDate:saturday
       })
+        
     );
     if (res.payload.status === "Y") {
       setTimeout(() => {
@@ -726,6 +738,8 @@ export default function BuildCustomPriceBook() {
       HeaderID: getQuoteHeaderData.RecordID,
       UserID: user.id,
       TemplateID: 0,
+       FromDate:sunday,
+        ToDate:saturday
     };
 
     try {
@@ -944,7 +958,7 @@ export default function BuildCustomPriceBook() {
                         label="Show Price"
                       />
                       <Stack direction="row" alignItems={"flex-end"}>
-                        <Tooltip title="PDF" placement="top">
+                        {/* <Tooltip title="PDF" placement="top"> */}
                           <CustomIconButton
                             sx={{
                               bgcolor: theme.palette.primary.main, // Use sx for styling
@@ -958,9 +972,9 @@ export default function BuildCustomPriceBook() {
                           >
                             <FaFilePdf style={{ fontSize: "21px" }} />
                           </CustomIconButton>
-                        </Tooltip>
+                        {/* </Tooltip> */}
 
-                        <Tooltip title="Excel" placement="top">
+                        {/* <Tooltip title="Excel" placement="top"> */}
                           <CustomIconButton
                             bgcolor={theme.palette.success.main}
                             aria-label="excel"
@@ -968,18 +982,18 @@ export default function BuildCustomPriceBook() {
                           >
                             <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                           </CustomIconButton>
-                        </Tooltip>
+                        {/* </Tooltip> */}
 
-                        <Tooltip title="Print" placement="top">
+                        {/* <Tooltip title="Print" placement="top"> */}
                           <CustomIconButton
                             bgcolor={theme.palette.warning.main}
                             onClick={() => getPdf("PRINT", values)}
                           >
                             <IoMdPrint style={{ fontSize: "21px" }} />
                           </CustomIconButton>
-                        </Tooltip>
+                        {/* </Tooltip> */}
 
-                        <Tooltip title="Mail" placement="top">
+                        {/* <Tooltip title="Mail" placement="top"> */}
                           <CustomIconButton
                             bgcolor={theme.palette.error.main}
                             aria-label="mail"
@@ -988,7 +1002,7 @@ export default function BuildCustomPriceBook() {
                           >
                             <IoIosMailOpen style={{ fontSize: "21px" }} />
                           </CustomIconButton>
-                        </Tooltip>
+                        {/* </Tooltip> */}
                       </Stack>
                     </Stack>
                   </Box>
@@ -1230,7 +1244,7 @@ export default function BuildCustomPriceBook() {
                           <MenuItem value="Include">Include</MenuItem>
                           <MenuItem value="Exclude">Exclude</MenuItem>
                         </TextField>
-                        <FormikCustomAutocompleteMulti
+                        <FormikCustomAutocompleteMultiSecCla
                           name="classID"
                           id="classID"
                           value={values.classID}
@@ -1264,7 +1278,7 @@ export default function BuildCustomPriceBook() {
                           <MenuItem value="Exclude">Exclude</MenuItem>
                         </TextField>
 
-                        <FormikCustomAutocompleteMulti
+                        <FormikCustomAutocompleteMultiSecCla
                           name="secondary"
                           id="secondary"
                           value={values.secondary}
@@ -1435,66 +1449,57 @@ export default function BuildCustomPriceBook() {
                     sx={{
                       height: 500,
 
-                      "& .MuiDataGrid-root": {
-                        border: "none",
-                      },
+                    "& .name-column--cell": {
+                color: theme.palette.info.contrastText,
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+                fontWeight: "bold",
+                fontSize: theme.typography.subtitle2.fontSize,
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: theme.palette.info.light,
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "none",
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+              },
+              "& .MuiCheckbox-root": {
+                color: "black !important", // Set checkbox color to black
+              },
+              // Ensure the checkbox color reflects the selected state
+              "& .MuiCheckbox-root.Mui-checked": {
+                color: "black !important", // Set checkbox color to black when checked
+              },
+              // Alternating row colors
+              "& .MuiDataGrid-row:nth-of-type(even)": {
+                backgroundColor: theme.palette.action.hover, // Color for even rows
+              },
+              "& .MuiDataGrid-row:nth-of-type(odd)": {
+                backgroundColor: theme.palette.background.default, // Color for odd rows
+              },
+              "& .MuiDataGrid-row:hover": {
+                border: "3px solid #999999",
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: "4px", // Optional: Add rounded corners
+              },
+              // Prevent selected row background color from changing on hover
+              // "& .MuiDataGrid-row.Mui-selected:hover": {
+              //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+              // },
+              "& .MuiTablePagination-root": {
+                color: "white !important", // Ensuring white text color for the pagination
+              },
 
-                      "& .name-column--cell": {
-                        color: theme.palette.info.contrastText,
-                      },
+              "& .MuiTablePagination-root .MuiTypography-root": {
+                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+              },
 
-                      "& .MuiDataGrid-columnHeaders": {
-                        backgroundColor: theme.palette.info.main,
-
-                        color: theme.palette.info.contrastText,
-
-                        fontWeight: "bold",
-
-                        fontSize: theme.typography.subtitle2.fontSize,
-                      },
-
-                      "& .MuiDataGrid-virtualScroller": {
-                        backgroundColor: theme.palette.info.light,
-                      },
-
-                      "& .MuiDataGrid-footerContainer": {
-                        borderTop: "none",
-
-                        backgroundColor: theme.palette.info.main,
-
-                        color: theme.palette.info.contrastText,
-                      },
-
-                      "& .MuiCheckbox-root": {
-                        color: "black !important",
-                      },
-
-                      "& .MuiCheckbox-root.Mui-checked": {
-                        color: "black !important",
-                      },
-
-                      "& .MuiDataGrid-row:nth-of-type(even)": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-
-                      "& .MuiDataGrid-row:nth-of-type(odd)": {
-                        backgroundColor: theme.palette.background.default,
-                      },
-
-                      "& .MuiDataGrid-row.Mui-selected:hover": {
-                        backgroundColor: `${theme.palette.action.selected} !important`,
-                      },
-                      "& .MuiTablePagination-root": {
-                        color: "white !important", // Ensuring white text color for the pagination
-                      },
-
-                      "& .MuiTablePagination-root .MuiTypography-root": {
-                        color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                      },
-
-                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                        color: "white !important", // Ensuring white icons for pagination
-                      },
+              "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                color: "white !important", // Ensuring white icons for pagination
+              },
                     }}
                   >
                     <DataGrid

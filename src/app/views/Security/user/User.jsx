@@ -130,7 +130,7 @@ const User = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Edit">
+            {/* <Tooltip title="Edit"> */}
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="black"
@@ -142,9 +142,9 @@ const User = () => {
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip>
 
-            <Tooltip title="Delete">
+            <Tooltip title="Delete"> */}
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="error"
@@ -156,10 +156,10 @@ const User = () => {
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
 
             {params.row.IsLocked ? (
-              <Tooltip title="Unlock">
+              // <Tooltip title="Unlock">
                 <IconButton
                   sx={{ height: 25, width: 25 }}
                   color="info"
@@ -167,7 +167,7 @@ const User = () => {
                 >
                   <LockOpenIcon fontSize="small" />
                 </IconButton>
-              </Tooltip>
+              // </Tooltip>
             ) : (
               false
             )}
@@ -222,7 +222,7 @@ const User = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Create User">
+          {/* <Tooltip title="Create User"> */}
             <IconButton
               sx={{ height: 35, width: 35 }}
               color="info"
@@ -239,7 +239,7 @@ const User = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -302,9 +302,16 @@ const User = () => {
               backgroundColor: theme.palette.background.default,
             },
 
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
-            },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
+        
+              '& .MuiDataGrid-row:hover': {
+                border: '3px solid #999999',
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: '4px', // Optional: Add rounded corners
+              },
+         
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },

@@ -14,7 +14,7 @@ import {
   Autocomplete,
   LinearProgress,
   DialogActions,
-  Tooltip,
+  // Tooltip,
   IconButton,
   FormControl,
   InputLabel,
@@ -197,7 +197,7 @@ const ConfigureContactEdit = () => {
           <GridToolbarQuickFilter />
         
 
-          <Tooltip title="Add">
+          {/* <Tooltip title="Add"> */}
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
@@ -220,7 +220,7 @@ const ConfigureContactEdit = () => {
                   color: theme.palette.success.main,
                 }} />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -271,7 +271,7 @@ const ConfigureContactEdit = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Edit">
+            {/* <Tooltip title="Edit"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -290,8 +290,8 @@ const ConfigureContactEdit = () => {
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
+            {/* </Tooltip> */}
+            {/* <Tooltip title="Delete"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -310,7 +310,7 @@ const ConfigureContactEdit = () => {
               >
                 <DeleteIcon fontSize="small" color="error" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -390,7 +390,8 @@ const ConfigureContactEdit = () => {
                     color="info"
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => navigate(-1)}
+                                       onClick={() => navigate('/pages/control-panel/configure-price-book/customer', { state: { RunGroup: State.RunGroup,Code:State.company.Code,Name:State.company.Name,RecordID:State.company.RecordID } })}
+
                   >
                     Back
                   </Button>
@@ -478,10 +479,14 @@ const ConfigureContactEdit = () => {
                     "& .MuiDataGrid-row:nth-of-type(odd)": {
                       backgroundColor: theme.palette.background.default, // Color for odd rows
                     },
-
-                    "& .MuiDataGrid-row.Mui-selected:hover": {
-                      backgroundColor: `${theme.palette.action.selected} !important`,
+                    '& .MuiDataGrid-row:hover': {
+                      border: '3px solid #999999',
+                      // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                      borderRadius: '4px', // Optional: Add rounded corners
                     },
+                    // "& .MuiDataGrid-row.Mui-selected:hover": {
+                    //   backgroundColor: `${theme.palette.action.selected} !important`,
+                    // },
                     "& .MuiTablePagination-root": {
                       color: "white !important", // Ensuring white text color for the pagination
                     },

@@ -7,7 +7,7 @@ import {
   styled,
   useTheme,
   IconButton,
-  Tooltip,
+  // Tooltip,
 } from "@mui/material";
 import {
   DataGrid,
@@ -62,6 +62,11 @@ const Company = () => {
     dispatch(getConfigureCompanyListView());
     dispatch(clearConfigurePriceList());
   }, [dispatch]);
+  const RunGr={
+ 
+    Name:null,
+  
+  }
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
@@ -88,7 +93,7 @@ const Company = () => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
             <div style={{ display: "flex", gap: "10px" }}>
-              <Tooltip title="Customer Price Book">
+              {/* <Tooltip title="Customer Price Book"> */}
                 <IconButton
                   color="black"
                   size="small"
@@ -100,6 +105,7 @@ const Company = () => {
                           RecordID: params.row.CompanyID,
                           Code: params.row.CompanyCode,
                           Name: params.row.CompanyName,
+                          RunGroup:RunGr
                         },
                       }
                     );
@@ -107,9 +113,9 @@ const Company = () => {
                 >
                   <ListAltIcon fontSize="small" />
                 </IconButton>
-              </Tooltip>
+              {/* </Tooltip> */}
 
-              <Tooltip title="Configure Company Price List">
+              {/* <Tooltip title="Configure Company Price List"> */}
                 <IconButton
                   color="black"
                   size="small"
@@ -121,6 +127,7 @@ const Company = () => {
                           RecordID: params.row.RecordID,
                           Code: params.row.CompanyCode,
                           Name: params.row.CompanyName,
+                          Rungroup:RunGr,
                         },
                       }
                     );
@@ -128,7 +135,7 @@ const Company = () => {
                 >
                   <ModeEditOutlineIcon fontSize="small" />
                 </IconButton>
-              </Tooltip>
+              {/* </Tooltip> */}
             </div>
           </div>
         );
@@ -259,10 +266,14 @@ const Company = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
+            '& .MuiDataGrid-row:hover': {
+              border: '3px solid #999999',
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: '4px', // Optional: Add rounded corners
             },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },

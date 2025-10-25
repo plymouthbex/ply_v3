@@ -14,7 +14,7 @@ import {
   Autocomplete,
   LinearProgress,
   DialogActions,
-  Tooltip,
+  // Tooltip,
   IconButton,
   FormControl,
   InputLabel,
@@ -140,6 +140,7 @@ const ConfigureEdit = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
+  console.log("🚀 ~ ConfigureEdit ~ State:", State)
   const { user } = useAuth();
   // ******************** LOCAL STATE ******************** //
 
@@ -223,7 +224,7 @@ const ConfigureEdit = () => {
       renderCell: (param) => {
         return (
           <Box gap={1}>
-            <Tooltip title="Exclude Price List">
+            {/* <Tooltip title="Exclude Price List"> */}
               <IconButton
                 color="error"
                 size="small"
@@ -236,7 +237,7 @@ const ConfigureEdit = () => {
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </Box>
         );
       },
@@ -277,7 +278,7 @@ const ConfigureEdit = () => {
             url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=PriceList`}
           /> */}
 
-          <Tooltip title="Add">
+          {/* <Tooltip title="Add"> */}
             <IconButton
               disabled={params.mode === "delete" || params.mode === "view"}
               color="black"
@@ -335,7 +336,7 @@ const ConfigureEdit = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -501,7 +502,7 @@ const ConfigureEdit = () => {
                     color="info"
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate('/pages/control-panel/configure-price-book/customer', { state: { RunGroup: State.RunGroup,Code:State.company.Code,Name:State.company.Name,RecordID:State.company.RecordID } })}
                   >
                     Back
                   </Button>
@@ -571,7 +572,7 @@ const ConfigureEdit = () => {
                       url={`${process.env.REACT_APP_BASE_URL}PriceList/GetCustomerCategoryPriceList?CompanyID=${data.CompanyID}`}
                       filterData={[...getRows, ...filteredSelectedItems]}
                     />
-                    <Tooltip title="Add">
+                    {/* <Tooltip title="Add"> */}
                       <IconButton
                         disabled={
                           params.mode === "delete" || params.mode === "view"
@@ -587,7 +588,7 @@ const ConfigureEdit = () => {
                           }}
                         />
                       </IconButton>
-                    </Tooltip>
+                    {/* </Tooltip> */}
                   </Stack>
 
                   <Box
@@ -631,8 +632,13 @@ const ConfigureEdit = () => {
                         backgroundColor: theme.palette.background.default, // Color for odd rows
                       },
 
-                      "& .MuiDataGrid-row.Mui-selected:hover": {
-                        backgroundColor: `${theme.palette.action.selected} !important`,
+                      // "& .MuiDataGrid-row.Mui-selected:hover": {
+                      //   backgroundColor: `${theme.palette.action.selected} !important`,
+                      // },
+                      '& .MuiDataGrid-row:hover': {
+                        border: '3px solid #999999',
+                        // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                        borderRadius: '4px', // Optional: Add rounded corners
                       },
                       "& .MuiTablePagination-root": {
                         color: "white !important", // Ensuring white text color for the pagination

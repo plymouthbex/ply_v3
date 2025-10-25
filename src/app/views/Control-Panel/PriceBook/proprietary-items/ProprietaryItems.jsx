@@ -5,7 +5,7 @@ import {
   Paper,
   Button,
   Box,
-  Tooltip,
+  // Tooltip,
   styled,
   useTheme,
 } from "@mui/material";
@@ -119,7 +119,7 @@ const ProprietaryItems = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "10px" }}>
-            <Tooltip title="Edit">
+            {/* <Tooltip title="Edit"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -138,9 +138,9 @@ const ProprietaryItems = () => {
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
 
-            <Tooltip title="Delete">
+            {/* <Tooltip title="Delete"> */}
               <IconButton
                 color="error"
                 size="small"
@@ -155,7 +155,7 @@ const ProprietaryItems = () => {
               >
                 <DeleteIcon color="error" fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -203,7 +203,7 @@ const ProprietaryItems = () => {
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
             <GridToolbarQuickFilter />
 
-            <Tooltip title="Create Proprietary Item">
+            {/* <Tooltip title="Create Proprietary Item"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -223,7 +223,7 @@ const ProprietaryItems = () => {
                   }}
                 />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </Box>
         </Box>
       </GridToolbarContainer>
@@ -278,9 +278,14 @@ const ProprietaryItems = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
+            '& .MuiDataGrid-row:hover': {
+              border: '3px solid #999999',
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: '4px', // Optional: Add rounded corners
             },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },

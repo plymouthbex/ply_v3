@@ -8,16 +8,21 @@ import {
   useTheme,
   Typography,
   Stack,
-  Tooltip,
-  IconButton,
+  // Tooltip,
   Checkbox,
+  TextField,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import {
   DataGrid,
   GridToolbarQuickFilter,
   GridToolbarContainer,
+  useGridApiContext,
 } from "@mui/x-data-grid";
 import { Breadcrumb } from "app/components";
+
+import ClearIcon from "@mui/icons-material/Clear";
 import {
   dataGridHeight,
   dataGridRowHeight,
@@ -40,9 +45,13 @@ import {
   onCheckboxChangeCustomer,
 } from "app/redux/slice/listviewSlice";
 import CheckIcon from "@mui/icons-material/Check";
-import { CustomerConfig, postConfigureCompany } from "app/redux/slice/postSlice";
+import {
+  CustomerConfig,
+  postConfigureCompany,
+} from "app/redux/slice/postSlice";
 import AlertDialog from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
+import { SingleAutocomplete } from "app/components/AutoComplete";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -61,6 +70,7 @@ const Customer = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
+  console.log("🚀 ~ Customer ~ State:", State)
   const { user } = useAuth();
   // ********************* LOCAL STATE ********************* //
 
@@ -86,8 +96,8 @@ const Customer = () => {
     {
       headerName: "Customer Name",
       field: "CustomerName",
-      minWidth: 200,
-      flex: 1,
+      minWidth: 250,
+      // flex: 1,
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -95,7 +105,7 @@ const Customer = () => {
     {
       headerName: "Price Level",
       field: "PriceLevel",
-      width: 100,
+      width: 150,
       align: "right",
       headerAlign: "center",
       hide: false,
@@ -111,7 +121,7 @@ const Customer = () => {
     {
       field: "FullPriceBook",
       headerName: "Full Price Book",
-      width: 200,
+      width: 180,
       align: "center",
       headerAlign: "center",
       sortable: false,
@@ -136,7 +146,6 @@ const Customer = () => {
                   field: "FullPriceBookExcel",
                 })
               );
-              
 
               // handleSave({...params.row,FullPriceBookExcel:e.target.checked })
             }}
@@ -180,8 +189,8 @@ const Customer = () => {
     {
       field: "customerCustomPriceBook",
       headerName: "Custom Price Book",
-      minWidth: 200,
-      flex: 1,
+      minWidth: 180,
+      // flex: 1,
       align: "center",
       headerAlign: "center",
       sortable: false,
@@ -193,8 +202,6 @@ const Customer = () => {
           <Checkbox
             checked={params.row.CustomPriceBookExcel}
             onChange={(e) => {
-
-
               dispatch(
                 CustomerConfig({
                   CustomerNumber: params.row.CustomerNumber,
@@ -247,9 +254,9 @@ const Customer = () => {
     },
     {
       field: "ItemType",
-      headerName: "Include/Exclude Items",
-      minWidth: 300,
-      flex: 1,
+      headerName: "Broken/Damaged",
+      minWidth: 230,
+      // flex: 1,
       align: "center",
       headerAlign: "center",
       sortable: false,
@@ -261,8 +268,6 @@ const Customer = () => {
           <Checkbox
             checked={params.row.BrokenItem}
             onChange={(e) => {
-
-
               dispatch(
                 CustomerConfig({
                   CustomerNumber: params.row.CustomerNumber,
@@ -284,7 +289,7 @@ const Customer = () => {
               },
             }}
           />
-          Broken Items
+          Broken
           <Checkbox
             checked={params.row.DamageItem}
             onChange={(e) => {
@@ -309,14 +314,56 @@ const Customer = () => {
               },
             }}
           />
-          Damaged Items
+          Damaged
+        </div>
+      ),
+    },
+    {
+      field: "CustomerItemNumber",
+      headerName: "Customer Item Number",
+      minWidth: 230,
+      // flex: 1,
+      align: "center",
+      headerAlign: "center",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      disableExport: true,
+      renderCell: (params) => (
+        <div>
+          <Checkbox
+            checked={params.row.CustomerItemNumber}
+            onChange={(e) => {
+              dispatch(
+                CustomerConfig({
+                  CustomerNumber: params.row.CustomerNumber,
+                  Type: "CustomerItemNumber",
+                  Value: e.target.checked ? "1" : "0",
+                })
+              );
+              dispatch(
+                onCheckboxChangeCustomer({
+                  id: params.row.RecordID,
+                  field: "CustomerItemNumber",
+                })
+              );
+            }}
+            sx={{
+              color: "#174c4f",
+              "&.Mui-checked": {
+                color: "#174c4f",
+              },
+            }}
+          />
+          Print
+          
         </div>
       ),
     },
     {
       field: "Action",
       headerName: "Action",
-      minWidth: 100,
+      // minWidth: 100,
       flex: 1,
       sortable: false,
       headerAlign: "center",
@@ -327,13 +374,13 @@ const Customer = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            {/* <Tooltip title="Confirm">
+            {/* <Tooltip title="Confirm"> 
               <IconButton color="black" size="small" onClick={() => { handleSave(params.row)}}>
                 <CheckIcon />
               </IconButton>
-            </Tooltip> */}
+            // </Tooltip> */}
 
-            <Tooltip title="Contacts">
+            {/* <Tooltip title="Contacts"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -347,6 +394,7 @@ const Customer = () => {
                         Name: params.row.CustomerName,
                         CompanyCode: State.Code,
                         company: State,
+                        RunGroup:selectedRunGrpOptions,
                       },
                     }
                   );
@@ -354,9 +402,9 @@ const Customer = () => {
               >
                 <ContactMailIcon />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
 
-            <Tooltip title="Price Lists">
+            {/* <Tooltip title="Price Lists"> */}
               <IconButton
                 color="black"
                 size="small"
@@ -369,6 +417,7 @@ const Customer = () => {
                         Code: params.row.CustomerNumber,
                         Name: params.row.CustomerName,
                         company: State,
+                        RunGroup:selectedRunGrpOptions,
                       },
                     }
                   );
@@ -376,80 +425,93 @@ const Customer = () => {
               >
                 <RequestQuoteIcon />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
     },
   ];
+  
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
-  const handleSave = async (values) => {
-    const data1 = {
-      RecordID: values.RecordID,
-      Classification: "CS",
-      CompanyID: values.CompanyID,
-      CompanyCode: values.CompanyCode,
-      CustomerNumber: values.CustomerNumber,
-      CustomerName: values.CustomerName,
-      FullPriceBookPdf: values.FullPriceBookPdf ? "1" : "0",
-      FullPriceBookExcel: values.FullPriceBookExcel ? "1" : "0",
-      CustomPriceBookPdf: values.CustomPriceBookPdf ? "1" : "0",
-      CustomPriceBookExcel: values.CustomPriceBookExcel ? "1" : "0",
-      Rungroup: values.Rungroup,
-      FullPriceBookTitle: "",
-      CustomPriceBookTitle: "",
-      Disable: "0",
-      PriceLevel: values.PriceLevel,
-      CreatedDateTime: values.CreatedDateTime,
-      LastModified: values.LastModified,
-      CreatedBy: values.CreatedBy,
-      ModifiedBy: values.ModifiedBy,
-    };
+ const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(State?.RunGroup?.Name ? {Name:State?.RunGroup?.Name}:null);
+ console.log("🚀 ~ Customer ~ State.RunGroup:",State?.RunGroup?.Name)
+ const [selectedRunGrpName, setSelectedRunGrpName] = useState(State?.RunGroup?.Name ? {Name:State?.RunGroup?.Name}:null);
 
-    const response = await dispatch(postConfigureCompany({ Cdata: data1 }));
-    if (response.payload.status === "Y") {
-      // setOpenAlert(true);
-    } else {
-      // setOpenAlert(true);
-      // setPostError(true);
-      // toast.error("Error occurred while saving data");
+  const handleSelectionRunGrpChange = (newValue) => {
+    if (newValue) {
+    setSelectedRunGrpOptions(newValue);
+    setSelectedRunGrpName(newValue.Name)
+    }else{
+      setSelectedRunGrpOptions(null);
+      setSelectedRunGrpName(null)
     }
-  };
 
+ 
+   
+
+    // if (newValue) {
+    //   dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
+    //     (res) => {
+    //       const allRowIds = res.payload.rows.map((row) => row.id);
+    //       setRowSelectionModel(allRowIds);
+    //     }
+    //   );
+    // }
+  };
+  console.log("🚀 ~ Customer ~ selectedRunGrpOptions:", selectedRunGrpOptions);
+  console.log("🚀 ~ Customer ~ selectedRunGrpName:", selectedRunGrpName)
+
+  const filteredRows=selectedRunGrpOptions?.Name
+  ? customerRows.filter(
+      (row) =>
+        row?.Rungroup === selectedRunGrpOptions?.Name 
+    )
+  : customerRows;
+  console.log("🚀 ~ handleSelectionRunGrpChange ~ filteredRows:", filteredRows)
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
     return (
       <GridToolbarContainer
         sx={{
           display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between", // Distribute space between the items
+          justifyContent: "space-between", // key change here
+          alignItems: "center",
           width: "100%",
-          // padding: 2,
+          flexWrap: "wrap", // optional, helps on smaller screens
+          gap: 2,
         }}
       >
-        <Typography fontSize={"16px"}>
-          <Typography component="span" fontSize={"16px"} fontWeight="bold">
-            Company:
+        {/* Left section */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 ,mb:2}}>
+          <Typography fontSize={"16px"}>
+            <Typography component="span" fontSize={"16px"} fontWeight="bold">
+              Company:
+            </Typography>{" "}
+            {State.Code} || {State.Name}
           </Typography>
-          {State.Code} || {State.Name}
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          
+  
+          <SingleAutocomplete
+            sx={{ width: 200 }}
+            focused
+            size="small"
+            name="rungroup"
+            id="rungroup"
+            value={selectedRunGrpOptions}
+            onChange={handleSelectionRunGrpChange}
+            label="Price Book Group"
+            url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
+          />
+        </Box>
+  
+        {/* Right-aligned search */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <GridToolbarQuickFilter />
         </Box>
       </GridToolbarContainer>
     );
   }
+  
 
   return (
     <Container>
@@ -542,10 +604,14 @@ const Customer = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-
-            "& .MuiDataGrid-row.Mui-selected:hover": {
-              backgroundColor: `${theme.palette.action.selected} !important`,
+            '& .MuiDataGrid-row:hover': {
+              border: '3px solid #999999',
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: '4px', // Optional: Add rounded corners
             },
+            // "& .MuiDataGrid-row.Mui-selected:hover": {
+            //   backgroundColor: `${theme.palette.action.selected} !important`,
+            // },
             "& .MuiTablePagination-root": {
               color: "white !important", // Ensuring white text color for the pagination
             },
@@ -572,13 +638,23 @@ const Customer = () => {
               loadingOverlay: LinearProgress,
               toolbar: CustomToolbar,
             }}
+            // initialState={{
+
+            // }}
             rowHeight={dataGridRowHeight}
-            rows={customerRows}
+            rows={filteredRows}
             columns={columns}
             disableSelectionOnClick
             disableRowSelectionOnClick
             getRowId={(row) => row.RecordID}
             initialState={{
+              // filter: {
+              //   filterModel: {
+              //     items: [
+              //       { field: "Rungroup", operator: "contains", value: "" },
+              //     ],
+              //   },
+              // },
               pagination: { paginationModel: dataGridPageSize },
             }}
             pageSizeOptions={dataGridpageSizeOptions}
@@ -626,3 +702,96 @@ const Customer = () => {
 };
 
 export default Customer;
+// function CustomToolbar() {
+//   const apiRef = useGridApiContext();
+//   const [runGroupFilter, setRunGroupFilter] = React.useState("");
+
+//   const handleRunGroupFilterChange = (event) => {
+//     const value = event.target.value;
+//     setRunGroupFilter(value);
+
+//     apiRef.current.setFilterModel({
+//       items: [
+//         {
+//           field: "Rungroup",
+//           operator: "contains",
+//           value: value,
+//         },
+//       ],
+//     });
+//   };
+
+//   return (
+//     <GridToolbarContainer
+//       sx={{
+//         display: "flex",
+//         flexDirection: "row",
+//         justifyContent: "space-between",
+//         width: "100%",
+//       }}
+//     >
+//       <Typography fontSize={"16px"}>
+//         <Typography component="span" fontSize={"16px"} fontWeight="bold">
+//           Company:
+//         </Typography>
+//         {State.Code} || {State.Name}
+//       </Typography>
+
+//       <Box
+//         sx={{
+//           display: "flex",
+//           flexDirection: "row",
+//           alignItems: "center",
+//           gap: 2,
+//         }}
+//       >
+//         {/* <TextField
+//           label="Search Price Book Group "
+//           variant="standard"
+//           size="small"
+//           value={runGroupFilter}
+//           onChange={handleRunGroupFilterChange}
+//           sx={{mb:2,width:200}}
+//         /> */}
+
+
+//          <SingleAutocomplete
+//                      sx={{ mb: 2, width: 200 }}
+//                       focused
+//                       size='small'
+//                       name="rungroup"
+//                       id="rungroup"
+//                       value={selectedRunGrpOptions}
+//                       onChange={handleSelectionRunGrpChange}
+//                       label="Price Book Group"
+//                       url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=5`}
+//                     />
+//         {/* <TextField
+//           label="Search Price Book Group"
+//           variant="standard"
+//           size="small"
+//           value={runGroupFilter}
+//           onChange={handleRunGroupFilterChange}
+//           sx={{ mb: 2, width: 200 }}
+//           InputProps={{
+//             endAdornment: runGroupFilter && (
+//               <InputAdornment position="end">
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => {
+//                     setRunGroupFilter("");
+//                     apiRef.current.setFilterModel({ items: [] });
+//                   }}
+//                 >
+//                   <ClearIcon fontSize="small" />
+//                 </IconButton>
+//               </InputAdornment>
+//             ),
+//           }}
+//         /> */}
+
+//         <GridToolbarQuickFilter />
+//       </Box>
+//     </GridToolbarContainer>
+//   );
+// }

@@ -15,7 +15,7 @@ import {
   MenuItem,
   DialogActions,
   IconButton,
-  Tooltip,
+  // Tooltip,
   List,
   ListItem,
   ListItemText,
@@ -83,7 +83,7 @@ import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import Loading from "app/components/AppLoading";
-import { FormikCustomAutocompleteMulti } from "app/components/FormikAutocomplete";
+import { FormikCustomAutocompleteMulti, FormikCustomAutocompleteMultiSecCla } from "app/components/FormikAutocomplete";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -116,6 +116,9 @@ const PriceListEdit = () => {
   // ********************** LOCAL STATE ********************** //
 
   const [openAlert, setOpenAlert] = useState(false);
+
+  const [openErrorAlert, setOpenErrorAlert] = useState(false);
+  const [error1Msg, setError1Msg] = useState(false);
   const [postError, setPostError] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
   const [showGridData, setShowGridData] = useState(0);
@@ -150,6 +153,8 @@ const PriceListEdit = () => {
   const priceListHeaderData = useSelector(
     (state) => state.getSlice.priceListHeaderData
   );
+  console.log(priceListHeaderData,"priceListHeaderData")
+  const [companyID ,setCompanyId]=useState(priceListHeaderData.CompanyID)
   const priceListFilterData = useSelector(
     (state) => state.getSlice.priceListFilterData
   );
@@ -208,20 +213,20 @@ const PriceListEdit = () => {
             <Checkbox
   checked={param.row.PrintItem === true}
   onChange={(e) => {
-    const newValue = e.target.checked ? "1" : "0";
-console.log(e);
-    dispatch(
-      PutAdHocItem({
-        data: {
-          RecordID: param.row.RecordId,
-          PriceListID: priceListHeaderData.PriceListID,
-          QuotationRecordID: "0",
-          FilterType: "PL",
-          ItemNo: param.row.Item_Number,
-          PrintItem: newValue,
-        },
-      })
-    );
+  const newValue = e.target.checked ? "1" : "0";
+// console.log(e);
+//     dispatch(
+//       PutAdHocItem({
+//         data: {
+//           RecordID: param.row.RecordId,
+//           PriceListID: priceListHeaderData.PriceListID,
+//           QuotationRecordID: "0",
+//           FilterType: "PL",
+//           ItemNo: param.row.Item_Number,
+//           PrintItem: newValue,
+//         },
+//       })
+//     );
 
     dispatch(
       onCheckboxChangePriceListEdit({
@@ -299,7 +304,7 @@ console.log(e);
       renderCell: (param) => {
         return (
           <>
-            <Tooltip title="Remove">
+            {/* <Tooltip title="Remove"> */}
               <IconButton
                 sx={{ height: 25, marginLeft: 2 }}
                 variant="contained"
@@ -318,7 +323,7 @@ console.log(e);
               >
                 <DeleteIcon size="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </>
         );
       },
@@ -327,17 +332,37 @@ console.log(e);
   const [quickFilterText, setQuickFilterText] = useState("");
   // **********************  FUNCTION ********************** //
 
-  // const isPriceListIDExists = (e, setSubmitting) => {
-  //   const inputValue = e.target.value.trim();
-  //   const isPriceListID = priceRows.some(
-  //     (item) => item.PRICELISTID === inputValue
-  //   );
-  //   if (isPriceListID) {
-  //     SetIsPriceListOpen(true);
-  //   } else {
-  //     setSubmitting(false);
-  //   }
-  // };
+  const isPriceListIDExists = (e, setSubmitting) => {
+    const inputValue = e.target.value.trim();
+    const isPriceListID = priceRows.some(
+      (item) => item.PRICELISTDESCRIPTION === inputValue
+    );
+    const matchedItem = priceRows.find(
+      (item) => item.PRICELISTDESCRIPTION.toLowerCase() == inputValue.toLowerCase()
+    );
+    console.log(isPriceListID,"isPriceListID")
+    console.log(matchedItem,"matchedItem")
+    //setFieldValue("pricelistDesc", "");
+    if (matchedItem) {
+      navigate(
+        "/pages/control-panel/price-list/price-list-detail/edit",
+        {
+          // state: { id: values.priceListID },
+          
+            state: {
+              id:matchedItem.RecordID,
+              companyCode: state.companyCode,
+              companyRecordID: state.companyRecordID,
+            },
+          
+        }
+      );
+      dispatch(getPriceListData({ id: matchedItem.RecordID }));
+     // SetIsPriceListOpen(true);
+    } else {
+      setSubmitting(false);
+    }
+  };
 
   const priceListSaveFn = async (values, setSubmitting, isDerct = false) => {
     console.log("--",state.companyCode)
@@ -375,6 +400,7 @@ console.log(e);
       ).then(async (response) => {
         if (response.payload.status === "Y") {
           setpriceListRecordID(response.payload.PriceListID.toString())
+          setCompanyId(response.payload.CompanyRecordID)
           const filterData = {
             FilterType: "PL",
             headerRecordID:response.payload.PriceListID.toString(),
@@ -480,15 +506,25 @@ console.log(e);
             // setTimeout(() => {
             //   setOpenAlert(false);
             // }, 5000);
-          } else {
-          // if (params.mode === "add") {
-          setOpenAlert(true);
-          // setPostError(res.payload.message);
-          // setTimeout(() => {
-          //   setOpenAlert(false);
-          // }, 2000);
-          // }
-      } }
+          }
+      //      else {
+      //     if (params.mode === "add") {
+      //     setOpenAlert(true);
+      //     setPostError(response.payload.message);
+      //     setTimeout(() => {
+      //       setOpenAlert(false);
+      //     }, 2000);
+        
+      // }
+      //  } 
+      }
+      else{
+        setOpenErrorAlert(true);
+        setError1Msg(response.payload.message);
+          setTimeout(() => {
+            setOpenErrorAlert(false);
+          }, 2000);
+      }
       });
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
@@ -496,8 +532,7 @@ console.log(e);
   };
 
   const ApplyFilter= async(values)=>{
-    setIsOtherItem(true);
-    setIsOtherDisabled(false);
+   
     const filterData = {
       FilterType: "AP",
       headerRecordID:priceListRecordID,
@@ -589,6 +624,8 @@ console.log(e);
 
 
     const res = await dispatch(getPriceListFilterData(filterData));
+    setIsOtherItem(true);
+    setIsOtherDisabled(false);
     setIsFilterApplied(true)
   }
 
@@ -1184,7 +1221,12 @@ const FILTERADHoc = [
                     {
                       name: "Price List",
                       path: "/pages/control-panel/price-list",
+                      state: {
+                        id: priceListHeaderData.CompanyID,
+                        code: priceListHeaderData.CompanyCode,
+                      },
                     },
+                    
                     { name: `${params.mode} Price List` },
                   ]}
                 />
@@ -1223,17 +1265,24 @@ const FILTERADHoc = [
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
                     onClick={() => {
-                      navigate("/pages/control-panel/price-list");
-                  
+                      navigate("/pages/control-panel/price-list", {
+                        state: params.mode === "add"
+                          ? { id: state.companyRecordID, code: state.companyCode }
+                          : {
+                              id: priceListHeaderData.CompanyID,
+                              code: priceListHeaderData.CompanyCode,
+                            },
+                      });
                     }}
+                    
                   >
                     Back
                   </Button>
-                  <Tooltip title="Help">
+                  {/* <Tooltip title="Help"> */}
   <IconButton onClick={handleOpen}>
     <HelpOutlineIcon />
   </IconButton>
-</Tooltip>
+{/* </Tooltip> */}
                 </Stack>
               </div>
 
@@ -1331,7 +1380,8 @@ const FILTERADHoc = [
                     value={values.priceListDescription}
                     autoComplete="off"
                     onChange={handleChange}
-                    onBlur={handleBlur}
+                    // onBlur={handleBlur}
+                    onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
                     size="small"
                     //   error={!!touched.priceListDescription && !!errors.priceListDescription}
                     //   helperText={touched.priceListDescription && errors.priceListDescription}
@@ -1688,7 +1738,7 @@ const FILTERADHoc = [
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocompleteMulti
+                      <FormikCustomAutocompleteMultiSecCla
                         name="SecondClassInExData"
                         id="SecondClassInExData"
                         value={values.SecondClassInExData}
@@ -1731,7 +1781,7 @@ const FILTERADHoc = [
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
                       </TextField>
-                      <FormikCustomAutocompleteMulti
+                      <FormikCustomAutocompleteMultiSecCla
                         name="classIDInExData"
                         id="classIDInExData"
                         value={values.classIDInExData}
@@ -1831,8 +1881,8 @@ const FILTERADHoc = [
                     </Stack>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={1}>
-                      {state.id ? (
-                        // <></>
+                      {/* {state.id ? ( 
+                        // <></>*/}
                         <Button
                           variant="contained"
                           color="info"
@@ -1855,17 +1905,17 @@ const FILTERADHoc = [
                             ? "Excluded Items"
                             : "Price List Items"}
                         </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          color="info"
-                          size="small"
-                          startIcon={<Add size="small" />}
-                          disabled={true}
-                        >
-                          Excluded Items
-                        </Button>
-                      )}
+                       {/*  ) : (
+                      //   <Button
+                      //     variant="contained"
+                      //     color="info"
+                      //     size="small"
+                      //     startIcon={<Add size="small" />}
+                      //     disabled={true}
+                      //   >
+                      //     Excluded Items
+                      //   </Button>
+                      // )}*/}
                       <Button
                         variant="contained"
                         color="info"
@@ -1909,7 +1959,10 @@ const FILTERADHoc = [
                               ? true
                               : false
                           }
-                          type="submit"
+                          onClick={() => {
+                            setIsRemoveItem(true);
+                          }}
+                          // type="submit"
                         >
                           Clear Filters
                         </Button>
@@ -1951,10 +2004,15 @@ const FILTERADHoc = [
                       "& .MuiDataGrid-row:nth-of-type(odd)": {
                         backgroundColor: theme.palette.background.default, // Color for odd rows
                       },
-                      // Prevent selected row background color from changing on hover
-                      "& .MuiDataGrid-row.Mui-selected:hover": {
-                        backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+                      '& .MuiDataGrid-row:hover': {
+                        border: '3px solid #999999',
+                        // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                        borderRadius: '4px', // Optional: Add rounded corners
                       },
+                      // Prevent selected row background color from changing on hover
+                      // "& .MuiDataGrid-row.Mui-selected:hover": {
+                      //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+                      // },
                       "& .MuiTablePagination-root": {
                         color: "white !important", // Ensuring white text color for the pagination
                       },
@@ -2086,6 +2144,7 @@ const FILTERADHoc = [
           disabled={params.mode === "delete" || params.mode === "view"}
         > Item
         </Button>
+        
       </Box> 
                     <DataGrid
                     columnHeaderHeight={dataGridHeaderFooterHeight}
@@ -2357,6 +2416,36 @@ const FILTERADHoc = [
           )}
         </Formik>
       )}
+         <AlertDialog
+        key={7846694}
+        logo={`data:image/png;base64,${user.logo}`}
+        open={openErrorAlert}
+        error={error1Msg}
+        message={
+          error1Msg
+        }
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setOpenErrorAlert(false);
+              }}
+              sx={{ mr: 1, height: 25 }}
+            >
+              Close
+            </Button>
+          </Box>
+        }
+      />
       <AlertDialog
         key={7846694}
         logo={`data:image/png;base64,${user.logo}`}
@@ -2462,7 +2551,14 @@ const FILTERADHoc = [
                  color="info"
                  size="small"
                  onClick={() => {
-                   navigate("/pages/control-panel/price-list");
+
+                  
+                  navigate("/pages/control-panel/price-list", {
+                    state:  {
+                          id: companyID,
+                          code: companyID,
+                        },
+                  });
                    setOpenAlert(false);
                    setSuccessMessage(null);
                    setPostError(null);
@@ -2479,7 +2575,12 @@ const FILTERADHoc = [
                 color="info"
                 size="small"
                 onClick={() => {
-                  navigate("/pages/control-panel/price-list");
+                  navigate("/pages/control-panel/price-list", {
+                    state: {
+                        id: state.companyRecordID,
+                        code: state.companyCode,
+                      },
+                  });
                   setOpenAlert(false);
                   setSuccessMessage(null);
                   setPostError(null);

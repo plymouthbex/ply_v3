@@ -12,6 +12,9 @@ import {
   FormControl,
   Stack,
   DialogActions,
+  DialogTitle,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 
@@ -88,9 +91,14 @@ const validationSchema = Yup.object({
   address: Yup.string()
     .min(3, "Address must be at least 3 characters")
     .max(50, "Address must be at most 50 characters"),
-     phonenumber: Yup.string()
-        .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
-        .required("Phone number is required"),
+    //  phonenumber: Yup.string()
+    //     .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+    //     .required("Phone number is required"),
+    //     phone2: Yup.string()
+    //     //.required("Phone-2 number is required")
+    //     .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+    //     //.matches(/^\d-\d{3}-\d{3}-\d{4}$/, "Phone-2 number must be in format X-XXX-XXX-XXXX"),
+      
 });
 
 // ******************** Price List Edit SCREEN  ******************** //
@@ -103,6 +111,7 @@ const CompanyEdit = () => {
   const state = location.state;
   const dispatch = useDispatch();
   const { user, updateUser } = useAuth();
+  // console.log(user);
   // ******************** LOCAL STATE ******************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -113,7 +122,7 @@ const CompanyEdit = () => {
   const status = useSelector((state) => state.getSlice.companyStatus);
 
   const error = useSelector((state) => state.getSlice.companyError);
-  const CompanyID = state.RecordID ? state.RecordID : user.id ;
+  const CompanyID = state.RecordID ? state.RecordID : 0;
   ///===========API CALL GET============================//
   useEffect(() => {
     dispatch(getCompanyData({ ID: CompanyID}));
@@ -125,26 +134,42 @@ const CompanyEdit = () => {
       recordID: data.RecordID,
       companyCode: values.code,
       companyName: values.name,
-      emailId: values.email,
+      emailId: "",
       address1: values.address1,
       address2: values.address2,
-      address3: values.address3,
-      phone: values.phonenumber,
+      address3: "",
+      phone: "",
+      City:values.city,
+      State:values.state,
+      Phone2:values.phone2,
       genericFullPriceBook: values.generic,
       customerFullPriceBook: values.custom,
       customerCustomPriceBook: values.customer,
-      sortOrder: values.sequence,
-      faxNumber: values.fax,
+      sortOrder: "",
+      faxNumber: "",
+      Zip:values.zip && !isNaN(values.zip) ? parseInt(values.zip, 10) : null,
       disable: values.disable ? "Y" : "N",
+      GenericprintCategory:values.GenericprintCategory,
+      GenericprintPricelist:values.GenericprintPricelist,
+      GenericpageBreakDown:values.GenericpageBreakDown,
+      CustomerFullprintCategory:values.CustomerFullprintCategory,
+      CustomerFullprintPricelist:values.CustomerFullprintPricelist,
+      CustomerFullpageBreakDown:values.CustomerFullpageBreakDown,
+      CustomerCustomprintCategory:values.CustomerCustomprintCategory,
+      CustomerCustomprintPricelist:values.CustomerCustomprintPricelist,
+      CustomerCustompageBreakDown:values.CustomerCustompageBreakDown
     };
 
     console.log("🚀 ~ handleSave ~ companyData:", companyData);
-
+// return;
     const response = await dispatch(CompanyPost({ companyData }));
 
     if (response.payload.status === "Y") {
+      console.log(response.payload.RecordId)
+      // return;
       setOpenAlert(true);
       setPostMessage(response.payload.message);
+      fnpostImage(response.payload.RecordId);
      
     } else {
       setOpenAlert(true);
@@ -163,8 +188,11 @@ const CompanyEdit = () => {
   const [previewImages2, setPreviewImages2] = useState([]);
   const [imageList3, setImageList3] = useState([]);
   const [previewImages3, setPreviewImages3] = useState([]);
-
-  const handleDrop = (setImageList, setPreviewImages) => (acceptedFiles) => {
+  const [tempImageList, setTempImageList] = useState([]);
+  const [tempPreviewImages, setTempPreviewImages] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogImageKey, setDialogImageKey] = useState(null);
+  const handleDrop = (key) => (acceptedFiles) => {
     const previews = [];
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
@@ -174,27 +202,78 @@ const CompanyEdit = () => {
           preview: reader.result,
         });
         if (previews.length === acceptedFiles.length) {
-          setPreviewImages(previews);
+          setTempPreviewImages(previews);
+          setTempImageList(acceptedFiles);
+          setDialogImageKey(key);   // track which input triggered it
+          setOpenDialog(true);
         }
       };
       reader.readAsDataURL(file);
     });
-    setImageList(acceptedFiles);
   };
-
+  
+  // const handleDrop = (setImageList, setPreviewImages) => (acceptedFiles) => {
+  //   const previews = [];
+  //   acceptedFiles.forEach((file) => {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       previews.push({
+  //         name: file.name,
+  //         preview: reader.result,
+  //       });
+  //       if (previews.length === acceptedFiles.length) {
+  //         setPreviewImages(previews);
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+  //   setImageList(acceptedFiles);
+  // };
+  // const handleDrop = (setImageList, setPreviewImages) => (acceptedFiles) => {
+  //   const previews = [];
+  //   acceptedFiles.forEach((file) => {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       previews.push({
+  //         name: file.name,
+  //         preview: reader.result,
+  //       });
+  //       if (previews.length === acceptedFiles.length) {
+  //         setTempPreviewImages(previews);
+  //         setTempImageList(acceptedFiles);
+  //         setOpenDialog(true); // Open confirmation dialog
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
+  
+  // const dropzoneProps1 = useDropzone({
+  //   accept: "image/*",
+  //   onDrop: handleDrop(setImageList1, setPreviewImages1),
+  // });
+  // const dropzoneProps2 = useDropzone({
+  //   accept: "image/*",
+  //   onDrop: handleDrop(setImageList2, setPreviewImages2),
+  // });
+  // const dropzoneProps3 = useDropzone({
+  //   accept: "image/*",
+  //   onDrop: handleDrop(setImageList3, setPreviewImages3),
+  // });
   const dropzoneProps1 = useDropzone({
     accept: "image/*",
-    onDrop: handleDrop(setImageList1, setPreviewImages1),
+    onDrop: handleDrop("1"),
   });
+  
   const dropzoneProps2 = useDropzone({
     accept: "image/*",
-    onDrop: handleDrop(setImageList2, setPreviewImages2),
+    onDrop: handleDrop("2"),
   });
+  
   const dropzoneProps3 = useDropzone({
     accept: "image/*",
-    onDrop: handleDrop(setImageList3, setPreviewImages3),
+    onDrop: handleDrop("3"),
   });
-
   const SettingsLogo = ({ previewImages, imageSrc }) => {
     const displayImage =
       previewImages.length > 0 ? previewImages[0]["preview"] : "";
@@ -242,7 +321,7 @@ const CompanyEdit = () => {
     fetchImages();
   }, [CompanyID]);
 
-  const fnpostImage = async () => {
+  const fnpostImage = async (CmpID) => {
     let isImageUpdated = false;
 
     if (imgstatus1 === "Y") {
@@ -250,7 +329,7 @@ const CompanyEdit = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: CmpID,
         TabelID: "CO",
         ImageID: "GFPB",
         Description: "General Full Price Book",
@@ -275,7 +354,7 @@ const CompanyEdit = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: CmpID,
         TabelID: "CO",
         ImageID: "CFPB",
         Description: "Customer Full Price Book",
@@ -301,7 +380,7 @@ const CompanyEdit = () => {
       const images = image.split(",");
       const idata = {
         RecordID: -1,
-        CompanyID: CompanyID,
+        CompanyID: CmpID,
         TabelID: "CO",
         ImageID: "CCPB",
         Description: "Customer Custom Price Book",
@@ -362,7 +441,18 @@ const CompanyEdit = () => {
       setImgStatus3("N");
     }
   };
-
+  const getDialogTitle = (key) => {
+    switch (key) {
+      case "1":
+        return "Full Price Book";
+      case "2":
+        return "Customer Full Price Book";
+      case "3":
+        return "Customer Custom Price Book";
+      default:
+        return "Image Upload";
+    }
+  };
   return (
     <Container>
       {status === "fulfilled" && !error ? (
@@ -376,12 +466,25 @@ const CompanyEdit = () => {
             address1: data.Address1,
             address2: data.Address3,
             address3: data.Address3,
-            phonenumber: data.Phone,
+            // phonenumber: data.Phone,
+            city: data.City,
+            state: data.State,
+            phone2:data.Phone2,
             fax: data.FaxNumber,
+            zip:data.Zip,
             generic: data.GenericFullPriceBook,
             custom: data.CustomerFullPriceBook,
             customer: data.CustomerCustomPriceBook,
             disable: data.Disable === "Y" ? true : false,
+            GenericprintCategory: data.GenericprintCategory  ? true : false,
+            GenericprintPricelist: data.GenericprintPricelist  ? true : false,
+            GenericpageBreakDown: data.GenericpageBreakDown  ? true : false,
+            CustomerFullprintCategory: data.CustomerFullprintCategory  ? true : false,
+            CustomerFullprintPricelist: data.CustomerFullprintPricelist  ? true : false,
+            CustomerFullpageBreakDown: data.CustomerFullpageBreakDown  ? true : false,
+            CustomerCustomprintCategory: data.CustomerCustomprintCategory  ? true : false,
+            CustomerCustomprintPricelist: data.CustomerCustomprintPricelist  ? true : false,
+            CustomerCustompageBreakDown: data.CustomerCustompageBreakDown  ? true : false,
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -392,7 +495,7 @@ const CompanyEdit = () => {
               // }
               if (params.mode === "add" || params.mode === "edit") {
                 handleSave(values, setSubmitting);
-                fnpostImage();
+                // fnpostImage();
               }
             }, 400);
           }}
@@ -405,12 +508,13 @@ const CompanyEdit = () => {
             isSubmitting,
             values,
             handleSubmit,
+            setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
               <div className="breadcrumb">
                 <Breadcrumb
                   routeSegments={[
-                    { name: "Security" },
+                    { name: "Control Panel" },
                     { name: "Company", path: "/pages/security/company" },
                     { name: `${params.mode} Company Detail` },
                   ]}
@@ -498,7 +602,7 @@ const CompanyEdit = () => {
                     helperText={touched.name && errors.name}
                     // autoFocus
                   />
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="email"
@@ -508,7 +612,7 @@ const CompanyEdit = () => {
                     size="small"
                       autoComplete="off"
                     sx={{ gridColumn: "span 2" }}
-                    required
+                    //required
                     InputLabelProps={{
                       sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
                     }}
@@ -517,8 +621,8 @@ const CompanyEdit = () => {
                     onBlur={handleBlur}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
-                  />
-                  <TextField
+                  /> */}
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -532,12 +636,98 @@ const CompanyEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     value={values.phonenumber}
-                    onChange={handleChange}
+                    //onChange={handleChange}
+                    onChange={(e) => {
+    const formatPhoneNumber = (value) => {
+  // Remove all non-digit characters
+  const phoneNumber = value.replace(/\D/g, '');
+
+  // Format only if 10 digits
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`; // Truncate after 10 digits
+  }
+};
+    // const formatPhoneNumber = (value) => {
+    //   const digits = value.replace(/\D/g, "");
+    //   if (digits.length === 0) return "";
+    
+    //   let formatted = "";
+    //   if (digits.length > 0) formatted += digits[0];
+    //   if (digits.length > 1) formatted += "-" + digits.slice(1, 4);
+    //   if (digits.length > 4) formatted += "-" + digits.slice(4, 7);
+    //   if (digits.length > 7) formatted += "-" + digits.slice(7, 11);
+    
+    //   return formatted;
+    // };
+    
+
+    const formatted = formatPhoneNumber(e.target.value);
+    setFieldValue("phonenumber", formatted);
+  }}
                       autoComplete="off"
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
-                  />
+                  /> */}
+                  {/* <TextField
+  fullWidth
+  variant="outlined"
+  type="text"
+  id="phone2"
+  name="phone2"
+  //required
+  InputLabelProps={{
+    sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+  }}
+  label="Phone"
+  size="small"
+  sx={{ gridColumn: "span 2" }}
+  value={values.phone2}
+  autoComplete="off"
+  onChange={(e) => {
+    const formatPhoneNumber = (value) => {
+  // Remove all non-digit characters
+  const phoneNumber = value.replace(/\D/g, '');
+
+  // Format only if 10 digits
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`; // Truncate after 10 digits
+  }
+};
+    // const formatPhoneNumber = (value) => {
+    //   const digits = value.replace(/\D/g, "");
+    //   if (digits.length === 0) return "";
+    
+    //   let formatted = "";
+    //   if (digits.length > 0) formatted += digits[0];
+    //   if (digits.length > 1) formatted += "-" + digits.slice(1, 4);
+    //   if (digits.length > 4) formatted += "-" + digits.slice(4, 7);
+    //   if (digits.length > 7) formatted += "-" + digits.slice(7, 11);
+    
+    //   return formatted;
+    // };
+    
+
+    const formatted = formatPhoneNumber(e.target.value);
+    setFieldValue("phone2", formatted);
+  }}
+  onBlur={handleBlur}
+  error={touched.phone2 && Boolean(errors.phone2)}
+  helperText={touched.phone2 && errors.phone2}
+/> */}
+
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -570,7 +760,40 @@ const CompanyEdit = () => {
                     error={touched.address2 && Boolean(errors.address2)}
                     helperText={touched.address2 && errors.address2}
                   />
-                  <TextField
+                  
+                   <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="city"
+                    name="city"
+                    label="City"
+                    size="small"
+                      autoComplete="off"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.city}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.city && Boolean(errors.city)}
+                    helperText={touched.city && errors.city}
+                  /> 
+                   <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="state"
+                    name="state"
+                    label="State"
+                    size="small"
+                      autoComplete="off"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.state}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.state && Boolean(errors.state)}
+                    helperText={touched.state && errors.state}
+                  /> 
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -585,8 +808,8 @@ const CompanyEdit = () => {
                     onBlur={handleBlur}
                     error={touched.address3 && Boolean(errors.address3)}
                     helperText={touched.address3 && errors.address3}
-                  />
-                  <TextField
+                  /> */}
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -608,8 +831,8 @@ const CompanyEdit = () => {
                     onBlur={handleBlur}
                     error={touched.sequence && Boolean(errors.sequence)}
                     helperText={touched.sequence && errors.sequence}
-                  />
-                  <TextField
+                  /> */}
+                  {/* <TextField
                     fullWidth
                     variant="outlined"
                     type="text"
@@ -631,7 +854,82 @@ const CompanyEdit = () => {
                     onBlur={handleBlur}
                     error={touched.fax && Boolean(errors.fax)}
                     helperText={touched.fax && errors.fax}
+                  /> */}
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="number"
+                    id="zip"
+                    name="zip"
+                    label="Zip"
+                      autoComplete="off"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    InputProps={{
+                      inputProps: {
+                        style: {
+                          textAlign: "left",
+                        },
+                      },
+                    }}
+                    value={values.zip}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.zip && Boolean(errors.zip)}
+                    helperText={touched.zip && errors.zip}
                   />
+                                    <TextField
+  fullWidth
+  variant="outlined"
+  type="text"
+  id="phone2"
+  name="phone2"
+  //required
+  InputLabelProps={{
+    sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+  }}
+  label="Phone"
+  size="small"
+  sx={{ gridColumn: "span 2" }}
+  value={values.phone2}
+  autoComplete="off"
+  onChange={(e) => {
+    const formatPhoneNumber = (value) => {
+  // Remove all non-digit characters
+  const phoneNumber = value.replace(/\D/g, '');
+
+  // Format only if 10 digits
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`; // Truncate after 10 digits
+  }
+};
+    // const formatPhoneNumber = (value) => {
+    //   const digits = value.replace(/\D/g, "");
+    //   if (digits.length === 0) return "";
+    
+    //   let formatted = "";
+    //   if (digits.length > 0) formatted += digits[0];
+    //   if (digits.length > 1) formatted += "-" + digits.slice(1, 4);
+    //   if (digits.length > 4) formatted += "-" + digits.slice(4, 7);
+    //   if (digits.length > 7) formatted += "-" + digits.slice(7, 11);
+    
+    //   return formatted;
+    // };
+    
+
+    const formatted = formatPhoneNumber(e.target.value);
+    setFieldValue("phone2", formatted);
+  }}
+  onBlur={handleBlur}
+  error={touched.phone2 && Boolean(errors.phone2)}
+  helperText={touched.phone2 && errors.phone2}
+/>
                   <FormControlLabel
                   sx={{ width:"20px"}}
                     control={
@@ -667,7 +965,7 @@ const CompanyEdit = () => {
                     type="text"
                     id="generic"
                     name="generic"
-                    label="Generic Full Price Book"
+                    label="Company Full Price Book"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     value={values.generic}
@@ -677,6 +975,63 @@ const CompanyEdit = () => {
                     error={touched.generic && Boolean(errors.generic)}
                     helperText={touched.generic && errors.generic}
                   />
+                    <Stack sx={{ gridColumn: "span 2" }} gap={2} >
+             <Stack direction="row" gap={2}  >
+             <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="GenericprintCategory"
+                        name="GenericprintCategory"
+                        checked={values.GenericprintCategory}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="Print Category"
+                  />
+                   <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="GenericprintPricelist"
+                        name="GenericprintPricelist"
+                        checked={values.GenericprintPricelist}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="Print PriceList"
+                  />
+                   <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px" }}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="GenericpageBreakDown"
+                        name="GenericpageBreakDown"
+                        checked={values.GenericpageBreakDown}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="PageBreak"
+                  />
+
+             </Stack>
+
+             </Stack>
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -693,7 +1048,63 @@ const CompanyEdit = () => {
                     error={touched.custom && Boolean(errors.custom)}
                     helperText={touched.custom && errors.custom}
                   />
+  <Stack sx={{ gridColumn: "span 2" }} gap={2}>
+             <Stack direction="row" gap={2} >
+             <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="CustomerFullprintCategory"
+                        name="CustomerFullprintCategory"
+                        checked={values.CustomerFullprintCategory}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="Print Category"
+                  />
+                   <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="CustomerFullprintPricelist"
+                        name="CustomerFullprintPricelist"
+                        checked={values.CustomerFullprintPricelist}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="Print PriceList"
+                  />
+                   <FormControlLabel
+                  sx={{ width:"250px" }}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="CustomerFullpageBreakDown"
+                        name="CustomerFullpageBreakDown"
+                        checked={values.CustomerFullpageBreakDown}
+                        onChange={handleChange}
+                        sx={{ height: "10px" ,marginTop:"7px"}}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="PageBreak"
+                  />
 
+             </Stack>
+
+             </Stack>
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -710,6 +1121,63 @@ const CompanyEdit = () => {
                     error={touched.customer && Boolean(errors.customer)}
                     helperText={touched.customer && errors.customer}
                   />
+             <Stack sx={{ gridColumn: "span 2" }} gap={2}>
+             <Stack direction="row" gap={2} >
+             <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="CustomerCustomprintCategory"
+                        name="CustomerCustomprintCategory"
+                        checked={values.CustomerCustomprintCategory}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="Print Category"
+                  />
+                   <FormControlLabel
+                  sx={{ width:"250px",marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="CustomerCustomprintPricelist"
+                        name="CustomerCustomprintPricelist"
+                        checked={values.CustomerCustomprintPricelist}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="Print PriceList"
+                  />
+                   <FormControlLabel
+                  sx={{ width:"250px" ,marginTop:"7px"}}
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="CustomerCustompageBreakDown"
+                        name="CustomerCustompageBreakDown"
+                        checked={values.CustomerCustompageBreakDown}
+                        onChange={handleChange}
+                        sx={{ height: "10px" }}
+                        disabled={
+                          params.mode === "delete" || params.mode === "view"
+                        }
+                      />
+                    }
+                    label="PageBreak"
+                  />
+
+             </Stack>
+
+             </Stack>
 
                   <FormControl
                     sx={{
@@ -776,7 +1244,7 @@ const CompanyEdit = () => {
                     alignItems="center"
                   >
                     <Typography fontSize={"14px"}>
-                      Customer Custom Price Book
+                      Customer Full Price Book
                     </Typography>
                     <SettingsLogo previewImages={previewImages2} />
                     {user.role != "USER" && (
@@ -810,7 +1278,7 @@ const CompanyEdit = () => {
                     alignItems="center"
                   >
                     <Typography fontSize={"14px"}>
-                      Customer Full Price Book
+                      Customer Custom Price Book
                     </Typography>
                     <SettingsLogo previewImages={previewImages3} />
                     {user.role != "USER" && (
@@ -896,6 +1364,54 @@ const CompanyEdit = () => {
           )
         }
       />
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <DialogTitle sx={{ textAlign: "center" }}>
+  {{
+    "1": "Full Price Book",
+    "2": "Customer Full Price Book",
+    "3": "Customer Custom Price Book",
+  }[dialogImageKey] || "Image Upload"}
+</DialogTitle>
+
+  <DialogContent>
+    {tempPreviewImages.map((img, index) => (
+      <img key={index} src={img.preview} alt={img.name} style={{ width: "100%", marginBottom: 10 }} />
+    ))}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenDialog(false)} variant="contained"
+                    color="info"
+                    size="small">Cancel</Button>
+    <Button 
+    variant="contained"
+    color="info"
+    size="small"
+      onClick={() => {
+        switch (dialogImageKey) {
+          case "1":
+            setPreviewImages1(tempPreviewImages);
+            setImageList1(tempImageList);
+            break;
+          case "2":
+            setPreviewImages2(tempPreviewImages);
+            setImageList2(tempImageList);
+            break;
+          case "3":
+            setPreviewImages3(tempPreviewImages);
+            setImageList3(tempImageList);
+            break;
+          default:
+            break;
+        }
+        setOpenDialog(false);
+      }}
+    >
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
     </Container>
   );
 };

@@ -113,11 +113,13 @@ const MailSidebar = () => {
   })
 
   function replacePlaceholders(template, values) {
+    //console.log(values);
     return template
     .replace("{FROMDATE}", state.FromDate)
     .replace("{TODATE}", state.ToDate)
     .replace("{USER}", values.name)
     .replace("{USEREMAILID}", values.email)
+    .replace("{COMPANYNAME}", values.company)
     .replace("{USERPHONE}", values.userMobile);
   }
   return (
@@ -154,7 +156,7 @@ const MailSidebar = () => {
           initialValues={{
             to: "",
             cc: data.CCEmailIDs,
-            subject:  data.Subject, user,
+            subject:  replacePlaceholders(data.Subject, user),
             content: replacePlaceholders(data.Content , user),
             PreferedPdf: true,
             PreferedExcel: true,

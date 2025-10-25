@@ -102,10 +102,10 @@ const validationSchema = Yup.object({
     .min(3, "Name must be at least 3 characters")
     .max(60, "Name must be at most 60 characters"),
 
-  phonenumber: Yup.string().matches(
-    /^\(\d{3}\) \d{3}-\d{4}$/,
-    "Phone number must be in the format (XXX) XXX-XXXX"
-  ),
+  // phonenumber: Yup.string().matches(
+  //   /^\(\d{3}\) \d{3}-\d{4}$/,
+  //   "Phone number must be in the format (XXX) XXX-XXXX"
+  // ),
   email: Yup.string()
     .email("Must be a valid email")
     .required("Email is required"),
@@ -426,10 +426,10 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
-                    required
+                    // InputLabelProps={{
+                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
+                    // }}
+                    // required
                     disabled={params?.mode === "delete"}
                   />
  < FormikCustomSelectProvider

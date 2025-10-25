@@ -8,10 +8,11 @@ import {
   useTheme,
   TableContainer,
   Stack,
-  Tooltip,
+  // Tooltip,
   IconButton,
   useMediaQuery,
   TextField,
+  Typography,
 } from "@mui/material";
 import {
   DataGrid,
@@ -36,6 +37,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   getPriceListView,
   getPrintGroupListView,
+  gtRefeshPriceList,
 } from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
 import SaveIcon from "@mui/icons-material/Save";
@@ -75,7 +77,8 @@ const PriceList = () => {
   const naviate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const state = location.state;
+  const State = location.state;
+  console.log("🚀 ~ PriceList ~ state:", State)
   const { user } = useAuth();
   const isNonMobile = useMediaQuery("(min-width:900px)");
   const [isSide, setIsSide] = useState(false);
@@ -94,13 +97,15 @@ const PriceList = () => {
   const handleCustomerSelectData = (newValue) => {
     setCustomerSelectData(newValue);
   };
-  const [rowSelectionID, setRowSelectionID] = React.useState("")
+  const [rowSelectionID, setRowSelectionID] = React.useState("");
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
   // ********************** REDUX STATE ********************** //
 
   const loading = useSelector((state) => state.listview.priceListloading);
   const priceRows = useSelector((state) => state.listview.priceListViewData);
+  const ItemCount = useSelector((state) => state.listview.ItemCount);
+  console.log("🚀 ~ PriceList ~ ItemCount:", ItemCount)
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
@@ -151,68 +156,68 @@ const PriceList = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "10px" }}>
-            <Tooltip title="Edit">
-              <IconButton
-                onClick={() => {
-                  naviate(
-                    "/pages/control-panel/price-list/price-list-detail/edit",
-                    {
-                      state: {
-                        id: params.row.RecordID,
-                        companyCode: companyID,
-                        companyRecordID:companyRecordID
-                      },
-                    }
-                  );
-                }}
-                style={{ color: "secondary" }}
-                sx={{ height: 30, width: 30 }}
-              >
-                <ModeEditOutlineIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {/* <Tooltip title="Edit"> */}
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-list/price-list-detail/edit",
+                  {
+                    state: {
+                      id: params.row.RecordID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              style={{ color: "secondary" }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <ModeEditOutlineIcon fontSize="small" />
+            </IconButton>
+            {/* </Tooltip> */}
 
-            <Tooltip title="Delete">
-              <IconButton
-                onClick={() => {
-                  naviate(
-                    "/pages/control-panel/price-list/price-list-detail/delete",
-                    {
-                      state: {
-                        id: params.row.RecordID,
-                        companyCode: companyID,
-                        companyRecordID:companyRecordID
-                      },
-                    }
-                  );
-                }}
-                style={{ color: "secondary" }}
-                sx={{ height: 30, width: 30 }}
-              >
-                <DeleteIcon fontSize="small" color="error" />
-              </IconButton>
-            </Tooltip>
+            {/* <Tooltip title="Delete"> */}
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-list/price-list-detail/delete",
+                  {
+                    state: {
+                      id: params.row.RecordID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              style={{ color: "secondary" }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <DeleteIcon fontSize="small" color="error" />
+            </IconButton>
+            {/* </Tooltip> */}
 
-            <Tooltip title="View Items">
-              <IconButton
-                onClick={() => {
-                  naviate(
-                    "/pages/control-panel/price-list/price-list-detail/view",
-                    {
-                      state: {
-                        id: params.row.RecordID,
-                        companyCode: companyID,
-                        companyRecordID:companyRecordID
-                      },
-                    }
-                  );
-                }}
-                style={{ color: "secondary" }}
-                sx={{ height: 30, width: 30 }}
-              >
-                <VisibilityIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {/* <Tooltip title="View Items"> */}
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-list/price-list-detail/view",
+                  {
+                    state: {
+                      id: params.row.RecordID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              style={{ color: "secondary" }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -220,9 +225,12 @@ const PriceList = () => {
   ];
 
   // ********************** TOOLBAR ********************** //
+  const [selectedCompany, setSelectedCompany] = useState(null);
 
-  const [companyID, setCompanyID] = useState(user.companyCode);
-    const [companyRecordID, setCompanyRecordID] = useState(user.companyID);
+  const [companyID, setCompanyID] = useState(State.code ?? user.companyCode);
+  console.log("🚀 ~ PriceList ~ companyID:", companyID)
+  const [companyRecordID, setCompanyRecordID] = useState(State.id ?? user.companyID);
+  console.log("🚀 ~ PriceList ~ companyRecordID:", companyRecordID)
   useEffect(() => {
     dispatch(getPriceListView({ ID: companyRecordID }));
     dispatch(clearPriceListState());
@@ -262,33 +270,54 @@ const PriceList = () => {
               setCompanyID(e.target.value);
               setCompanyRecordID(e.target.value);
               dispatch(getPriceListView({ ID: e.target.value }));
+              // setSelectedCompany(e.target.value)
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
           />
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <Typography sx={{mt:1}}>Total Items Count: {ItemCount}</Typography>
             <GridToolbarQuickFilter />
-            <Tooltip title="Create Price List">
-              <IconButton
-                color="info"
-                onClick={() => {
-                  naviate(
-                    "/pages/control-panel/price-list/price-list-detail/add",
-                    {
-                      state: { id: 0, companyCode: companyID,companyRecordID:companyRecordID },
-                    }
-                  );
+            {/* <Tooltip title="Create Price List"> */}
+            <IconButton
+              color="info"
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-list/price-list-detail/add",
+                  {
+                    state: {
+                      id: 0,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+            >
+              <Add
+                sx={{
+                  fontSize: 30, // Increased icon size
+                  color: theme.palette.success.main,
                 }}
-              >
-                <Add
-                  sx={{
-                    fontSize: 30, // Increased icon size
-                    color: theme.palette.success.main,
-                  }}
-                />
-              </IconButton>
-            </Tooltip>
+              />
+            </IconButton>
+            {/* </Tooltip> */}
+            <Button  variant="contained"
+                    color="info"
+                    sx={{width:110,height:30}}
+                    onClick={async()=>{
+                      const res=await dispatch(gtRefeshPriceList({CompanyID:companyRecordID??user.companyID,user:user.name}))
+                    console.log(res,"res")
+                    if(res.payload.status==="Y")
+                    {
+                      dispatch(getPriceListView({ ID: companyRecordID }));
+                    }
+                    }}
+                    
+                    
+                    >Refresh All</Button>
           </Box>
+         
         </Box>
       </GridToolbarContainer>
     );
@@ -299,13 +328,13 @@ const PriceList = () => {
 
   const PriceListSaveFn = async (values, setSubmitting) => {
     const postData = {
-      RecordID:rowSelectionID,
+      RecordID: rowSelectionID,
       PriceListID: values.PriceListID,
       PrintSequence: values.PrintSequence,
-      priceListDescription:values.priceListDescription,
+      priceListDescription: values.priceListDescription,
     };
-    console.log("🚀 ~ PriceListSaveFn ~ postData:", postData)
-        try {
+    console.log("🚀 ~ PriceListSaveFn ~ postData:", postData);
+    try {
       const response = await dispatch(UpdateSeqPriceList({ data: postData }));
 
       if (response.payload.status === "Y") {
@@ -352,57 +381,46 @@ const PriceList = () => {
             sx={{
               gridColumn: isSide ? "span 3" : "span 4",
               height: dataGridHeight,
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-
               "& .name-column--cell": {
                 color: theme.palette.info.contrastText,
               },
-
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: theme.palette.info.main,
-
                 color: theme.palette.info.contrastText,
-
                 fontWeight: "bold",
-
                 fontSize: theme.typography.subtitle2.fontSize,
               },
-
               "& .MuiDataGrid-virtualScroller": {
                 backgroundColor: theme.palette.info.light,
               },
-
               "& .MuiDataGrid-footerContainer": {
                 borderTop: "none",
-
                 backgroundColor: theme.palette.info.main,
-
                 color: theme.palette.info.contrastText,
               },
-
               "& .MuiCheckbox-root": {
-                color: "black !important",
+                color: "black !important", // Set checkbox color to black
               },
-
+              // Ensure the checkbox color reflects the selected state
               "& .MuiCheckbox-root.Mui-checked": {
-                color: "black !important",
+                color: "black !important", // Set checkbox color to black when checked
               },
-
+              // Alternating row colors
               "& .MuiDataGrid-row:nth-of-type(even)": {
-                backgroundColor: theme.palette.action.hover,
+                backgroundColor: theme.palette.action.hover, // Color for even rows
               },
-
               "& .MuiDataGrid-row:nth-of-type(odd)": {
-                backgroundColor: theme.palette.background.default,
+                backgroundColor: theme.palette.background.default, // Color for odd rows
               },
-              "& .MuiDataGrid-row.Mui-selected:hover": {
-                backgroundColor: `none !important`,
+              "& .MuiDataGrid-row:hover": {
+                border: "3px solid #999999",
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: "4px", // Optional: Add rounded corners
               },
-              "& .MuiDataGrid-row.Mui-selected": {
-                border: `1px solid ${theme.palette.success.main}`,
-              },
+              // Prevent selected row background color from changing on hover
+              // "& .MuiDataGrid-row.Mui-selected:hover": {
+              //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
+              // },
               "& .MuiTablePagination-root": {
                 color: "white !important", // Ensuring white text color for the pagination
               },
@@ -413,19 +431,6 @@ const PriceList = () => {
 
               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
                 color: "white !important", // Ensuring white icons for pagination
-              },
-              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                outline: "none !important",
-                backgroundColor: `transparent !important`,
-              },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-cell:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-row": {
-                transition: "none !important", // Disable any transition effects
               },
             }}
           >
@@ -449,7 +454,7 @@ const PriceList = () => {
               // checkboxSelection
               onRowClick={(params) => {
                 setPriceBookCateData(params.row);
-                setRowSelectionID(params.row.RecordID)
+                setRowSelectionID(params.row.RecordID);
                 setIsSide(true);
               }}
               // disableSelectionOnClick

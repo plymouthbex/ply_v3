@@ -7,7 +7,7 @@ import {
   styled,
   useTheme,
   IconButton,
-  Tooltip,
+  // Tooltip,
   useMediaQuery,
 } from "@mui/material";
 import {
@@ -102,7 +102,7 @@ const UserGroup = () => {
       renderCell: (params) => {
         return (
           <div style={{ display: "flex", gap: "8px" }}>
-            <Tooltip title="Edit">
+            {/* <Tooltip title="Edit"> */}
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="black"
@@ -117,9 +117,9 @@ const UserGroup = () => {
               >
                 <ModeEditOutlineIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
 
-            <Tooltip title="Delete">
+            {/* <Tooltip title="Delete"> */}
               <IconButton
                 sx={{ height: 25, width: 25 }}
                 color="error"
@@ -134,7 +134,7 @@ const UserGroup = () => {
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -189,7 +189,7 @@ const UserGroup = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Create Usergroup">
+          {/* <Tooltip title="Create Usergroup"> */}
             <IconButton
               sx={{ height: 35, width: 35 }}
               color="black"
@@ -209,7 +209,7 @@ const UserGroup = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -237,7 +237,7 @@ const UserGroup = () => {
         >
           <GridToolbarQuickFilter />
 
-          <Tooltip title="Close">
+          {/* <Tooltip title="Close"> */}
             <IconButton
               sx={{ height: 35, width: 35 }}
               color="error"
@@ -251,7 +251,7 @@ const UserGroup = () => {
                 }}
               />
             </IconButton>
-          </Tooltip>
+          {/* </Tooltip> */}
         </Box>
       </GridToolbarContainer>
     );
@@ -331,11 +331,16 @@ const UserGroup = () => {
               "& .MuiDataGrid-row:nth-of-type(odd)": {
                 backgroundColor: theme.palette.background.default,
               },
-              "& .MuiDataGrid-row.Mui-selected:hover": {
-                backgroundColor: `none !important`,
-              },
-              "& .MuiDataGrid-row.Mui-selected": {
-                border: `1px solid ${theme.palette.success.main}`,
+              // "& .MuiDataGrid-row.Mui-selected:hover": {
+              //   backgroundColor: `none !important`,
+              // },
+              // "& .MuiDataGrid-row.Mui-selected": {
+              //   border: `1px solid ${theme.palette.success.main}`,
+              // },
+              '& .MuiDataGrid-row:hover': {
+                border: '3px solid #999999',
+                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+                borderRadius: '4px', // Optional: Add rounded corners
               },
               "& .MuiTablePagination-root": {
                 color: "white !important", // Ensuring white text color for the pagination
@@ -352,15 +357,15 @@ const UserGroup = () => {
                 outline: "none !important",
                 backgroundColor: `transparent !important`,
               },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-cell:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-row": {
-                transition: "none !important", // Disable any transition effects
-              },
+              // "& .MuiDataGrid-row:hover": {
+              //   backgroundColor: "transparent !important",
+              // },
+              // "& .MuiDataGrid-cell:hover": {
+              //   backgroundColor: "transparent !important",
+              // },
+              // "& .MuiDataGrid-row": {
+              //   transition: "none !important", // Disable any transition effects
+              // },
             }}
           >
             <DataGrid
