@@ -369,7 +369,7 @@ const ContactEdit = () => {
                     type="text"
                     id="firstName"
                     name="firstName"
-                    label="Fisrt Name"
+                    label="First Name"
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     required
