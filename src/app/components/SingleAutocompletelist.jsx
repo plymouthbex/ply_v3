@@ -288,74 +288,220 @@ export const FormikCustomSelectProvider = ({
   );
 };
 
-export const FormikCustomSelectCompanyPriceLevel = ({
+// export const FormikCustomSelectCompanyPriceLevel = ({
+//   value = null,
+//   onChange = () => {},
+//   url,
+//   height = 20,
+//   label = "Price Book Level",
+//   ...props
+// }) => {
+//   const [options, setOptions] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await axios.get(url, {
+//           headers: {
+//             Authorization: process.env.REACT_APP_API_TOKEN,
+//           },
+//         });
+//         setOptions(response.data.data || []); // Assuming API response has `Data` array
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//         setOptions([]);
+//         setError("Failed to load. Please try again.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, [url]);
+
+//   return (
+//     <FormControl {...props} fullWidth error={!!error} size="small" required>
+//       <InputLabel
+//         sx={{
+//           "& .MuiInputLabel-asterisk": {
+//             color: "red",
+//           },
+//         }}
+//       >
+//         {label}
+//       </InputLabel>
+//       <Select
+//         value={value}
+//         onChange={onChange}
+//         label={label}
+//         displayEmpty
+//         {...props}
+//       >
+//         {loading ? (
+//           <MenuItem disabled>
+//             <CircularProgress size={24} />
+//           </MenuItem>
+//         ) : (
+//           options.map((option) => (
+//             <MenuItem key={option.Description} value={option.Description}>
+//               {option.}
+//             </MenuItem>
+//           ))
+//         )}
+//       </Select>
+//       {error && <TextField helperText={error} />}
+//     </FormControl>
+//   );
+// };
+// export function FormikCustomSelectCompanyPriceLevel({
+//   value = null,
+//   onChange=()=>{},
+//   url,
+
+//   ...props
+// }) {
+//   const [options, setOptions] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [filteredItem, setfilteredItem] = useState(null);
+
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const { data } = await axios.get(url, {
+//           headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+//         });
+//         setOptions(data.Data || []);
+//         console.log(data.Data.find(item => item.PriceLevelID === value,"filteredItems"))
+//         setfilteredItem(data.Data.find(item => item.PriceLevelID == value)??null)
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//         setOptions([]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchData();
+//   }, [url]);
+
+//   return (
+//     <Autocomplete
+//       sx={{
+//         "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+//       }}
+//       size="small"
+//       // multiple={multiple}
+//       fullWidth
+      
+//       value={value || filteredItem}
+//       onChange={onChange}
+//       options={options} 
+//       isOptionEqualToValue={(option, value) => option.Description === value.Description}
+//       //getOptionLabel={(option) => `${option.Code} || ${option.Description}` || ""}
+//      getOptionLabel={(option) => option.Description
+// }
+//       loading={loading}
+    
+//       renderInput={(params) => (
+//         <TextField
+//           {...params}
+//           label={props.label || "select option"}
+//           InputProps={{
+//             ...params.InputProps,
+//             endAdornment: (
+//               <>
+//                 {loading && <CircularProgress color="inherit" size={20} />}
+//                 {params.InputProps.endAdornment}
+//               </>
+//             ),
+//           }}
+//         />
+//       )}
+//       {...props}
+//     />
+//   );
+// }
+export function FormikCustomSelectCompanyPriceLevel({
   value = null,
   onChange = () => {},
   url,
-  height = 20,
-  label = "Price Book Level",
   ...props
-}) => {
+}) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: process.env.REACT_APP_API_TOKEN,
-          },
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
         });
-        setOptions(response.data.data || []); // Assuming API response has `Data` array
+
+        const list = data.Data || [];
+        setOptions(list);
+
+        // ✅ If "value" is an ID, find the matching object
+        if (value && typeof value === "number") {
+          const found = list.find(item => item.PriceLevelID === value);
+          setSelected(found || null);
+        } 
+        // ✅ If "value" is already an object, just set it
+        else if (value && typeof value === "object") {
+          setSelected(value);
+        } else {
+          setSelected(null);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         setOptions([]);
-        setError("Failed to load. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, [url]);
+  }, [url, value]);
 
   return (
-    <FormControl {...props} fullWidth error={!!error} size="small" required>
-      <InputLabel
-        sx={{
-          "& .MuiInputLabel-asterisk": {
-            color: "red",
-          },
-        }}
-      >
-        {label}
-      </InputLabel>
-      <Select
-        value={value}
-        onChange={onChange}
-        label={label}
-        displayEmpty
-        {...props}
-      >
-        {loading ? (
-          <MenuItem disabled>
-            <CircularProgress size={24} />
-          </MenuItem>
-        ) : (
-          options.map((option) => (
-            <MenuItem key={option} value={option}>
-              Price Level {option}
-            </MenuItem>
-          ))
-        )}
-      </Select>
-      {error && <TextField helperText={error} />}
-    </FormControl>
+    <Autocomplete
+      sx={{ "& .MuiAutocomplete-tag": { maxWidth: "90px" } }}
+      size="small"
+      fullWidth
+      value={selected}
+      onChange={(event, newValue) => {
+        setSelected(newValue);
+        onChange(event, newValue); // pass it back to Formik
+      }}
+      options={options}
+      isOptionEqualToValue={(option, val) =>
+        option.PriceLevelID === val?.PriceLevelID
+      }
+      getOptionLabel={(option) => option?.Description || ""}
+      loading={loading}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={props.label || "Select option"}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
   );
-};
+}
 
 export const FormikCustomSelectCompanyPriceList2 = ({
   value = null,

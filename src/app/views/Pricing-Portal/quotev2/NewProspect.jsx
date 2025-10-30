@@ -136,7 +136,7 @@ const NewProspect = () => {
       Mobile: values.mobile,
       Provider: values.serviceProvider,
       Salesrepresentative: values.salesRepName,
-      PriceLevel: values.priceBookLevel,
+      PriceLevel: values.priceBookLevel?.PriceLevelID,
       CustomerName: values.customer ? values.customer.CustomerName : "",
       CustomerNumber: values.customer ? values.customer.Code : "",
       Type: params.mode === "copy" ? "C" : "A",
@@ -483,9 +483,11 @@ const NewProspect = () => {
                     id="priceBookLevel"
                     sx={{ gridColumn: "span 2" }}
                     value={values.priceBookLevel}
-                    onChange={handleChange}
+                    onChange={(event,newValue)=>{
+                      setFieldValue("priceBookLevel",newValue)
+                    }}
                     label="price Book Level"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyID=${values.company}`}
+                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V1?CompanyID=${values.company}`}
                   />
                     
 
