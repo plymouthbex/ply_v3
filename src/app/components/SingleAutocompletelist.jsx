@@ -447,8 +447,9 @@ export function FormikCustomSelectCompanyPriceLevel({
         setOptions(list);
 
         // ✅ If "value" is an ID, find the matching object
-        if (value && typeof value === "number") {
-          const found = list.find(item => item.PriceLevelID === value);
+        console.log(value,"value")
+        if (typeof value === "number") {
+          const found = list.find(item => item.PriceLevel == value);
           setSelected(found || null);
         } 
         // ✅ If "value" is already an object, just set it
@@ -479,7 +480,7 @@ export function FormikCustomSelectCompanyPriceLevel({
       }}
       options={options}
       isOptionEqualToValue={(option, val) =>
-        option.PriceLevelID === val?.PriceLevelID
+        option.PriceLevel === val?.PriceLevel
       }
       getOptionLabel={(option) => option?.Description || ""}
       loading={loading}
@@ -1727,7 +1728,8 @@ export const FormikRungroupOptimizedAutocomplete = ({
       // getOptionLabel={(option) => option.Name}
       isOptionEqualToValue={(option, value) => option.Name === value.Name}
       // onChange={(event, newValue) => onChange(newValue)}
-      getOptionLabel={(option) => `${option.Code} || ${option.Name}`}
+      // getOptionLabel={(option) => `${option.Code} || ${option.Name}`}
+      getOptionLabel={(option) => `${option.Name}`}
       ListboxComponent={ListboxComponent} // Custom listbox component
       renderInput={(params) => (
         <TextField

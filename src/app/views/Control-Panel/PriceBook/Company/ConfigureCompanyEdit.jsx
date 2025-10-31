@@ -340,7 +340,7 @@ const ConfigureCompanyEdit = () => {
       fullPriceBookExcel: "0",
       disable: "0",
       fullPriceBookTitle: values.name,
-      priceLevel: values.priceBookLevels,
+      priceLevel: values.priceBookLevels?.PriceLevel,
       BrokenItem: values.brokenItems,
       DamageItem: values.damagedItems,
     };
@@ -392,6 +392,7 @@ const ConfigureCompanyEdit = () => {
             touched,
             handleBlur,
             handleChange,
+            setFieldValue,
             isSubmitting,
             values,
             handleSubmit,
@@ -485,14 +486,25 @@ const ConfigureCompanyEdit = () => {
       autoComplete="off"
     />
 
-    <FormikCustomSelectCompanyPriceLevel
+    {/* <FormikCustomSelectCompanyPriceLevel
       name="priceBookLevels"
       id="priceBookLevels"
       value={values.priceBookLevels}
       onChange={handleChange}
       label="Price Book Level"
       disabled={params?.mode === "delete"}
-      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel?CompanyID=${data.CompanyID}`}
+      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V1?CompanyID=${data.CompanyID}`}
+    /> */}
+    <FormikCustomSelectCompanyPriceLevel
+      name="priceBookLevels"
+      id="priceBookLevels"
+      value={values.priceBookLevels}
+      label="Price Book Level"
+      disabled={params?.mode === "delete"}
+      onChange={(event,newValue)=>{
+        setFieldValue("priceBookLevels",newValue)
+      }}
+      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V1?CompanyID=${values.company}`}
     />
     <Stack direction="row" gap={1}>
       <FormControlLabel

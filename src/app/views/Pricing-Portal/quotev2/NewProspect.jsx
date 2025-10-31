@@ -136,7 +136,7 @@ const NewProspect = () => {
       Mobile: values.mobile,
       Provider: values.serviceProvider,
       Salesrepresentative: values.salesRepName,
-      PriceLevel: values.priceBookLevel?.PriceLevelID,
+      PriceLevel: values.priceBookLevel?.PriceLevel,
       CustomerName: values.customer ? values.customer.CustomerName : "",
       CustomerNumber: values.customer ? values.customer.Code : "",
       Type: params.mode === "copy" ? "C" : "A",
@@ -243,7 +243,7 @@ const NewProspect = () => {
             PreferedExcel: getQuoteProspectInfoData.RecordID? getQuoteProspectInfoData.PreferedExcel :true,
             priceBookLevel: getQuoteProspectInfoData.PriceLevel
               ? getQuoteProspectInfoData.PriceLevel
-              : null,
+              : getQuoteProspectInfoData.RecordID  ? getQuoteProspectInfoData.PriceLevel: null,
             prospectDate:
               getQuoteProspectInfoData.CurrentDate || getCurrentDateForInput(),
           }}
