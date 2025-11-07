@@ -136,7 +136,7 @@ const NewProspect = () => {
       Mobile: values.mobile,
       Provider: values.serviceProvider,
       Salesrepresentative: values.salesRepName,
-      PriceLevel: values.priceBookLevel?.PriceLevel,
+      PriceLevel: values.priceBookLevel?.PriceLevel?? getQuoteProspectInfoData.PriceLevel,
       CustomerName: values.customer ? values.customer.CustomerName : "",
       CustomerNumber: values.customer ? values.customer.Code : "",
       Type: params.mode === "copy" ? "C" : "A",

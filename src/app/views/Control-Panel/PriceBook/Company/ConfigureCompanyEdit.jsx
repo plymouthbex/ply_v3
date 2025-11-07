@@ -340,7 +340,7 @@ const ConfigureCompanyEdit = () => {
       fullPriceBookExcel: "0",
       disable: "0",
       fullPriceBookTitle: values.name,
-      priceLevel: values.priceBookLevels?.PriceLevel,
+      priceLevel: values.priceBookLevels?.PriceLevel??data.PriceLevel,
       BrokenItem: values.brokenItems,
       DamageItem: values.damagedItems,
     };
