@@ -343,6 +343,7 @@ const ConfigureCompanyEdit = () => {
       priceLevel: values.priceBookLevels?.PriceLevel??data.PriceLevel,
       BrokenItem: values.brokenItems,
       DamageItem: values.damagedItems,
+      DisplayEmail: values.displayEmail,
     };
     const response = await dispatch(postConfigureCompany({ Cdata }));
     if (response.payload.status === "Y") {
@@ -381,6 +382,7 @@ const ConfigureCompanyEdit = () => {
             disable: data.Disable === "1" ? true : false,
             brokenItems: data.BrokenItem,
             damagedItems: data.DamageItem,
+            displayEmail: data.DisplayEmail,
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
@@ -532,6 +534,19 @@ const ConfigureCompanyEdit = () => {
           />
         }
         label="Damaged Items"
+      />
+      <FormControlLabel
+        sx={{ height: 37.13 }}
+        control={
+          <Checkbox
+            size="small"
+            id="displayEmail"
+            name="displayEmail"
+            checked={values.displayEmail}
+            onChange={handleChange}
+          />
+        }
+        label="Display Email"
       />
     </Stack>
   </Stack>
