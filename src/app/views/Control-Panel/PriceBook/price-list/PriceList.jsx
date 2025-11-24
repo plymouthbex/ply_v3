@@ -13,7 +13,18 @@ import {
   useMediaQuery,
   TextField,
   Typography,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  FormControl,
+  DialogActions,
+  DialogTitle,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
+import AlertDialog from "app/components/AlertDialog";
+
 import {
   DataGrid,
   GridToolbarQuickFilter,
@@ -34,7 +45,10 @@ import { Add, RefreshOutlined } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+
 import {
+  getCompanyListView,
   getPriceListView,
   getPrintGroupListView,
   gtRefeshPriceList,
@@ -58,7 +72,10 @@ import {
 } from "app/components/SingleAutocompletelist";
 import useAuth from "app/hooks/useAuth";
 import { Formik } from "formik";
-import { UpdateSeqPriceList } from "app/redux/slice/postSlice";
+import {
+  CopyCompanyPriceList,
+  UpdateSeqPriceList,
+} from "app/redux/slice/postSlice";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -78,11 +95,13 @@ const PriceList = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
-  console.log("🚀 ~ PriceList ~ state:", State)
+  console.log("🚀 ~ PriceList ~ state:", State);
   const { user } = useAuth();
   const isNonMobile = useMediaQuery("(min-width:900px)");
   const [isSide, setIsSide] = useState(false);
+  const [isCopy, setIsCopy] = useState(false);
   const [priceBookCateData, setPriceBookCateData] = useState({});
+  const [companyError, setCompanyError] = useState("");
 
   // ********************** LOCAL STATE ********************** //
 
@@ -105,7 +124,7 @@ const PriceList = () => {
   const loading = useSelector((state) => state.listview.priceListloading);
   const priceRows = useSelector((state) => state.listview.priceListViewData);
   const ItemCount = useSelector((state) => state.listview.ItemCount);
-  console.log("🚀 ~ PriceList ~ ItemCount:", ItemCount)
+  console.log("🚀 ~ PriceList ~ ItemCount:", ItemCount);
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
@@ -218,19 +237,44 @@ const PriceList = () => {
               <VisibilityIcon fontSize="small" />
             </IconButton>
             {/* </Tooltip> */}
+            {/* <Tooltip title="Copy Items"> */}
+            <IconButton
+              onClick={(e) => {
+                setRowSelectionID(params.row.RecordID);
+                setPriceBookCateData(params.row);
+                e.stopPropagation(); // ← prevents DataGrid onRowClick
+                setIsCopy(true);
+                dispatch(getCompanyListView());
+                setIsSide(false);
+              }}
+              style={{ color: "secondary" }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
           </div>
         );
       },
     },
   ];
+  //==============COMPANYLISTVIEW=======================/
+  const comapnyListViewData = useSelector(
+    (state) => state.listview.comapnyListViewData
+  );
+  const status = useSelector((state) => state.listview.status);
+  const error = useSelector((state) => state.listview.error);
+
+  console.log("🚀 ~ PriceList ~ comapnyListViewData:", comapnyListViewData);
 
   // ********************** TOOLBAR ********************** //
   const [selectedCompany, setSelectedCompany] = useState(null);
 
   const [companyID, setCompanyID] = useState(State.code ?? user.companyCode);
-  console.log("🚀 ~ PriceList ~ companyID:", companyID)
-  const [companyRecordID, setCompanyRecordID] = useState(State.id ?? user.companyID);
-  console.log("🚀 ~ PriceList ~ companyRecordID:", companyRecordID)
+  console.log("🚀 ~ PriceList ~ companyID:", companyID);
+  const [companyRecordID, setCompanyRecordID] = useState(
+    State.id ?? user.companyID
+  );
+  console.log("🚀 ~ PriceList ~ companyRecordID:", companyRecordID);
   useEffect(() => {
     dispatch(getPriceListView({ ID: companyRecordID }));
     dispatch(clearPriceListState());
@@ -276,7 +320,9 @@ const PriceList = () => {
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
           />
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <Typography sx={{mt:1}}>Total Items Count: {ItemCount}</Typography>
+            <Typography sx={{ mt: 1 }}>
+              Total Items Count: {ItemCount}
+            </Typography>
             <GridToolbarQuickFilter />
             {/* <Tooltip title="Create Price List"> */}
             <IconButton
@@ -302,22 +348,26 @@ const PriceList = () => {
               />
             </IconButton>
             {/* </Tooltip> */}
-            <Button  variant="contained"
-                    color="info"
-                    sx={{width:110,height:30}}
-                    onClick={async()=>{
-                      const res=await dispatch(gtRefeshPriceList({CompanyID:companyRecordID??user.companyID,user:user.name}))
-                    console.log(res,"res")
-                    if(res.payload.status==="Y")
-                    {
-                      dispatch(getPriceListView({ ID: companyRecordID }));
-                    }
-                    }}
-                    
-                    
-                    >Refresh All</Button>
+            <Button
+              variant="contained"
+              color="info"
+              sx={{ width: 110, height: 30 }}
+              onClick={async () => {
+                const res = await dispatch(
+                  gtRefeshPriceList({
+                    CompanyID: companyRecordID ?? user.companyID,
+                    user: user.name,
+                  })
+                );
+                console.log(res, "res");
+                if (res.payload.status === "Y") {
+                  dispatch(getPriceListView({ ID: companyRecordID }));
+                }
+              }}
+            >
+              Refresh All
+            </Button>
           </Box>
-         
         </Box>
       </GridToolbarContainer>
     );
@@ -325,7 +375,7 @@ const PriceList = () => {
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
-
+  const [postMessage, setPostMessage] = useState(false);
   const PriceListSaveFn = async (values, setSubmitting) => {
     const postData = {
       RecordID: rowSelectionID,
@@ -339,9 +389,11 @@ const PriceList = () => {
 
       if (response.payload.status === "Y") {
         setOpenAlert(true);
+        setPostMessage(response.payload.message);
         dispatch(getPriceListView({ ID: companyRecordID }));
         setIsSide(false);
       } else {
+        setPostMessage(response.payload.message);
         setOpenAlert(true);
         setPostError(true);
         setIsSide(false);
@@ -351,7 +403,41 @@ const PriceList = () => {
     }
     setSubmitting(false);
   };
+  //===============COMPANY COPY SAVE====================//
+  const CopySaveFn = async (values, setSubmitting) => {
+    //   {
+    //   "PriceListID": 3,
+    //   "CompanyID": 5,
+    //   "SelectedCompanyID": "63",
+    //   "UserName": "Admin"
+    // }
+    const postData = {
+      PriceListID: rowSelectionID,
+      UserName: user.username,
+      CompanyID: companyRecordID,
+      SelectedCompanyID: values.companyIDs.join(","),
+    };
+    console.log("🚀 ~ PriceListSaveFn ~ postData:", postData);
+    //return;
+    try {
+      const response = await dispatch(CopyCompanyPriceList({ data: postData }));
 
+      if (response.payload.status === "Y") {
+        setOpenAlert(true);
+        setPostMessage(response.payload.message);
+        dispatch(getPriceListView({ ID: companyRecordID }));
+        setIsCopy(false);
+      } else {
+        setPostMessage(response.payload.message);
+        setOpenAlert(true);
+        setPostError(true);
+        setIsCopy(false);
+      }
+    } catch (error) {
+      console.error("Error during HandleSave:", error);
+    }
+    setSubmitting(false);
+  };
   return (
     <Container>
       <div className="breadcrumb">
@@ -379,7 +465,8 @@ const PriceList = () => {
         >
           <Box
             sx={{
-              gridColumn: isSide ? "span 3" : "span 4",
+              gridColumn: isSide || isCopy ? "span 3" : "span 4",
+              // gridColumn: isSide ? "span 3" : "span 4",
               height: dataGridHeight,
               "& .name-column--cell": {
                 color: theme.palette.info.contrastText,
@@ -456,6 +543,7 @@ const PriceList = () => {
                 setPriceBookCateData(params.row);
                 setRowSelectionID(params.row.RecordID);
                 setIsSide(true);
+                setIsCopy(false);
               }}
               // disableSelectionOnClick
               // disableRowSelectionOnClick
@@ -572,8 +660,167 @@ const PriceList = () => {
               </Formik>
             </Box>
           )}
+          {isCopy && (
+            <Box sx={{ gridColumn: "span 1", marginTop: 8 }}>
+              {status === "succeeded" && !error ? (
+                <Formik
+                  initialValues={{
+                    PriceListID: priceBookCateData.PRICELISTID,
+                    priceListDescription:
+                      priceBookCateData.PRICELISTDESCRIPTION,
+                    companyIDs: [], // << store selected company RecordIDs
+                  }}
+                  enableReinitialize
+                  // onSubmit={(values, { setSubmitting }) => {
+                  //   console.log(
+                  //     "Selected Company RecordIDs:",
+                  //     values.companyIDs
+                  //   );
+                  //   CopySaveFn(values, setSubmitting);
+                  // }}
+                  onSubmit={(values, { setSubmitting }) => {
+                    if (values.companyIDs.length === 0) {
+                      setCompanyError("Please select at least one company");
+                      setSubmitting(false);
+                      return;
+                    }
+
+                    // clear previous error
+                    setCompanyError("");
+
+                    console.log(
+                      "Selected Company RecordIDs:",
+                      values.companyIDs
+                    );
+                    CopySaveFn(values, setSubmitting);
+                  }}
+                >
+                  {({
+                    values,
+                    setFieldValue,
+                    handleSubmit,
+                    handleChange,
+                    isSubmitting,
+                  }) => (
+                    <form onSubmit={handleSubmit}>
+                      <Stack direction="column" gap={2}>
+                        <Typography
+                          sx={{
+                            //fontWeight: "bold",     // Bold text
+                            color: "gray", // Disabled-looking color
+                            opacity: 0.7, // Slight fade
+                            pointerEvents: "none", // Acts like disabled
+                          }}
+                        >
+                          Selected PriceLists:{" "}
+                          <strong>{values.priceListDescription}</strong>
+                        </Typography>
+
+                        {/* ---------- MUI CHECKBOXES ---------- */}
+                        <FormControl component="fieldset" variant="standard">
+                          <FormLabel component="legend">
+                            Select Companies
+                          </FormLabel>
+
+                          <FormGroup>
+                            {comapnyListViewData
+                              .filter(
+                                (item) => item.RecordID !== companyRecordID
+                              )
+                              .map((item) => (
+                                <FormControlLabel
+                                  key={item.RecordID}
+                                  control={
+                                    <Checkbox
+                                      checked={values.companyIDs.includes(
+                                        item.RecordID
+                                      )}
+                                      onChange={() => {
+                                        const id = item.RecordID;
+                                        if (values.companyIDs.includes(id)) {
+                                          setFieldValue(
+                                            "companyIDs",
+                                            values.companyIDs.filter(
+                                              (x) => x !== id
+                                            )
+                                          );
+                                        } else {
+                                          setFieldValue("companyIDs", [
+                                            ...values.companyIDs,
+                                            id,
+                                          ]);
+                                        }
+                                      }}
+                                    />
+                                  }
+                                  label={item.CompanyName}
+                                />
+                              ))}
+                          </FormGroup>
+                          {companyError && (
+                            <Typography
+                              sx={{ color: "red", fontSize: 13, mt: 1 }}
+                            >
+                              {companyError}
+                            </Typography>
+                          )}
+                        </FormControl>
+
+                        {/* ---------- COPY / CANCEL BUTTONS ---------- */}
+                        <Stack direction={"row"} gap={1}>
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            color="info"
+                            size="small"
+                            disabled={isSubmitting}
+                            startIcon={<ContentCopyIcon />}
+                          >
+                            Copy
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            color="info"
+                            size="small"
+                            onClick={() => setIsCopy(false)}
+                          >
+                            Cancel
+                          </Button>
+                        </Stack>
+                      </Stack>
+                    </form>
+                  )}
+                </Formik>
+              ) : (
+                false
+              )}
+            </Box>
+          )}
         </Box>
       </Paper>
+      <AlertDialog
+        logo={`data:image/png;base64,${user.logo}`}
+        open={openAlert}
+        error={postError}
+        message={postError ? postError : postMessage}
+        Actions={
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() => {
+                setPostError(null);
+                setPostMessage(null);
+                setOpenAlert(false);
+              }}
+            >
+              close
+            </Button>
+          </DialogActions>
+        }
+      />
     </Container>
   );
 };
