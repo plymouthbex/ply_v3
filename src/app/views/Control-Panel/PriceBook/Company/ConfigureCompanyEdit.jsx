@@ -506,7 +506,7 @@ const ConfigureCompanyEdit = () => {
       onChange={(event,newValue)=>{
         setFieldValue("priceBookLevels",newValue)
       }}
-      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V1?CompanyID=${values.company}`}
+      url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V2?CompanyID=${data.CompanyID}`}
     />
     <Stack direction="row" gap={1}>
       <FormControlLabel

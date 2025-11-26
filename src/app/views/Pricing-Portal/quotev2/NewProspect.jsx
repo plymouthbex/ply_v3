@@ -487,7 +487,7 @@ const NewProspect = () => {
                       setFieldValue("priceBookLevel",newValue)
                     }}
                     label="price Book Level"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V1?CompanyID=${values.company}`}
+                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V2?CompanyID=${values.company}`}
                   />
                     
 
