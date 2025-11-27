@@ -422,17 +422,20 @@ const PrintGroupEdit = () => {
       autoComplete="off"
     />
     <TextField
-      fullWidth
-      variant="outlined"
-      type="text"
-      id="SortOrder"
-      name="SortOrder"
-      label="Sequence"
-      size="small"
-      onChange={handleChange}
-      value={values.SortOrder}
-      disabled={params?.mode === "delete"}
-    />
+  fullWidth
+  variant="outlined"
+  type="text"
+  id="SortOrder"
+  name="SortOrder"
+  label="Sequence"
+  size="small"
+  onChange={handleChange}
+  value={values.SortOrder}
+  disabled={params?.mode === "delete"}
+  inputProps={{
+    maxLength: 2,
+  }}
+/>
   </Stack>
 
   {/* Right Column */}

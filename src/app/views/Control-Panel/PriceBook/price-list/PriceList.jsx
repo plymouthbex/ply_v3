@@ -24,7 +24,7 @@ import {
   DialogContent,
 } from "@mui/material";
 import AlertDialog from "app/components/AlertDialog";
-
+import CircularProgress from "@mui/material/CircularProgress";
 import {
   DataGrid,
   GridToolbarQuickFilter,
@@ -76,6 +76,7 @@ import {
   CopyCompanyPriceList,
   UpdateSeqPriceList,
 } from "app/redux/slice/postSlice";
+import { LoadingButton } from "@mui/lab";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -117,6 +118,7 @@ const PriceList = () => {
     setCustomerSelectData(newValue);
   };
   const [rowSelectionID, setRowSelectionID] = React.useState("");
+  const[isLoading,setIsLoading]= React.useState(false);
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
   // ********************** REDUX STATE ********************** //
@@ -405,6 +407,7 @@ const PriceList = () => {
   };
   //===============COMPANY COPY SAVE====================//
   const CopySaveFn = async (values, setSubmitting) => {
+    setIsLoading(true)
     //   {
     //   "PriceListID": 3,
     //   "CompanyID": 5,
@@ -423,11 +426,13 @@ const PriceList = () => {
       const response = await dispatch(CopyCompanyPriceList({ data: postData }));
 
       if (response.payload.status === "Y") {
+         setIsLoading(false)
         setOpenAlert(true);
         setPostMessage(response.payload.message);
         dispatch(getPriceListView({ ID: companyRecordID }));
         setIsCopy(false);
       } else {
+        setIsLoading(false)
         setPostMessage(response.payload.message);
         setOpenAlert(true);
         setPostError(true);
@@ -768,16 +773,32 @@ const PriceList = () => {
 
                         {/* ---------- COPY / CANCEL BUTTONS ---------- */}
                         <Stack direction={"row"} gap={1}>
-                          <Button
-                            type="submit"
-                            variant="contained"
-                            color="info"
-                            size="small"
-                            disabled={isSubmitting}
-                            startIcon={<ContentCopyIcon />}
-                          >
-                            Copy
-                          </Button>
+                        <Button
+  type="submit"
+  variant="contained"
+  color="info"
+  size="small"
+  disabled={isLoading}
+>
+  {isLoading ? (
+    <>
+    <CircularProgress
+  size={18}
+  thickness={5}
+  sx={{
+    color: "#fff !important",   // FORCE white
+  }}
+/> &nbsp;Coping
+    </>
+  ) : (
+    <>
+      <ContentCopyIcon />
+      &nbsp;Copy
+    </>
+  )}
+</Button>
+
+
 
                           <Button
                             variant="contained"
