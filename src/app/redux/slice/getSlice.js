@@ -171,6 +171,12 @@ const initialState = {
 
   getRefreshPriceList:[],
 
+  //==PriceListLevelBYCompany//
+  getPriceListLevelBYCompanyData:[],
+  getPriceListLevelBYCompanyStatus:'idle',
+  getPriceListLevelBYCompanyLoading:false,
+  getPriceListLevelBYCompanyError:null,
+
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -786,7 +792,24 @@ export const getEnquiryItems = createAsyncThunk(
     }
   }
 );
-
+export const GetPriceListLevelBYCompany = createAsyncThunk(
+  "get/GetPriceListLevelBYCompany", // action type
+  async ({  CompanyID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevelBYCompany?CompanyID=${CompanyID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 
 
 
@@ -1587,6 +1610,22 @@ const getSlice = createSlice({
         state.getEnquiryError = action.error.message;
         state.getEnquiryLoading = false;
         state.getEnquiryStatus = "rejected";
+      })
+       .addCase(GetPriceListLevelBYCompany.pending, (state) => {
+        state.getPriceListLevelBYCompanyData = [];
+        state.getPriceListLevelBYCompanyLoading = true;
+        state.getPriceListLevelBYCompanyStatus = "pending";
+      })
+      .addCase(GetPriceListLevelBYCompany.fulfilled, (state, action) => {
+        state.getPriceListLevelBYCompanyData = action.payload.Data;
+        state.getPriceListLevelBYCompanyLoading = false;
+        state.getPriceListLevelBYCompanyStatus = "fulfilled";
+      })
+      .addCase(GetPriceListLevelBYCompany.rejected, (state, action) => {
+         state.getPriceListLevelBYCompanyData = [];
+        state.getPriceListLevelBYCompanyError = action.error.message;
+        state.getPriceListLevelBYCompanyLoading = false;
+        state.getPriceListLevelBYCompanyStatus = "rejected";
       });
   },
 });
