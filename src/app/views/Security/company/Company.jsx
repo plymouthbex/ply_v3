@@ -40,13 +40,16 @@ import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
 import MailIcon from "@mui/icons-material/Mail";
-import { UpdateCompanyPriceLevel, UploadContracts } from "app/redux/slice/postSlice";
+import {
+  UpdateCompanyPriceLevel,
+  UploadContracts,
+} from "app/redux/slice/postSlice";
 import AlertDialog from "app/components/AlertDialog";
 import useAuth from "app/hooks/useAuth";
 import { GetPriceListLevelBYCompany } from "app/redux/slice/getSlice";
 import Loading from "app/components/AppLoading";
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import CurrencyPoundIcon from '@mui/icons-material/CurrencyPound';
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
   margin: "15px",
@@ -70,6 +73,8 @@ const Company = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(false);
   const [postMessage, setPostMessage] = useState(false);
+  const [selectedCompanyData, setSelectedCompanyData] = useState(null);
+
   // ********************* REDUX STATE ********************* //
   const companyRows = useSelector(
     (state) => state.listview.comapnyListViewData
@@ -195,12 +200,13 @@ const Company = () => {
             {/* </Tooltip> */}
             <IconButton
               onClick={() => {
+                setSelectedCompanyData(params.row);
                 dispatch(
                   GetPriceListLevelBYCompany({ CompanyID: params.row.RecordID })
                 );
                 // ← prevents DataGrid onRowClick
                 setIsCopy(true);
-                setCompanyID( params.row.RecordID)
+                setCompanyID(params.row.RecordID);
               }}
               style={{ color: "secondary" }}
               sx={{ height: 30, width: 30 }}
@@ -265,7 +271,7 @@ const Company = () => {
   //============================PRICELIST-LEVEL==============================//
 
   const [isCopy, setIsCopy] = useState(false);
-const [companyID,setCompanyID]=useState("")
+  const [companyID, setCompanyID] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const priceListViewData = useSelector(
     (state) => state.getSlice.getPriceListLevelBYCompanyData
@@ -284,18 +290,18 @@ const [companyID,setCompanyID]=useState("")
       ?.filter((item) => item.IsSelected)
       .map((item) => item.PriceLevel) || [];
   console.log("🚀 ~ Company ~ initialSelected:", initialSelected);
-const validate = (values) => {
-  const errors = {};
+  const validate = (values) => {
+    const errors = {};
 
-  if (!values.priceLevel || values.priceLevel.length === 0) {
-    errors.priceLevel = "Please select at least one Price Level";
-  }
+    if (!values.priceLevel || values.priceLevel.length === 0) {
+      errors.priceLevel = "Please select at least one Price Level";
+    }
 
-  return errors;
-};
- //===============COMPANY COPY SAVE====================//
+    return errors;
+  };
+  //===============COMPANY COPY SAVE====================//
   const CopySaveFn = async (values, setSubmitting) => {
-    setIsLoading(true)
+    setIsLoading(true);
     //   {
     //   "PriceListID": 3,
     //   "CompanyID": 5,
@@ -303,22 +309,24 @@ const validate = (values) => {
     //   "UserName": "Admin"
     // }
     const postData = {
-       "ComapnyID":companyID,
-  "PriceLevelIDs": values.priceLevel.join(",")
+      ComapnyID: companyID,
+      PriceLevelIDs: values.priceLevel.join(","),
     };
     console.log("🚀 ~ PriceListSaveFn ~ postData:", postData);
 
     try {
-      const response = await dispatch(UpdateCompanyPriceLevel({ data: postData }));
+      const response = await dispatch(
+        UpdateCompanyPriceLevel({ data: postData })
+      );
 
       if (response.payload.status === "Y") {
-         setIsLoading(false)
+        setIsLoading(false);
         setOpenAlert(true);
         setPostMessage(response.payload.message);
         //dispatch(getPriceListView({ ID: companyRecordID }));
         setIsCopy(false);
       } else {
-        setIsLoading(false)
+        setIsLoading(false);
         setPostMessage(response.payload.message);
         setOpenAlert(true);
         setPostError(true);
@@ -405,6 +413,10 @@ const validate = (values) => {
                 // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
                 borderRadius: "4px", // Optional: Add rounded corners
               },
+              "& .MuiDataGrid-row.Mui-selected": {
+                border: "3px solid #999999",
+                borderRadius: "4px",
+              },
               // "& .MuiDataGrid-row.Mui-selected:hover": {
               //   backgroundColor: `${theme.palette.action.selected} !important`,
               // },
@@ -418,6 +430,9 @@ const validate = (values) => {
 
               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
                 color: "white !important", // Ensuring white icons for pagination
+              },
+              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
               },
             }}
           >
@@ -439,7 +454,7 @@ const validate = (values) => {
               columns={columns}
               // checkboxSelection
               disableSelectionOnClick
-              disableRowSelectionOnClick
+              // disableRowSelectionOnClick
               getRowId={(row) => row.CompanyCode}
               initialState={{
                 pagination: {
@@ -466,8 +481,9 @@ const validate = (values) => {
                 <Formik
                   initialValues={{
                     priceLevel: initialSelected,
+                    companyname: selectedCompanyData.CompanyName,
                   }}
-                   validate={validate}
+                  validate={validate}
                   enableReinitialize
                   onSubmit={(values, { setSubmitting }) => {
                     console.log("Selected PriceLevels:", values.priceLevel);
@@ -475,9 +491,26 @@ const validate = (values) => {
                     setSubmitting(false);
                   }}
                 >
-                  {({ values, setFieldValue, handleSubmit, isSubmitting,errors  }) => (
+                  {({
+                    values,
+                    setFieldValue,
+                    handleSubmit,
+                    isSubmitting,
+                    errors,
+                  }) => (
                     <form onSubmit={handleSubmit}>
                       <Stack direction="column" gap={2}>
+                        <Typography
+                          sx={{
+                            //fontWeight: "bold",     // Bold text
+                            color: "gray", // Disabled-looking color
+                            opacity: 0.7, // Slight fade
+                            pointerEvents: "none", // Acts like disabled
+                          }}
+                        >
+                          Selected Company:{" "}
+                          <strong>{values.companyname}</strong>
+                        </Typography>
                         <FormControl component="fieldset" variant="standard">
                           <FormLabel component="legend">
                             Select Price Levels
@@ -489,10 +522,10 @@ const validate = (values) => {
                                 <FormControlLabel
                                   key={item.PriceLevel}
                                   sx={{
-        '& .MuiFormControlLabel-label': {
-          color: "#000",      // <-- Fix label color
-        },
-      }}
+                                    "& .MuiFormControlLabel-label": {
+                                      color: "#000", // <-- Fix label color
+                                    },
+                                  }}
                                   control={
                                     <Checkbox
                                       checked={values.priceLevel.includes(
@@ -534,11 +567,11 @@ const validate = (values) => {
                             </Box>
                           )}
                         </FormControl>
-{errors.priceLevel && (
-  <Typography sx={{ color: "red", fontSize: 13 }}>
-    {errors.priceLevel}
-  </Typography>
-)}
+                        {errors.priceLevel && (
+                          <Typography sx={{ color: "red", fontSize: 13 }}>
+                            {errors.priceLevel}
+                          </Typography>
+                        )}
                         <Stack direction="row" gap={1}>
                           <Button
                             type="submit"
@@ -555,7 +588,7 @@ const validate = (values) => {
                                   sx={{ color: "#fff !important" }}
                                 />
                                 {/* &nbsp;Saving */}
-                               Saving
+                                Saving
                               </>
                             ) : (
                               <>
