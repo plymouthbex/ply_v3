@@ -1,0 +1,30 @@
+{
+    "_meta": {
+    "baseOn": {
+      "description": "Determines how auth routing is evaluated",
+      "allowedValues": ["subdomain", "domain"],
+      "default": "subdomain"
+    }
+  },
+
+  "baseOn": "subdomain", 
+
+  "internalDomains": [
+    "localhost",
+    "pricebook.plymouthinc.com",
+    "devpricebook.plymouthinc.com"
+  ],
+  "externalDomains": [
+    "customerpricingportal.plymouthinc.com"
+  ],
+
+  "internalSubDomains": [
+    "pricebook",
+    "devpricebook"
+  ],
+  "externalSubDomains": [
+     "localhost",
+    "customerpricingportal"
+  ]
+}
+
