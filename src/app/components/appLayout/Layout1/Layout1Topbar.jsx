@@ -104,6 +104,27 @@ const Layout1Topbar = () => {
     });
   };
 
+  const handleLogoutAndRedirect = () => {
+    const oktaDomain = "https://trial-8774813.okta.com";
+    console.log(user); // object
+    if (!user?.Token) {
+      logout();
+      navigate("/session/signin");
+      return;
+    }
+    const logoutUrl =
+      `${oktaDomain}/oauth2/default/v1/logout` +
+      `?id_token_hint=${user.Token}` +
+      `&post_logout_redirect_uri=${encodeURIComponent(
+        "http://localhost:3000"
+      )}`;
+
+    logout();
+    console.log(logoutUrl, "logoutUrl");
+    window.location.href = logoutUrl;
+   // navigate("/session/signin");
+  };
+
   const handleSidebarToggle = () => {
     let { layout1Settings } = settings;
     let mode;
@@ -118,7 +139,6 @@ const Layout1Topbar = () => {
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
-
     setOpen(true);
   };
   const handleClose = (event, reason) => {
@@ -131,7 +151,7 @@ const Layout1Topbar = () => {
     Swal.fire({
       title: "Favourite Added Successfully",
       // text: "You clicked the button!",
-      icon: "success"
+      icon: "success",
     });
   };
 
@@ -172,7 +192,10 @@ const Layout1Topbar = () => {
                     Hi <strong>{user.name}</strong>-{user.company}
                   </Span>
                 </Hidden>
-                <Avatar src={`data:image/png;base64,${user.avatar}`} sx={{ cursor: "pointer" }} />
+                <Avatar
+                  src={`data:image/png;base64,${user.avatar}`}
+                  sx={{ cursor: "pointer" }}
+                />
               </UserMenu>
             }
           >
@@ -189,7 +212,7 @@ const Layout1Topbar = () => {
                 <Span> Profile </Span>
               </Link>
             </StyledItem>
-{/* 
+            {/* 
             {user.role != 'USER'&&<StyledItem
               onClick={() => {
                 navigate("/profile/setting");
@@ -200,23 +223,24 @@ const Layout1Topbar = () => {
                 <Span> Settings </Span>
               </Link>
             </StyledItem>} */}
-            
+
             <StyledItem
               onClick={() => {
                 navigate("/profile/setting");
-
-              }}>
+              }}
+            >
               {/* <Link to="/user-settings"> */}
-                <Icon> settings </Icon>
-                <Span> Settings </Span>
+              <Icon> settings </Icon>
+              <Span> Settings </Span>
               {/* </Link> */}
             </StyledItem>
 
             <StyledItem
-              onClick={() => {
-                navigate("/session/signin");
-                logout();
-              }}
+              // onClick={() => {
+              //   navigate("/session/signin");
+              //   logout();
+              // }}
+              onClick={() => handleLogoutAndRedirect()}
             >
               <Icon> power_settings_new </Icon>
               <Span> Logout </Span>
@@ -236,7 +260,7 @@ const Layout1Topbar = () => {
             <DialogTitle>Add Favourite</DialogTitle>
             <DialogContent>
               <DialogContentText>
-                To create a new  Favourite, please fill out the  Favourite Name
+                To create a new Favourite, please fill out the Favourite Name
                 below.
               </DialogContentText>
               <TextField
@@ -253,7 +277,11 @@ const Layout1Topbar = () => {
               />
             </DialogContent>
             <DialogActions>
-              <Button variant="contained" color="warning" onClick={() => setOpen(false)}>
+              <Button
+                variant="contained"
+                color="warning"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
@@ -278,7 +306,3 @@ const Layout1Topbar = () => {
 };
 
 export default React.memo(Layout1Topbar);
-
-
-
-

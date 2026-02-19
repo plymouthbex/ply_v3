@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -79,6 +79,87 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function JwtLogin() {
+   const [isInternal, setIsInternal] = useState(false);
+//   useEffect(() => {
+//             const config = await loadConfig();
+// consoel
+//     const hostname = window.location.hostname;
+//     if (subdomain === "localhost") {
+//       setMsg("Local");
+//     } else {
+//     const authUrl =
+//       `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/default/v1/authorize` +
+//       `?client_id=${process.env.REACT_APP_CLIENTID}` +
+//       `&response_type=code` +
+//       `&scope=openid profile email` +
+//       `&redirect_uri=${encodeURIComponent(process.env.REACT_APP_REDIRECTURI)}` +
+//       `&state=abc123`;
+
+//     window.location.href = authUrl;
+//     }
+//   }, []);
+useEffect(() => {
+  const initAuth = async () => {
+    try {
+      // 1️⃣ Fetch config FIRST
+      const config = await loadConfig();
+      const authType = decideAuthType(config);
+      console.log(authType,"authType")
+
+      const hostname = window.location.hostname;
+      const subdomain = hostname.split(".")[0];
+      console.log(hostname,"hostname")
+      console.log(config,"config")
+      console.log(subdomain,"subdomain")
+      // 2️⃣ Internal login
+      if (authType === "internal") {
+        setIsInternal(true);
+        return;
+      }
+
+      // 3️⃣ External → Okta redirect
+      const authUrl =
+        `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/default/v1/authorize` +
+        `?client_id=${process.env.REACT_APP_CLIENTID}` +
+        `&response_type=code` +
+        `&scope=openid profile email` +
+        `&redirect_uri=${encodeURIComponent(
+          process.env.REACT_APP_REDIRECTURI
+        )}` +
+        `&state=abc123`;
+
+      window.location.replace(authUrl);
+    } catch (error) {
+      console.error("Failed to load config", error);
+    }
+  };
+
+  initAuth();
+}, []);
+  
+const loadConfig = async () => {
+  const res = await fetch("/config.json");
+  if (!res.ok) throw new Error("Config load failed");
+  return res.json();
+};
+const decideAuthType = (config) => {
+  const hostname = window.location.hostname;
+  const subdomain = hostname.split(".")[0];
+
+  if (config.baseOn === "subdomain") {
+    if (config.internalSubDomains.includes(subdomain)) return "internal";
+    if (config.externalSubDomains.includes(subdomain)) return "external";
+  }
+
+  if (config.baseOn === "domain") {
+    if (config.internalDomains.includes(hostname)) return "internal";
+    if (config.externalDomains.includes(hostname)) return "external";
+  }
+
+  // default fallback
+  return "internal";
+};
+
   const theme = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -90,13 +171,13 @@ export default function JwtLogin() {
   const handleFormSubmit = async (values) => {
     setLoading(true);
     try {
-      const response = await login(values.email, values.password);
-      if(response.LoginType === "Y"){
-        navigate("/session/reset-password",{state:{id:response.id}});
-        return
-      }else{
-        if(response.Islock === "Y"){
-          setShowUnlock(true)
+      const response = await login(values.email, values.password,'',"1");
+      if (response.LoginType === "Y") {
+        navigate("/session/reset-password", { state: { id: response.id } });
+        return;
+      } else {
+        if (response.Islock === "Y") {
+          setShowUnlock(true);
         }
       }
       // return
@@ -110,9 +191,9 @@ export default function JwtLogin() {
         },
       });
     } catch (e) {
-      if(e.response.data.Islock === "Y"){
-      setShowUnlock(true)
-    }
+      if (e.response.data.Islock === "Y") {
+        setShowUnlock(true);
+      }
       toast.error(e.response.data.message);
       setLoading(false);
     }
@@ -123,22 +204,26 @@ export default function JwtLogin() {
     setShowPassword((prev) => !prev);
   };
 
-
-  const forgot = async (values,type) => {
-  const res = await dispatch(
+  const forgot = async (values, type) => {
+    const res = await dispatch(
       LoginConfig({
         EmailID: values.email,
-        Type:type ,
+        Type: type,
       })
-    )
+    );
 
-    if(res.payload.status == "Y"){
-      navigate("/session/unlock-password/forgot-notify'",{state:{message:res.payload.message,error:false}})
-    }else{
-      navigate("/session/unlock-password/forgot-notify'",{state:{message:res.payload.message,error:true}})
+    if (res.payload.status == "Y") {
+      navigate("/session/unlock-password/forgot-notify'", {
+        state: { message: res.payload.message, error: false },
+      });
+    } else {
+      navigate("/session/unlock-password/forgot-notify'", {
+        state: { message: res.payload.message, error: true },
+      });
     }
-  }
+  };
   return (
+     <>{isInternal?(
     <StyledRoot>
       <Card className="card">
         <Grid container>
@@ -298,6 +383,7 @@ export default function JwtLogin() {
           </Grid>
         </Grid>
       </Card>
-    </StyledRoot>
+    </StyledRoot>):null}
+   </>
   );
 }

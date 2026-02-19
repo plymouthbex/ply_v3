@@ -113,13 +113,15 @@ const AuthContext = createContext({
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const login = async (email, password) => {
+  const login = async (email, password,code="",type="2") => {
     const URL = `${process.env.REACT_APP_BASE_URL}User/Login_V1`;
     const response = await axios.post(
       URL,
       {
         userName: email,
         password,
+        code:code,
+        type:type
       },
       {
         headers: {
