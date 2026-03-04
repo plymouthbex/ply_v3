@@ -113,11 +113,9 @@ const Layout1Topbar = () => {
       return;
     }
     const logoutUrl =
-      `${oktaDomain}/oauth2/default/v1/logout` +
+      `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/v1/logout` +
       `?id_token_hint=${user.Token}` +
-      `&post_logout_redirect_uri=${encodeURIComponent(
-        "http://localhost:3000"
-      )}`;
+      `&post_logout_redirect_uri=${encodeURIComponent(process.env.REACT_APP_LOGOUT_URI)}`;
 
     logout();
     console.log(logoutUrl, "logoutUrl");

@@ -118,16 +118,24 @@ useEffect(() => {
       }
 
       // 3️⃣ External → Okta redirect
-      const authUrl =
-        `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/default/v1/authorize` +
-        `?client_id=${process.env.REACT_APP_CLIENTID}` +
-        `&response_type=code` +
-        `&scope=openid profile email` +
-        `&redirect_uri=${encodeURIComponent(
-          process.env.REACT_APP_REDIRECTURI
-        )}` +
-        `&state=abc123`;
-
+      // const authUrl =
+      //   `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/default/v1/authorize` +
+      //   `?client_id=${process.env.REACT_APP_CLIENTID}` +
+      //   `&response_type=code` +
+      //   `&scope=openid profile email` +
+      //   `&redirect_uri=${encodeURIComponent(
+      //     process.env.REACT_APP_REDIRECTURI
+      //   )}` +
+      //   `&state=abc123`;
+ const authUrl =
+  `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/v1/authorize` +
+  `?client_id=${process.env.REACT_APP_CLIENTID}` +
+  `&response_type=code` +
+  `&scope=openid%20profile%20email` +
+  `&redirect_uri=${encodeURIComponent(
+    process.env.REACT_APP_REDIRECTURI
+  )}` +
+  `&state=abc123`;
       window.location.replace(authUrl);
     } catch (error) {
       console.error("Failed to load config", error);
