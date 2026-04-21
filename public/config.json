@@ -20,10 +20,10 @@
 
   "internalSubDomains": [
     "pricebook",
-    "devpricebook"
+    "devpricebook",
+    "localhost"
   ],
   "externalSubDomains": [
-     "localhost",
     "customerpricingportal"
   ]
 }
