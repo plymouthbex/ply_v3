@@ -204,7 +204,7 @@ const PriceListEdit = () => {
       hide: false,
     },
     {
-      headerName: "Print",
+      headerName: "Print In FPB",
       field: "print",
       minWidth: 100,
       align: "center",
@@ -234,6 +234,83 @@ const PriceListEdit = () => {
                   onCheckboxChangePriceListEdit({
                     id: param.row.RecordId,
                     field: "PrintItem",
+                    adhocItem: param.row.AdHocItem,
+                  })
+                );
+              }}
+              sx={{
+                color: "#174c4f",
+                "&.Mui-checked": {
+                  color: "#174c4f",
+                },
+              }}
+            />
+
+            {/* <Checkbox
+              checked={param.row.PrintItem ==="1"}
+              onChange={(e) => {
+                dispatch(
+                  PutAdHocItem({
+                    data: {
+                      RecordID: param.row.RecordId,
+                      PriceListID: priceListHeaderData.PriceListID,
+                      QuotationRecordID: "0",
+                      FilterType: "PL",
+                      ItemNo: param.row.Item_Number,
+                      PrintItem: e.target.checked ? "1" : "0",
+                    },
+                  })
+                );
+                dispatch(
+                  onCheckboxChangePriceListEdit({
+                    id: param.row.RecordId,
+                    field: "PrintItem",
+                    adhocItem: param.row.AdHocItem,
+                  })
+                );
+              }}
+              sx={{
+                color: "#174c4f",
+                "&.Mui-checked": {
+                  color: "#174c4f",
+                },
+              }}
+            /> */}
+          </div>
+        );
+      },
+    },
+     {
+      headerName: "Print In CPB",
+      field: "prints",
+      minWidth: 100,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (param) => {
+        return (
+          <div>
+            <Checkbox
+              checked={param.row.PrintItemCFB === true}
+              onChange={(e) => {
+                const newValue = e.target.checked ? "1" : "0";
+                // console.log(e);
+                //     dispatch(
+                //       PutAdHocItem({
+                //         data: {
+                //           RecordID: param.row.RecordId,
+                //           PriceListID: priceListHeaderData.PriceListID,
+                //           QuotationRecordID: "0",
+                //           FilterType: "PL",
+                //           ItemNo: param.row.Item_Number,
+                //           PrintItem: newValue,
+                //         },
+                //       })
+                //     );
+
+                dispatch(
+                  onCheckboxChangePriceListEdit({
+                    id: param.row.RecordId,
+                    field: "PrintItemCFB",
                     adhocItem: param.row.AdHocItem,
                   })
                 );
