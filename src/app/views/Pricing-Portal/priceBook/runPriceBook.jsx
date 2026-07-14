@@ -38,6 +38,7 @@ import {
   onCheckboxChange,
   runGrpMsgUpdate,
   runGrpProcessedDataUpdate,
+  deleteCustomerPriceBookItem
 } from "app/redux/slice/listviewSlice";
 import {
   SingleAutocomplete,
@@ -75,6 +76,9 @@ import {
 } from "app/utils/constant";
 import { FormikCustomSelectPriceBookGroup } from "app/components/SingleAutocompletelist";
 import { CusListRunGrpOptimizedAutocomplete } from "app/components/FormikAutocomplete";
+import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import { useLocation } from "react-router-dom";
+import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -121,27 +125,43 @@ export default function RunPriceBook() {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+
   const colors = themeColors;
 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [rowSelectionModel11, setRowSelectionModel11] = React.useState([]);
-  
+
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isNextWeek, setIsNextWeek] = useState(false);
+  const [isRemovePriceList, setIsRemovePriceList] = useState(false);
+  const [removePriceListdDesc, setremovePriceListDesc] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomerName, setSelectedCustomerName] = useState("");
+  const [pendingAction, setPendingAction] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchListviewRunGroup({ runGroupID: user.defaultRunGroup })).then(
-      (res) => {
-        const allRowIds = res.payload.rows.map((row) => row.id);
-        
-        setRowSelectionModel(allRowIds);
-      }
-    );
-    const today = new Date();
-    setCurrentDate(today);
-  }, []);
-console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
+  const selectedRunGroup = location.state?.selectedRunGroup ?? {
+    Name: user.defaultRunGroup,
+  };
+
+  setSelectedRunGrpOptions(selectedRunGroup);
+
+  dispatch(
+    fetchListviewRunGroup({
+      runGroupID: selectedRunGroup.Name,
+      companyID: user.companyID,
+    })
+  ).then((res) => {
+    const allRowIds = res.payload.rows.map((row) => row.id);
+    setRowSelectionModel(allRowIds);
+  });
+
+  setCurrentDate(new Date());
+}, [dispatch, location.state, user.companyID, user.defaultRunGroup]);
+
+  console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const getWeekDates = () => {
     const date = new Date(currentDate);
 
@@ -171,33 +191,33 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const runGrpIsLoading = useSelector((state) => state.listview.runGrpLoading);
   const runGrpColumns = useSelector((state) => state.listview.runGrpColumnData);
   const runGrpRows = useSelector((state) => state.listview.runbGrpRowData);
-  console.log("🚀 ~ RunPriceBook ~ runGrpRows:", runGrpRows)
-  const filteredRows = runGrpRows.filter(row =>
-    !row.fppdf && !row.fpexcel && !row.cppdf && !row.cpexcel
+  console.log("🚀 ~ RunPriceBook ~ runGrpRows:", runGrpRows);
+  const filteredRows = runGrpRows.filter(
+    (row) => !row.fppdf && !row.fpexcel && !row.cppdf && !row.cpexcel,
   );
-  console.log("🚀 ~ RunPriceBook ~ filteredRows:", filteredRows)
-  
+  console.log("🚀 ~ RunPriceBook ~ filteredRows:", filteredRows);
+
   // If you only need the record IDs
-  const filteredIds = filteredRows.map(row => row.id);
-  console.log("🚀 ~ RunPriceBook ~ filteredIds:", filteredIds)
+  const filteredIds = filteredRows.map((row) => row.id);
+  console.log("🚀 ~ RunPriceBook ~ filteredIds:", filteredIds);
   const runGrpProcessingMsg = useSelector(
-    (state) => state.listview.runGrpProcessingMsg
+    (state) => state.listview.runGrpProcessingMsg,
   );
 
   const runGroupMailState = useSelector(
-    (state) => state.postData.runGroupMailState
+    (state) => state.postData.runGroupMailState,
   );
   const runGroupMailMessage = useSelector(
-    (state) => state.postData.runGroupMailMessage
+    (state) => state.postData.runGroupMailMessage,
   );
   const runGroupMailLoading = useSelector(
-    (state) => state.postData.runGroupMailLoading
+    (state) => state.postData.runGroupMailLoading,
   );
   const runGroupMailError = useSelector(
-    (state) => state.postData.runGroupMailError
+    (state) => state.postData.runGroupMailError,
   );
   const runGroupMailIsAction = useSelector(
-    (state) => state.postData.runGroupMailIsAction
+    (state) => state.postData.runGroupMailIsAction,
   );
   const [isEmailButtonDisabled, setIsEmailButtonDisabled] = useState(false);
 
@@ -206,24 +226,38 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const [postError6, setPostError6] = useState(false);
   const [deleteID, setDeleteID] = useState(0);
   const [deleteCustomer, setDeleteCustomer] = useState("");
-  
+
+  useEffect(() => {
+    if (!selectedCustomer) return;
+
+    const row = runGrpRows.find(
+      (item) => item.customernumber === selectedCustomer,
+    );
+
+    // if (row && !row.cpexcel && !row.cppdf) {
+    //   setIsRemovePriceList(true);
+    // }
+  }, [runGrpRows, selectedCustomer]);
+
   const runGroupDeleteFn = async (values) => {
     try {
-     
-      dispatch(deletePriceBookGroup({
-               Recordid:deleteID,
-               CustomerNumber:deleteCustomer})).then((response) => {
+      dispatch(
+        deletePriceBookGroup({
+          Recordid: deleteID,
+          CustomerNumber: deleteCustomer,
+        }),
+      ).then((response) => {
         if (response.payload.status === "Y") {
           setPostError6(false);
           setOpenAlert6(true);
           setDeleteID(0);
           setDeleteCustomer("");
-          dispatch(fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name })).then(
-            (res) => {
-              const allRowIds = res.payload.rows.map((row) => row.id);
-              setRowSelectionModel(allRowIds);
-            }
-          );
+          dispatch(
+            fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name , companyID: user.companyID,}),
+          ).then((res) => {
+            const allRowIds = res.payload.rows.map((row) => row.id);
+            setRowSelectionModel(allRowIds);
+          });
         } else {
           setOpenAlert6(true);
           setPostError6(true);
@@ -265,7 +299,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             onChange={(e) => {
               console.log(
                 "🚀 ~ RunPriceBook ~ e.target.checked:",
-                e.target.checked
+                e.target.checked,
               );
               if (
                 user.role === "USER" &&
@@ -277,14 +311,14 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "FullPriceBookExcel",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "fpexcel",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               } else if (user.role !== "USER") {
                 dispatch(
@@ -292,14 +326,14 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "FullPriceBookExcel",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "fpexcel",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               }
             }}
@@ -324,14 +358,14 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "FullPriceBookPdf",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "fppdf",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               } else if (user.role !== "USER") {
                 dispatch(
@@ -339,14 +373,14 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "FullPriceBookPdf",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "fppdf",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               }
             }}
@@ -376,6 +410,22 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
           <Checkbox
             checked={params.row.cpexcel}
             onChange={(e) => {
+              setSelectedCustomer(params.row.customernumber);
+              setSelectedCustomerName(params.row.customer);
+              console.log("customer name", params.row.customer);
+
+              if (!e.target.checked && !params.row.cppdf) {
+                setPendingAction({
+                  row: params.row,
+                  field: "cpexcel",
+                  type: "CustomrPriceBookExcel",
+                  checked: e.target.checked,
+                });
+
+                setIsRemovePriceList(true);
+                return;
+              }
+
               if (
                 user.role === "USER" &&
                 (selectedRunGrpOptions.Name === user.defaultRunGroup ||
@@ -386,29 +436,32 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "CustomrPriceBookExcel",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "cpexcel",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
+                // if (!e.target.checked && !params.row.cppdf) {
+                //   setIsRemovePriceList(true);
+                // }
               } else if (user.role !== "USER") {
                 dispatch(
                   CustomerConfig({
                     CustomerNumber: params.row.customernumber,
                     Type: "CustomrPriceBookExcel",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "cpexcel",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               }
             }}
@@ -423,6 +476,21 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
           <Checkbox
             checked={params.row.cppdf}
             onChange={(e) => {
+              setSelectedCustomer(params.row.customernumber);
+              setSelectedCustomerName(params.row.customer);
+
+              if (!e.target.checked && !params.row.cpexcel) {
+                setPendingAction({
+                  row: params.row,
+                  field: "cppdf",
+                  type: "CustomPriceBookPdf",
+                  checked: e.target.checked,
+                });
+
+                setIsRemovePriceList(true);
+                return;
+              }
+
               if (
                 user.role === "USER" &&
                 (selectedRunGrpOptions.Name === user.defaultRunGroup ||
@@ -433,14 +501,14 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "CustomPriceBookPdf",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "cppdf",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               } else if (user.role !== "USER") {
                 dispatch(
@@ -448,14 +516,14 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                     CustomerNumber: params.row.customernumber,
                     Type: "CustomPriceBookPdf",
                     Value: e.target.checked ? "1" : "0",
-                  })
+                  }),
                 );
                 dispatch(
                   onCheckboxChange({
                     id: params.row.id,
                     field: "cppdf",
                     rows: runGrpRows,
-                  })
+                  }),
                 );
               }
             }}
@@ -469,6 +537,68 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
           PDF
         </div>
       ),
+    },
+    {
+      field: "Action",
+      headerName: "Action",
+      minWidth: 300,
+      renderCell: (params) => {
+        const isVisible = params.row.cpexcel || params.row.cppdf;
+        const compID = user.companyID;
+        const comCode = user.companyCode;
+        const custname = params.row.customer;
+        return (
+          <div>
+            {isVisible && (
+              <Tooltip
+                title={
+                  <>
+                    <div>{custname} Customer Price Items</div>
+                  </>
+                }
+                arrow
+                placement="top"
+              >
+                <IconButton
+                  color="black"
+                  size="small"
+                  onClick={() => {
+                    navigate("/pages/pricing-portal/Price-list-details", {
+                      state: {
+                        companyID: compID,
+                        companyCode: comCode,
+                        customernumber: params.row.customernumber,
+                        customer: params.row.customer,
+                        selectedRunGroup: selectedRunGrpOptions,
+                      },
+                    });
+                  }}
+                >
+                  <RequestQuoteIcon />
+                </IconButton>
+
+                {/* <Button
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() => {
+                    navigate("/pages/pricing-portal/Price-list-details", {
+                      state: {
+                        companyID: compID,
+                        companyCode: comCode,
+                        customernumber: params.row.customernumber,
+                        customer: params.row.customer,
+                      },
+                    });
+                  }}
+                >
+                  Customer Price Book Items
+                </Button> */}
+              </Tooltip>
+            )}
+          </div>
+        );
+      },
     },
     // {
     //   field: "Action",
@@ -501,7 +631,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
     //           setIsRemoveItem(true);
     //           }
     //         }}
-           
+
     //       >
     //         <DeleteIcon color="error" fontSize="small" />
     //       </IconButton>
@@ -515,7 +645,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
       ? {
           Name: user.defaultRunGroup,
         }
-      : null
+      : null,
   );
 
   // const handleSelectionRunGrpChange = (newValue) => {
@@ -533,26 +663,30 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const handleSelectionRunGrpChange = (newValue) => {
     setSelectedRunGrpOptions(newValue);
     setIsEmailButtonDisabled(false); // Re-enable button on selection change
-  
+
+      // localStorage.setItem("selectedRunGroup", JSON.stringify(newValue));
+
     if (newValue) {
-      dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then((res) => {
+      dispatch(
+        fetchListviewRunGroup({
+          runGroupID: newValue.Name,
+          companyID: user.companyID,
+        }),
+      ).then((res) => {
         const allRowIds = res.payload.rows.map((row) => row.id);
         setRowSelectionModel(allRowIds);
       });
     }
-  
+
     setShowFiltered(false);
   };
-  
 
   const [openAlert, setOpenAlert] = useState(false);
   const [postError, setPostError] = useState(null);
 
   const [showFiltered, setShowFiltered] = useState(false);
-  const data = runGrpRows
-  .filter(
-    (v) =>
-     v.fppdf || v.fpexcel || v.cppdf || v.cpexcel
+  const data = runGrpRows.filter(
+    (v) => v.fppdf || v.fpexcel || v.cppdf || v.cpexcel,
   );
   console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
 
@@ -571,11 +705,8 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
     //   return;
     // }
     const data = runGrpRows
-     
-      .filter(
-        (v) =>
-         v.fppdf || v.fpexcel || v.cppdf || v.cpexcel
-      )
+
+      .filter((v) => v.fppdf || v.fpexcel || v.cppdf || v.cpexcel)
       .map((v) => ({
         id: v.id,
         CustomerNumber: v.customernumber,
@@ -589,9 +720,9 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
         CompnayID: user.companyID,
         CompanyCode: user.companyCode,
         TemplateID: "",
-        ShowPrice:showPrice,
+        ShowPrice: showPrice,
       }));
-      console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
+    console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
     try {
       const response = await dispatch(runGroupMailData({ data }));
 
@@ -660,7 +791,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                   FromDate: sunday,
                   ToDate: saturday,
                   CustomerNumber: row.customernumber,
-                })
+                }),
               ).then((fpResData) => {
                 if (fpResData.payload.length > 0) {
                   dispatch(runGrpMsgUpdate(`Full PDF for ${row.customer}...`));
@@ -689,7 +820,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                         coverImg: user.customerFullPriceBookImg,
                       }}
                       isPrice={showPrice}
-                    />
+                    />,
                   )
                     .toBlob()
                     .then((blob) => ({
@@ -698,7 +829,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                       excelBlobfp,
                       fileName1: `${user.company}_${row.customer.replace(
                         /\.$/,
-                        ""
+                        "",
                       )}_FPB_${sunday} TO ${saturday}`,
                       sunday,
                       saturday,
@@ -722,11 +853,11 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                   ToDate: saturday,
                   CustomerNumber: row.customernumber,
                   filterparameters: "",
-                })
+                }),
               ).then((cpResData) => {
                 if (cpResData.payload.length > 0) {
                   dispatch(
-                    runGrpMsgUpdate(`Custom PDF for ${row.customer}...`)
+                    runGrpMsgUpdate(`Custom PDF for ${row.customer}...`),
                   );
                   const excelBlobcp = exportToExcelBuildCustomPriceBookBlob({
                     excelData: cpResData.payload,
@@ -758,7 +889,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                         coverImg: user.customerCustomPriceBookImg,
                       }}
                       isPrice={showPrice}
-                    />
+                    />,
                   )
                     .toBlob()
                     .then((blob) => ({
@@ -767,7 +898,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                       excelBlobcp,
                       fileName2: `${user.company}_${row.customer.replace(
                         /\.$/,
-                        ""
+                        "",
                       )}_CPB_${sunday} TO ${saturday}`,
                       sunday,
                       saturday,
@@ -804,10 +935,10 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             resolve(
               results
                 .filter(
-                  (result) => result.status === "fulfilled" && result.value
+                  (result) => result.status === "fulfilled" && result.value,
                 )
-                .map((result) => result.value)
-            )
+                .map((result) => result.value),
+            ),
           )
           .catch(reject);
       } catch (error) {
@@ -819,9 +950,9 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
 
     processData
       .then((result) => {
-      console.log("🚀 ~ .then ~ result:", result)
-      // return;
-        
+        console.log("🚀 ~ .then ~ result:", result);
+        // return;
+
         if (result.length > 0) {
           setProcessFunLoading(false);
           dispatch(runGrpMsgUpdate(`Successfully Processed`));
@@ -910,11 +1041,11 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
           PriceBookGroup: selectedRunGrpOptions
             ? selectedRunGrpOptions.Name
             : "",
-        })
+        }),
       );
       if (response.payload.status === "Y") {
         dispatch(
-          fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name })
+          fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name, }),
         ).then((res) => {
           const allRowIds = res.payload.rows.map((row) => row.id);
           setRowSelectionModel(allRowIds);
@@ -1002,6 +1133,63 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
               }
               label="Show Price"
             />
+
+            <MessageAlertDialog
+              open={isRemovePriceList}
+              tittle={removePriceListdDesc}
+              message={`Are you sure you want to delete the customer price book items for "${selectedCustomerName}"?`}
+              Actions={
+                <DialogActions>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={async () => {
+                      if (pendingAction) {
+                        //For delete
+                         await dispatch(
+                            deleteCustomerPriceBookItem({
+                              customerNo: pendingAction.row.customernumber,
+                            })
+                          );
+
+                        dispatch(
+                          CustomerConfig({
+                            CustomerNumber: pendingAction.row.customernumber,
+                            Type: pendingAction.type,
+                            Value: pendingAction.checked ? "1" : "0",
+                          }),
+                        );
+
+                        dispatch(
+                          onCheckboxChange({
+                            id: pendingAction.row.id,
+                            field: pendingAction.field,
+                            rows: runGrpRows,
+                          }),
+                        );
+                      }
+
+                      setPendingAction(null);
+                      setIsRemovePriceList(false);
+                    }}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={() => {
+                      setPendingAction(null);
+                      setIsRemovePriceList(false);
+                    }}
+                  >
+                    No
+                  </Button>
+                </DialogActions>
+              }
+            />
             {/* <Stack direction="row" gap={2}  justifyContent={"flex-end"}>
               <SingleAutocomplete
               sx={{ width: 200 }}
@@ -1038,47 +1226,46 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
 
           {/* Second Row */}
           <Box
-  sx={{
-    display: "flex",
-    flexDirection: "row",
-    // alignItems: "center",
-    width: "100%",
-    padding: 1,
-    justifyContent: "space-between",
-    gap: 2, // Slightly increased for visual clarity
-  }}
->
-  <SingleAutocomplete
-    fullWidth
-    required
-    name="rungroup"
-    id="rungroup"
-    value={selectedRunGrpOptions}
-    onChange={handleSelectionRunGrpChange}
-    label="Price Book Group"
-    url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
-  />
-   <Stack
-                direction="row"
-                width={"100%"}
-                gap={2}
-                justifyContent={"flex-start"}
-              >
-  <FormControlLabel
-
-    control={
-      <Switch
-        checked={showFiltered}
-        onChange={() => setShowFiltered((prev) => !prev)}
-        color="primary"
-      />
-    }
-    label="Show Only Customers Configured"
-  />
-  </Stack>
-</Box>
-</Box>
-            {/* {(user.defaultRunGroup ==
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              // alignItems: "center",
+              width: "100%",
+              padding: 1,
+              justifyContent: "space-between",
+              gap: 2, // Slightly increased for visual clarity
+            }}
+          >
+            <SingleAutocomplete
+              fullWidth
+              required
+              name="rungroup"
+              id="rungroup"
+              value={selectedRunGrpOptions}
+              onChange={handleSelectionRunGrpChange}
+              label="Price Book Group"
+              url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
+            />
+            <Stack
+              direction="row"
+              width={"100%"}
+              gap={2}
+              justifyContent={"flex-start"}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showFiltered}
+                    onChange={() => setShowFiltered((prev) => !prev)}
+                    color="primary"
+                  />
+                }
+                label="Show Only Customers Configured"
+              />
+            </Stack>
+          </Box>
+        </Box>
+        {/* {(user.defaultRunGroup ==
               (selectedRunGrpOptions ? selectedRunGrpOptions.Name : "") &&
               user.role == "USER") ||
             (user.SalesReps.includes(
@@ -1112,7 +1299,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
                   }`}
                   addedCustomers={runGrpRows} // Pass added customers to exclude them
                 /> */}
-                {/* <Button
+        {/* <Button
                
                 sx={{ width: 200, height: 40, gridColumn: "span 1" }}
                 variant="contained"
@@ -1123,7 +1310,7 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
               >
                 Add Customers
               </Button> */}
-                {/* <Tooltip title="Add Customers">
+        {/* <Tooltip title="Add Customers">
                   <IconButton
                     sx={{ height: 37.6 }}
                     color="info"
@@ -1141,8 +1328,8 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             ) : (
               <Stack width={"100%"}></Stack>
             )} */}
-          {/* </Box> */}
-       
+        {/* </Box> */}
+
         <Box
           sx={{
             "& .MuiDataGrid-root": {
@@ -1191,11 +1378,11 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-            '& .MuiDataGrid-row:hover': {
-                border: '3px solid #999999',
-                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
-                borderRadius: '4px', // Optional: Add rounded corners
-              },
+            "& .MuiDataGrid-row:hover": {
+              border: "3px solid #999999",
+              // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
+              borderRadius: "4px", // Optional: Add rounded corners
+            },
           }}
         >
           <DataGrid
@@ -1232,7 +1419,22 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
             rowHeight={dataGridRowHeight}
             pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
-              Action: user.role !== "USER" ?  true :  user.role === "USER" && (selectedRunGrpOptions ?selectedRunGrpOptions.Name === user.defaultRunGroup: false) ?  true : user.role === "USER" && ( user.SalesReps.includes(selectedRunGrpOptions? selectedRunGrpOptions.Name : "")) ?  true : false
+              Action:
+                user.role !== "USER"
+                  ? true
+                  : user.role === "USER" &&
+                      (selectedRunGrpOptions
+                        ? selectedRunGrpOptions.Name === user.defaultRunGroup
+                        : false)
+                    ? true
+                    : user.role === "USER" &&
+                        user.SalesReps.includes(
+                          selectedRunGrpOptions
+                            ? selectedRunGrpOptions.Name
+                            : "",
+                        )
+                      ? true
+                      : false,
             }}
             disableColumnFilter
             disableColumnSelector
@@ -1284,21 +1486,21 @@ console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
           {/* Buttons on the right side */}
 
           <Stack direction="row" justifyContent="end" gap={2}>
-          <Button
-  variant="contained"
-  disabled={isEmailButtonDisabled}
-  sx={{
-    "&:hover": {
-      backgroundColor: theme.palette.secondary.light,
-    },
-    color: theme.palette.secondary.contrastText,
-    bgcolor: theme.palette.secondary.light,
-    fontWeight: "bold",
-  }}
-  onClick={fnRunGrpEmailProcess}
->
-  Email Price Book(s)
-</Button>
+            <Button
+              variant="contained"
+              disabled={isEmailButtonDisabled}
+              sx={{
+                "&:hover": {
+                  backgroundColor: theme.palette.secondary.light,
+                },
+                color: theme.palette.secondary.contrastText,
+                bgcolor: theme.palette.secondary.light,
+                fontWeight: "bold",
+              }}
+              onClick={fnRunGrpEmailProcess}
+            >
+              Email Price Book(s)
+            </Button>
             {/* <Button
               variant="contained"
               sx={{

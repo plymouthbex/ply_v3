@@ -23,6 +23,7 @@ import {
   DialogTitle,
   DialogContent,
   Divider,
+  Switch,
 } from "@mui/material";
 import {
   DataGrid,
@@ -50,6 +51,7 @@ import {
   priceListAddedItems,
   priceListDeletedItem,
   PostAddHocItems,
+  getPriceListApplyFilter,
 } from "app/redux/slice/getSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -72,6 +74,20 @@ import {
   PutAdHocItem,
 } from "app/redux/slice/postSlice";
 import useAuth from "app/hooks/useAuth";
+import {
+  getCustomerPriceBookItem,
+  updateCustomerPrintItem,
+  onCheckboxChangePriceList,
+} from "app/redux/slice/listviewSlice";
+
+import {
+onCheckboxChangeFilterPriceList
+} from "app/redux/slice/getSlice";
+
+
+
+
+import { debounce } from "lodash";
 
 // ********************** ICONS ********************** //
 import SaveIcon from "@mui/icons-material/Save";
@@ -83,6 +99,8 @@ import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import Loading from "app/components/AppLoading";
+import axios from "axios";
+
 import {
   FormikCustomAutocompleteMulti,
   FormikCustomAutocompleteMultiSecCla,
@@ -103,7 +121,7 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 // ********************** PRICE LIST EDIT SCREEN  ********************** //
-const PriceListEdit = () => {
+const PriceListDetails = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -113,9 +131,17 @@ const PriceListEdit = () => {
   const dispatch = useDispatch();
   const loaction = useLocation();
   const { user } = useAuth();
-  const state = loaction.state;
+  console.log("Username :", user);
+
+  const state = loaction.state ?? {};
   console.log("🚀 ~ state:", state);
   const submitActionRef = useRef(null);
+  const location = useLocation();
+
+  const compID = location.state?.companyID;
+  const companyCode = location.state?.companyCode;
+  const customernumber = location.state?.customernumber;
+  const customer = location.state?.customer;
   // ********************** LOCAL STATE ********************** //
 
   const [openAlert, setOpenAlert] = useState(false);
@@ -135,14 +161,13 @@ const PriceListEdit = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [adHocRows, setAdhocRows] = useState([]);
   const [open, setOpen] = useState(false);
+  // const [priceBookItems, setPriceBookItems] = useState([]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   //======================= ADD PRICE LIST ===================================//
   const [addPriceListData, setAddPriceListData] = useState([]);
-  const [priceListRecordID, setpriceListRecordID] = useState(
-    state.id.toString()
-  );
+  const [priceListRecordID, setpriceListRecordID] = useState(0);
   console.log("🚀 ~ priceListRecordID:", priceListRecordID);
   const handleSelectionAddPriceListData = (newValue) => {
     setAddPriceListData(newValue);
@@ -151,30 +176,59 @@ const PriceListEdit = () => {
   // ********************** REDUX STATE ********************** //
   const priceRows = useSelector((state) => state.listview.priceListViewData);
   const selectedRows = useSelector(
-    (state) => state.getSlice.priceListSelectedData
+    (state) => state.getSlice.priceListSelectedData,
   );
   const addedRows = useSelector((state) => state.getSlice.priceListAddedData);
   console.log("🚀 ~ addedRows:", addedRows);
   const priceListHeaderData = useSelector(
-    (state) => state.getSlice.priceListHeaderData
+    (state) => state.getSlice.priceListHeaderData,
   );
   console.log(priceListHeaderData, "priceListHeaderData");
   const [companyID, setCompanyId] = useState(priceListHeaderData.CompanyID);
   const priceListFilterData = useSelector(
-    (state) => state.getSlice.priceListFilterData
+    (state) => state.getSlice.priceListFilterData,
   );
   const priceListItemsData = useSelector(
-    (state) => state.getSlice.priceListItemsData
+    (state) => state.getSlice.priceListItemsData,
   );
   console.log("🚀 ~ priceListItemsData:", priceListItemsData);
   const priceListItemLoading = useSelector(
-    (state) => state.getSlice.priceListItemLoading
+    (state) => state.getSlice.priceListItemLoading,
   );
   const getStatus = useSelector((state) => state.getSlice.priceListStatus);
   const getLoading = useSelector((state) => state.getSlice.priceListLoading);
   const getMessage = useSelector((state) => state.getSlice.priceListMessage);
   const getError = useSelector((state) => state.getSlice.priceListError);
   const AdHocRows = useSelector((state) => state.getSlice.postAdHocData);
+
+  const priceBookItems = useSelector((state) => state.listview.priceBookItems);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+
+  const [isApplyFilter, setisApplyFilter] = useState(false);
+
+  const [showFiltered, setShowFiltered] = useState(false);
+
+ 
+
+  const filteredPriceBookItems = useSelector(
+    (state) => state.getSlice.filteredPriceBookItems
+  );
+ const data =isApplyFilter?filteredPriceBookItems.filter((v) => v.PrintItem): priceBookItems.filter((v) => v.PrintItem);
+  console.log(data, "data");
+    //const displayDataRows = showFiltered ? data : priceBookItems;
+
+  // const displayDataRows = isApplyFilter
+  // ? filteredPriceBookItems
+  // : showFiltered
+  //   ? data
+  //   : priceBookItems;
+
+      const displayDataRows = isApplyFilter && !showFiltered
+  ? filteredPriceBookItems
+  : showFiltered
+    ? data
+    : priceBookItems;
+
   console.log("🚀 ~ AdHocRows:", AdHocRows);
 
   // ********************** COLUMN AND ROWS ********************** //
@@ -190,7 +244,7 @@ const PriceListEdit = () => {
     {
       headerName: "Item Number",
       field: "Item_Number",
-      width: "150",
+      width: "100",
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -198,13 +252,13 @@ const PriceListEdit = () => {
     {
       headerName: "Item Description",
       field: "Item_Description",
-      minWidth: 450,
+      minWidth: 300,
       align: "left",
       headerAlign: "left",
       hide: false,
     },
     {
-      headerName: "Print In FPB",
+      headerName: "Print In CPB",
       field: "print",
       minWidth: 100,
       align: "center",
@@ -216,27 +270,31 @@ const PriceListEdit = () => {
               checked={param.row.PrintItem === true}
               onChange={(e) => {
                 const newValue = e.target.checked ? "1" : "0";
-                // console.log(e);
-                //     dispatch(
-                //       PutAdHocItem({
-                //         data: {
-                //           RecordID: param.row.RecordId,
-                //           PriceListID: priceListHeaderData.PriceListID,
-                //           QuotationRecordID: "0",
-                //           FilterType: "PL",
-                //           ItemNo: param.row.Item_Number,
-                //           PrintItem: newValue,
-                //         },
-                //       })
-                //     );
 
                 dispatch(
-                  onCheckboxChangePriceListEdit({
+                  updateCustomerPrintItem({
+                    customerNo: customernumber,
+                    itemNo: param.row.Item_Number,
+                    printItem: e.target.checked,
+                    userName: user.username,
+                  }),
+                );
+
+                dispatch(
+                  onCheckboxChangePriceList({
                     id: param.row.RecordId,
                     field: "PrintItem",
-                    adhocItem: param.row.AdHocItem,
-                  })
+                    // adhocItem: param.row.AdHocItem,
+                  }),
                 );
+                dispatch(
+                  onCheckboxChangeFilterPriceList({
+                    id: param.row.RecordId,
+                    field: "PrintItem",
+                    // adhocItem: param.row.AdHocItem,
+                  }),
+                );
+
               }}
               sx={{
                 color: "#174c4f",
@@ -279,6 +337,62 @@ const PriceListEdit = () => {
           </div>
         );
       },
+    },
+    {
+      headerName: "Brand",
+      field: "Brand",
+      minWidth: 100,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+     {
+      headerName: "Commodity",
+      field: "Commodity",
+      minWidth: 100,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+     {
+      headerName: "Alternate Class",
+      field: "AlternateClass",
+      minWidth: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+    {
+      headerName: "Vendor",
+      field: "Vendor",
+      minWidth: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+     {
+      headerName: "Fresh/Frozen/Dry",
+      field: "FreshFrozenDry",
+      minWidth: 150,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+     {
+      headerName: "Secondary Class",
+      field: "SecondaryClass",
+      minWidth: 200,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
+    },
+     {
+      headerName: "ClassID",
+      field: "ItemClass",
+      minWidth: 200,
+      align: "left",
+      headerAlign: "left",
+      hide: false,
     },
     //  {
     //   headerName: "Print In CPB",
@@ -354,45 +468,45 @@ const PriceListEdit = () => {
         return param.row.AdHocItem === "Y" ? "Yes" : "No";
       },
     },
-    {
-      field: "Action",
-      headerName: "Action",
-      minWidth: 200,
-      flex: 1,
-      sortable: false,
-      headerAlign: "center",
-      filterable: false,
-      disableColumnMenu: true,
-      disableExport: true,
-      align: "center",
+    // {
+    //   field: "Action",
+    //   headerName: "Action",
+    //   minWidth: 200,
+    //   flex: 1,
+    //   sortable: false,
+    //   headerAlign: "center",
+    //   filterable: false,
+    //   disableColumnMenu: true,
+    //   disableExport: true,
+    //   align: "center",
 
-      renderCell: (param) => {
-        return (
-          <>
-            {/* <Tooltip title="Remove"> */}
-            <IconButton
-              sx={{ height: 25, marginLeft: 2 }}
-              variant="contained"
-              color="error"
-              size="small"
-              onClick={() => {
-                setIsRemoveItem1ID(param.row.RecordId);
-                setIsRemoveItem1(true);
-              }}
-              // startIcon={<DeleteIcon size="small" />}
-              disabled={
-                params.mode === "delete" || params.mode === "view"
-                  ? true
-                  : false
-              }
-            >
-              <DeleteIcon size="small" />
-            </IconButton>
-            {/* </Tooltip> */}
-          </>
-        );
-      },
-    },
+    //   renderCell: (param) => {
+    //     return (
+    //       <>
+    //         {/* <Tooltip title="Remove"> */}
+    //         <IconButton
+    //           sx={{ height: 25, marginLeft: 2 }}
+    //           variant="contained"
+    //           color="error"
+    //           size="small"
+    //           onClick={() => {
+    //             setIsRemoveItem1ID(param.row.RecordId);
+    //             setIsRemoveItem1(true);
+    //           }}
+    //           // startIcon={<DeleteIcon size="small" />}
+    //           disabled={
+    //             params.mode === "delete" || params.mode === "view"
+    //               ? true
+    //               : false
+    //           }
+    //         >
+    //           <DeleteIcon size="small" />
+    //         </IconButton>
+    //         {/* </Tooltip> */}
+    //       </>
+    //     );
+    //   },
+    // },
   ];
   const [quickFilterText, setQuickFilterText] = useState("");
   // **********************  FUNCTION ********************** //
@@ -400,11 +514,11 @@ const PriceListEdit = () => {
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
     const isPriceListID = priceRows.some(
-      (item) => item.PRICELISTDESCRIPTION === inputValue
+      (item) => item.PRICELISTDESCRIPTION === inputValue,
     );
     const matchedItem = priceRows.find(
       (item) =>
-        item.PRICELISTDESCRIPTION.toLowerCase() == inputValue.toLowerCase()
+        item.PRICELISTDESCRIPTION.toLowerCase() == inputValue.toLowerCase(),
     );
     console.log(isPriceListID, "isPriceListID");
     console.log(matchedItem, "matchedItem");
@@ -455,7 +569,7 @@ const PriceListEdit = () => {
             //IsProprietary:values.IsProprietary
             IsProprietary: false,
           },
-        })
+        }),
       ).then(async (response) => {
         if (response.payload.status === "Y") {
           setpriceListRecordID(response.payload.PriceListID.toString());
@@ -684,6 +798,106 @@ const PriceListEdit = () => {
     setIsFilterApplied(true);
   };
 
+  //Add --> new onchange filter
+  const buildAndApplyFilter = (mergedValues) => {
+    const filterData = {
+      FilterType: "AP",
+      companyID: state.companyID,
+      customerNumber: state.customernumber,
+      User: user.name,
+      Brand: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "Brand",
+        Option: mergedValues.brandInEx,
+        Value:
+          mergedValues.brandInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.brandInExData),
+      },
+      Commodity: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "Commodity",
+        Option: mergedValues.commodityInEx,
+        Value:
+          mergedValues.commodityInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.commodityInExData),
+      },
+      AlternativeClass: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "AlternativeClass",
+        Option: mergedValues.altClassInEx,
+        Value:
+          mergedValues.altClassInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.altClassInExData),
+      },
+      Vendor: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "Vendor",
+        Option: mergedValues.vendorInEx,
+        Value:
+          mergedValues.vendorInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.vendorInExData),
+      },
+      Type: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "Type",
+        Option: mergedValues.frshForzInEx,
+        Value:
+          mergedValues.frshForzInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.frshForzInExData),
+      },
+      SecondaryClass: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "SecondaryClass",
+        Option: mergedValues.SecondClassInEx,
+        Value:
+          mergedValues.SecondClassInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.SecondClassInExData),
+      },
+      Class: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "Class",
+        Option: mergedValues.classIDInEx,
+        Value:
+          mergedValues.classIDInEx === "IncludeAll"
+            ? ""
+            : JSON.stringify(mergedValues.classIDInExData),
+      },
+      BrokenItem: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "BrokenItem",
+        Option: "Exclude",
+        Value: mergedValues.brokenItems ? "1" : "0",
+      },
+      Combination: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "Combination",
+        Option: "Exclude",
+        Value: mergedValues.combinationFilter ? "1" : "0",
+      },
+      DamageItem: {
+        PriceListID: mergedValues.priceListID,
+        Attribute: "DamageItem",
+        Option: "Exclude",
+        Value: mergedValues.damagedItems ? "1" : "0",
+      },
+    };
+
+    dispatch(getPriceListApplyFilter(filterData));
+    setIsOtherItem(true);
+    setIsOtherDisabled(false);
+    setisApplyFilter(true);
+  };
+
+  const debouncedApplyFilter = useRef(
+    debounce(buildAndApplyFilter, 400),
+  ).current;
+
   const getOtherItems = async (values, type) => {
     const filterData = {
       FilterType: type,
@@ -789,13 +1003,13 @@ const PriceListEdit = () => {
             setOpenAlert(true);
             setPostError(response.payload.message);
           }
-        }
+        },
       );
     } catch (e) {
       console.log("🚀 ~ priceListSaveFn ~ e:", e);
     }
   };
-  const [isFilterApplied, setIsFilterApplied] = useState(false);
+
   // Step 1: Combine both lists
   const combined = [...AdHocRows, ...priceListItemsData];
 
@@ -809,7 +1023,7 @@ const PriceListEdit = () => {
   const FILTERADHoc = [
     ...AdHocRows.filter((item) => itemCountMap[item.Item_Number] === 1),
     ...priceListItemsData.filter(
-      (item) => itemCountMap[item.Item_Number] === 1
+      (item) => itemCountMap[item.Item_Number] === 1,
     ),
   ];
 
@@ -838,13 +1052,13 @@ const PriceListEdit = () => {
     // };
     // const response = await dispatch(priceListClearFilter({ data }));
     // if (response.payload.status === "Y") {
-    setFieldValue("brandInEx", "IncludeAll");
-    setFieldValue("commodityInEx", "IncludeAll");
-    setFieldValue("altClassInEx", "IncludeAll");
-    setFieldValue("vendorInEx", "IncludeAll");
-    setFieldValue("frshForzInEx", "IncludeAll");
-    setFieldValue("SecondClassInEx", "IncludeAll");
-    setFieldValue("classIDInEx", "IncludeAll");
+    setFieldValue("brandInEx", "Include");
+    setFieldValue("commodityInEx", "Include");
+    setFieldValue("altClassInEx", "Include");
+    setFieldValue("vendorInEx", "Include");
+    setFieldValue("frshForzInEx", "Include");
+    setFieldValue("SecondClassInEx", "Include");
+    setFieldValue("classIDInEx", "Include");
 
     setFieldValue("brandInExData", []);
     setFieldValue("commodityInExData", []);
@@ -857,6 +1071,14 @@ const PriceListEdit = () => {
     setFieldValue("damagedItems", false);
     setFieldValue("combinationFilter", false);
     dispatch(clreatFilterAndItems());
+    dispatch(
+      getCustomerPriceBookItem({
+        companyId: compID,
+        customerNumber: customernumber,
+      }),
+    );
+    setisApplyFilter(false);
+    setShowFiltered(false);
     // setOpenAlert2(true);
     // } else {
     //   setOpenAlert2(true);
@@ -871,7 +1093,7 @@ const PriceListEdit = () => {
 
   const itemDeleteFn = async () => {
     const response = await dispatch(
-      adHocPriceListDeleted({ idToDelete: isRemoveItem1ID })
+      adHocPriceListDeleted({ idToDelete: isRemoveItem1ID }),
     );
 
     console.log("Deleted item with ID:", isRemoveItem1ID);
@@ -890,6 +1112,41 @@ const PriceListEdit = () => {
       setPostError11(true);
     }
   };
+
+  //FOr getting data
+  useEffect(() => {
+    if (!compID || !customernumber) return;
+
+    dispatch(
+      getCustomerPriceBookItem({
+        companyId: compID,
+        customerNumber: customernumber,
+      }),
+    );
+  }, [dispatch, compID, customernumber]);
+
+  // useEffect(() => {
+  //   const getCustomerPriceBookItem = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://10.80.129.181:81/api/PriceList/GetCustomerPriceBookItem",
+  //         {
+  //           params: {
+  //             companyId: compID,
+  //             customerNumber: customernumber,
+  //           },
+  //         },
+  //       );
+
+  //       console.log("Data view", response.data);
+  //       setPriceBookItems(response.data.data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   getCustomerPriceBookItem();
+  // }, []);
 
   // ********************** TOOLBAR ********************** //
   function CustomToolbar() {
@@ -965,8 +1222,8 @@ const PriceListEdit = () => {
                 const isItem = [...priceListItemsData, ...addedRows].some(
                   (item) =>
                     addPriceListData.some((newItem) =>
-                      lodash.isEqual(item.Item_Number, newItem.Item_Number)
-                    )
+                      lodash.isEqual(item.Item_Number, newItem.Item_Number),
+                    ),
                 );
 
                 if (isItem) {
@@ -999,7 +1256,7 @@ const PriceListEdit = () => {
                   PostAddHocItems({
                     compID: state.companyRecordID,
                     adhocdata: updatedAdhocRows,
-                  })
+                  }),
                 );
 
                 if (response1.payload.status === "Y") {
@@ -1107,7 +1364,7 @@ const PriceListEdit = () => {
           initialValues={{
             priceListID: priceListHeaderData.PriceListID,
             priceListDescription: priceListHeaderData.PricelistDesc,
-            priceListType: priceListHeaderData.PriceListType??"FPB",
+            priceListType: priceListHeaderData.PriceListType ?? "FPB",
             buyer: JSON.parse(priceListHeaderData.Buyer),
             IsProprietary: priceListHeaderData.IsProprietary,
             forcePageBreak:
@@ -1127,53 +1384,32 @@ const PriceListEdit = () => {
                 }
               : null,
 
-            brandInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.Brand.Option,
+            brandInEx: params.mode === "add" ? "Include" : "Include",
             brandInExData: JSON.parse(priceListFilterData.Brand.Value || "[]"),
-            commodityInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.Commodity.Option,
+            commodityInEx: params.mode === "add" ? "Include" : "Include",
             commodityInExData: JSON.parse(
-              priceListFilterData.Commodity.Value || "[]"
+              priceListFilterData.Commodity.Value || "[]",
             ),
-            altClassInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.AlternativeClass.Option,
+            altClassInEx: params.mode === "add" ? "Include" : "Include",
             altClassInExData: JSON.parse(
-              priceListFilterData.AlternativeClass.Value || "[]"
+              priceListFilterData.AlternativeClass.Value || "[]",
             ),
-            vendorInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.Vendor.Option,
+            vendorInEx: params.mode === "add" ? "Include" : "Include",
             vendorInExData: JSON.parse(
-              priceListFilterData.Vendor.Value || "[]"
+              priceListFilterData.Vendor.Value || "[]",
             ),
 
-            frshForzInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.Type.Option,
+            frshForzInEx: params.mode === "add" ? "Include" : "Include",
             frshForzInExData: JSON.parse(
-              priceListFilterData.Type.Value || "[]"
+              priceListFilterData.Type.Value || "[]",
             ),
-            SecondClassInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.SecondaryClass.Option,
+            SecondClassInEx: params.mode === "add" ? "Include" : "Include",
             SecondClassInExData: JSON.parse(
-              priceListFilterData.SecondaryClass.Value || "[]"
+              priceListFilterData.SecondaryClass.Value || "[]",
             ),
-            classIDInEx:
-              params.mode === "add"
-                ? "IncludeAll"
-                : priceListFilterData.Class.Option,
+            classIDInEx: params.mode === "add" ? "Include" : "Include",
             classIDInExData: JSON.parse(
-              priceListFilterData.Class.Value || "[]"
+              priceListFilterData.Class.Value || "[]",
             ),
             brokenItems:
               priceListFilterData.BrokenItem.Value == "1" ? true : false,
@@ -1195,7 +1431,7 @@ const PriceListEdit = () => {
               ,
             ];
             const hasDataCheck = filters1.some(
-              (filter) => values[filter] != "IncludeAll"
+              (filter) => values[filter] != "IncludeAll",
             );
 
             const errors = {};
@@ -1210,11 +1446,11 @@ const PriceListEdit = () => {
             ];
             if (hasDataCheck) {
               const hasData = filters.some(
-                (filter) => values[filter].length > 0
+                (filter) => values[filter].length > 0,
               );
-              if (!hasData) {
-                errors.filters = "At least one filter must be selected";
-              }
+              // if (!hasData) {
+              //   errors.filters = "At least one filter must be selected";
+              // }
               return errors;
             }
             // else{
@@ -1264,22 +1500,25 @@ const PriceListEdit = () => {
             <form onSubmit={handleSubmit} onChange={() => setSubmitting(false)}>
               <div className="breadcrumb">
                 <Breadcrumb
+                  title="Customer Price List Item"
                   routeSegments={[
-                    { name: "Control Panel" },
+                    { name: "Price Book" },
                     {
-                      name: "Price List",
-                      path: "/pages/control-panel/price-list",
-                      state: {
-                        id: priceListHeaderData.CompanyID,
-                        code: priceListHeaderData.CompanyCode,
-                      },
+                      name: "Print Price BookGroup",
+                      path: "/pages/pricing-portal/run-price-book",
+                      // state: {
+                      //   id: priceListHeaderData.CompanyID,
+                      //   code: priceListHeaderData.CompanyCode,
+                      // },
                     },
-
-                    { name: `${params.mode} Price List` },
+                    //{ name: `${params.mode} Price List` },
+                    {
+                      name: `Customer Price List Item (${customernumber} || ${customer})`,
+                    },
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  <Button
+                  {/* <Button
                     variant="contained"
                     color="info"
                     size="small"
@@ -1294,7 +1533,7 @@ const PriceListEdit = () => {
                     onClick={() => (submitActionRef.current = "save")}
                   >
                     {params.mode === "delete" ? "Confirm" : "Save"}
-                  </Button>
+                  </Button> */}
                   {/* {params.mode == "delete" && (
                     <Button
                       variant="contained"
@@ -1313,26 +1552,19 @@ const PriceListEdit = () => {
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
                     onClick={() => {
-                      navigate("/pages/control-panel/price-list", {
-                        state:
-                          params.mode === "add"
-                            ? {
-                                id: state.companyRecordID,
-                                code: state.companyCode,
-                              }
-                            : {
-                                id: priceListHeaderData.CompanyID,
-                                code: priceListHeaderData.CompanyCode,
-                              },
+                      navigate("/pages/pricing-portal/run-price-book",{
+                         state: {
+                            selectedRunGroup: location.state?.selectedRunGroup,
+                        },  
                       });
                     }}
                   >
                     Back
                   </Button>
                   {/* <Tooltip title="Help"> */}
-                  <IconButton onClick={handleOpen}>
+                  {/* <IconButton onClick={handleOpen}>
                     <HelpOutlineIcon />
-                  </IconButton>
+                  </IconButton> */}
                   {/* </Tooltip> */}
                 </Stack>
               </div>
@@ -1420,7 +1652,7 @@ const PriceListEdit = () => {
                       params.mode === "edit"
                     }
                   /> */}
-                  <TextField
+                  {/* <TextField
                     sx={{ gridColumn: "span 1" }}
                     fullWidth
                     variant="outlined"
@@ -1488,7 +1720,7 @@ const PriceListEdit = () => {
                         ? true
                         : false
                     }
-                  />
+                  /> */}
                   {/* <TextField
                     fullWidth
                     variant="outlined"
@@ -1511,7 +1743,7 @@ const PriceListEdit = () => {
                     }
                   /> */}
 
-                  <TextField
+                  {/* <TextField
                     fullWidth
                     select
                     variant="outlined"
@@ -1547,7 +1779,7 @@ const PriceListEdit = () => {
                     onChange={(newValue) => setFieldValue("catName", newValue)}
                     label="Categories"
                     url={`${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyID=${state.companyRecordID}`}
-                  />
+                  /> */}
                   {/* <FormControlLabel
                                           sx={{ height: 37.13 }}
                                           control={
@@ -1564,26 +1796,69 @@ const PriceListEdit = () => {
                 </Box>
                 <Box
                   display="grid"
-                  gap="20px"
-                  gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                  gap={2}
                   sx={{
-                    "& > div": {
-                      gridColumn: isNonMobileSec ? undefined : "span 3",
+                        height: '458px',
+                    gridTemplateColumns: {
+                      xs: "1fr", // mobile
+                      sm: "1fr", // tablet
+                      md: "30% 70%", // desktop
+                      lg: "25% 75%", // large desktop
                     },
-                    padding: "5px",
+                    p: 1,
                   }}
                 >
                   <Stack
-                    sx={{ gridColumn: "span 1" }}
-                    direction={"column"}
+                    sx={{
+                      width: "100%",
+                      minWidth: 0,
+                    }}
+                    direction="column"
                     gap={1}
                   >
-                    <Stack direction="row" gap={13} height={44}>
-                      <Typography sx={{ marginLeft: 2 }} variant="h6">
-                        Options
-                      </Typography>
-                      <Typography variant="h6">Attributes</Typography>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      height={50}
+                    >
+                      <Typography 
+                        sx={{ fontSize:'14px', fontWeight: "bold" }}>Attributes</Typography>
+
+                      {state.id ? (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<ClearIcon />}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                          }
+                          onClick={() => {
+                            setIsRemoveItem(true);
+                          }}
+                          sx={{fontSize:'12px'}}
+                        >
+                          Clear Filters
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="info"
+                          size="small"
+                          startIcon={<ClearIcon />}
+                          disabled={
+                            params.mode === "delete" || params.mode === "view"
+                          }
+                          onClick={() => {
+                            setIsRemoveItem(true);
+                          }}
+                        >
+                          Clear Filters
+                        </Button>
+                      )}
                     </Stack>
+
                     <Stack
                       sx={{ p: 0, m: 0 }}
                       direction="row"
@@ -1595,8 +1870,9 @@ const PriceListEdit = () => {
                       )}
                     </Stack>
                     {/* BRAND */}
+
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="brandInEx"
                         id="brandInEx"
@@ -1616,7 +1892,7 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
                       <FormikCustomAutocompleteMulti
                         name="brandInExData"
                         id="brandInExData"
@@ -1624,6 +1900,12 @@ const PriceListEdit = () => {
                         onChange={(event, newValue) => {
                           setFieldValue("brandInExData", newValue);
                           setSubmitting(false);
+
+                          // fire the API immediately with the new value merged in
+                          debouncedApplyFilter({
+                            ...values,
+                            brandInExData: newValue,
+                          });
                         }}
                         label="Brand"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Brand`}
@@ -1639,7 +1921,7 @@ const PriceListEdit = () => {
 
                     {/* COMMODITY */}
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="commodityInEx"
                         id="commodityInEx"
@@ -1659,7 +1941,7 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
                       <FormikCustomAutocompleteMulti
                         name="commodityInExData"
                         id="commodityInExData"
@@ -1667,6 +1949,10 @@ const PriceListEdit = () => {
                         onChange={(event, newValue) => {
                           setFieldValue("commodityInExData", newValue);
                           setSubmitting(false);
+                          debouncedApplyFilter({
+                            ...values,
+                            commodityInExData: newValue,
+                          });
                         }}
                         label="Commodity"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Commodity`}
@@ -1682,7 +1968,7 @@ const PriceListEdit = () => {
 
                     {/* ALTERNATIVE CLASS */}
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="altClassInEx"
                         id="altClassInEx"
@@ -1702,7 +1988,7 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
                       <FormikCustomAutocompleteMulti
                         name="altClassInExData"
                         id="altClassInExData"
@@ -1710,6 +1996,7 @@ const PriceListEdit = () => {
                         onChange={(event, newValue) => {
                           setFieldValue("altClassInExData", newValue);
                           setSubmitting(false);
+                          debouncedApplyFilter({ ...values, altClassInExData: newValue });
                         }}
                         label="Alternate Class"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=AlternativeClass`}
@@ -1725,7 +2012,7 @@ const PriceListEdit = () => {
 
                     {/* VENDOR */}
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="vendorInEx"
                         id="vendorInEx"
@@ -1745,7 +2032,7 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
                       <FormikCustomAutocompleteMulti
                         name="vendorInExData"
                         id="vendorInExData"
@@ -1753,6 +2040,7 @@ const PriceListEdit = () => {
                         onChange={(event, newValue) => {
                           setFieldValue("vendorInExData", newValue);
                           setSubmitting(false);
+                          debouncedApplyFilter({ ...values, vendorInExData: newValue });
                         }}
                         label="Vendor"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Vendor`}
@@ -1768,7 +2056,7 @@ const PriceListEdit = () => {
 
                     {/* FRESH/FROZEN */}
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="frshForzInEx"
                         id="frshForzInEx"
@@ -1788,7 +2076,7 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
 
                       <FormikCustomAutocompleteMulti
                         name="frshForzInExData"
@@ -1797,8 +2085,9 @@ const PriceListEdit = () => {
                         onChange={(event, newValue) => {
                           setFieldValue("frshForzInExData", newValue);
                           setSubmitting(false);
+                          debouncedApplyFilter({ ...values, frshForzInExData: newValue });
                         }}
-                        label="Fs/Fz"
+                        label="Fresh/Frozen/Dry"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=Type`}
                         disabled={
                           params.mode === "delete" ||
@@ -1812,7 +2101,7 @@ const PriceListEdit = () => {
 
                     {/* SECONDARY CLASS */}
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="SecondClassInEx"
                         id="SecondClassInEx"
@@ -1832,7 +2121,7 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
                       <FormikCustomAutocompleteMultiSecCla
                         name="SecondClassInExData"
                         id="SecondClassInExData"
@@ -1840,6 +2129,7 @@ const PriceListEdit = () => {
                         onChange={(event, newValue) => {
                           setFieldValue("SecondClassInExData", newValue);
                           setSubmitting(false);
+                          debouncedApplyFilter({ ...values, SecondClassInExData: newValue });
                         }}
                         label="Secondary Class"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=SecondaryClass`}
@@ -1855,7 +2145,7 @@ const PriceListEdit = () => {
 
                     {/* CLASS ID */}
                     <Stack direction="row" gap={1}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         name="classIDInEx"
                         id="classIDInEx"
@@ -1875,15 +2165,16 @@ const PriceListEdit = () => {
                         <MenuItem value="IncludeAll">Include All</MenuItem>
                         <MenuItem value="Include">Include</MenuItem>
                         <MenuItem value="Exclude">Exclude</MenuItem>
-                      </TextField>
+                      </TextField> */}
                       <FormikCustomAutocompleteMultiSecCla
                         name="classIDInExData"
                         id="classIDInExData"
                         value={values.classIDInExData}
-                        onChange={(event, newValue) => {
-                          setFieldValue("classIDInExData", newValue);
-                          setSubmitting(false);
-                        }}
+                       onChange={(event, newValue) => {
+                        setFieldValue("classIDInExData", newValue);
+                        setSubmitting(false);
+                        debouncedApplyFilter({ ...values, classIDInExData: newValue });
+                      }}
                         label="ClassID"
                         url={`${process.env.REACT_APP_BASE_URL}Customer/GetAttribute?Attribute=ClassId`}
                         disabled={
@@ -1905,7 +2196,10 @@ const PriceListEdit = () => {
                             id="brokenItems"
                             name="brokenItems"
                             checked={values.brokenItems}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              handleChange(e);
+                              debouncedApplyFilter({ ...values, brokenItems: e.target.checked });
+                            }}
                             disabled={
                               params.mode === "delete" || params.mode === "view"
                                 ? true
@@ -1923,7 +2217,10 @@ const PriceListEdit = () => {
                             id="damagedItems"
                             name="damagedItems"
                             checked={values.damagedItems}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              handleChange(e);
+                              debouncedApplyFilter({ ...values, damagedItems: e.target.checked });
+                            }}
                             disabled={
                               params.mode === "delete" || params.mode === "view"
                                 ? true
@@ -1934,7 +2231,7 @@ const PriceListEdit = () => {
                         label="Damaged Items"
                       />
                     </Stack>
-                    <Stack direction="row" gap={1}>
+                    {/* <Stack direction="row" gap={1}>
                       <FormControlLabel
                         sx={{
                           height: 37.13,
@@ -1954,31 +2251,10 @@ const PriceListEdit = () => {
                         }
                         label="Combined Filter"
                       />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "5px",
-                          border: "1px solid red",
-                          borderRadius: 1,
-                          backgroundColor: "#ffe6e6",
-                          minHeight: 30, // Ensure consistent heigh
-                        }}
-                      >
-                        <Typography
-                          color="error"
-                          fontSize={"11px"}
-                          align="center"
-                        >
-                          Note: The result shows the combination of filters
-                        </Typography>
-                      </Box>
-                    </Stack>
+                    </Stack> */}
 
-                    <Stack justifyContent="flex-end" direction={"row"} gap={1}>
-                      {/* {state.id ? ( 
-                        // <></>*/}
-                      <Button
+                    {/* <Stack justifyContent="flex-end" direction={"row"} gap={1}> */}
+                    {/* <Button
                         variant="contained"
                         color="info"
                         size="small"
@@ -1996,19 +2272,9 @@ const PriceListEdit = () => {
                         {isShowOtherItem
                           ? "Excluded Items"
                           : "Price List Items"}
-                      </Button>
-                      {/*  ) : (
-                      //   <Button
-                      //     variant="contained"
-                      //     color="info"
-                      //     size="small"
-                      //     startIcon={<Add size="small" />}
-                      //     disabled={true}
-                      //   >
-                      //     Excluded Items
-                      //   </Button>
-                      // )}*/}
-                      <Button
+                      </Button> */}
+
+                    {/* <Button
                         variant="contained"
                         color="info"
                         size="small"
@@ -2023,9 +2289,9 @@ const PriceListEdit = () => {
                         onClick={() => (submitActionRef.current = "apply")}
                       >
                         Apply Filters
-                      </Button>
+                      </Button> */}
 
-                      {state.id ? (
+                    {/* {state.id ? (
                         <Button
                           variant="contained"
                           color="info"
@@ -2060,13 +2326,15 @@ const PriceListEdit = () => {
                         >
                           Clear Filters
                         </Button>
-                      )}
-                    </Stack>
+                      )} */}
+                    {/* </Stack> */}
                   </Stack>
                   <Box
                     sx={{
                       height: 390,
-                      gridColumn: "span 2",
+                      width: "100%",
+                      minWidth: 0,
+                      // gridColumn: "span 2",
                       "& .name-column--cell": {
                         color: theme.palette.info.contrastText,
                       },
@@ -2123,137 +2391,63 @@ const PriceListEdit = () => {
                     {/* Controls Section */}
                     <Box
                       sx={{
-                        height: 30,
                         display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
+                        flexDirection: {
+                          xs: "column",
+                          sm: "column",
+                          md: "row",
+                        },
+                        justifyContent: "space-between",
+                        alignItems: {
+                          xs: "stretch",
+                          md: "center",
+                        },
                         gap: 2,
-                        width: "100%",
-                        padding: "5px",
                         mb: 2,
                       }}
                     >
-                      <TextField
-                        label="Search"
-                        variant="standard"
-                        size="small"
-                        // startIcon={<searcIco}
-                        value={quickFilterText}
-                        onChange={(e) => setQuickFilterText(e.target.value)}
-                        sx={{ mb: 1, width: 300 }}
-                      />
-                      <OptimizedAdHocAutocomplete
-                        errors={isItemExistsError}
-                        helper={isItemExistsError && "please select an item!"}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            color="primary"
+                            checked={showFiltered}
+                            onChange={() => setShowFiltered((prev) => !prev)}
+                          />
                         }
-                        name="adHocItem"
-                        id="adHocItem"
-                        value={addPriceListData}
-                        // onChange={handleSelectionAddPriceListData}
-                        onChange={(event, newValue) => {
-                          setFieldValue("adHocItem", newValue);
-                          setSubmitting(false);
-                          setAddPriceListData(newValue);
-                        }}
-                        label="Item"
-                        url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
+                        label="Show Print Only Items"
                       />
-                      {/* <FormikCustomAutocompleteMulti
-                        name="adHocItem"
-                        id="adHocItem"
-                        value={values.adHocItem}
-                        onChange={(event, newValue) => {
-                          setFieldValue("adHocItem", newValue);
-                          setSubmitting(false);
+
+                      <Box
+                        sx={{
+                          height: 30,
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          gap: 2,
+                          // width: "100%",
+                          padding: "5px",
+                          mb: 2,
                         }}
-                        label="AdHocItem"
-                        url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
-                        // disabled={
-                        //   params.mode === "delete" ||
-                        //   values.classIDInEx === "IncludeAll" ||
-                        //   params.mode === "view"
-                        //     ? true
-                        //     : false
-                        // }
-                      /> */}
-                      <Button
-                        variant="contained"
-                        color="info"
-                        sx={{ width: 300, height: 30 }}
-                        onClick={async () => {
-                          if (addPriceListData && addPriceListData.length > 0) {
-                            const isItem = [
-                              ...priceListItemsData,
-                              ...AdHocRows,
-                            ].some((item) =>
-                              addPriceListData.some((newItem) =>
-                                lodash.isEqual(
-                                  item.Item_Number,
-                                  newItem.Item_Number
-                                )
-                              )
-                            );
-
-                            if (isItem) {
-                              setIsItemExists(true);
-                              setTimeout(() => {
-                                setIsItemExists(false);
-                                setAddPriceListData([]);
-                              }, 5000);
-                              return;
-                            }
-
-                            const newAdHocData = addPriceListData.map(
-                              (row) => ({
-                                PriceListID: "",
-                                QuotationRecordID: "0",
-                                FilterType: "PL",
-                                Item_Number: row.Item_Number,
-                                Item_Description: row.Item_Description,
-                                User: user.role,
-                                PriceListRecordID: 0,
-                              })
-                            );
-
-                            const updatedAdhocRows = [
-                              ...AdHocRows,
-                              ...newAdHocData,
-                            ];
-                            const response1 = await dispatch(
-                              PostAddHocItems({
-                                compID: state.companyRecordID,
-                                adhocdata: newAdHocData,
-                              })
-                            );
-
-                            if (response1.payload.status === "Y") {
-                              setOpenAlert1(true);
-                              setPostError1(response1.payload.message);
-                              setAddPriceListData([]);
-                            } else {
-                              setOpenAlert1(true);
-                              setPostError1(response1.payload.message);
-                            }
-                          } else {
-                            setIsItemExistsError(true);
-                            setTimeout(() => {
-                              setIsItemExistsError(false);
-                            }, 2000);
-                          }
-                        }}
-                        size="small"
-                        startIcon={<Add size="small" />}
-                        disabled={
-                          params.mode === "delete" || params.mode === "view"
-                        }
                       >
-                        {" "}
-                        Item
-                      </Button>
+                        <TextField
+                          label="Search"
+                          variant="standard"
+                          size="small"
+                          // startIcon={<searcIco}
+                          value={quickFilterText}
+                          onChange={(e) => setQuickFilterText(e.target.value)}
+                          sx={{
+                            width: {
+                              xs: "100%",
+                              sm: "100%",
+                              md: 300,
+                            },
+                          }}
+                        />
+                      </Box>
                     </Box>
+
                     <DataGrid
                       columnHeaderHeight={dataGridHeaderFooterHeight}
                       sx={{
@@ -2280,26 +2474,27 @@ const PriceListEdit = () => {
                       //   //   ? .filter((f) => f.AdHocItem === "N")
                       //   //   : priceListItemsData.filter((f) => f.AdHocItem === "Y"))
                       // ]}
-                      rows={[
-                        ...(isFilterApplied
-                          ? isShowOtherItem
-                            ? FILTERADHoc
-                            : FILTERADHoc.filter((f) => f.AdHocItem !== "Y")
-                          : [
-                              ...(isShowOtherItem
-                                ? AdHocRows
-                                : AdHocRows.filter((f) => f.AdHocItem !== "Y")),
-                              ...(showGridData === 0
-                                ? priceListItemsData
-                                : showGridData === 1
-                                ? priceListItemsData.filter(
-                                    (f) => f.AdHocItem === "N"
-                                  )
-                                : priceListItemsData.filter(
-                                    (f) => f.AdHocItem === "Y"
-                                  )),
-                            ]),
-                      ]}
+                      //   rows={[
+                      //     ...(isFilterApplied
+                      //       ? isShowOtherItem
+                      //         ? FILTERADHoc
+                      //         : FILTERADHoc.filter((f) => f.AdHocItem !== "Y")
+                      //       : [
+                      //           ...(isShowOtherItem
+                      //             ? AdHocRows
+                      //             : AdHocRows.filter((f) => f.AdHocItem !== "Y")),
+                      //           ...(showGridData === 0
+                      //             ? priceListItemsData
+                      //             : showGridData === 1
+                      //             ? priceListItemsData.filter(
+                      //                 (f) => f.AdHocItem === "N"
+                      //               )
+                      //             : priceListItemsData.filter(
+                      //                 (f) => f.AdHocItem === "Y"
+                      //               )),
+                      //         ]),
+                      //   ]}
+                      rows={displayDataRows || []}
                       columns={columns}
                       loading={priceListItemLoading}
                       disableSelectionOnClick
@@ -2307,14 +2502,14 @@ const PriceListEdit = () => {
                       getRowId={(row) => row.Item_Number}
                       initialState={{
                         pagination: {
-                          paginationModel: { pageSize: dataGridPageSize },
+                          paginationModel: { pageSize: 100 },
                         },
                       }}
                       filterModel={{
                         items: [],
                         quickFilterValues: [quickFilterText],
                       }}
-                      pageSizeOptions={dataGridpageSizeOptions}
+                      pageSizeOptions={[50, 100]}
                       columnVisibilityModel={{
                         print: isShowOtherItem,
                         AdHocItem: isShowOtherItem,
@@ -2331,7 +2526,7 @@ const PriceListEdit = () => {
                         },
                       }}
                     />
-                    <Box
+                    {/* <Box
                       sx={{
                         mt: 1,
                         display: "flex",
@@ -2347,7 +2542,7 @@ const PriceListEdit = () => {
                       <Typography color="error" align="center">
                         Note: Only Active Items from GP are shown above
                       </Typography>
-                    </Box>
+                    </Box> */}
                   </Box>
                 </Box>
               </Paper>
@@ -2375,7 +2570,7 @@ const PriceListEdit = () => {
                           "/pages/control-panel/price-list/price-list-detail/edit",
                           {
                             state: { id: values.priceListID },
-                          }
+                          },
                         );
                         dispatch(getPriceListData({ id: values.priceListID }));
                         SetIsPriceListOpen(false);
@@ -2447,7 +2642,7 @@ const PriceListEdit = () => {
                 logo={`data:image/png;base64,${user.logo}`}
                 open={isRemoveItem}
                 tittle={""}
-                message={`Are you sure you want to Clear Filter and Item ?`}
+                message={`Are you sure you want to Clear Filters ?`}
                 Actions={
                   <Box
                     sx={{
@@ -2830,7 +3025,8 @@ const PriceListEdit = () => {
   );
 };
 
-export default PriceListEdit;
+// export default PriceListEdit;
+export default PriceListDetails;
 const infoItems = [
   {
     title: "Save",
@@ -2870,6 +3066,3 @@ const infoItems = [
     description: `It is used to display a list of items from the ITEMS_ORG table.`,
   },
 ];
-
-
-

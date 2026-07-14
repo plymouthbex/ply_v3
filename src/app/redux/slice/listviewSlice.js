@@ -34,7 +34,7 @@ const initialState = {
   priceListViewData: [],
   priceListloading: false,
   priceListstatus: "idle",
-  ItemCount:"",
+  ItemCount: "",
 
   rungroupListViewData: [],
   rungroupTemploading: false,
@@ -76,6 +76,9 @@ const initialState = {
   mailAnalyticsLoading: false,
   mailAnalyticsStatus: "idle",
   mailAnalyticsError: null,
+
+   priceBookItems: [],
+   loading: false,
 };
 
 export const getMailAnalyticsdata = createAsyncThunk(
@@ -92,10 +95,10 @@ export const getMailAnalyticsdata = createAsyncThunk(
       return response.data; // return the response data
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 export const fetchListviewPriveTemplate = createAsyncThunk(
@@ -111,17 +114,72 @@ export const fetchListviewPriveTemplate = createAsyncThunk(
       return response.data; // return the response data
     } catch (error) {
       return rejectWithValue(
+        error.response ? error.response.data : error.message,
+      );
+    }
+  },
+);
+
+//For checekbox update
+export const updateCustomerPrintItem = createAsyncThunk(
+  "priceList/updateCustomerPrintItem",
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/UpdateCustomerPrintItem`;
+
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
         error.response ? error.response.data : error.message
       );
     }
   }
 );
 
-export const fetchListviewRunGroup = createAsyncThunk(
-  "posts/fetchListviewRunGroup", // action type
-  async ({ runGroupID }, { rejectWithValue }) => {
+
+//delte for Customer price book
+export const deleteCustomerPriceBookItem = createAsyncThunk(
+  "priceList/deleteCustomerPriceBookItem",
+  async ({ customerNo }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}RunGroup/GetRunGroup?Rungroup=${runGroupID}`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/DeleteCustomerPriceBookItem`;
+
+      const response = await axios.post(
+        URL,
+        {
+          customerNo,
+        },
+        {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+
+///get data for grid
+export const getCustomerPriceBookItem = createAsyncThunk(
+  "posts/getCustomerPriceBookItem", // action type
+  async ({ companyId, customerNumber }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetCustomerPriceBookItem?companyId=${companyId}&customerNumber=${customerNumber}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -130,10 +188,29 @@ export const fetchListviewRunGroup = createAsyncThunk(
       return response.data; // return the response data
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
+);
+
+export const fetchListviewRunGroup = createAsyncThunk(
+  "posts/fetchListviewRunGroup", // action type
+  async ({ runGroupID, companyID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}RunGroup/GetRunGroup?Rungroup=${runGroupID}&CompanyID=${companyID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data; // return the response data
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message,
+      );
+    }
+  },
 );
 
 export const fetchViewDirectory = createAsyncThunk(
@@ -149,10 +226,10 @@ export const fetchViewDirectory = createAsyncThunk(
       return response.data; // return the response data
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 export const fetchGetLocation = createAsyncThunk(
@@ -168,10 +245,10 @@ export const fetchGetLocation = createAsyncThunk(
       return response.data; // return the response data
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 //   PriceBookDirectory/GetContactLocation?RecordId=1
@@ -183,13 +260,13 @@ export const getLocalListview = createAsyncThunk(
       const response = await axios.get(url);
       console.log(
         "🚀 ~ file: listviewSlice.js:32 ~ fetchListview ~ response:",
-        response
+        response,
       );
       return response.data;
     } catch (err) {
       return err.message;
     }
-  }
+  },
 );
 //==========================================================CONTROL-PANEL=================================================//
 export const getItemListView = createAsyncThunk(
@@ -206,10 +283,10 @@ export const getItemListView = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 export const getPriceListView = createAsyncThunk(
   "listview/priceList", // action type
@@ -224,10 +301,10 @@ export const getPriceListView = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 export const getRunGroupListView = createAsyncThunk(
@@ -245,10 +322,10 @@ export const getRunGroupListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 export const getProprietaryItemsListView = createAsyncThunk(
@@ -266,10 +343,10 @@ export const getProprietaryItemsListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 export const getPrintGroupListView = createAsyncThunk(
   "listview/printGroup", // action type
@@ -286,10 +363,10 @@ export const getPrintGroupListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 export const getCustomerListView = createAsyncThunk(
   "listview/Customer", // action type
@@ -306,10 +383,10 @@ export const getCustomerListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 //=====================Company-ListView=================================//
 export const getCompanyListView = createAsyncThunk(
@@ -327,10 +404,10 @@ export const getCompanyListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 //============================APPLICATION LISTVIEW==================================//
@@ -349,10 +426,10 @@ export const getApplicationListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 //============================User LISTVIEW==================================//
@@ -371,10 +448,10 @@ export const getUserListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 //============================UserGroup LISTVIEW==================================//
@@ -393,10 +470,10 @@ export const getUserGroupListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 export const getUserGroupUserListView = createAsyncThunk(
@@ -414,10 +491,10 @@ export const getUserGroupUserListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 //=====================Company-ListView=================================//
 export const getUserGroupCompanyListView = createAsyncThunk(
@@ -435,10 +512,10 @@ export const getUserGroupCompanyListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 //*********************************************************CONFIGURE*************************************************************************************** */
 //=====================Configure Company-ListView=================================//
@@ -457,10 +534,10 @@ export const getConfigureCompanyListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 //=====================Configure Company-ListView=================================//
 export const getConfigureCustomerListView = createAsyncThunk(
@@ -478,10 +555,10 @@ export const getConfigureCustomerListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 //=====================Configure Company-ListView=================================//
 export const getConfigureAddressListView = createAsyncThunk(
@@ -499,10 +576,10 @@ export const getConfigureAddressListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 //=====================Configure Company-ListView=================================//
 export const getConfigureContactListView = createAsyncThunk(
@@ -520,10 +597,10 @@ export const getConfigureContactListView = createAsyncThunk(
     } catch (error) {
       // Handle errors
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 
 export const gtRefeshPriceList = createAsyncThunk(
@@ -539,10 +616,10 @@ export const gtRefeshPriceList = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
-  }
+  },
 );
 const listviewSlice = createSlice({
   name: "listview",
@@ -551,13 +628,13 @@ const listviewSlice = createSlice({
     resetMailAnalyticsstate: (state, action) => {
       state.mailAnalyticsStatus = "idle";
       state.mailAnalyticsLoading = false;
-      state.mailAnalyticsError =null;
+      state.mailAnalyticsError = null;
       state.mailAnalyticsData = [];
     },
     onCheckboxChange: (state, action) => {
       const { id, rows, field } = action.payload;
       const updatedRow = rows.map((row) =>
-        row.id === id ? { ...row, [field]: !row[field] } : row
+        row.id === id ? { ...row, [field]: !row[field] } : row,
       );
 
       state.runbGrpRowData = updatedRow;
@@ -566,16 +643,25 @@ const listviewSlice = createSlice({
     onCheckboxChangeMenu: (state, action) => {
       const { id, rows, field } = action.payload;
       const updatedRow = state.applicationListViewData.map((row) =>
-        row.RecordID === id ? { ...row, [field]: !row[field] } : row
+        row.RecordID === id ? { ...row, [field]: !row[field] } : row,
       );
 
       state.applicationListViewData = updatedRow;
     },
 
+    //For price list
+    onCheckboxChangePriceList: (state, action) => {
+        const { id, field,  } = action.payload   
+        const updatedRow = state.priceBookItems.map((row) =>
+            row.RecordId === id ? { ...row, [field]: !row[field] } : row
+        );
+       state.priceBookItems = updatedRow;
+    },       
+
     onCheckboxChangeCustomer: (state, action) => {
       const { id, rows, field } = action.payload;
       const updatedRow = state.configureCustomerListViewData.map((row) =>
-        row.RecordID === id ? { ...row, [field]: !row[field] } : row
+        row.RecordID === id ? { ...row, [field]: !row[field] } : row,
       );
 
       state.configureCustomerListViewData = updatedRow;
@@ -595,7 +681,7 @@ const listviewSlice = createSlice({
       .addCase(getMailAnalyticsdata.pending, (state, action) => {
         state.mailAnalyticsStatus = "pending";
         state.mailAnalyticsLoading = true;
-        state.mailAnalyticsError =null;
+        state.mailAnalyticsError = null;
         state.mailAnalyticsData = [];
       })
       .addCase(getMailAnalyticsdata.fulfilled, (state, action) => {
@@ -625,6 +711,18 @@ const listviewSlice = createSlice({
         state.priceTempstatus = "failed";
         state.priceTemploading = false;
         state.error = action.error.message;
+      })
+
+      //For price book items
+      .addCase(getCustomerPriceBookItem.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getCustomerPriceBookItem.fulfilled, (state, action) => {
+        state.loading = false;
+        state.priceBookItems = action.payload.data; // <-- your API data
+      })
+      .addCase(getCustomerPriceBookItem.rejected, (state) => {
+        state.loading = false;
       })
 
       .addCase(fetchListviewRunGroup.pending, (state, action) => {
@@ -720,13 +818,13 @@ const listviewSlice = createSlice({
         state.priceListstatus = "pending";
         state.priceListloading = true;
         state.priceListViewData = [];
-        state.ItemCount="";
+        state.ItemCount = "";
       })
       .addCase(getPriceListView.fulfilled, (state, action) => {
         state.priceListstatus = "fulfilled";
         state.priceListloading = false;
         state.priceListViewData = action.payload.data;
-        state.ItemCount=action.payload.pricelistitemcount;
+        state.ItemCount = action.payload.pricelistitemcount;
       })
       .addCase(getPriceListView.rejected, (state, action) => {
         state.priceListstatus = "rejected";
@@ -954,7 +1052,7 @@ const listviewSlice = createSlice({
         state.status = "failed";
         state.loading = false;
         state.error = action.error.message;
-      })
+      });
   },
 });
 
@@ -966,5 +1064,6 @@ export const {
   runGrpMsgUpdate,
   runGrpProcessedDataUpdate,
   runGrpRowDataUpdate,
+  onCheckboxChangePriceList
 } = listviewSlice.actions;
 export default listviewSlice.reducer;

@@ -33,15 +33,18 @@ const StyledIcon = styled(Icon)(() => ({
   verticalAlign: "middle",
 }));
 
-const Breadcrumb = ({ routeSegments }) => {
+const Breadcrumb = ({ routeSegments, title }) => {
   const theme = useTheme();
   const hint = theme.palette.text.hint;
   return (
     <BreadcrumbRoot>
       {routeSegments ? (
         <Hidden xsDown>
-          <BreadcrumbName>
+          {/* <BreadcrumbName>
             {routeSegments[routeSegments.length - 1]["name"]}
+          </BreadcrumbName> */}
+          <BreadcrumbName>
+            {title || routeSegments[routeSegments.length - 1]["name"]}
           </BreadcrumbName>
           <Separator>|</Separator>
         </Hidden>

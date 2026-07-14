@@ -177,6 +177,8 @@ const initialState = {
   getPriceListLevelBYCompanyLoading:false,
   getPriceListLevelBYCompanyError:null,
 
+  filteredPriceBookItems: [],
+
 };
 
 export const fetchgGetAItems = createAsyncThunk(
@@ -234,6 +236,26 @@ export const getPriceListData2 = createAsyncThunk(
           RecordID:id
         }
       });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+export const getPriceListApplyFilter = createAsyncThunk(
+  "getPriceListApplyFilter/POST",
+  async (data, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceList/GetCustomerPriceBookItem`;
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      console.log("🚀 ~ response:", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -1081,6 +1103,15 @@ const getSlice = createSlice({
       state.getQuoteProspectStatusItems = "idle";
       state.getQuoteProspectErrorItems = null;
     },
+    //For price list
+    onCheckboxChangeFilterPriceList: (state, action) => {
+        const { id, field,  } = action.payload   
+        const updatedRow = state.filteredPriceBookItems.map((row) =>
+            row.RecordId === id ? { ...row, [field]: !row[field] } : row
+        );
+        state.filteredPriceBookItems = updatedRow;
+    },
+     
     onCheckboxChangePriceListEdit: (state, action) => {
       const { id, field, adhocItem } = action.payload;
       if (adhocItem == "Y") {
@@ -1126,6 +1157,11 @@ const getSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getPriceListApplyFilter.fulfilled, (state, action) => {
+        state.data = action.payload.data;
+        state.filteredPriceBookItems = action.payload.data;
+        state.loading = false;
+      })
       .addCase(getConfigContact.pending, (state) => {
         state.getConfigContactData = {};
         state.getConfigContactLoading = true;
@@ -1633,6 +1669,7 @@ const getSlice = createSlice({
 export const {
   onCheckboxChangePriceListEdit,
   clearStateProspectInfoQuote,
+  onCheckboxChangeFilterPriceList,
   // PRICELIST ACTION
   priceListSelectedItems,
   priceListAddedItems,
