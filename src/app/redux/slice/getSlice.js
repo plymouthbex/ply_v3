@@ -1104,12 +1104,29 @@ const getSlice = createSlice({
       state.getQuoteProspectErrorItems = null;
     },
     //For price list
+    // onCheckboxChangeFilterPriceList: (state, action) => {
+    //     const { id, field,  } = action.payload   
+    //     const updatedRow = state.filteredPriceBookItems.map((row) =>
+    //         row.RecordId === id ? { ...row, [field]: !row[field] } : row
+    //     );
+    //     state.filteredPriceBookItems = updatedRow;
+    // },
+    setAllFilterPrintItems: (state, action) => {
+      const { value } = action.payload;
+
+      state.filteredPriceBookItems.forEach((row) => {
+        row.PrintItem = value;
+      });
+    },
+
     onCheckboxChangeFilterPriceList: (state, action) => {
-        const { id, field,  } = action.payload   
-        const updatedRow = state.filteredPriceBookItems.map((row) =>
-            row.RecordId === id ? { ...row, [field]: !row[field] } : row
-        );
-        state.filteredPriceBookItems = updatedRow;
+      const { id, field, value } = action.payload;
+
+      state.filteredPriceBookItems = state.filteredPriceBookItems.map((row) =>
+        row.RecordId === id
+          ? { ...row, [field]: value }
+          : row
+      );
     },
      
     onCheckboxChangePriceListEdit: (state, action) => {
@@ -1670,6 +1687,7 @@ export const {
   onCheckboxChangePriceListEdit,
   clearStateProspectInfoQuote,
   onCheckboxChangeFilterPriceList,
+  setAllFilterPrintItems,
   // PRICELIST ACTION
   priceListSelectedItems,
   priceListAddedItems,

@@ -650,13 +650,32 @@ const listviewSlice = createSlice({
     },
 
     //For price list
+    // onCheckboxChangePriceList: (state, action) => {
+    //     const { id, field,  } = action.payload   
+    //     const updatedRow = state.priceBookItems.map((row) =>
+    //         row.RecordId === id ? { ...row, [field]: !row[field] } : row
+    //     );
+    //    state.priceBookItems = updatedRow;
+    // },       
+    setAllPrintItems: (state, action) => {
+      const { value } = action.payload;
+
+      state.priceBookItems.forEach((row) => {
+        row.PrintItem = value;
+      });
+    },
+
     onCheckboxChangePriceList: (state, action) => {
-        const { id, field,  } = action.payload   
-        const updatedRow = state.priceBookItems.map((row) =>
-            row.RecordId === id ? { ...row, [field]: !row[field] } : row
-        );
-       state.priceBookItems = updatedRow;
-    },       
+      const { id, field, value } = action.payload;
+
+      const row = state.priceBookItems.find(
+        (item) => item.RecordId === id
+      );
+
+      if (row) {
+        row[field] = value;
+      }
+    },
 
     onCheckboxChangeCustomer: (state, action) => {
       const { id, rows, field } = action.payload;
@@ -1064,6 +1083,7 @@ export const {
   runGrpMsgUpdate,
   runGrpProcessedDataUpdate,
   runGrpRowDataUpdate,
-  onCheckboxChangePriceList
+  onCheckboxChangePriceList,
+  setAllPrintItems
 } = listviewSlice.actions;
 export default listviewSlice.reducer;

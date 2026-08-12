@@ -606,6 +606,182 @@ export function CompanyPriceListCusAutoComplete({
 //   // );
 // };
 
+//For category field
+export function FormikCustomCategoryAutocomplete({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = React.useState("");
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+      }}
+      size="small"
+      multiple={multiple}
+      fullWidth
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.GroupName === value.GroupName}
+      getOptionLabel={(option) => option.GroupName || ""}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        //console.log("reason",reason)
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
+          {option.GroupName}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+
+//PriceList
+export function FormikCustomPriceListAutocomplete({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = React.useState("");
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(url, {
+          headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+        });
+        setOptions(data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+      }}
+      size="small"
+      multiple={multiple}
+      fullWidth
+      limitTags={2}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.PRICELISTDESCRIPTION === value.PRICELISTDESCRIPTION}
+      getOptionLabel={(option) => option.PRICELISTDESCRIPTION || ""}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        //console.log("reason",reason)
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
+      disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
+          {option.PRICELISTDESCRIPTION}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+
+
 export function FormikCustomAutocompleteMulti({
   value = [],
   onChange,
