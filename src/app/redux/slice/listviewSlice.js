@@ -36,6 +36,11 @@ const initialState = {
   priceListstatus: "idle",
   ItemCount: "",
 
+  priceSheetViewData: [],
+  priceSheetloading: false,
+  priceSheetstatus: "idle",
+  priceSheetItemCount: "",
+
   rungroupListViewData: [],
   rungroupTemploading: false,
   rungroupTempstatus: "idle",
@@ -293,6 +298,25 @@ export const getPriceListView = createAsyncThunk(
   async ({ ID }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceListItems/GetPrictListList?CompanyID=${ID}`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message,
+      );
+    }
+  },
+);
+
+export const getPriceSheetView = createAsyncThunk(
+  "listview/priceSheet", // action type
+  async ({ ID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/GetPrictSheetList?CompanyID=${ID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -839,6 +863,7 @@ const listviewSlice = createSlice({
         state.priceListViewData = [];
         state.ItemCount = "";
       })
+      
       .addCase(getPriceListView.fulfilled, (state, action) => {
         state.priceListstatus = "fulfilled";
         state.priceListloading = false;
@@ -848,6 +873,26 @@ const listviewSlice = createSlice({
       .addCase(getPriceListView.rejected, (state, action) => {
         state.priceListstatus = "rejected";
         state.priceListloading = false;
+        state.error = action.error.message;
+      })
+
+       .addCase(getPriceSheetView.pending, (state, action) => {
+        state.priceSheetstatus = "pending";
+        state.priceSheetloading = true;
+        state.priceSheetViewData = [];
+        state.priceSheetItemCount = "";
+      })
+
+      .addCase(getPriceSheetView.fulfilled, (state, action) => {
+        state.priceSheetstatus = "fulfilled";
+        state.priceSheetloading = false;
+        state.priceSheetViewData = action.payload.data;
+        state.priceSheetItemCount = action.payload.pricesheetitemcount;
+      })
+
+      .addCase(getPriceSheetView.rejected, (state, action) => {
+        state.priceSheetstatus = "rejected";
+        state.priceSheetloading = false;
         state.error = action.error.message;
       })
 

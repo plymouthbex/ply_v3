@@ -364,6 +364,7 @@ const ConfigureContactEdit = () => {
                     {
                       name: "Customer",
                       path: "/pages/control-panel/configure-price-book/customer",
+                      state:State.company
                     },
                     { name: `Configure Customer Contacts` },
                   ]}

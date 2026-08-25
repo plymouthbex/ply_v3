@@ -99,6 +99,15 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
+      {
+        name: "Price Sheet",
+        path: "/pages/control-panel/price-sheet",
+        iconText: "P",
+        accessID: "CP007",
+        icon: <DescriptionIcon fontSize="small" />,
+        role: authRoles.admin,
+      },
+
 
 
       {

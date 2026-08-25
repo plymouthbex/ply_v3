@@ -151,60 +151,123 @@ const AppVertivalNav = ({ items }) => {
         );
       } else {
         if (user.menurights.includes(item.accessID)) {
-          return (
-            <InternalLink key={index}>
-              <NavLink
-                to={item.path}
-                state={{ accessID: item.accessID }}
-                className={({ isActive }) =>
-                  isActive
-                    ? `navItemActive ${mode === "compact" && "compactNavItem"}`
-                    : `${mode === "compact" && "compactNavItem"}`
-                }
-              >
-                <ButtonBase
-                  onClick={handleSidebarToggle}
-                  key={item.name}
-                  name="child"
-                  sx={{ width: "100%", paddingLeft: ifChild ? "10px" : "0px" }}
+          if (item.accessID !== "CP007") {
+            return (
+              <InternalLink key={index}>
+                <NavLink
+                  to={item.path}
+                  state={{ accessID: item.accessID }}
+                  className={({ isActive }) =>
+                    isActive
+                      ? `navItemActive ${mode === "compact" && "compactNavItem"}`
+                      : `${mode === "compact" && "compactNavItem"}`
+                  }
                 >
-                  {item?.icon ? (
-                    <Icon className="icon" sx={{ width: 36 }}>
-                      {item.icon}
-                    </Icon>
-                  ) : (
-                    <Fragment>
-                      <BulletIcon
-                        className={`nav-bullet`}
-                        sx={{ display: mode === "compact" && "none" }}
-                      />
-                      <Box
-                        className="nav-bullet-text"
-                        sx={{
-                          ml: "10px",
-                          fontSize: "11px",
-                          display: mode !== "compact" && "none",
-                        }}
-                      >
-                        {item.iconText}
-                      </Box>
-                    </Fragment>
-                  )}
-                  <StyledText mode={mode} className="sidenavHoverShow">
-                    {item.name}
-                  </StyledText>
+                  <ButtonBase
+                    onClick={handleSidebarToggle}
+                    key={item.name}
+                    name="child"
+                    sx={{
+                      width: "100%",
+                      paddingLeft: ifChild ? "10px" : "0px",
+                    }}
+                  >
+                    {item?.icon ? (
+                      <Icon className="icon" sx={{ width: 36 }}>
+                        {item.icon}
+                      </Icon>
+                    ) : (
+                      <Fragment>
+                        <BulletIcon
+                          className={`nav-bullet`}
+                          sx={{ display: mode === "compact" && "none" }}
+                        />
+                        <Box
+                          className="nav-bullet-text"
+                          sx={{
+                            ml: "10px",
+                            fontSize: "11px",
+                            display: mode !== "compact" && "none",
+                          }}
+                        >
+                          {item.iconText}
+                        </Box>
+                      </Fragment>
+                    )}
+                    <StyledText mode={mode} className="sidenavHoverShow">
+                      {item.name}
+                    </StyledText>
 
-                  <Box mx="auto" />
+                    <Box mx="auto" />
 
-                  {item.badge && (
-                    <BadgeValue className="sidenavHoverShow">
-                      {item.badge.value}
-                    </BadgeValue>
-                  )}
-                </ButtonBase>
-              </NavLink>
-            </InternalLink>
-          );
+                    {item.badge && (
+                      <BadgeValue className="sidenavHoverShow">
+                        {item.badge.value}
+                      </BadgeValue>
+                    )}
+                  </ButtonBase>
+                </NavLink>
+              </InternalLink>
+            );
+          } else if (item.accessID == "CP007" && user.companyCode === "SJ") {
+            return (
+              <InternalLink key={index}>
+                <NavLink
+                  to={item.path}
+                  state={{ accessID: item.accessID }}
+                  className={({ isActive }) =>
+                    isActive
+                      ? `navItemActive ${mode === "compact" && "compactNavItem"}`
+                      : `${mode === "compact" && "compactNavItem"}`
+                  }
+                >
+                  <ButtonBase
+                    onClick={handleSidebarToggle}
+                    key={item.name}
+                    name="child"
+                    sx={{
+                      width: "100%",
+                      paddingLeft: ifChild ? "10px" : "0px",
+                    }}
+                  >
+                    {item?.icon ? (
+                      <Icon className="icon" sx={{ width: 36 }}>
+                        {item.icon}
+                      </Icon>
+                    ) : (
+                      <Fragment>
+                        <BulletIcon
+                          className={`nav-bullet`}
+                          sx={{ display: mode === "compact" && "none" }}
+                        />
+                        <Box
+                          className="nav-bullet-text"
+                          sx={{
+                            ml: "10px",
+                            fontSize: "11px",
+                            display: mode !== "compact" && "none",
+                          }}
+                        >
+                          {item.iconText}
+                        </Box>
+                      </Fragment>
+                    )}
+                    <StyledText mode={mode} className="sidenavHoverShow">
+                      {item.name}
+                    </StyledText>
+
+                    <Box mx="auto" />
+
+                    {item.badge && (
+                      <BadgeValue className="sidenavHoverShow">
+                        {item.badge.value}
+                      </BadgeValue>
+                    )}
+                  </ButtonBase>
+                </NavLink>
+              </InternalLink>
+            );
+          }
         }
       }
     });

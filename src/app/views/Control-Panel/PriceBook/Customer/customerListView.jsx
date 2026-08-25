@@ -118,74 +118,80 @@ const Customer = () => {
       headerAlign: "left",
       hide: false,
     },
-    {
-      field: "FullPriceBook",
-      headerName: "Full Price Book",
-      width: 180,
-      align: "center",
-      headerAlign: "center",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      disableExport: true,
-      renderCell: (params) => (
-        <div>
-          <Checkbox
-            checked={params.row.FullPriceBookExcel}
-            onChange={(e) => {
-              dispatch(
-                CustomerConfig({
-                  CustomerNumber: params.row.CustomerNumber,
-                  Type: "FullPriceBookExcel",
-                  Value: e.target.checked ? "1" : "0",
-                })
-              );
-              dispatch(
-                onCheckboxChangeCustomer({
-                  id: params.row.RecordID,
-                  field: "FullPriceBookExcel",
-                })
-              );
+    // Full Price Book - hide completely for SJ
+  ...(State?.Code !== "SJ"
+    ? [
+        {
+          field: "FullPriceBook",
+          headerName: "Full Price Book",
+          width: 180,
+          align: "center",
+          headerAlign: "center",
+          sortable: false,
+          filterable: false,
+          disableColumnMenu: true,
+          disableExport: true,
+          renderCell: (params) => (
+            <div>
+              <Checkbox
+                checked={params.row.FullPriceBookExcel}
+                onChange={(e) => {
+                  dispatch(
+                    CustomerConfig({
+                      CustomerNumber: params.row.CustomerNumber,
+                      Type: "FullPriceBookExcel",
+                      Value: e.target.checked ? "1" : "0",
+                    })
+                  );
 
-              // handleSave({...params.row,FullPriceBookExcel:e.target.checked })
-            }}
-            sx={{
-              color: "#174c4f",
-              "&.Mui-checked": {
-                color: "#174c4f",
-              },
-            }}
-          />
-          Excel
-          <Checkbox
-            checked={params.row.FullPriceBookPdf}
-            onChange={(e) => {
-              dispatch(
-                CustomerConfig({
-                  CustomerNumber: params.row.CustomerNumber,
-                  Type: "FullPriceBookPdf",
-                  Value: e.target.checked ? "1" : "0",
-                })
-              );
-              // handleSave({ ...params.row, FullPriceBookPdf: e.target.checked });
-              dispatch(
-                onCheckboxChangeCustomer({
-                  id: params.row.RecordID,
-                  field: "FullPriceBookPdf",
-                })
-              );
-            }}
-            sx={{
-              color: "#174c4f",
-              "&.Mui-checked": {
-                color: "#174c4f",
-              },
-            }}
-          />
-          PDF
-        </div>
-      ),
-    },
+                  dispatch(
+                    onCheckboxChangeCustomer({
+                      id: params.row.RecordID,
+                      field: "FullPriceBookExcel",
+                    })
+                  );
+                }}
+                sx={{
+                  color: "#174c4f",
+                  "&.Mui-checked": {
+                    color: "#174c4f",
+                  },
+                }}
+              />
+              Excel
+
+              <Checkbox
+                checked={params.row.FullPriceBookPdf}
+                onChange={(e) => {
+                  dispatch(
+                    CustomerConfig({
+                      CustomerNumber: params.row.CustomerNumber,
+                      Type: "FullPriceBookPdf",
+                      Value: e.target.checked ? "1" : "0",
+                    })
+                  );
+
+                  dispatch(
+                    onCheckboxChangeCustomer({
+                      id: params.row.RecordID,
+                      field: "FullPriceBookPdf",
+                    })
+                  );
+                }}
+                sx={{
+                  color: "#174c4f",
+                  "&.Mui-checked": {
+                    color: "#174c4f",
+                  },
+                }}
+              />
+              PDF
+            </div>
+          ),
+        },
+      ]
+    : []),
+
     {
       field: "customerCustomPriceBook",
       headerName: "Custom Price Book",

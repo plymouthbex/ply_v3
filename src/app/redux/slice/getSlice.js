@@ -114,6 +114,7 @@ const initialState = {
 
   configurePriceListAddedData: [],
   configurePriceListGetData: [],
+  configurePriceSheetGetData: [],
   configurePriceListContactData: [],
   configurePriceListSelectData: [],
 
@@ -178,6 +179,16 @@ const initialState = {
   getPriceListLevelBYCompanyError:null,
 
   filteredPriceBookItems: [],
+
+//PriceSheet
+  priceSheetData: {
+  headerData: {},
+  itemData: [],
+  printColumnData: [],
+},
+priceSheetStatus: "idle",
+priceSheetLoading: false,
+priceSheetError: null,
 
 };
 
@@ -391,6 +402,28 @@ export const getCompanyData = createAsyncThunk(
           Authorization: process.env.REACT_APP_API_TOKEN,
         },
       });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+//=======PRICESHEET GET=========================///
+export const getPriceSheetData = createAsyncThunk(
+  "page/getPriceSheetData",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/GetPriceSheet?RecordID=${id}`;
+
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -1096,6 +1129,8 @@ const getSlice = createSlice({
       state.getconfigureError = null;
       state.configurePriceListAddedData = [];
       state.configurePriceListGetData = [];
+      state.configurePriceListGetData = [];
+
     },
     clearStateProspectInfoQuote: (state, action) => {
       state.getQuoteProspectDataItems = [];
@@ -1293,6 +1328,28 @@ const getSlice = createSlice({
         state.priceListItemsData = action.payload.data.itemData;
         state.priceListAddedData = action.payload.data.addHocItems;
       })
+
+//PRICESHEET
+      .addCase(getPriceSheetData.pending, (state) => {
+  state.priceSheetLoading = true;
+  state.priceSheetStatus = "loading";
+  state.priceSheetError = null;
+})
+.addCase(getPriceSheetData.fulfilled, (state, action) => {
+  state.priceSheetLoading = false;
+  state.priceSheetStatus = "fulfilled";
+
+  state.priceSheetData = action.payload?.data || {
+    headerData: {},
+    itemData: [],
+    printColumnData: [],
+  };
+})
+.addCase(getPriceSheetData.rejected, (state, action) => {
+  state.priceSheetLoading = false;
+  state.priceSheetStatus = "rejected";
+  state.priceSheetError = action.payload || action.error?.message;
+})
 
       // PRINT GROUP
       .addCase(getprintGroupData.pending, (state) => {
@@ -1539,6 +1596,7 @@ const getSlice = createSlice({
         state.getconfigureLoading = true;
         state.getconfigureData = {};
         state.configurePriceListGetData = [];
+        state.configurePriceSheetGetData = [];
         state.configurePriceListContactData = [];
       })
       .addCase(getConfigPriceBook.fulfilled, (state, action) => {
@@ -1546,6 +1604,7 @@ const getSlice = createSlice({
         state.getconfigureLoading = false;
         state.getconfigureData = action.payload.data;
         state.configurePriceListGetData = action.payload.data.PriceList;
+        state.configurePriceSheetGetData = action.payload.data.PriceSheet;
         state.configurePriceListContactData = action.payload.data.Contacts;
       })
       .addCase(getConfigPriceBook.rejected, (state, action) => {
@@ -1557,6 +1616,7 @@ const getSlice = createSlice({
       .addCase(getConfigPriceBook2.fulfilled, (state, action) => {
         state.getconfigureData = action.payload.data;
         state.configurePriceListGetData = action.payload.data.PriceList;
+        state.configurePriceSheetGetData = action.payload.data.PriceSheet;
         state.configurePriceListContactData = action.payload.data.Contacts;
       })
 

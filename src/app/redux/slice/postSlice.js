@@ -80,6 +80,49 @@ export const updateBuildPriceData = createAsyncThunk(
   }
 );
 
+export const PostCustomerPriceSheet = createAsyncThunk(
+  "postSlice/PostCustomerPriceSheet",
+  async ({ priceSheetData }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/PostCustomerPriceSheet`;
+
+      const response = await axios.post(URL, priceSheetData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("PostCustomerPriceSheet error:", error);
+
+      throw error;
+    }
+  }
+);
+
+
+export const postCustsequenceData = createAsyncThunk(
+  "data/postData", // Action type string
+  async ({ sequenceData }) => {
+    try {
+      // Set your API URL
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/UpdateCustomerPriceSheetSequence`;
+      // Make the POST request with Axios, adding Authorization header
+      const response = await axios.put(URL, sequenceData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Return the response data if successful
+      return response.data;
+    } catch (error) {}
+  }
+);
+
 export const deleteBuildPriceData = createAsyncThunk(
   "data/deleteBuildPriceData", // Action type string
   async ({ id }, { rejectWithValue }) => {
@@ -468,6 +511,27 @@ export const priceListDelete = createAsyncThunk(
   async ({ id }, { rejectWithValue }) => {
     try {
       const URL = `${process.env.REACT_APP_BASE_URL}PriceList/DeletePriceList`;
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+        params: {
+          Recordid: id, // This ensures the parameter is added to the query string
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+export const priceSheetDelete = createAsyncThunk(
+  "priceSheet/DELETE",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/DeletePriceSheet`;
       const response = await axios.delete(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -1092,6 +1156,71 @@ export const ConfigurepriceListClear = createAsyncThunk(
       return rejectWithValue(
         error.response ? error.response.data : error.message
       );
+    }
+  }
+);
+
+//Pricesheet Post
+export const PostPriceSheet = createAsyncThunk(
+  "postSlice/PostPriceSheet",
+  async ({ priceSheetData }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/PostPriceSheet`;
+
+      const response = await axios.post(URL, priceSheetData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || error.message
+      );
+    }
+  }
+);
+
+export const PostPriceSheetDetail = createAsyncThunk(
+  "postSlice/PostPriceSheetDetail",
+  async ({ detailData }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/PostPriceSheetDetail`;
+
+      const response = await axios.post(URL, detailData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || error.message
+      );
+    }
+  }
+);
+
+export const DeleteCustomerPriceSheet = createAsyncThunk(
+  "postSlice/DeleteCustomerPriceSheet",
+  async ({ RecordID }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/DeleteCustomerPriceSheet?RecordID=${RecordID}`;
+
+      const response = await axios.delete(URL, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("DeleteCustomerPriceSheet error:", error);
+      throw error;
     }
   }
 );
