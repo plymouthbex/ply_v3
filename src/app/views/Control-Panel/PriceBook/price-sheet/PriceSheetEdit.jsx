@@ -116,16 +116,16 @@ const Container = styled("div")(({ theme }) => ({
 
 // ***** PRINT COLUMN DEFAULTS - used to seed "add" mode (all OFF) ***** //
 const PRINT_COLUMN_DEFAULTS = [
-  { id: "PrintItemNo", label: "Print Item Number", enabled: true },
-    { id: "PrintItemDesc", label: "Print Item Description", enabled: true },
-    { id: "PrintPrice", label: "Print Price", enabled: true },
+  { id: "PrintItemNo", label: "Item Number", enabled: true },
+    { id: "PrintItemDesc", label: "Item Description", enabled: true },
+    { id: "PrintPrice", label: "Price", enabled: true },
   {
     id: "PrintSpanishItemDesc",
-    label: "Print Spanish Item Description",
+    label: "Custom Description",
     enabled: false,
   },
-  { id: "PrintUOM", label: "Print Unit of Measure", enabled: false },
-  { id: "PrintPackSize", label: "Print Pack Size", enabled: false },
+  { id: "PrintUOM", label: "Unit of Measure", enabled: false },
+  { id: "PrintPackSize", label: "Pack Size", enabled: false },
 ];
 
 // **********************  PRICE SHEET EDIT SCREEN  ********************** //

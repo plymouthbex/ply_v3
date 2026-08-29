@@ -1563,7 +1563,7 @@ const ConfigureEdit = () => {
     ...(State.company.Code === "SJ"
       ? [
           {
-            headerName: "Sequence",
+            headerName: "Page#",
             field: "Sequence",
             width: 150,
             align: "right",
