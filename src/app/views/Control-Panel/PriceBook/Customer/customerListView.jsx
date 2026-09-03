@@ -117,7 +117,7 @@ const Customer = () => {
     {
       headerName: "Price Book group",
       field: "Rungroup",
-      width: 150,
+      width: State?.Code !== "SJ"?150:200,
       align: "left",
       headerAlign: "left",
       hide: false,
