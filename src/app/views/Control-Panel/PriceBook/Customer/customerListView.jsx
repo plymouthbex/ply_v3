@@ -96,12 +96,14 @@ const Customer = () => {
     {
       headerName: "Customer Name",
       field: "CustomerName",
-      minWidth: 250,
+      minWidth: State?.Code !== "SJ"?250:450,
       // flex: 1,
       align: "left",
       headerAlign: "left",
       hide: false,
     },
+     ...(State?.Code !== "SJ"
+    ? [
     {
       headerName: "Price Level",
       field: "PriceLevel",
@@ -109,7 +111,7 @@ const Customer = () => {
       align: "right",
       headerAlign: "center",
       hide: false,
-    },
+    }]:[]),
     {
       headerName: "Price Book group",
       field: "Rungroup",
@@ -258,6 +260,8 @@ const Customer = () => {
         </div>
       ),
     },
+     ...(State?.Code !== "SJ"
+    ? [
     {
       field: "ItemType",
       headerName: "Broken/Damaged",
@@ -323,8 +327,9 @@ const Customer = () => {
           Damaged
         </div>
       ),
-    },
-    {
+    }]:[]),
+     ...(State?.Code !== "SJ"
+    ? [{
       field: "CustomerItemNumber",
       headerName: "Customer Item Number",
       minWidth: 230,
@@ -365,7 +370,7 @@ const Customer = () => {
           
         </div>
       ),
-    },
+    }]:[]),
     {
       field: "Action",
       headerName: "Action",

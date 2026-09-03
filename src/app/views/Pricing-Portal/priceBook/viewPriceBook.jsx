@@ -679,7 +679,9 @@ const ViewPriceBook = () => {
               }`
             : `${
                 process.env.REACT_APP_BASE_URL
-              }Email/GetCustomPdf?CustomerNumber=${
+              }Email/${
+                user.companyCode === "SJ" ? "GetSJCustomPdf" : "GetCustomPdf"
+              }?CustomerNumber=${
                 selectedCustomerOptions ? selectedCustomerOptions.Code : ""
               }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
                 user.id
@@ -1223,7 +1225,7 @@ const ViewPriceBook = () => {
                 label="Customer"
                 url={`${
                   process.env.REACT_APP_BASE_URL
-                }Customer/GetCustomer?CompanyID=${user.companyID}&Type=${
+                }Customer/${user.companyCode=="SJ" && selectPriceListtype == "CP"?"GetSJCustomCustomer":"GetCustomer" }?CompanyID=${user.companyID}&Type=${
                   selectPriceListtype == "CP" ? "Custom" : "Full"
                 }&FromDate=${sunday}`}
               />

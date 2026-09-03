@@ -554,7 +554,7 @@ const processRowUpdate = (newRow, oldRow) => {
 
         priceSheetName: values.priceListDescription,
 
-        printPriceList: values.printPriceList,
+        printPriceList: values.printPriceList??false,
         printCategory: values.printCategory,
 
         printItemNo: values.printItemNo,
@@ -1138,7 +1138,7 @@ const processRowUpdate = (newRow, oldRow) => {
                     />
                   </Stack>
 
-                  <Stack
+                  {/* <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="row"
                     alignItems="center"
@@ -1159,7 +1159,7 @@ const processRowUpdate = (newRow, oldRow) => {
                       }
                       label="Print PriceList Name"
                     />
-                  </Stack>
+                  </Stack> */}
                 </Box>
 
                 {/* ********************** PRINT COLUMN CONFIG + ITEMS GRID (matches PriceListEdit Options/Grid layout) ********************** */}
