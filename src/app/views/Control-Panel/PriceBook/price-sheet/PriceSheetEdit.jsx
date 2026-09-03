@@ -537,7 +537,28 @@ const processRowUpdate = (newRow, oldRow) => {
     });
   };
 
-  const handleSavePriceSheet = async (values, setSubmitting) => {
+  const [showAlignmentWarning, setShowAlignmentWarning] = useState(false);
+  const pendingSaveRef = useRef(null); // holds { values, setSubmitting } while warning is shown
+  const handleSavePriceSheet = async (values, setSubmitting, skipAlignmentCheck = false) => {
+    // ==========================================
+    // ALIGNMENT VALIDATION
+    // 2 items per row + more than 4 enabled print columns
+    // ==========================================
+    const enabledPrintColumnsCount = printColumns.filter(
+      (column) => column.enabled === true,
+    ).length;
+
+    if (
+      !skipAlignmentCheck &&
+      params.mode !== "delete" &&
+      values.pdfFormat === "2" &&
+      enabledPrintColumnsCount > 4
+    ) {
+      // Stash the current args so we can resume save if user confirms "Yes"
+      pendingSaveRef.current = { values, setSubmitting };
+      setShowAlignmentWarning(true);
+      return; // stop here, don't save, stay on screen
+    }
     try {
       setSubmitting(true);
       console.log(user, "-find user inside handleSavePriceSheet");
@@ -667,6 +688,25 @@ const processRowUpdate = (newRow, oldRow) => {
       setOpenAlert(true);
     } finally {
       setSubmitting(false);
+    }
+  };
+    const confirmAlignmentWarningYes = () => {
+    setShowAlignmentWarning(false);
+    const pending = pendingSaveRef.current;
+    pendingSaveRef.current = null;
+    if (pending) {
+      // resume save, skipping the alignment check this time
+      handleSavePriceSheet(pending.values, pending.setSubmitting, true);
+    }
+  };
+
+  const confirmAlignmentWarningNo = () => {
+    setShowAlignmentWarning(false);
+    const pending = pendingSaveRef.current;
+    pendingSaveRef.current = null;
+    if (pending) {
+      // stay on screen, do not save
+      pending.setSubmitting(false);
     }
   };
 
@@ -1385,6 +1425,27 @@ const processRowUpdate = (newRow, oldRow) => {
                         Only enabled fields print, in Price Book
                       </Typography>
                     </Box>
+                     <Box
+                      sx={{
+                        gap: 10,
+                        display: "flex",
+                        alignItems: "center",
+                        // padding: "5px",
+                        paddingLeft :"3px",
+                        border: "1px solid red",
+                        borderRadius: 1,
+                        backgroundColor: "#ffe6e6",
+                        minHeight: 40,
+                      }}
+                    >
+                      <Typography
+                        color="error"
+                        fontSize={"12px"}
+                        align="center"
+                      >
+                        Note: If the number of items exceeds 80, the items may be printed across multiple pages.
+                      </Typography>
+                    </Box>
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={4}>
                       {/* <Button
@@ -2059,6 +2120,37 @@ const processRowUpdate = (newRow, oldRow) => {
               color="info"
               size="small"
               onClick={() => setIsRemoveItem1(false)}
+            >
+              No
+            </Button>
+          </Box>
+        }
+      />
+            <MessageAlertDialog
+        open={showAlignmentWarning}
+        logo={`data:image/png;base64,${user.logo}`}
+        // error={true}
+        tittle={""}
+        message={`You have selected 2 items per row with more than 4 print columns enabled. The Price Sheet may not be aligned properly. Do you want to continue?`}
+        Actions={
+          <Box
+            sx={{ display: "flex", justifyContent: "flex-end", width: "100%" }}
+          >
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={confirmAlignmentWarningYes}
+            >
+              Yes
+            </Button>
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={confirmAlignmentWarningNo}
             >
               No
             </Button>
