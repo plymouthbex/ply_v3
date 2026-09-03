@@ -151,6 +151,9 @@ const AppVertivalNav = ({ items }) => {
         );
       } else {
         if (user.menurights.includes(item.accessID)) {
+          if (item.accessID === "CP002" && user.companyCode === "SJ") {
+            return null;
+          }
           if (item.accessID !== "CP007") {
             return (
               <InternalLink key={index}>

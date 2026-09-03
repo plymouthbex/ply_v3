@@ -13,6 +13,8 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import {
   DataGrid,
@@ -445,6 +447,7 @@ const Customer = () => {
   
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [showFiltered, setShowFiltered] = useState(false);
  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(State?.RunGroup?.Name ? {Name:State?.RunGroup?.Name}:null);
  console.log("🚀 ~ Customer ~ State.RunGroup:",State?.RunGroup?.Name)
  const [selectedRunGrpName, setSelectedRunGrpName] = useState(State?.RunGroup?.Name ? {Name:State?.RunGroup?.Name}:null);
@@ -473,12 +476,28 @@ const Customer = () => {
   console.log("🚀 ~ Customer ~ selectedRunGrpOptions:", selectedRunGrpOptions);
   console.log("🚀 ~ Customer ~ selectedRunGrpName:", selectedRunGrpName)
 
-  const filteredRows=selectedRunGrpOptions?.Name
-  ? customerRows.filter(
-      (row) =>
-        row?.Rungroup === selectedRunGrpOptions?.Name 
-    )
-  : customerRows;
+  // const filteredRows=selectedRunGrpOptions?.Name
+  // ? customerRows.filter(
+  //     (row) =>
+  //       row?.Rungroup === selectedRunGrpOptions?.Name 
+  //   )
+  // : customerRows;
+  // Rows where at least one price-book option is configured
+const configuredRows = customerRows.filter(
+  (v) =>
+    v.FullPriceBookExcel ||
+    v.FullPriceBookPdf ||
+    v.CustomPriceBookExcel ||
+    v.CustomPriceBookPdf
+);
+
+// Apply "Show Only Customers Configured" toggle first
+const baseRows = showFiltered ? configuredRows : customerRows;
+
+// Then apply the Price Book Group filter on top
+const filteredRows = selectedRunGrpOptions?.Name
+  ? baseRows.filter((row) => row?.Rungroup === selectedRunGrpOptions?.Name)
+  : baseRows;
   console.log("🚀 ~ handleSelectionRunGrpChange ~ filteredRows:", filteredRows)
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
@@ -512,6 +531,17 @@ const Customer = () => {
             onChange={handleSelectionRunGrpChange}
             label="Price Book Group"
             url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
+          />
+           {/* Configure Toggle */}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showFiltered}
+                onChange={() => setShowFiltered((prev) => !prev)}
+                color="primary"
+              />
+            }
+            label="Show Only Customers Configured"
           />
         </Box>
   
