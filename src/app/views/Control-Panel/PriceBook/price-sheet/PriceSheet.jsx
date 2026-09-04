@@ -160,30 +160,30 @@ const columns = [
       />
     ),
   },
-  {
-    headerName: "Print Price List",
-    field: "PrintPriceList",
-    width: 180,
-    align: "center",
-    headerAlign: "center",
-    sortable: false,
-    renderCell: (params) => (
-      <Checkbox
-        checked={params.row.PrintPriceList === true}
-        onChange={(event) => {
-          const checked = event.target.checked;
+  // {
+  //   headerName: "Print Price List",
+  //   field: "PrintPriceList",
+  //   width: 180,
+  //   align: "center",
+  //   headerAlign: "center",
+  //   sortable: false,
+  //   renderCell: (params) => (
+  //     <Checkbox
+  //       checked={params.row.PrintPriceList === true}
+  //       onChange={(event) => {
+  //         const checked = event.target.checked;
 
-          console.log(
-            "Print Price List:",
-            params.row.PriceSheetName,
-            checked
-          );
+  //         console.log(
+  //           "Print Price List:",
+  //           params.row.PriceSheetName,
+  //           checked
+  //         );
 
-          // Later you can dispatch/API call here
-        }}
-      />
-    ),
-  },
+  //         // Later you can dispatch/API call here
+  //       }}
+  //     />
+  //   ),
+  // },
   {
     headerName: "Item Count",
     field: "ItemCount",

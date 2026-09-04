@@ -1405,7 +1405,7 @@ const processRowUpdate = (newRow, oldRow) => {
                     </Box>
 
                     {/* NOTE + APPLY BUTTON (matches PriceListEdit note/action row pattern) */}
-                    <Box
+                    {/* <Box
                       sx={{
                         gap: 10,
                         display: "flex",
@@ -1444,6 +1444,29 @@ const processRowUpdate = (newRow, oldRow) => {
                         align="center"
                       >
                         Note: If the number of items exceeds 80, the items may be printed across multiple pages.
+                      </Typography>
+                    </Box> */}
+                      {/* NOTE SECTION (Plain Black & Bold Text with Dynamic Item Limit) */}
+                    {/* NOTE SECTION (Blue & Bold Text + Dynamic 50 / 80 Limit) */}
+                    <Box sx={{ mt: 1, mb: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                      <Typography
+                        sx={{
+                          color: "#1976d2", // Blue text color
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                        }}
+                      >
+                       Only enabled fields print in <strong >Price Book</strong>.
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          color: "#1976d2", // Blue text color
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                        }}
+                      >
+                        Note: If the number of items exceeds {values.pdfFormat?.toString() === "1" ? 50 : 80}, the items may be printed across multiple pages.
                       </Typography>
                     </Box>
 
