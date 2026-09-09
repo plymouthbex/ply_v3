@@ -1456,7 +1456,7 @@ const processRowUpdate = (newRow, oldRow) => {
                           fontSize: "12px",
                         }}
                       >
-                       Only enabled fields print in <strong >Price Book</strong>.
+                       Only the columns turned on in the above grid will be printed in the Price Book.
                       </Typography>
 
                       <Typography
