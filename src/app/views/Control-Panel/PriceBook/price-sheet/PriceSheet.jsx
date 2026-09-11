@@ -136,30 +136,30 @@ const columns = [
     align: "left",
     headerAlign: "left",
   },
-  {
-    headerName: "Print Category",
-    field: "PrintCategory",
-    width: 160,
-    align: "center",
-    headerAlign: "center",
-    sortable: false,
-    renderCell: (params) => (
-      <Checkbox
-        checked={params.row.PrintCategory === true}
-        onChange={(event) => {
-          const checked = event.target.checked;
+  // {
+  //   headerName: "Print Category",
+  //   field: "PrintCategory",
+  //   width: 160,
+  //   align: "center",
+  //   headerAlign: "center",
+  //   sortable: false,
+  //   renderCell: (params) => (
+  //     <Checkbox
+  //       checked={params.row.PrintCategory === true}
+  //       onChange={(event) => {
+  //         const checked = event.target.checked;
 
-          console.log(
-            "Print Category:",
-            params.row.PriceSheetName,
-            checked
-          );
+  //         console.log(
+  //           "Print Category:",
+  //           params.row.PriceSheetName,
+  //           checked
+  //         );
 
-          // Later you can dispatch/API call here
-        }}
-      />
-    ),
-  },
+  //         // Later you can dispatch/API call here
+  //       }}
+  //     />
+  //   ),
+  // },
   // {
   //   headerName: "Print Price List",
   //   field: "PrintPriceList",

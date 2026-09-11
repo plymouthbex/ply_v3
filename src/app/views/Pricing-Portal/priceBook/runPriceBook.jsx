@@ -38,7 +38,7 @@ import {
   onCheckboxChange,
   runGrpMsgUpdate,
   runGrpProcessedDataUpdate,
-  deleteCustomerPriceBookItem
+  deleteCustomerPriceBookItem,
 } from "app/redux/slice/listviewSlice";
 import {
   SingleAutocomplete,
@@ -140,26 +140,30 @@ export default function RunPriceBook() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedCustomerName, setSelectedCustomerName] = useState("");
   const [pendingAction, setPendingAction] = useState(null);
+   const State = location.state;
+
+   console.log("State", State);
+   
 
   useEffect(() => {
-  const selectedRunGroup = location.state?.selectedRunGroup ?? {
-    Name: user.defaultRunGroup,
-  };
+    const selectedRunGroup = location.state?.selectedRunGroup ?? {
+      Name: user.defaultRunGroup,
+    };
 
-  setSelectedRunGrpOptions(selectedRunGroup);
+    setSelectedRunGrpOptions(selectedRunGroup);
 
-  dispatch(
-    fetchListviewRunGroup({
-      runGroupID: selectedRunGroup.Name,
-      companyID: user.companyID,
-    })
-  ).then((res) => {
-    const allRowIds = res.payload.rows.map((row) => row.id);
-    setRowSelectionModel(allRowIds);
-  });
+    dispatch(
+      fetchListviewRunGroup({
+        runGroupID: selectedRunGroup.Name,
+        companyID: user.companyID,
+      }),
+    ).then((res) => {
+      const allRowIds = res.payload.rows.map((row) => row.id);
+      setRowSelectionModel(allRowIds);
+    });
 
-  setCurrentDate(new Date());
-}, [dispatch, location.state, user.companyID, user.defaultRunGroup]);
+    setCurrentDate(new Date());
+  }, [dispatch, location.state, user.companyID, user.defaultRunGroup]);
 
   console.log("🚀 ~ RunPriceBook ~ rowSelectionModel11:", rowSelectionModel11);
   const getWeekDates = () => {
@@ -253,7 +257,10 @@ export default function RunPriceBook() {
           setDeleteID(0);
           setDeleteCustomer("");
           dispatch(
-            fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name , companyID: user.companyID,}),
+            fetchListviewRunGroup({
+              runGroupID: selectedRunGrpOptions.Name,
+              companyID: user.companyID,
+            }),
           ).then((res) => {
             const allRowIds = res.payload.rows.map((row) => row.id);
             setRowSelectionModel(allRowIds);
@@ -398,7 +405,7 @@ export default function RunPriceBook() {
     {
       field: "customerCustomPriceBook",
       headerName: "Custom Price Book",
-      width: 200,
+      width: 250,
       align: "left",
       headerAlign: "left",
       sortable: false,
@@ -535,6 +542,78 @@ export default function RunPriceBook() {
             }}
           />
           PDF
+          {user.companyCode === "SJ" && (
+            <>
+              <Checkbox
+                checked={params.row.cpjpg || false}
+                onChange={(e) => {
+                  setSelectedCustomer(params.row.customernumber);
+                  setSelectedCustomerName(params.row.customer);
+
+                  if (
+                    !e.target.checked &&
+                    !params.row.cpexcel &&
+                    !params.row.cppdf
+                  ) {
+                    setPendingAction({
+                      row: params.row,
+                      field: "cpjpg",
+                      type: "CustomerJPG",
+                      checked: e.target.checked,
+                    });
+
+                    setIsRemovePriceList(true);
+                    return;
+                  }
+
+                  if (
+                    user.role === "USER" &&
+                    (selectedRunGrpOptions.Name === user.defaultRunGroup ||
+                      user.SalesReps.includes(selectedRunGrpOptions.Name))
+                  ) {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.customernumber,
+                        Type: "CustomerJPG",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
+
+                    dispatch(
+                      onCheckboxChange({
+                        id: params.row.id,
+                        field: "cpjpg",
+                        rows: runGrpRows,
+                      }),
+                    );
+                  } else if (user.role !== "USER") {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.customernumber,
+                        Type: "CustomerJPG",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
+
+                    dispatch(
+                      onCheckboxChange({
+                        id: params.row.id,
+                        field: "cpjpg",
+                        rows: runGrpRows,
+                      }),
+                    );
+                  }
+                }}
+                sx={{
+                  color: "#174c4f",
+                  "&.Mui-checked": {
+                    color: "#174c4f",
+                  },
+                }}
+              />
+              JPG
+            </>
+          )}
         </div>
       ),
     },
@@ -542,11 +621,14 @@ export default function RunPriceBook() {
       field: "Action",
       headerName: "Action",
       minWidth: 300,
+
       renderCell: (params) => {
-        const isVisible = params.row.cpexcel || params.row.cppdf;
+        const isVisible = params.row.cpexcel || params.row.cppdf || params.row.cpjpg;
+
         const compID = user.companyID;
         const comCode = user.companyCode;
         const custname = params.row.customer;
+
         return (
           <div>
             {isVisible && (
@@ -563,37 +645,59 @@ export default function RunPriceBook() {
                   color="black"
                   size="small"
                   onClick={() => {
-                    navigate("/pages/pricing-portal/Price-list-details", {
-                      state: {
-                        companyID: compID,
-                        companyCode: comCode,
-                        customernumber: params.row.customernumber,
-                        customer: params.row.customer,
-                        selectedRunGroup: selectedRunGrpOptions,
-                      },
-                    });
+                    if (user.companyCode === "SJ") {
+                      navigate(
+                        "/pages/control-panel/configure-price-book/customer/edit-Customer/configureEdit",
+                        {
+                          state: {
+                            RecordID: params.row.id,
+                            Code: params.row.CustomerNumber,
+                            Name: params.row.customer,
+                            CompanyCode: user.companyCode,
+                            company: {
+                              Code: user.companyCode,
+                              Name: user.company,
+                            },
+                            RunGroup: selectedRunGrpOptions,
+                          },
+                        },
+                      );
+                    } else {
+                      navigate("/pages/pricing-portal/Price-list-details", {
+                        state: {
+                          companyID: compID,
+                          companyCode: comCode,
+                          customernumber: params.row.customernumber,
+                          customer: params.row.customer,
+                          selectedRunGroup: selectedRunGrpOptions,
+                        },
+                      });
+                    }
                   }}
+                  // onClick={() => {
+                  //   const state = {
+                  //     companyID: user.companyID,
+                  //     companyCode: user.companyCode,
+                  //     customernumber: params.row.customernumber,
+                  //     customer: params.row.customer,
+                  //     selectedRunGroup: selectedRunGrpOptions,
+                  //     customerData: params.row,
+                  //   };
+
+                  //   if (user.companyCode === "SJ") {
+                  //     navigate(
+                  //       "/pages/control-panel/configure-price-book/customer/edit-Customer/configureEdit",
+                  //       { state },
+                  //     );
+                  //   } else {
+                  //     navigate("/pages/pricing-portal/Price-list-details", {
+                  //       state,
+                  //     });
+                  //   }
+                  // }}
                 >
                   <RequestQuoteIcon />
                 </IconButton>
-
-                {/* <Button
-                  variant="contained"
-                  color="info"
-                  size="small"
-                  onClick={() => {
-                    navigate("/pages/pricing-portal/Price-list-details", {
-                      state: {
-                        companyID: compID,
-                        companyCode: comCode,
-                        customernumber: params.row.customernumber,
-                        customer: params.row.customer,
-                      },
-                    });
-                  }}
-                >
-                  Customer Price Book Items
-                </Button> */}
               </Tooltip>
             )}
           </div>
@@ -664,7 +768,7 @@ export default function RunPriceBook() {
     setSelectedRunGrpOptions(newValue);
     setIsEmailButtonDisabled(false); // Re-enable button on selection change
 
-      // localStorage.setItem("selectedRunGroup", JSON.stringify(newValue));
+    // localStorage.setItem("selectedRunGroup", JSON.stringify(newValue));
 
     if (newValue) {
       dispatch(
@@ -1045,7 +1149,7 @@ export default function RunPriceBook() {
       );
       if (response.payload.status === "Y") {
         dispatch(
-          fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name, }),
+          fetchListviewRunGroup({ runGroupID: selectedRunGrpOptions.Name }),
         ).then((res) => {
           const allRowIds = res.payload.rows.map((row) => row.id);
           setRowSelectionModel(allRowIds);
@@ -1118,21 +1222,45 @@ export default function RunPriceBook() {
             </Stack>
 
             {/* Label with Checkbox */}
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={showPrice}
-                  onChange={(e) => setShowprice(e.target.checked)}
-                  sx={{
-                    color: "#174c4f",
-                    "&.Mui-checked": {
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-end"
+              gap={1}
+            >
+              <FormControlLabel
+                sx={{ marginRight: 0 }}
+                control={
+                  <Checkbox
+                    checked={showPrice}
+                    onChange={(e) => setShowprice(e.target.checked)}
+                    sx={{
                       color: "#174c4f",
-                    },
-                  }}
-                />
-              }
-              label="Show Price"
-            />
+                      "&.Mui-checked": {
+                        color: "#174c4f",
+                      },
+                    }}
+                  />
+                }
+                label="Show Price"
+              />
+
+              <Button
+                variant="contained"
+                disabled={isEmailButtonDisabled}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: theme.palette.secondary.light,
+                  },
+                  color: theme.palette.secondary.contrastText,
+                  bgcolor: theme.palette.secondary.light,
+                  fontWeight: "bold",
+                }}
+                onClick={fnRunGrpEmailProcess}
+              >
+                Email Price Book(s)
+              </Button>
+            </Stack>
 
             <MessageAlertDialog
               open={isRemovePriceList}
@@ -1147,11 +1275,11 @@ export default function RunPriceBook() {
                     onClick={async () => {
                       if (pendingAction) {
                         //For delete
-                         await dispatch(
-                            deleteCustomerPriceBookItem({
-                              customerNo: pendingAction.row.customernumber,
-                            })
-                          );
+                        await dispatch(
+                          deleteCustomerPriceBookItem({
+                            customerNo: pendingAction.row.customernumber,
+                          }),
+                        );
 
                         dispatch(
                           CustomerConfig({
@@ -1419,6 +1547,8 @@ export default function RunPriceBook() {
             rowHeight={dataGridRowHeight}
             pageSizeOptions={dataGridpageSizeOptions}
             columnVisibilityModel={{
+              customerFullPriceBook: user.companyCode !== "SJ",
+
               Action:
                 user.role !== "USER"
                   ? true
@@ -1486,7 +1616,7 @@ export default function RunPriceBook() {
           {/* Buttons on the right side */}
 
           <Stack direction="row" justifyContent="end" gap={2}>
-            <Button
+            {/* <Button
               variant="contained"
               disabled={isEmailButtonDisabled}
               sx={{
@@ -1500,7 +1630,7 @@ export default function RunPriceBook() {
               onClick={fnRunGrpEmailProcess}
             >
               Email Price Book(s)
-            </Button>
+            </Button> */}
             {/* <Button
               variant="contained"
               sx={{

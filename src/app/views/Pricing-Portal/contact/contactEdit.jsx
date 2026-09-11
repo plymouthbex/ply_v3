@@ -245,6 +245,14 @@ const ConfigureContactEdit = () => {
       hide: true,
     },
     {
+      headerName: "CommunicationType",
+      field: "CommunicationType",
+      width: "200",
+      align: "left",
+      headerAlign: "left",
+      hide: true,
+    },
+    {
       field: "Action",
       headerName: "Action",
       minWidth: 100,

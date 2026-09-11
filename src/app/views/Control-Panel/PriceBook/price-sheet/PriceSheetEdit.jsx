@@ -117,8 +117,8 @@ const Container = styled("div")(({ theme }) => ({
 // ***** PRINT COLUMN DEFAULTS - used to seed "add" mode (all OFF) ***** //
 const PRINT_COLUMN_DEFAULTS = [
   { id: "PrintItemNo", label: "Item Number", enabled: true },
-    { id: "PrintItemDesc", label: "Item Description", enabled: true },
-    { id: "PrintPrice", label: "Price", enabled: true },
+  { id: "PrintItemDesc", label: "Item Description", enabled: true },
+  { id: "PrintPrice", label: "Price", enabled: true },
   {
     id: "PrintSpanishItemDesc",
     label: "Custom Description",
@@ -227,91 +227,89 @@ const PriceSheetEdit = () => {
 
   const AdHocRows = useSelector((state) => state.getSlice.postAdHocData);
 
+  //Column_Edit_Section
+  // =============================================================
+  // ROW EDITING
+  // =============================================================
 
-//Column_Edit_Section
-// =============================================================
-// ROW EDITING
-// =============================================================
+  const [rowModesModel, setRowModesModel] = React.useState({});
 
-const [rowModesModel, setRowModesModel] = React.useState({});
+  const handleRowEditStop = (params, event) => {
+    // Prevent the row from automatically leaving edit mode
+    // when focus moves outside the row.
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
+    }
+  };
 
-const handleRowEditStop = (params, event) => {
-  // Prevent the row from automatically leaving edit mode
-  // when focus moves outside the row.
-  if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-    event.defaultMuiPrevented = true;
-  }
-};
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
-const handleRowModesModelChange = (newRowModesModel) => {
-  setRowModesModel(newRowModesModel);
-};
+  // -------------------------------------------------------------
+  // EDIT
+  // -------------------------------------------------------------
+  const handleEditClick = (id) => () => {
+    setRowModesModel((oldModel) => ({
+      ...oldModel,
+      [id]: {
+        mode: GridRowModes.Edit,
+      },
+    }));
+  };
 
-// -------------------------------------------------------------
-// EDIT
-// -------------------------------------------------------------
-const handleEditClick = (id) => () => {
-  setRowModesModel((oldModel) => ({
-    ...oldModel,
-    [id]: {
-      mode: GridRowModes.Edit,
-    },
-  }));
-};
+  // -------------------------------------------------------------
+  // SAVE
+  // -------------------------------------------------------------
+  const handleSaveClick = (id) => () => {
+    setRowModesModel((oldModel) => ({
+      ...oldModel,
+      [id]: {
+        mode: GridRowModes.View,
+      },
+    }));
+  };
 
-// -------------------------------------------------------------
-// SAVE
-// -------------------------------------------------------------
-const handleSaveClick = (id) => () => {
-  setRowModesModel((oldModel) => ({
-    ...oldModel,
-    [id]: {
-      mode: GridRowModes.View,
-    },
-  }));
-};
+  // -------------------------------------------------------------
+  // CANCEL
+  // -------------------------------------------------------------
+  const handleCancelClick = (id) => () => {
+    setRowModesModel((oldModel) => ({
+      ...oldModel,
+      [id]: {
+        mode: GridRowModes.View,
+        ignoreModifications: true,
+      },
+    }));
+  };
 
-// -------------------------------------------------------------
-// CANCEL
-// -------------------------------------------------------------
-const handleCancelClick = (id) => () => {
-  setRowModesModel((oldModel) => ({
-    ...oldModel,
-    [id]: {
-      mode: GridRowModes.View,
-      ignoreModifications: true,
-    },
-  }));
-};
+  // -------------------------------------------------------------
+  // PROCESS ROW UPDATE
+  // -------------------------------------------------------------
+  const processRowUpdate = (newRow, oldRow) => {
+    console.log("OLD ROW:", oldRow);
+    console.log("NEW ROW:", newRow);
 
-// -------------------------------------------------------------
-// PROCESS ROW UPDATE
-// -------------------------------------------------------------
-const processRowUpdate = (newRow, oldRow) => {
-  console.log("OLD ROW:", oldRow);
-  console.log("NEW ROW:", newRow);
+    setLocalPriceSheetItems((currentRows) =>
+      currentRows.map((row) => {
+        const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
 
-  setLocalPriceSheetItems((currentRows) =>
-    currentRows.map((row) => {
-      const rowId =
-        row.RecordId || `${row.Item_Number}-${row.sequence}`;
+        const newRowId =
+          newRow.RecordId || `${newRow.Item_Number}-${newRow.sequence}`;
 
-      const newRowId =
-        newRow.RecordId || `${newRow.Item_Number}-${newRow.sequence}`;
+        if (rowId === newRowId) {
+          return {
+            ...row,
+            ...newRow,
+          };
+        }
 
-      if (rowId === newRowId) {
-        return {
-          ...row,
-          ...newRow,
-        };
-      }
+        return row;
+      }),
+    );
 
-      return row;
-    }),
-  );
-
-  return newRow;
-};
+    return newRow;
+  };
 
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
@@ -322,7 +320,7 @@ const processRowUpdate = (newRow, oldRow) => {
       align: "left",
       headerAlign: "left",
       hide: false,
-       editable: false,
+      editable: false,
     },
     {
       headerName: "Item Description",
@@ -331,108 +329,105 @@ const processRowUpdate = (newRow, oldRow) => {
       align: "left",
       headerAlign: "left",
       hide: false,
-       editable: false,
+      editable: false,
     },
-   {
-  headerName: "Custom Description",
-  field: "Other_Description",
-  minWidth: 250,
-  flex: 1,
-  align: "left",
-  headerAlign: "left",
-  editable: true,
-},
- 
+    {
+      headerName: "Custom Description",
+      field: "Other_Description",
+      minWidth: 250,
+      flex: 1,
+      align: "left",
+      headerAlign: "left",
+      editable: true,
+    },
 
-  {
-    field: "Action",
-    headerName: "Action",
-    type: "actions",
-    minWidth: 150,
-    width: 150,
-    sortable: false,
-    headerAlign: "center",
-    filterable: false,
-    disableColumnMenu: true,
-    disableExport: true,
-    align: "center",
+    {
+      field: "Action",
+      headerName: "Action",
+      type: "actions",
+      minWidth: 150,
+      width: 150,
+      sortable: false,
+      headerAlign: "center",
+      filterable: false,
+      disableColumnMenu: true,
+      disableExport: true,
+      align: "center",
 
-    getActions: (params) => {
-      const { id } = params;
+      getActions: (params) => {
+        const { id } = params;
 
-      const isInEditMode =
-        rowModesModel[id]?.mode === GridRowModes.Edit;
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
-      // -------------------------------------------------------
-      // ROW IS IN EDIT MODE
-      // -------------------------------------------------------
-      if (isInEditMode) {
+        // -------------------------------------------------------
+        // ROW IS IN EDIT MODE
+        // -------------------------------------------------------
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              key={`save-${id}`}
+              icon={<SaveIcon />}
+              label="Save"
+              onClick={handleSaveClick(id)}
+              color="primary"
+            />,
+
+            <GridActionsCellItem
+              key={`cancel-${id}`}
+              icon={<CancelIcon />}
+              label="Cancel"
+              onClick={handleCancelClick(id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        // -------------------------------------------------------
+        // NORMAL VIEW MODE
+        // -------------------------------------------------------
         return [
           <GridActionsCellItem
-            key={`save-${id}`}
-            icon={<SaveIcon />}
-            label="Save"
-            onClick={handleSaveClick(id)}
+            key={`edit-${id}`}
+            icon={<EditIcon />}
+            label="Edit"
+            onClick={handleEditClick(id)}
+            disabled={isReadOnly}
             color="primary"
           />,
 
           <GridActionsCellItem
-            key={`cancel-${id}`}
-            icon={<CancelIcon />}
-            label="Cancel"
-            onClick={handleCancelClick(id)}
-            color="inherit"
+            key={`delete-${id}`}
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={() => {
+              setItemToDelete(params.row.Item_Number);
+              setIsRemoveItem1(true);
+            }}
+            disabled={isReadOnly}
+            color="error"
           />,
         ];
-      }
+      },
+      //   renderCell: (param) => {
+      //     return (
 
-      // -------------------------------------------------------
-      // NORMAL VIEW MODE
-      // -------------------------------------------------------
-      return [
-        <GridActionsCellItem
-          key={`edit-${id}`}
-          icon={<EditIcon />}
-          label="Edit"
-          onClick={handleEditClick(id)}
-          disabled={isReadOnly}
-          color="primary"
-        />,
-
-        <GridActionsCellItem
-          key={`delete-${id}`}
-          icon={<DeleteIcon />}
-          label="Delete"
-          onClick={() => {
-            setItemToDelete(params.row.Item_Number);
-            setIsRemoveItem1(true);
-          }}
-          disabled={isReadOnly}
-          color="error"
-        />,
-        ];
-     },
-    //   renderCell: (param) => {
-    //     return (
-            
-    //       <IconButton
-    //         sx={{ height: 25, marginLeft: 2 }}
-    //         variant="contained"
-    //         color="error"
-    //         size="small"
-    //         onClick={() => {
-    //           setItemToDelete(param.row.Item_Number);
-    //           setIsRemoveItem1(true);
-    //         }}
-    //         disabled={
-    //           params.mode === "delete" || params.mode === "view" ? true : false
-    //         }
-    //       >
-    //         <DeleteIcon size="small" />
-    //       </IconButton>
-    //     );
-    //   },
-
+      //       <IconButton
+      //         sx={{ height: 25, marginLeft: 2 }}
+      //         variant="contained"
+      //         color="error"
+      //         size="small"
+      //         onClick={() => {
+      //           setItemToDelete(param.row.Item_Number);
+      //           setIsRemoveItem1(true);
+      //         }}
+      //         disabled={
+      //           params.mode === "delete" || params.mode === "view" ? true : false
+      //         }
+      //       >
+      //         <DeleteIcon size="small" />
+      //       </IconButton>
+      //     );
+      //   },
     },
   ];
   const [quickFilterText, setQuickFilterText] = useState("");
@@ -539,7 +534,18 @@ const processRowUpdate = (newRow, oldRow) => {
 
   const [showAlignmentWarning, setShowAlignmentWarning] = useState(false);
   const pendingSaveRef = useRef(null); // holds { values, setSubmitting } while warning is shown
-  const handleSavePriceSheet = async (values, setSubmitting, skipAlignmentCheck = false) => {
+
+  const [showRowCountWarning, setShowRowCountWarning] = useState(false);
+  const [warningRowCount, setWarningRowCount] = useState(0);
+  const [warningItemsPerRow, setWarningItemsPerRow] = useState(1);
+  const pendingRowCountSaveRef = useRef(null);
+
+  const handleSavePriceSheet = async (
+    values,
+    setSubmitting,
+    skipAlignmentCheck = false,
+    skipRowCountCheck = false,
+  ) => {
     // ==========================================
     // ALIGNMENT VALIDATION
     // 2 items per row + more than 4 enabled print columns
@@ -547,6 +553,24 @@ const processRowUpdate = (newRow, oldRow) => {
     const enabledPrintColumnsCount = printColumns.filter(
       (column) => column.enabled === true,
     ).length;
+
+    const itemCount = localPriceSheetItems.length;
+
+    const itemsPerRow = Number(values.pdfFormat) || 1;
+
+    // const rowCount = Math.ceil(itemCount / itemsPerRow);
+    // console.log("Item row ocunt", rowCount);
+
+    const rowLimit = itemsPerRow === 2 ? 80 : 50;
+
+    if (!skipRowCountCheck && params.mode !== "delete" && itemCount  > rowLimit) {
+      // Save values so we can continue after user clicks Yes
+      pendingRowCountSaveRef.current = { values, setSubmitting }; // Store values for warning message
+      setWarningRowCount(itemCount);
+      setWarningItemsPerRow(itemsPerRow);
+      setShowRowCountWarning(true);
+      return;
+    }
 
     if (
       !skipAlignmentCheck &&
@@ -563,8 +587,8 @@ const processRowUpdate = (newRow, oldRow) => {
       setSubmitting(true);
       console.log(user, "-find user inside handleSavePriceSheet");
       if (params.mode === "delete") {
-         priceSheetDeleteFn();
-         return;
+        priceSheetDeleteFn();
+        return;
       }
       // ==========================================
       // 1. POST PRICE SHEET HEADER
@@ -575,7 +599,7 @@ const processRowUpdate = (newRow, oldRow) => {
 
         priceSheetName: values.priceListDescription,
 
-        printPriceList: values.printPriceList??false,
+        printPriceList: values.printPriceList ?? false,
         printCategory: values.printCategory,
 
         printItemNo: values.printItemNo,
@@ -593,7 +617,7 @@ const processRowUpdate = (newRow, oldRow) => {
         createdBy:
           params.mode === "add"
             ? user.id.toString()
-            :  user.id.toString()||priceSheetHeaderData.CreatedBy.toString() ,
+            : user.id.toString() || priceSheetHeaderData.CreatedBy.toString(),
 
         noOfItemPerRows: Number(values.pdfFormat) || 1,
       };
@@ -621,7 +645,7 @@ const processRowUpdate = (newRow, oldRow) => {
       if (!newPriceSheetID) {
         throw new Error("Price Sheet ID was not returned from PostPriceSheet.");
       }
-        setpriceSheetRecordID(newPriceSheetID);
+      setpriceSheetRecordID(newPriceSheetID);
       // ==========================================
       // 2. POST PRICE SHEET DETAIL
       // ==========================================
@@ -690,7 +714,34 @@ const processRowUpdate = (newRow, oldRow) => {
       setSubmitting(false);
     }
   };
-    const confirmAlignmentWarningYes = () => {
+
+  const confirmRowCountWarningYes = () => {
+    setShowRowCountWarning(false);
+
+    const pending = pendingRowCountSaveRef.current;
+    pendingRowCountSaveRef.current = null;
+
+    if (pending) {
+     handleSavePriceSheet( pending.values, 
+      pending.setSubmitting,
+       false, 
+       true, 
+       );
+      }
+  };
+
+  const confirmRowCountWarningNo = () => {
+    setShowRowCountWarning(false);
+
+    const pending = pendingRowCountSaveRef.current;
+    pendingRowCountSaveRef.current = null;
+
+    if (pending) {
+      pending.setSubmitting(false);
+    }
+  };
+
+  const confirmAlignmentWarningYes = () => {
     setShowAlignmentWarning(false);
     const pending = pendingSaveRef.current;
     pendingSaveRef.current = null;
@@ -745,8 +796,7 @@ const processRowUpdate = (newRow, oldRow) => {
   const isPriceListIDExists = (e, setSubmitting) => {
     const inputValue = e.target.value.trim();
     const matchedItem = priceRows.find(
-      (item) =>
-        item.PriceSheetName.toLowerCase() == inputValue.toLowerCase(),
+      (item) => item.PriceSheetName.toLowerCase() == inputValue.toLowerCase(),
     );
     if (matchedItem) {
       navigate("/pages/control-panel/price-sheet/price-sheet-detail/edit", {
@@ -864,17 +914,17 @@ const processRowUpdate = (newRow, oldRow) => {
 
   const priceSheetDeleteFn = async (values, setSubmitting) => {
     try {
-      dispatch(priceSheetDelete({ id: priceSheetHeaderData.PriceSheetID })).then(
-        (response) => {
-          if (response.payload.status === "Y") {
-            setOpenAlert(true);
-            setSuccessMessage(response.payload.message);
-          } else {
-            setOpenAlert(true);
-            setPostError(response.payload.message);
-          }
-        },
-      );
+      dispatch(
+        priceSheetDelete({ id: priceSheetHeaderData.PriceSheetID }),
+      ).then((response) => {
+        if (response.payload.status === "Y") {
+          setOpenAlert(true);
+          setSuccessMessage(response.payload.message);
+        } else {
+          setOpenAlert(true);
+          setPostError(response.payload.message);
+        }
+      });
     } catch (e) {
       console.log("priceListSaveFn error:", e);
     }
@@ -901,11 +951,10 @@ const processRowUpdate = (newRow, oldRow) => {
           id: state.id,
         }),
       );
-    }
-    else{
+    } else {
       dispatch(
         getPriceSheetData({
-          id: 0
+          id: 0,
         }),
       );
     }
@@ -965,7 +1014,7 @@ const processRowUpdate = (newRow, oldRow) => {
 
             priceListDescription:
               params.mode === "add"
-                ? priceSheetHeaderData.PriceSheetName|| ""
+                ? priceSheetHeaderData.PriceSheetName || ""
                 : priceSheetHeaderData.PriceSheetName || "",
 
             pdfFormat:
@@ -1155,7 +1204,7 @@ const processRowUpdate = (newRow, oldRow) => {
                       <MenuItem value="2">2 item per row</MenuItem>
                     </Select>
                   </FormControl>
-                  <Stack
+                  {/* <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="row"
                     alignItems="center"
@@ -1176,7 +1225,7 @@ const processRowUpdate = (newRow, oldRow) => {
                       }
                       label="Print Category Name"
                     />
-                  </Stack>
+                  </Stack> */}
 
                   {/* <Stack
                     sx={{ gridColumn: "span 1" }}
@@ -1446,9 +1495,17 @@ const processRowUpdate = (newRow, oldRow) => {
                         Note: If the number of items exceeds 80, the items may be printed across multiple pages.
                       </Typography>
                     </Box> */}
-                      {/* NOTE SECTION (Plain Black & Bold Text with Dynamic Item Limit) */}
+                    {/* NOTE SECTION (Plain Black & Bold Text with Dynamic Item Limit) */}
                     {/* NOTE SECTION (Blue & Bold Text + Dynamic 50 / 80 Limit) */}
-                    <Box sx={{ mt: 1, mb: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        mt: 1,
+                        mb: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 0.5,
+                      }}
+                    >
                       <Typography
                         sx={{
                           color: "#1976d2", // Blue text color
@@ -1456,7 +1513,8 @@ const processRowUpdate = (newRow, oldRow) => {
                           fontSize: "12px",
                         }}
                       >
-                       Only the columns turned on in the above grid will be printed in the Price Book.
+                        Only the columns turned on in the above grid will be
+                        printed in the Price Book.
                       </Typography>
 
                       <Typography
@@ -1466,7 +1524,9 @@ const processRowUpdate = (newRow, oldRow) => {
                           fontSize: "12px",
                         }}
                       >
-                        Note: If the number of items exceeds {values.pdfFormat?.toString() === "1" ? 50 : 80}, the items may be printed across multiple pages.
+                        Note: If the number of items exceeds{" "}
+                        {values.pdfFormat?.toString() === "1" ? 50 : 80}, the
+                        items may be printed across multiple pages.
                       </Typography>
                     </Box>
 
@@ -1621,7 +1681,7 @@ const processRowUpdate = (newRow, oldRow) => {
                               RecordId: 0,
                               Item_Number: item.Item_Number,
                               Item_Description: item.Item_Description || "",
-                            //   Custom_Description: item.Custom_Description || "",
+                              //   Custom_Description: item.Custom_Description || "",
                               Other_Description: item.Other_Description || "",
                               ItemRecordID:
                                 item.ItemRecordID ||
@@ -1689,51 +1749,42 @@ const processRowUpdate = (newRow, oldRow) => {
                       disableDensitySelector
                     /> */}
                     <DataGrid
- columnHeaderHeight={dataGridHeaderFooterHeight}
-  rowHeight={dataGridRowHeight}
-
-  rows={localPriceSheetItems}
-  columns={columns}
-
-  loading={priceSheetLoading}
-
-  // Row editing
-  editMode="row"
-  rowModesModel={rowModesModel}
-  onRowModesModelChange={handleRowModesModelChange}
-  onRowEditStop={handleRowEditStop}
-  processRowUpdate={processRowUpdate}
-
-  // Selection
-  disableRowSelectionOnClick
-
-  // Row ID
-  getRowId={(row) =>
-    row.RecordId || `${row.Item_Number}-${row.sequence}`
-  }
-
-  // Pagination
-  initialState={{
-    pagination: {
-      paginationModel: {
-        pageSize: dataGridPageSize,
-      },
-    },
-  }}
-
-  pageSizeOptions={dataGridpageSizeOptions}
-
-  // Quick filter
-  filterModel={{
-    items: [],
-    quickFilterValues: [quickFilterText],
-  }}
-
-  // Disable unwanted menus
-  disableColumnFilter
-  disableColumnSelector
-  disableDensitySelector
-/>
+                      columnHeaderHeight={dataGridHeaderFooterHeight}
+                      rowHeight={dataGridRowHeight}
+                      rows={localPriceSheetItems}
+                      columns={columns}
+                      loading={priceSheetLoading}
+                      // Row editing
+                      editMode="row"
+                      rowModesModel={rowModesModel}
+                      onRowModesModelChange={handleRowModesModelChange}
+                      onRowEditStop={handleRowEditStop}
+                      processRowUpdate={processRowUpdate}
+                      // Selection
+                      disableRowSelectionOnClick
+                      // Row ID
+                      getRowId={(row) =>
+                        row.RecordId || `${row.Item_Number}-${row.sequence}`
+                      }
+                      // Pagination
+                      initialState={{
+                        pagination: {
+                          paginationModel: {
+                            pageSize: dataGridPageSize,
+                          },
+                        },
+                      }}
+                      pageSizeOptions={dataGridpageSizeOptions}
+                      // Quick filter
+                      filterModel={{
+                        items: [],
+                        quickFilterValues: [quickFilterText],
+                      }}
+                      // Disable unwanted menus
+                      disableColumnFilter
+                      disableColumnSelector
+                      disableDensitySelector
+                    />
 
                     <Box
                       sx={{
@@ -1923,7 +1974,6 @@ const processRowUpdate = (newRow, oldRow) => {
           )}
         </Formik>
       )}
-
       <AlertDialog
         key={7846694}
         logo={`data:image/png;base64,${user.logo}`}
@@ -1946,7 +1996,6 @@ const processRowUpdate = (newRow, oldRow) => {
           </Box>
         }
       />
-
       <AlertDialog
         key={7846695}
         logo={`data:image/png;base64,${user.logo}`}
@@ -1973,7 +2022,6 @@ const processRowUpdate = (newRow, oldRow) => {
           </Box>
         }
       />
-
       <AlertDialog
         key={854946}
         logo={`data:image/png;base64,${user.logo}`}
@@ -1994,17 +2042,18 @@ const processRowUpdate = (newRow, oldRow) => {
                 variant="contained"
                 color="info"
                 size="small"
-                onClick={() => {setOpenAlert(false)
+                onClick={() => {
+                  setOpenAlert(false);
                   navigate(
-                "/pages/control-panel/price-sheet/price-sheet-detail/edit",
-                {
-                  state: {
-                    id: priceSheetRecordID,
-                    companyCode: state.companyCode,
-                    companyRecordID: state.companyRecordID,
-                  },
-                }
-              );
+                    "/pages/control-panel/price-sheet/price-sheet-detail/edit",
+                    {
+                      state: {
+                        id: priceSheetRecordID,
+                        companyCode: state.companyCode,
+                        companyRecordID: state.companyRecordID,
+                      },
+                    },
+                  );
                 }}
               >
                 Close
@@ -2017,15 +2066,15 @@ const processRowUpdate = (newRow, oldRow) => {
                 onClick={() => {
                   // dispatch(getPriceSheetData({ id: 0 }));
                   // setOpenAlert(false);
-                   navigate("/pages/control-panel/price-sheet", {
-                        state: {
-                          id: companyID,
-                          code: companyID,
-                        },
-                      });
+                  navigate("/pages/control-panel/price-sheet", {
+                    state: {
+                      id: companyID,
+                      code: companyID,
+                    },
+                  });
                 }}
               >
-                 Back To Price Sheet
+                Back To Price Sheet
               </Button>
             </Box>
           ) : (
@@ -2090,7 +2139,6 @@ const processRowUpdate = (newRow, oldRow) => {
           )
         }
       />
-
       <AlertDialog
         key={85963}
         logo={`data:image/png;base64,${user.logo}`}
@@ -2116,7 +2164,6 @@ const processRowUpdate = (newRow, oldRow) => {
           </Box>
         }
       />
-
       <MessageAlertDialog
         open={isRemoveItem1}
         logo={`data:image/png;base64,${user.logo}`}
@@ -2149,7 +2196,48 @@ const processRowUpdate = (newRow, oldRow) => {
           </Box>
         }
       />
-            <MessageAlertDialog
+
+      <MessageAlertDialog
+        open={showRowCountWarning}
+        logo={`data:image/png;base64,${user.logo}`}
+        tittle={""}
+        message={`The Price Sheet contains more than ${
+          warningItemsPerRow === 2 ? 80 : 50
+        } rows. With ${warningItemsPerRow} item${
+          warningItemsPerRow > 1 ? "s" : ""
+        } per row, the current Price Sheet contains ${warningRowCount} rows. The Price Sheet may be printed across multiple pages. Do you want to continue?`}
+        Actions={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={confirmRowCountWarningYes}
+            >
+              Yes
+            </Button>
+
+            <Button
+              sx={{ mr: 1, height: 25 }}
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={confirmRowCountWarningNo}
+            >
+              No
+            </Button>
+          </Box>
+        }
+      />
+      
+      <MessageAlertDialog
         open={showAlignmentWarning}
         logo={`data:image/png;base64,${user.logo}`}
         // error={true}
@@ -2180,7 +2268,6 @@ const processRowUpdate = (newRow, oldRow) => {
           </Box>
         }
       />
-
       <AlertDialog
         key={5826}
         logo={`data:image/png;base64,${user.logo}`}
@@ -2207,7 +2294,6 @@ const processRowUpdate = (newRow, oldRow) => {
           </Box>
         }
       />
-
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>Price Sheet Information</DialogTitle>
         <DialogContent dividers>

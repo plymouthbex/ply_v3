@@ -86,7 +86,7 @@ const Container = styled("div")(({ theme }) => ({
 
 const formatPhoneNumber = (value) => {
   // Remove all non-digit characters
-  const phoneNumber = value.replace(/\D/g, '');
+  const phoneNumber = value.replace(/\D/g, "");
 
   // Format only if 10 digits
   if (phoneNumber.length <= 3) {
@@ -111,15 +111,14 @@ const ContactEdit = () => {
   const State = location.state;
   console.log("🚀 ~ ContactEdit ~ State:", State);
 
-
   const validationSchema = Yup.object({
     name: Yup.string()
       .min(3, "Name must be at least 3 characters")
       .max(60, "Name must be at most 60 characters"),
-  
-  //  phonenumber: Yup.string()
-  //          .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
-  //          .required("Phone number is required"),
+
+    //  phonenumber: Yup.string()
+    //          .matches(/^\(\d{3}\) \d{3}-\d{4}$/, "Phone number must be in the format (XXX) XXX-XXXX")
+    //          .required("Phone number is required"),
     email: Yup.string()
       .email("Must be a valid email")
       .required("Email is required"),
@@ -137,9 +136,9 @@ const ContactEdit = () => {
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getConfigContactData);
-  console.log("🚀 ~ ContactEdit ~ data:", data)
+  console.log("🚀 ~ ContactEdit ~ data:", data);
   const loading = useSelector(
-    (state) => state.getSlice.getConfigContactLoading
+    (state) => state.getSlice.getConfigContactLoading,
   );
   const status = useSelector((state) => state.getSlice.getConfigContactStatus);
   const error = useSelector((state) => state.getSlice.getConfigContactError);
@@ -164,10 +163,13 @@ const ContactEdit = () => {
       Provider: values.provider,
       FirstName: values.firstName,
       LastName: values.lastName,
+      CommunicationType: values.CommunicationType,
       Disable: values.disable ? "1" : "0",
     };
     const response = await dispatch(
-      params.mode === "add" ? postConfigContact(data1) : putConfigContact(data1)
+      params.mode === "add"
+        ? postConfigContact(data1)
+        : putConfigContact(data1),
     );
     if (response.payload.status === "Y") {
       setOpenAlert(true);
@@ -183,7 +185,7 @@ const ContactEdit = () => {
 
   const handleDelete = async (values, setSubmitting) => {
     const response = await dispatch(
-      deleteConfigContact({ RecordID: data.RecordID })
+      deleteConfigContact({ RecordID: data.RecordID }),
     );
     if (response.payload.status === "Y") {
       setOpenAlert(true);
@@ -204,6 +206,7 @@ const ContactEdit = () => {
             provider: data.Provider,
             sequence: data.Sequence,
             phonenumber: data.Phone,
+            CommunicationType: data.CommunicationType || "Text",
             preferedMail: data.PreferedMail === "1" ? true : false,
             preferedMobile: data.PreferedMobile === "1" ? true : false,
             disable: data.Disable === "1" ? true : false,
@@ -240,7 +243,7 @@ const ContactEdit = () => {
                       name: "Contact Directory",
                       path: "/pages/pricing-portal/contact-directory",
                     },
-                    { name: "Contacts",path:-1 },
+                    { name: "Contacts", path: -1 },
                     { name: `${params.mode} Contact` },
                   ]}
                 />
@@ -406,7 +409,7 @@ const ContactEdit = () => {
                     helperText={touched.phonenumber && errors.phonenumber}
                     // required
                   />
- < FormikCustomSelectProvider
+                  <FormikCustomSelectProvider
                     name="provider"
                     id="provider"
                     sx={{ gridColumn: "span 2" }}
@@ -459,6 +462,7 @@ const ContactEdit = () => {
                     helperText={touched.email && errors.email}
                     disabled={params?.mode === "delete"}
                   />
+
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
                     component="fieldset"
@@ -467,6 +471,8 @@ const ContactEdit = () => {
                     <FormLabel focused={false} component="legend">
                       Preferred Communication
                     </FormLabel>
+
+                    {/* First line: Email + Mobile + Communication Type */}
                     <Stack direction="row" gap={2}>
                       <FormControlLabel
                         disabled={params?.mode === "delete"}
@@ -476,10 +482,12 @@ const ContactEdit = () => {
                             name="preferedMail"
                             checked={values.preferedMail}
                             onChange={handleChange}
+                            size="small"
                           />
                         }
                         label="Email"
                       />
+
                       <FormControlLabel
                         disabled={params?.mode === "delete"}
                         control={
@@ -488,12 +496,49 @@ const ContactEdit = () => {
                             name="preferedMobile"
                             checked={values.preferedMobile}
                             onChange={handleChange}
+                            size="small"
                           />
                         }
                         label="Mobile"
                       />
+
+                      {/* Show dropdown only when Mobile is selected */}
+                      {values.preferedMobile && (
+                        <TextField
+                          select
+                          size="small"
+                          label="Communication Type"
+                          id="CommunicationType"
+                          name="CommunicationType"
+                          value={values.CommunicationType || "Text"}
+                          onChange={handleChange}
+                          disabled={params?.mode === "delete"}
+                          sx={{
+                            width: 180,
+                          }}
+                        >
+                          <MenuItem value="Text">Text</MenuItem>
+                          <MenuItem value="WhatsApp">WhatsApp</MenuItem>
+                        </TextField>
+                      )}
                     </Stack>
                   </FormControl>
+
+                  {/* Second line: Disable */}
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        id="disable"
+                        name="disable"
+                        checked={values.disable}
+                        onChange={handleChange}
+                        disabled={params?.mode === "delete"}
+                      />
+                    }
+                    label="Disable"
+                  />
+
                   {/* <Stack sx={{ gridColumn: "span 2" }} direction="row" gap={2}>
                     <FormControlLabel
                       control={
@@ -530,8 +575,7 @@ const ContactEdit = () => {
                     />
                   </Stack> */}
 
-                  <FormControlLabel
-                  
+                  {/* <FormControlLabel
                     control={
                       <Checkbox
                         size="small"
@@ -543,7 +587,7 @@ const ContactEdit = () => {
                       />
                     }
                     label="Disable"
-                  />
+                  /> */}
                   {/* {params.mode === 'delete' ? <Typography color="error">IN PROGRESS</Typography>: false} */}
                 </Box>
               </Paper>
@@ -616,10 +660,10 @@ const ContactEdit = () => {
           postError
             ? "Something went wrong and please retry"
             : params.mode === "add"
-            ? "Contact added successfully"
-            : params.mode === "delete"
-            ? "Contact deleted successfully"
-            : "Contact updated successfully"
+              ? "Contact added successfully"
+              : params.mode === "delete"
+                ? "Contact deleted successfully"
+                : "Contact updated successfully"
         }
         Actions={
           <DialogActions>
@@ -629,7 +673,7 @@ const ContactEdit = () => {
               size="small"
               onClick={() => {
                 setOpenAlert(false);
-                navigate(-1)
+                navigate(-1);
               }}
             >
               Back

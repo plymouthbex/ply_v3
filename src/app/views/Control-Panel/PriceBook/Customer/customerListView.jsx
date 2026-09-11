@@ -72,13 +72,13 @@ const Customer = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
-  console.log("🚀 ~ Customer ~ State:", State)
+  console.log("🚀 ~ Customer ~ State:", State);
   const { user } = useAuth();
   // ********************* LOCAL STATE ********************* //
 
   // ********************* REDUX STATE ********************* //
   const customerRows = useSelector(
-    (state) => state.listview.configureCustomerListViewData
+    (state) => state.listview.configureCustomerListViewData,
   );
 
   useEffect(() => {
@@ -98,108 +98,109 @@ const Customer = () => {
     {
       headerName: "Customer Name",
       field: "CustomerName",
-      minWidth: State?.Code !== "SJ"?250:450,
+      minWidth: State?.Code !== "SJ" ? 250 : 450,
       // flex: 1,
       align: "left",
       headerAlign: "left",
       hide: false,
     },
-     ...(State?.Code !== "SJ"
-    ? [
-    {
-      headerName: "Price Level",
-      field: "PriceLevel",
-      width: 150,
-      align: "right",
-      headerAlign: "center",
-      hide: false,
-    }]:[]),
+    ...(State?.Code !== "SJ"
+      ? [
+          {
+            headerName: "Price Level",
+            field: "PriceLevel",
+            width: 150,
+            align: "right",
+            headerAlign: "center",
+            hide: false,
+          },
+        ]
+      : []),
     {
       headerName: "Price Book group",
       field: "Rungroup",
-      width: State?.Code !== "SJ"?150:200,
+      width: State?.Code !== "SJ" ? 150 : 200,
       align: "left",
       headerAlign: "left",
       hide: false,
     },
     // Full Price Book - hide completely for SJ
-  ...(State?.Code !== "SJ"
-    ? [
-        {
-          field: "FullPriceBook",
-          headerName: "Full Price Book",
-          width: 180,
-          align: "center",
-          headerAlign: "center",
-          sortable: false,
-          filterable: false,
-          disableColumnMenu: true,
-          disableExport: true,
-          renderCell: (params) => (
-            <div>
-              <Checkbox
-                checked={params.row.FullPriceBookExcel}
-                onChange={(e) => {
-                  dispatch(
-                    CustomerConfig({
-                      CustomerNumber: params.row.CustomerNumber,
-                      Type: "FullPriceBookExcel",
-                      Value: e.target.checked ? "1" : "0",
-                    })
-                  );
+    ...(State?.Code !== "SJ"
+      ? [
+          {
+            field: "FullPriceBook",
+            headerName: "Full Price Book",
+            width: 180,
+            align: "center",
+            headerAlign: "center",
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            disableExport: true,
+            renderCell: (params) => (
+              <div>
+                <Checkbox
+                  checked={params.row.FullPriceBookExcel}
+                  onChange={(e) => {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.CustomerNumber,
+                        Type: "FullPriceBookExcel",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
 
-                  dispatch(
-                    onCheckboxChangeCustomer({
-                      id: params.row.RecordID,
-                      field: "FullPriceBookExcel",
-                    })
-                  );
-                }}
-                sx={{
-                  color: "#174c4f",
-                  "&.Mui-checked": {
+                    dispatch(
+                      onCheckboxChangeCustomer({
+                        id: params.row.RecordID,
+                        field: "FullPriceBookExcel",
+                      }),
+                    );
+                  }}
+                  sx={{
                     color: "#174c4f",
-                  },
-                }}
-              />
-              Excel
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+                Excel
+                <Checkbox
+                  checked={params.row.FullPriceBookPdf}
+                  onChange={(e) => {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.CustomerNumber,
+                        Type: "FullPriceBookPdf",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
 
-              <Checkbox
-                checked={params.row.FullPriceBookPdf}
-                onChange={(e) => {
-                  dispatch(
-                    CustomerConfig({
-                      CustomerNumber: params.row.CustomerNumber,
-                      Type: "FullPriceBookPdf",
-                      Value: e.target.checked ? "1" : "0",
-                    })
-                  );
-
-                  dispatch(
-                    onCheckboxChangeCustomer({
-                      id: params.row.RecordID,
-                      field: "FullPriceBookPdf",
-                    })
-                  );
-                }}
-                sx={{
-                  color: "#174c4f",
-                  "&.Mui-checked": {
+                    dispatch(
+                      onCheckboxChangeCustomer({
+                        id: params.row.RecordID,
+                        field: "FullPriceBookPdf",
+                      }),
+                    );
+                  }}
+                  sx={{
                     color: "#174c4f",
-                  },
-                }}
-              />
-              PDF
-            </div>
-          ),
-        },
-      ]
-    : []),
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+                PDF
+              </div>
+            ),
+          },
+        ]
+      : []),
 
     {
       field: "customerCustomPriceBook",
       headerName: "Custom Price Book",
-      minWidth: 180,
+      minWidth: 250,
       // flex: 1,
       align: "center",
       headerAlign: "center",
@@ -217,13 +218,13 @@ const Customer = () => {
                   CustomerNumber: params.row.CustomerNumber,
                   Type: "CustomrPriceBookExcel",
                   Value: e.target.checked ? "1" : "0",
-                })
+                }),
               );
               dispatch(
                 onCheckboxChangeCustomer({
                   id: params.row.RecordID,
                   field: "CustomPriceBookExcel",
-                })
+                }),
               );
             }}
             sx={{
@@ -242,13 +243,13 @@ const Customer = () => {
                   CustomerNumber: params.row.CustomerNumber,
                   Type: "CustomPriceBookPdf",
                   Value: e.target.checked ? "1" : "0",
-                })
+                }),
               );
               dispatch(
                 onCheckboxChangeCustomer({
                   id: params.row.RecordID,
                   field: "CustomPriceBookPdf",
-                })
+                }),
               );
             }}
             sx={{
@@ -259,120 +260,154 @@ const Customer = () => {
             }}
           />
           PDF
+          {State.Code === "SJ" && (
+            <>
+              <Checkbox
+                checked={params.row.cpjpg}
+                onChange={(e) => {
+                  dispatch(
+                    CustomerConfig({
+                      CustomerNumber: params.row.CustomerNumber,
+                      Type: "CustomerJPG",
+                      Value: e.target.checked ? "1" : "0",
+                    }),
+                  );
+
+                  dispatch(
+                    onCheckboxChangeCustomer({
+                      id: params.row.RecordID,
+                      field: "CustomerJPG",
+                    }),
+                  );
+                }}
+                sx={{
+                  color: "#174c4f",
+                  "&.Mui-checked": {
+                    color: "#174c4f",
+                  },
+                }}
+              />
+              JPG
+            </>
+          )}
         </div>
       ),
     },
-     ...(State?.Code !== "SJ"
-    ? [
-    {
-      field: "ItemType",
-      headerName: "Broken/Damaged",
-      minWidth: 230,
-      // flex: 1,
-      align: "center",
-      headerAlign: "center",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      disableExport: true,
-      renderCell: (params) => (
-        <div>
-          <Checkbox
-            checked={params.row.BrokenItem}
-            onChange={(e) => {
-              dispatch(
-                CustomerConfig({
-                  CustomerNumber: params.row.CustomerNumber,
-                  Type: "BrokenItem",
-                  Value: e.target.checked ? "1" : "0",
-                })
-              );
-              dispatch(
-                onCheckboxChangeCustomer({
-                  id: params.row.RecordID,
-                  field: "BrokenItem",
-                })
-              );
-            }}
-            sx={{
-              color: "#174c4f",
-              "&.Mui-checked": {
-                color: "#174c4f",
-              },
-            }}
-          />
-          Broken
-          <Checkbox
-            checked={params.row.DamageItem}
-            onChange={(e) => {
-              dispatch(
-                CustomerConfig({
-                  CustomerNumber: params.row.CustomerNumber,
-                  Type: "DamageItem",
-                  Value: e.target.checked ? "1" : "0",
-                })
-              );
-              dispatch(
-                onCheckboxChangeCustomer({
-                  id: params.row.RecordID,
-                  field: "DamageItem",
-                })
-              );
-            }}
-            sx={{
-              color: "#174c4f",
-              "&.Mui-checked": {
-                color: "#174c4f",
-              },
-            }}
-          />
-          Damaged
-        </div>
-      ),
-    }]:[]),
-     ...(State?.Code !== "SJ"
-    ? [{
-      field: "CustomerItemNumber",
-      headerName: "Customer Item Number",
-      minWidth: 230,
-      // flex: 1,
-      align: "center",
-      headerAlign: "center",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      disableExport: true,
-      renderCell: (params) => (
-        <div>
-          <Checkbox
-            checked={params.row.CustomerItemNumber}
-            onChange={(e) => {
-              dispatch(
-                CustomerConfig({
-                  CustomerNumber: params.row.CustomerNumber,
-                  Type: "CustomerItemNumber",
-                  Value: e.target.checked ? "1" : "0",
-                })
-              );
-              dispatch(
-                onCheckboxChangeCustomer({
-                  id: params.row.RecordID,
-                  field: "CustomerItemNumber",
-                })
-              );
-            }}
-            sx={{
-              color: "#174c4f",
-              "&.Mui-checked": {
-                color: "#174c4f",
-              },
-            }}
-          />
-          Print
-          
-        </div>
-      ),
-    }]:[]),
+    ...(State?.Code !== "SJ"
+      ? [
+          {
+            field: "ItemType",
+            headerName: "Broken/Damaged",
+            minWidth: 230,
+            // flex: 1,
+            align: "center",
+            headerAlign: "center",
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            disableExport: true,
+            renderCell: (params) => (
+              <div>
+                <Checkbox
+                  checked={params.row.BrokenItem}
+                  onChange={(e) => {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.CustomerNumber,
+                        Type: "BrokenItem",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
+                    dispatch(
+                      onCheckboxChangeCustomer({
+                        id: params.row.RecordID,
+                        field: "BrokenItem",
+                      }),
+                    );
+                  }}
+                  sx={{
+                    color: "#174c4f",
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+                Broken
+                <Checkbox
+                  checked={params.row.DamageItem}
+                  onChange={(e) => {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.CustomerNumber,
+                        Type: "DamageItem",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
+                    dispatch(
+                      onCheckboxChangeCustomer({
+                        id: params.row.RecordID,
+                        field: "DamageItem",
+                      }),
+                    );
+                  }}
+                  sx={{
+                    color: "#174c4f",
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+                Damaged
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(State?.Code !== "SJ"
+      ? [
+          {
+            field: "CustomerItemNumber",
+            headerName: "Customer Item Number",
+            minWidth: 230,
+            // flex: 1,
+            align: "center",
+            headerAlign: "center",
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            disableExport: true,
+            renderCell: (params) => (
+              <div>
+                <Checkbox
+                  checked={params.row.CustomerItemNumber}
+                  onChange={(e) => {
+                    dispatch(
+                      CustomerConfig({
+                        CustomerNumber: params.row.CustomerNumber,
+                        Type: "CustomerItemNumber",
+                        Value: e.target.checked ? "1" : "0",
+                      }),
+                    );
+                    dispatch(
+                      onCheckboxChangeCustomer({
+                        id: params.row.RecordID,
+                        field: "CustomerItemNumber",
+                      }),
+                    );
+                  }}
+                  sx={{
+                    color: "#174c4f",
+                    "&.Mui-checked": {
+                      color: "#174c4f",
+                    },
+                  }}
+                />
+                Print
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       field: "Action",
       headerName: "Action",
@@ -394,75 +429,76 @@ const Customer = () => {
             // </Tooltip> */}
 
             {/* <Tooltip title="Contacts"> */}
-              <IconButton
-                color="black"
-                size="small"
-                onClick={() => {
-                  navigate(
-                    "/pages/control-panel/configure-price-book/customer/configure-contact",
-                    {
-                      state: {
-                        RecordID: params.row.RecordID,
-                        Code: params.row.CustomerNumber,
-                        Name: params.row.CustomerName,
-                        CompanyCode: State.Code,
-                        company: State,
-                        RunGroup:selectedRunGrpOptions,
-                      },
-                    }
-                  );
-                }}
-              >
-                <ContactMailIcon />
-              </IconButton>
+            <IconButton
+              color="black"
+              size="small"
+              onClick={() => {
+                navigate(
+                  "/pages/control-panel/configure-price-book/customer/configure-contact",
+                  {
+                    state: {
+                      RecordID: params.row.RecordID,
+                      Code: params.row.CustomerNumber,
+                      Name: params.row.CustomerName,
+                      CompanyCode: State.Code,
+                      company: State,
+                      RunGroup: selectedRunGrpOptions,
+                    },
+                  },
+                );
+              }}
+            >
+              <ContactMailIcon />
+            </IconButton>
             {/* </Tooltip> */}
 
             {/* <Tooltip title="Price Lists"> */}
-              <IconButton
-                color="black"
-                size="small"
-                onClick={() => {
-                  navigate(
-                    "/pages/control-panel/configure-price-book/customer/edit-Customer/configureEdit",
-                    {
-                      state: {
-                        RecordID: params.row.RecordID,
-                        Code: params.row.CustomerNumber,
-                        Name: params.row.CustomerName,
-                        company: State,
-                        RunGroup:selectedRunGrpOptions,
-                      },
-                    }
-                  );
-                }}
-              >
-                <RequestQuoteIcon />
-              </IconButton>
+            <IconButton
+              color="black"
+              size="small"
+              onClick={() => {
+                navigate(
+                  "/pages/control-panel/configure-price-book/customer/edit-Customer/configureEdit",
+                  {
+                    state: {
+                      RecordID: params.row.RecordID,
+                      Code: params.row.CustomerNumber,
+                      Name: params.row.CustomerName,
+                      company: State,
+                      RunGroup: selectedRunGrpOptions,
+                    },
+                  },
+                );
+              }}
+            >
+              <RequestQuoteIcon />
+            </IconButton>
             {/* </Tooltip> */}
           </div>
         );
       },
     },
   ];
-  
+
   const [postError, setPostError] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [showFiltered, setShowFiltered] = useState(false);
- const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(State?.RunGroup?.Name ? {Name:State?.RunGroup?.Name}:null);
- console.log("🚀 ~ Customer ~ State.RunGroup:",State?.RunGroup?.Name)
- const [selectedRunGrpName, setSelectedRunGrpName] = useState(State?.RunGroup?.Name ? {Name:State?.RunGroup?.Name}:null);
+  const [selectedRunGrpOptions, setSelectedRunGrpOptions] = useState(
+    State?.RunGroup?.Name ? { Name: State?.RunGroup?.Name } : null,
+  );
+  console.log("🚀 ~ Customer ~ State.RunGroup:", State?.RunGroup?.Name);
+  const [selectedRunGrpName, setSelectedRunGrpName] = useState(
+    State?.RunGroup?.Name ? { Name: State?.RunGroup?.Name } : null,
+  );
 
   const handleSelectionRunGrpChange = (newValue) => {
     if (newValue) {
-    setSelectedRunGrpOptions(newValue);
-    setSelectedRunGrpName(newValue.Name)
-    }else{
+      setSelectedRunGrpOptions(newValue);
+      setSelectedRunGrpName(newValue.Name);
+    } else {
       setSelectedRunGrpOptions(null);
-      setSelectedRunGrpName(null)
+      setSelectedRunGrpName(null);
     }
-
- 
-   
 
     // if (newValue) {
     //   dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
@@ -474,31 +510,31 @@ const Customer = () => {
     // }
   };
   console.log("🚀 ~ Customer ~ selectedRunGrpOptions:", selectedRunGrpOptions);
-  console.log("🚀 ~ Customer ~ selectedRunGrpName:", selectedRunGrpName)
+  console.log("🚀 ~ Customer ~ selectedRunGrpName:", selectedRunGrpName);
 
   // const filteredRows=selectedRunGrpOptions?.Name
   // ? customerRows.filter(
   //     (row) =>
-  //       row?.Rungroup === selectedRunGrpOptions?.Name 
+  //       row?.Rungroup === selectedRunGrpOptions?.Name
   //   )
   // : customerRows;
   // Rows where at least one price-book option is configured
-const configuredRows = customerRows.filter(
-  (v) =>
-    v.FullPriceBookExcel ||
-    v.FullPriceBookPdf ||
-    v.CustomPriceBookExcel ||
-    v.CustomPriceBookPdf
-);
+  const configuredRows = customerRows.filter(
+    (v) =>
+      v.FullPriceBookExcel ||
+      v.FullPriceBookPdf ||
+      v.CustomPriceBookExcel ||
+      v.CustomPriceBookPdf,
+  );
 
-// Apply "Show Only Customers Configured" toggle first
-const baseRows = showFiltered ? configuredRows : customerRows;
+  // Apply "Show Only Customers Configured" toggle first
+  const baseRows = showFiltered ? configuredRows : customerRows;
 
-// Then apply the Price Book Group filter on top
-const filteredRows = selectedRunGrpOptions?.Name
-  ? baseRows.filter((row) => row?.Rungroup === selectedRunGrpOptions?.Name)
-  : baseRows;
-  console.log("🚀 ~ handleSelectionRunGrpChange ~ filteredRows:", filteredRows)
+  // Then apply the Price Book Group filter on top
+  const filteredRows = selectedRunGrpOptions?.Name
+    ? baseRows.filter((row) => row?.Rungroup === selectedRunGrpOptions?.Name)
+    : baseRows;
+  console.log("🚀 ~ handleSelectionRunGrpChange ~ filteredRows:", filteredRows);
   // ********************* TOOLBAR ********************* //
   function CustomToolbar() {
     return (
@@ -513,14 +549,14 @@ const filteredRows = selectedRunGrpOptions?.Name
         }}
       >
         {/* Left section */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 ,mb:2}}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
           <Typography fontSize={"16px"}>
             <Typography component="span" fontSize={"16px"} fontWeight="bold">
               Company:
             </Typography>{" "}
             {State.Code} || {State.Name}
           </Typography>
-  
+
           <SingleAutocomplete
             sx={{ width: 200 }}
             focused
@@ -532,7 +568,7 @@ const filteredRows = selectedRunGrpOptions?.Name
             label="Price Book Group"
             url={`${process.env.REACT_APP_BASE_URL}PriceBookDirectory/GetRungroupByCompany?ComapnyID=${user.companyID}`}
           />
-           {/* Configure Toggle */}
+          {/* Configure Toggle */}
           <FormControlLabel
             control={
               <Switch
@@ -544,7 +580,7 @@ const filteredRows = selectedRunGrpOptions?.Name
             label="Show Only Customers Configured"
           />
         </Box>
-  
+
         {/* Right-aligned search */}
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <GridToolbarQuickFilter />
@@ -552,7 +588,6 @@ const filteredRows = selectedRunGrpOptions?.Name
       </GridToolbarContainer>
     );
   }
-  
 
   return (
     <Container>
@@ -645,10 +680,10 @@ const filteredRows = selectedRunGrpOptions?.Name
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-            '& .MuiDataGrid-row:hover': {
-              border: '3px solid #999999',
+            "& .MuiDataGrid-row:hover": {
+              border: "3px solid #999999",
               // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
-              borderRadius: '4px', // Optional: Add rounded corners
+              borderRadius: "4px", // Optional: Add rounded corners
             },
             // "& .MuiDataGrid-row.Mui-selected:hover": {
             //   backgroundColor: `${theme.palette.action.selected} !important`,
@@ -794,7 +829,6 @@ export default Customer;
 //           onChange={handleRunGroupFilterChange}
 //           sx={{mb:2,width:200}}
 //         /> */}
-
 
 //          <SingleAutocomplete
 //                      sx={{ mb: 2, width: 200 }}

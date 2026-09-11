@@ -23,7 +23,7 @@ import { Box, styled } from "@mui/material";
 import { Breadcrumb, SimpleCard } from "app/components";
 import { useTheme } from "@emotion/react";
 import { SiMicrosoftexcel } from "react-icons/si";
-import { FaFilePdf } from "react-icons/fa6";
+import { FaFilePdf, FaFileImage } from "react-icons/fa6";
 import { IoIosMailOpen } from "react-icons/io";
 import { IoMdPrint } from "react-icons/io";
 import { useEffect, useState } from "react";
@@ -81,11 +81,11 @@ const DropZone = styled(FlexAlignCenter)(({ isDragActive, theme }) => ({
   marginBottom: "16px",
   transition: "all 350ms ease-in-out",
   border: `2px dashed rgba(${convertHexToRGB(
-    theme.palette.text.primary
+    theme.palette.text.primary,
   )}, 0.3)`,
   "&:hover": {
     background: `rgb(${convertHexToRGB(
-      theme.palette.text.primary
+      theme.palette.text.primary,
     )}, 0.2) !important`,
   },
   background: isDragActive ? "rgb(0, 0, 0, 0.15)" : "rgb(0, 0, 0, 0.01)",
@@ -137,19 +137,24 @@ const ViewPriceBook = () => {
   const theme = useTheme();
 
   const CustomerCustomPriceListData = useSelector(
-    (state) => state.priceList.viewPriceData
+    (state) => state.priceList.viewPriceData,
   );
 
   const viewPriceIsPdfGenrating = useSelector(
-    (state) => state.priceList.viewPriceIsPdfGenrating
+    (state) => state.priceList.viewPriceIsPdfGenrating,
   );
 
   const viewPricePdfGenratingMsg = useSelector(
-    (state) => state.priceList.viewPricePdfGenratingMsg
+    (state) => state.priceList.viewPricePdfGenratingMsg,
   );
   const viewPriceIsPdfError = useSelector(
-    (state) => state.priceList.viewPriceIsPdfError
+    (state) => state.priceList.viewPriceIsPdfError,
   );
+
+  const companyRows = useSelector(
+    (state) => state.listview.configureComapnyListViewData,
+  );
+  console.log("comapanyRows", companyRows);
 
   const [isCustomer, setIsCustomer] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -162,6 +167,7 @@ const ViewPriceBook = () => {
   const [alertMessage1, setAlertMessage1] = useState(false);
   const [alertMessage2, setAlertMessage2] = useState(false);
   const { user } = useAuth();
+  console.log("Auth", user);
   //=======================CUSTOMER===================================//
   const [selectedCustomerOptions, setSelectedCustomerOptions] = useState(null);
   const [selectedCustomerName, setSelectedCustomerName] = useState(null);
@@ -192,10 +198,20 @@ const ViewPriceBook = () => {
   };
 
   //=======================PRICE LIST TYPE===================================//
-  const [selectPriceListtype, setSelectPriceListType] = useState("FP");
+  // const [selectPriceListtype, setSelectPriceListType] = useState("FP");
+  const getDefaultPriceType = (u) => (u?.companyCode === "SJ" ? "CP" : "FP");
+
+  const [selectPriceListtype, setSelectPriceListType] = useState(() =>
+    getDefaultPriceType(user),
+  );
+
+  useEffect(() => {
+    setSelectPriceListType(getDefaultPriceType(user));
+  }, [user?.companyCode]);
 
   const handleSelectionPriceTypeChange = (e) => {
-    setSelectPriceListType(e.target.value);
+    const newType = e.target.value;
+    setSelectPriceListType(newType);
     setSelectedCustomerOptions(null);
   };
 
@@ -245,7 +261,7 @@ const ViewPriceBook = () => {
       return;
     }
 
-    if (isCustomerMail > 0 && isCustomerConfigMail >0) {
+    if (isCustomerMail > 0 && isCustomerConfigMail > 0) {
       const data = [
         {
           CustomerNumber: selectedCustomerOptions.Code,
@@ -263,7 +279,7 @@ const ViewPriceBook = () => {
           CompnayID: user.companyID,
           CompanyCode: user.companyCode,
           TemplateID: "",
-          ShowPrice:isChecked
+          ShowPrice: isChecked,
         },
       ];
 
@@ -480,7 +496,7 @@ const ViewPriceBook = () => {
           priceListOutType === "EXCEL"
             ? "Generating Price Book Excel"
             : "Generating Price Book PDF",
-      })
+      }),
     );
 
     dispatch(
@@ -501,108 +517,59 @@ const ViewPriceBook = () => {
               }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
                 user.id
               }`,
-      })
+      }),
     )
       .then(async (response) => {
         // return;
 
-          if (response.payload.status === "Y") {
-            if (priceListOutType === "EXCEL") {
-              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
-              const byteNumbers = Array.from(byteCharacters).map((char) =>
-                char.charCodeAt(0)
-              ); // Convert binary string to byte array
-              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+        if (response.payload.status === "Y") {
+          if (priceListOutType === "EXCEL") {
+            const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+            const byteNumbers = Array.from(byteCharacters).map((char) =>
+              char.charCodeAt(0),
+            ); // Convert binary string to byte array
+            const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
 
-              // Create a Blob from the byte array
-              const blob = new Blob([byteArray], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
-              });
+            // Create a Blob from the byte array
+            const blob = new Blob([byteArray], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
+            });
 
-              // Create a temporary URL for the Blob
-              const blobUrl = URL.createObjectURL(blob);
+            // Create a temporary URL for the Blob
+            const blobUrl = URL.createObjectURL(blob);
 
-              // Create a temporary <a> element for downloading
+            // Create a temporary <a> element for downloading
 
-              // Create a temporary <a> element for downloading
-              const link = document.createElement("a");
-              link.href = blobUrl;
-              link.download = `${user.company}_${selectedCustomerOptions ? selectedCustomerOptions.Name: "Customer"}_"FPB"_${sunday} TO ${saturday}.xlsx`;
+            // Create a temporary <a> element for downloading
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `${user.company}_${selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"}_"FPB"_${sunday} TO ${saturday}.xlsx`;
 
-              // Append the link to the document and trigger the download
-              document.body.appendChild(link);
-              link.click();
-              dispatch(
-                viewPricePdfGenrationg({
-                  Type: "SUCCESS",
-                  loading: false,
-                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
-                })
-              );
-              setTimeout(() => {
-                setIsGenerating(false);
-              }, 1);
-              // Clean up
-              document.body.removeChild(link);
-              URL.revokeObjectURL(blobUrl);
-            }
+            // Append the link to the document and trigger the download
+            document.body.appendChild(link);
+            link.click();
+            dispatch(
+              viewPricePdfGenrationg({
+                Type: "SUCCESS",
+                loading: false,
+                message:
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
+              }),
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 1);
+            // Clean up
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+          }
 
-            if (priceListOutType === "PDF") {
-              function downloadPDFBytes(byteString, fileName) {
-                // Decode the base64 string into binary data
-                const byteCharacters = atob(byteString); // Decode base64 to binary string
-                const byteNumbers = Array.from(byteCharacters).map((char) =>
-                  char.charCodeAt(0)
-                ); // Convert binary string to byte array
-                const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
-
-                // Create a Blob from the byte array
-                const blob = new Blob([byteArray], { type: "application/pdf" });
-
-                // Create a temporary URL for the Blob
-                const blobUrl = URL.createObjectURL(blob);
-
-                // Create a temporary <a> element for downloading
-                // Create a temporary <a> element for downloading
-                const link = document.createElement("a");
-                link.href = blobUrl;
-                link.download = fileName;
-
-                // Append the link to the document and trigger the download
-                document.body.appendChild(link);
-                link.click();
-
-                // Clean up
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-              }
-
-              downloadPDFBytes(
-                response.payload.path,
-                `${user.company}_${
-                  selectedCustomerOptions
-                    ? selectedCustomerOptions.Name
-                    : "Customer"
-                }_"FPB"_${sunday} TO ${saturday}.pdf`
-              );
-              dispatch(
-                viewPricePdfGenrationg({
-                  Type: "SUCCESS",
-                  loading: false,
-                  message:  "Price book successfully created! Please wait while it is automatically downloaded.",
-
-                })
-              );
-              setTimeout(() => {
-                setIsGenerating(false);
-              }, 1000);
-            }
-
-            if (priceListOutType === "PRINT") {
+          if (priceListOutType === "PDF") {
+            function downloadPDFBytes(byteString, fileName) {
               // Decode the base64 string into binary data
-              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+              const byteCharacters = atob(byteString); // Decode base64 to binary string
               const byteNumbers = Array.from(byteCharacters).map((char) =>
-                char.charCodeAt(0)
+                char.charCodeAt(0),
               ); // Convert binary string to byte array
               const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
 
@@ -611,32 +578,82 @@ const ViewPriceBook = () => {
 
               // Create a temporary URL for the Blob
               const blobUrl = URL.createObjectURL(blob);
-              dispatch(
-                viewPricePdfGenrationg({
-                  Type: "SUCCESS",
-                  loading: false,
-                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
-                })
-              );
-              setTimeout(() => {
-                setIsGenerating(false);
-              }, 1000);
-              window.open(blobUrl, "_blank");
+
+              // Create a temporary <a> element for downloading
+              // Create a temporary <a> element for downloading
+              const link = document.createElement("a");
+              link.href = blobUrl;
+              link.download = fileName;
+
+              // Append the link to the document and trigger the download
+              document.body.appendChild(link);
+              link.click();
+
+              // Clean up
+              document.body.removeChild(link);
+              URL.revokeObjectURL(blobUrl);
             }
-          } else {
+
+            downloadPDFBytes(
+              response.payload.path,
+              `${user.company}_${
+                selectedCustomerOptions
+                  ? selectedCustomerOptions.Name
+                  : "Customer"
+              }_"FPB"_${sunday} TO ${saturday}.pdf`,
+            );
             dispatch(
               viewPricePdfGenrationg({
-                Type: "ERROR",
-                message: response.payload.message,
+                Type: "SUCCESS",
                 loading: false,
-                error: true,
-              })
+                message:
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
+              }),
             );
             setTimeout(() => {
               setIsGenerating(false);
-            }, 5000);
+            }, 1000);
           }
-     
+
+          if (priceListOutType === "PRINT") {
+            // Decode the base64 string into binary data
+            const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+            const byteNumbers = Array.from(byteCharacters).map((char) =>
+              char.charCodeAt(0),
+            ); // Convert binary string to byte array
+            const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+            // Create a Blob from the byte array
+            const blob = new Blob([byteArray], { type: "application/pdf" });
+
+            // Create a temporary URL for the Blob
+            const blobUrl = URL.createObjectURL(blob);
+            dispatch(
+              viewPricePdfGenrationg({
+                Type: "SUCCESS",
+                loading: false,
+                message:
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
+              }),
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 1000);
+            window.open(blobUrl, "_blank");
+          }
+        } else {
+          dispatch(
+            viewPricePdfGenrationg({
+              Type: "ERROR",
+              message: response.payload.message,
+              loading: false,
+              error: true,
+            }),
+          );
+          setTimeout(() => {
+            setIsGenerating(false);
+          }, 5000);
+        }
       })
       .catch((e) => {
         dispatch(
@@ -645,7 +662,7 @@ const ViewPriceBook = () => {
             message: "An error occurred while rendering the PDF.",
             loading: false,
             error: true,
-          })
+          }),
         );
         setTimeout(() => {
           setIsGenerating(false);
@@ -663,7 +680,7 @@ const ViewPriceBook = () => {
           priceListOutType === "EXCEL"
             ? "Generating Price Book Excel"
             : "Generating Price Book PDF",
-      })
+      }),
     );
 
     dispatch(
@@ -677,117 +694,66 @@ const ViewPriceBook = () => {
               }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
                 user.id
               }`
-            : `${
-                process.env.REACT_APP_BASE_URL
-              }Email/${
+            : `${process.env.REACT_APP_BASE_URL}Email/${
                 user.companyCode === "SJ" ? "GetSJCustomPdf" : "GetCustomPdf"
               }?CustomerNumber=${
                 selectedCustomerOptions ? selectedCustomerOptions.Code : ""
               }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
                 user.id
               }`,
-      })
+      }),
     )
       .then(async (response) => {
         // return;
 
-          if (response.payload.status === "Y") {
-            if (priceListOutType === "EXCEL") {
-              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
-              const byteNumbers = Array.from(byteCharacters).map((char) =>
-                char.charCodeAt(0)
-              ); // Convert binary string to byte array
-              const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+        if (response.payload.status === "Y") {
+          if (priceListOutType === "EXCEL") {
+            const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+            const byteNumbers = Array.from(byteCharacters).map((char) =>
+              char.charCodeAt(0),
+            ); // Convert binary string to byte array
+            const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
 
-              // Create a Blob from the byte array
-              const blob = new Blob([byteArray], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
-              });
+            // Create a Blob from the byte array
+            const blob = new Blob([byteArray], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME type for .xlsx
+            });
 
-              // Create a temporary URL for the Blob
-              const blobUrl = URL.createObjectURL(blob);
+            // Create a temporary URL for the Blob
+            const blobUrl = URL.createObjectURL(blob);
 
-              // Create a temporary <a> element for downloading
+            // Create a temporary <a> element for downloading
 
-              // Create a temporary <a> element for downloading
-              const link = document.createElement("a");
-              link.href = blobUrl;
-              link.download = `${user.company}_${selectedCustomerOptions ? selectedCustomerOptions.Name: "Customer"}_"CPB"_${sunday} TO ${saturday}.xlsx`;
+            // Create a temporary <a> element for downloading
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `${user.company}_${selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"}_"CPB"_${sunday} TO ${saturday}.xlsx`;
 
-              // Append the link to the document and trigger the download
-              document.body.appendChild(link);
-              link.click();
-              dispatch(
-                viewPricePdfGenrationg({
-                  Type: "SUCCESS",
-                  loading: false,
-                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
-                })
-              );
-              setTimeout(() => {
-                setIsGenerating(false);
-              }, 1);
-              // Clean up
-              document.body.removeChild(link);
-              URL.revokeObjectURL(blobUrl);
-            }
+            // Append the link to the document and trigger the download
+            document.body.appendChild(link);
+            link.click();
+            dispatch(
+              viewPricePdfGenrationg({
+                Type: "SUCCESS",
+                loading: false,
+                message:
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
+              }),
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 1);
+            // Clean up
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+          }
 
-            if (priceListOutType === "PDF") {
-              function downloadPDFBytes(byteString, fileName) {
-                // Decode the base64 string into binary data
-                const byteCharacters = atob(byteString); // Decode base64 to binary string
-                const byteNumbers = Array.from(byteCharacters).map((char) =>
-                  char.charCodeAt(0)
-                ); // Convert binary string to byte array
-                const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
-
-                // Create a Blob from the byte array
-                const blob = new Blob([byteArray], { type: "application/pdf" });
-
-                // Create a temporary URL for the Blob
-                const blobUrl = URL.createObjectURL(blob);
-
-                // Create a temporary <a> element for downloading
-                // Create a temporary <a> element for downloading
-                const link = document.createElement("a");
-                link.href = blobUrl;
-                link.download = fileName;
-
-                // Append the link to the document and trigger the download
-                document.body.appendChild(link);
-                link.click();
-
-                // Clean up
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-              }
-
-              downloadPDFBytes(
-                response.payload.path,
-                `${user.company}_${
-                  selectedCustomerOptions
-                    ? selectedCustomerOptions.Name
-                    : "Customer"
-                }_"CPB"_${sunday} TO ${saturday}.pdf`
-              );
-              dispatch(
-                viewPricePdfGenrationg({
-                  Type: "SUCCESS",
-                  loading: false,
-                  message:  "Price book successfully created! Please wait while it is automatically downloaded.",
-
-                })
-              );
-              setTimeout(() => {
-                setIsGenerating(false);
-              }, 1000);
-            }
-
-            if (priceListOutType === "PRINT") {
+          if (priceListOutType === "PDF") {
+            function downloadPDFBytes(byteString, fileName) {
               // Decode the base64 string into binary data
-              const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+              const byteCharacters = atob(byteString); // Decode base64 to binary string
               const byteNumbers = Array.from(byteCharacters).map((char) =>
-                char.charCodeAt(0)
+                char.charCodeAt(0),
               ); // Convert binary string to byte array
               const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
 
@@ -796,32 +762,82 @@ const ViewPriceBook = () => {
 
               // Create a temporary URL for the Blob
               const blobUrl = URL.createObjectURL(blob);
-              dispatch(
-                viewPricePdfGenrationg({
-                  Type: "SUCCESS",
-                  loading: false,
-                  message: "Price book successfully created! Please wait while it is automatically downloaded.",
-                })
-              );
-              setTimeout(() => {
-                setIsGenerating(false);
-              }, 1000);
-              window.open(blobUrl, "_blank");
+
+              // Create a temporary <a> element for downloading
+              // Create a temporary <a> element for downloading
+              const link = document.createElement("a");
+              link.href = blobUrl;
+              link.download = fileName;
+
+              // Append the link to the document and trigger the download
+              document.body.appendChild(link);
+              link.click();
+
+              // Clean up
+              document.body.removeChild(link);
+              URL.revokeObjectURL(blobUrl);
             }
-          } else {
+
+            downloadPDFBytes(
+              response.payload.path,
+              `${user.company}_${
+                selectedCustomerOptions
+                  ? selectedCustomerOptions.Name
+                  : "Customer"
+              }_"CPB"_${sunday} TO ${saturday}.pdf`,
+            );
             dispatch(
               viewPricePdfGenrationg({
-                Type: "ERROR",
-                message: response.payload.message,
+                Type: "SUCCESS",
                 loading: false,
-                error: true,
-              })
+                message:
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
+              }),
             );
             setTimeout(() => {
               setIsGenerating(false);
-            }, 5000);
+            }, 1000);
           }
-     
+
+          if (priceListOutType === "PRINT") {
+            // Decode the base64 string into binary data
+            const byteCharacters = atob(response.payload.path); // Decode base64 to binary string
+            const byteNumbers = Array.from(byteCharacters).map((char) =>
+              char.charCodeAt(0),
+            ); // Convert binary string to byte array
+            const byteArray = new Uint8Array(byteNumbers); // Create Uint8Array from the byte array
+
+            // Create a Blob from the byte array
+            const blob = new Blob([byteArray], { type: "application/pdf" });
+
+            // Create a temporary URL for the Blob
+            const blobUrl = URL.createObjectURL(blob);
+            dispatch(
+              viewPricePdfGenrationg({
+                Type: "SUCCESS",
+                loading: false,
+                message:
+                  "Price book successfully created! Please wait while it is automatically downloaded.",
+              }),
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 1000);
+            window.open(blobUrl, "_blank");
+          }
+        } else {
+          dispatch(
+            viewPricePdfGenrationg({
+              Type: "ERROR",
+              message: response.payload.message,
+              loading: false,
+              error: true,
+            }),
+          );
+          setTimeout(() => {
+            setIsGenerating(false);
+          }, 5000);
+        }
       })
       .catch((e) => {
         dispatch(
@@ -830,7 +846,7 @@ const ViewPriceBook = () => {
             message: "An error occurred while rendering the PDF.",
             loading: false,
             error: true,
-          })
+          }),
         );
         setTimeout(() => {
           setIsGenerating(false);
@@ -1088,7 +1104,26 @@ const ViewPriceBook = () => {
                 }
                 label="Show Price"
               />
+
               <Stack direction="row" alignItems={"center"}>
+                {user.companyCode === "SJ" && (
+                  <Tooltip title="Image" placement="top">
+                    <CustomIconButton
+                      sx={{
+                        bgcolor: "#2196f3 !important",
+                        color: "#fff !important",
+                        "&:hover": {
+                          bgcolor: "#1976d2 !important",
+                          color: "#fff !important",
+                        },
+                      }}
+                      aria-label="image"
+                    >
+                      <FaFileImage style={{ fontSize: "21px" }} />
+                    </CustomIconButton>
+                  </Tooltip>
+                )}
+
                 <Tooltip title="PDF" placement="top">
                   <CustomIconButton
                     onClick={() => {
@@ -1137,7 +1172,6 @@ const ViewPriceBook = () => {
                           ? getPriceListCustomerFull("EXCEL")
                           : getPriceListCustomerCustom("EXCEL");
                       } else setAlertMessage1(true);
-
                     }}
                   >
                     <SiMicrosoftexcel style={{ fontSize: "21px" }} />
@@ -1201,19 +1235,35 @@ const ViewPriceBook = () => {
               }}
             >
               <FormControl fullWidth size="small">
-                <InputLabel id="demo-simple-select-label">
+                <InputLabel id="price-book-type-label">
                   Price Book Type
                 </InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
+                  labelId="price-book-type-label"
+                  id="price-book-type"
+                  // Fallback guarantees the value ALWAYS matches a rendered MenuItem
+                  value={
+                    user?.companyCode === "SJ"
+                      ? "CP"
+                      : ["FP", "CP"].includes(selectPriceListtype)
+                        ? selectPriceListtype
+                        : "FP"
+                  }
                   onChange={handleSelectionPriceTypeChange}
-                  value={selectPriceListtype}
-                  id="demo-simple-select"
                   label="Price Book Type"
                 >
-                  <MenuItem value={"FP"}>Full Price Book</MenuItem>
-                  <MenuItem value={"CP"}>Custom Price Book</MenuItem>
-                  {/* <MenuItem value={"B"}>Both</MenuItem> */}
+                  {user?.companyCode === "SJ" ? (
+                    <MenuItem value="CP">Custom Price Book</MenuItem>
+                  ) : (
+                    [
+                      <MenuItem key="FP" value="FP">
+                        Full Price Book
+                      </MenuItem>,
+                      <MenuItem key="CP" value="CP">
+                        Custom Price Book
+                      </MenuItem>,
+                    ]
+                  )}
                 </Select>
               </FormControl>
               <ViewPriceSingleAutocomplete
@@ -1225,7 +1275,7 @@ const ViewPriceBook = () => {
                 label="Customer"
                 url={`${
                   process.env.REACT_APP_BASE_URL
-                }Customer/${user.companyCode=="SJ" && selectPriceListtype == "CP"?"GetSJCustomCustomer":"GetCustomer" }?CompanyID=${user.companyID}&Type=${
+                }Customer/${user.companyCode == "SJ" && selectPriceListtype == "CP" ? "GetSJCustomCustomer" : "GetCustomer"}?CompanyID=${user.companyID}&Type=${
                   selectPriceListtype == "CP" ? "Custom" : "Full"
                 }&FromDate=${sunday}`}
               />

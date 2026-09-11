@@ -94,8 +94,6 @@ const ImageWrapper = styled("div")(({ previewImage }) => ({
   backgroundPosition: "center",
 }));
 
-
-
 // ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -112,7 +110,7 @@ const validationSchema = Yup.object({
 });
 const formatPhoneNumber = (value) => {
   // Remove all non-digit characters
-  const phoneNumber = value.replace(/\D/g, '');
+  const phoneNumber = value.replace(/\D/g, "");
 
   // Format only if 10 digits
   if (phoneNumber.length <= 3) {
@@ -135,7 +133,7 @@ const ContactEdit = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const State = location.state;
-  console.log("🚀 ~ ContactEdit ~ State:", State)
+  console.log("🚀 ~ ContactEdit ~ State:", State);
 
   // ******************** LOCAL STATE ******************** //
 
@@ -152,7 +150,7 @@ const ContactEdit = () => {
 
   const data = useSelector((state) => state.getSlice.getConfigContactData);
   const loading = useSelector(
-    (state) => state.getSlice.getConfigContactLoading
+    (state) => state.getSlice.getConfigContactLoading,
   );
   const status = useSelector((state) => state.getSlice.getConfigContactStatus);
   const error = useSelector((state) => state.getSlice.getConfigContactError);
@@ -165,7 +163,7 @@ const ContactEdit = () => {
 
   //====================================================================================//
 
-  const handleSave = async (values,setSubmitting) => {
+  const handleSave = async (values, setSubmitting) => {
     const data1 = {
       RecordID: data.RecordID,
       CustomerNumber: State.CustomerNumber,
@@ -177,27 +175,31 @@ const ContactEdit = () => {
       Provider: values.provider,
       FirstName: values.firstName,
       LastName: values.lastName,
+      CommunicationType: values.CommunicationType,
       Disable: values.disable ? "1" : "0",
     };
     const response = await dispatch(
-      params.mode === "add" ? postConfigContact(data1) : putConfigContact(data1)
+      params.mode === "add"
+        ? postConfigContact(data1)
+        : putConfigContact(data1),
     );
     if (response.payload.status === "Y") {
       setOpenAlert(true);
       setSuccessMessage(response.payload.message);
-      if(params.mode === "add"){
+      if (params.mode === "add") {
         dispatch(getConfigContact({ RecordID: response.payload.RecordID }));
       }
     } else {
       setOpenAlert(true);
       setPostError(response.payload.message);
     }
-    setSubmitting(false)
+    setSubmitting(false);
   };
 
-
-  const handleDelete = async (values,setSubmitting) => {
-    const response = await dispatch(deleteConfigContact({ RecordID: data.RecordID }));
+  const handleDelete = async (values, setSubmitting) => {
+    const response = await dispatch(
+      deleteConfigContact({ RecordID: data.RecordID }),
+    );
     if (response.payload.status === "Y") {
       setOpenAlert(true);
       setSuccessMessage(response.payload.message);
@@ -205,7 +207,7 @@ const ContactEdit = () => {
       setOpenAlert(true);
       setPostError(response.payload.message);
     }
-    setSubmitting(false)
+    setSubmitting(false);
   };
 
   return (
@@ -221,17 +223,17 @@ const ContactEdit = () => {
             phonenumber: data.Phone,
             preferedMail: data.PreferedMail === "1" ? true : false,
             preferedMobile: data.PreferedMobile === "1" ? true : false,
+            CommunicationType: data.CommunicationType || "Text",
             disable: data.Disable === "1" ? true : false,
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
-            if(params.mode === "delete"){
-              setIsRemovePriceList(true)
-             
-            }else handleSave(values,setSubmitting);
+            if (params.mode === "delete") {
+              setIsRemovePriceList(true);
+            } else handleSave(values, setSubmitting);
             console.log("🚀 ~ ContactEdit ~ values:", values);
-            
+
             // resetForm();
           }}
         >
@@ -245,7 +247,7 @@ const ContactEdit = () => {
             handleSubmit,
             resetForm,
             setFieldValue,
-            setSubmitting
+            setSubmitting,
           }) => (
             <form onSubmit={handleSubmit}>
               <div className="breadcrumb">
@@ -432,7 +434,7 @@ const ContactEdit = () => {
                     // required
                     disabled={params?.mode === "delete"}
                   />
- < FormikCustomSelectProvider
+                  <FormikCustomSelectProvider
                     name="provider"
                     id="provider"
                     sx={{ gridColumn: "span 2" }}
@@ -493,6 +495,7 @@ const ContactEdit = () => {
                     <FormLabel focused={false} component="legend">
                       Preferred Communication
                     </FormLabel>
+
                     <Stack direction="row" gap={2}>
                       <FormControlLabel
                         control={
@@ -519,7 +522,24 @@ const ContactEdit = () => {
                         label="Mobile"
                       />
 
-                      
+                      {values.preferedMobile && (
+                        <TextField
+                          select
+                          size="small"
+                          label="Communication Type"
+                          id="CommunicationType"
+                          name="CommunicationType"
+                          value={values.CommunicationType || "Text"}
+                          onChange={handleChange}
+                          disabled={params?.mode === "delete"}
+                          sx={{
+                            width: 180,
+                          }}
+                        >
+                          <MenuItem value="Text">Text</MenuItem>
+                          <MenuItem value="WhatsApp">WhatsApp</MenuItem>
+                        </TextField>
+                      )}
                     </Stack>
                   </FormControl>
                   {/* <Stack sx={{ gridColumn: "span 2" }} direction="row" gap={2}>
@@ -584,8 +604,8 @@ const ContactEdit = () => {
                       variant="contained"
                       color="info"
                       size="small"
-                      onClick={ () => {
-                        handleDelete(values,setSubmitting);
+                      onClick={() => {
+                        handleDelete(values, setSubmitting);
                         setIsRemovePriceList(false);
                       }}
                     >
@@ -639,10 +659,7 @@ const ContactEdit = () => {
       <AlertDialog
         open={openAlert}
         error={postError}
-        message={
-          postError?postError:
-         successMessage
-        }
+        message={postError ? postError : successMessage}
         Actions={
           <DialogActions>
             <Button
@@ -653,7 +670,7 @@ const ContactEdit = () => {
                 setOpenAlert(false);
                 navigate(-1);
                 setSuccessMessage(null);
-                setPostError(null)
+                setPostError(null);
               }}
             >
               Back
