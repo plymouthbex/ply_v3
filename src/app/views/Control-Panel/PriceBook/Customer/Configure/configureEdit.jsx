@@ -2045,7 +2045,7 @@ const ConfigureEdit = () => {
                     {
                       name: "Customer",
                       path: "/pages/control-panel/configure-price-book/customer",
-                      state:State.company
+                      state: State.company,
                     },
                     { name: `Configure Customer ${screenName}` },
                   ]}
@@ -2072,19 +2072,23 @@ const ConfigureEdit = () => {
                     color="info"
                     size="small"
                     startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() =>
-                      navigate(
-                        "/pages/control-panel/configure-price-book/customer",
-                        {
-                          state: {
-                            RunGroup: State.RunGroup,
-                            Code: State.company.Code,
-                            Name: State.company.Name,
-                            RecordID: State.company.RecordID,
+                    onClick={() => {
+                      if (State.Type === "PriceBookGroup") {
+                        navigate("/pages/pricing-portal/run-price-book");
+                      } else {
+                        navigate(
+                          "/pages/control-panel/configure-price-book/customer",
+                          {
+                            state: {
+                              RunGroup: State.RunGroup,
+                              Code: State.company.Code,
+                              Name: State.company.Name,
+                              RecordID: State.company.RecordID,
+                            },
                           },
-                        },
-                      )
-                    }
+                        );
+                      }
+                    }}
                   >
                     Back
                   </Button>

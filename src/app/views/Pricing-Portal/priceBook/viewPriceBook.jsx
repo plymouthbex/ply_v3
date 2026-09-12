@@ -273,6 +273,7 @@ const ViewPriceBook = () => {
             selectPriceListtype === "CP" ? selectedCustomerOptions.Pdf : "0",
           CustomPriceBookExcel:
             selectPriceListtype === "CP" ? selectedCustomerOptions.Excel : "0",
+          CustomPriceBookJpg: selectedCustomerOptions.Jpg,
           FromDate: sunday,
           ToDate: saturday,
           UserID: user.id,

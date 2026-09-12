@@ -624,6 +624,16 @@ const Customer = () => {
             size="small"
             startIcon={<ArrowBackIcon size="small" />}
             onClick={() => navigate(-1)}
+            // onClick={() =>
+            //   navigate("/pages/control-panel/configure-price-book/customer", {
+            //     state: {
+            //       RunGroup: State.RunGroup,
+            //       Code: State.company.Code,
+            //       Name: State.company.Name,
+            //       RecordID: State.company.RecordID,
+            //     },
+            //   })
+            // } 
           >
             Back
           </Button>

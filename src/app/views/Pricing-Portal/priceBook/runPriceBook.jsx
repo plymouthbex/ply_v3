@@ -659,6 +659,7 @@ export default function RunPriceBook() {
                               Name: user.company,
                             },
                             RunGroup: selectedRunGrpOptions,
+                            Type:"PriceBookGroup"
                           },
                         },
                       );
@@ -818,13 +819,14 @@ export default function RunPriceBook() {
         FullPriceBookExcel: v.fpexcel ? "1" : "0",
         CustomPriceBooPdf: v.cppdf ? "1" : "0",
         CustomPriceBookExcel: v.cpexcel ? "1" : "0",
+        CustomPriceBookJpg: user.companyCode === "SJ" ? "1" : "0",
         FromDate: sunday,
         ToDate: saturday,
         UserID: user.id,
         CompnayID: user.companyID,
         CompanyCode: user.companyCode,
         TemplateID: "",
-        ShowPrice: showPrice,
+        ShowPrice: true,
       }));
     console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
     try {
@@ -1228,7 +1230,7 @@ export default function RunPriceBook() {
               justifyContent="flex-end"
               gap={1}
             >
-              <FormControlLabel
+              {/* <FormControlLabel
                 sx={{ marginRight: 0 }}
                 control={
                   <Checkbox
@@ -1243,7 +1245,7 @@ export default function RunPriceBook() {
                   />
                 }
                 label="Show Price"
-              />
+              /> */}
 
               <Button
                 variant="contained"
@@ -1264,6 +1266,7 @@ export default function RunPriceBook() {
 
             <MessageAlertDialog
               open={isRemovePriceList}
+               logo={`data:image/png;base64,${user.logo}`}  
               tittle={removePriceListdDesc}
               message={`Are you sure you want to delete the customer price book items for "${selectedCustomerName}"?`}
               Actions={
