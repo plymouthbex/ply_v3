@@ -69,6 +69,7 @@ import {
 } from "app/redux/slice/postSlice";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import useAuth from "app/hooks/useAuth";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -146,6 +147,7 @@ const ContactEdit = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
   const [removePriceListID, setremovePriceListID] = useState(0);
+  const { user, updateUser } = useAuth();
   // ******************** REDUX STATE ******************** //
 
   const data = useSelector((state) => state.getSlice.getConfigContactData);
@@ -154,6 +156,7 @@ const ContactEdit = () => {
   );
   const status = useSelector((state) => state.getSlice.getConfigContactStatus);
   const error = useSelector((state) => state.getSlice.getConfigContactError);
+  
 
   //==================================GETAPI=====================================//
   useEffect(() => {
@@ -515,7 +518,15 @@ const ContactEdit = () => {
                             id="preferedMobile"
                             name="preferedMobile"
                             checked={values.preferedMobile}
-                            onChange={handleChange}
+                             onChange={(e) => {
+                              const checked = e.target.checked;
+
+                              handleChange(e);
+
+                              if (!checked) {
+                                setFieldValue("CommunicationType", "");
+                              }
+                            }}
                             disabled={params?.mode === "delete"}
                           />
                         }
@@ -659,6 +670,7 @@ const ContactEdit = () => {
       <AlertDialog
         open={openAlert}
         error={postError}
+         logo={`data:image/png;base64,${user.logo}`}
         message={postError ? postError : successMessage}
         Actions={
           <DialogActions>

@@ -68,6 +68,7 @@ import {
 } from "app/redux/slice/postSlice";
 import lodash from "lodash";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
+import useAuth from "app/hooks/useAuth";
 
 // ******************** STYLED COMPONENTS ******************** //
 const Container = styled("div")(({ theme }) => ({
@@ -110,6 +111,8 @@ const ContactEdit = () => {
   const location = useLocation();
   const State = location.state;
   console.log("🚀 ~ ContactEdit ~ State:", State);
+
+  const { user, updateUser } = useAuth();
 
   const validationSchema = Yup.object({
     name: Yup.string()
@@ -469,7 +472,7 @@ const ContactEdit = () => {
                     variant="standard"
                   >
                     <FormLabel focused={false} component="legend">
-                      Preferred Communication
+                      Preferred Communications
                     </FormLabel>
 
                     {/* First line: Email + Mobile + Communication Type */}
@@ -495,7 +498,15 @@ const ContactEdit = () => {
                             id="preferedMobile"
                             name="preferedMobile"
                             checked={values.preferedMobile}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+
+                              handleChange(e);
+
+                              if (!checked) {
+                                setFieldValue("CommunicationType", "");
+                              }
+                            }}
                             size="small"
                           />
                         }
@@ -656,6 +667,7 @@ const ContactEdit = () => {
       <AlertDialog
         open={openAlert}
         error={postError}
+        logo={`data:image/png;base64,${user.logo}`}
         message={
           postError
             ? "Something went wrong and please retry"

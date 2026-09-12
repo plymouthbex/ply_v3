@@ -140,10 +140,9 @@ export default function RunPriceBook() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedCustomerName, setSelectedCustomerName] = useState("");
   const [pendingAction, setPendingAction] = useState(null);
-   const State = location.state;
+  const State = location.state;
 
-   console.log("State", State);
-   
+  console.log("State", State);
 
   useEffect(() => {
     const selectedRunGroup = location.state?.selectedRunGroup ?? {
@@ -421,7 +420,11 @@ export default function RunPriceBook() {
               setSelectedCustomerName(params.row.customer);
               console.log("customer name", params.row.customer);
 
-              if (!e.target.checked && !params.row.cppdf) {
+              if (
+                !e.target.checked &&
+                !params.row.cppdf &&
+                user.companyCode !== "SJ"
+              ) {
                 setPendingAction({
                   row: params.row,
                   field: "cpexcel",
@@ -486,7 +489,11 @@ export default function RunPriceBook() {
               setSelectedCustomer(params.row.customernumber);
               setSelectedCustomerName(params.row.customer);
 
-              if (!e.target.checked && !params.row.cpexcel) {
+              if (
+                !e.target.checked &&
+                !params.row.cpexcel &&
+                user.companyCode !== "SJ"
+              ) {
                 setPendingAction({
                   row: params.row,
                   field: "cppdf",
@@ -553,7 +560,8 @@ export default function RunPriceBook() {
                   if (
                     !e.target.checked &&
                     !params.row.cpexcel &&
-                    !params.row.cppdf
+                    !params.row.cppdf &&
+                    user.companyCode !== "SJ"
                   ) {
                     setPendingAction({
                       row: params.row,
@@ -623,7 +631,8 @@ export default function RunPriceBook() {
       minWidth: 300,
 
       renderCell: (params) => {
-        const isVisible = params.row.cpexcel || params.row.cppdf || params.row.cpjpg;
+        const isVisible =
+          params.row.cpexcel || params.row.cppdf || params.row.cpjpg;
 
         const compID = user.companyID;
         const comCode = user.companyCode;
@@ -635,7 +644,11 @@ export default function RunPriceBook() {
               <Tooltip
                 title={
                   <>
-                    <div>{custname} Customer Price Items</div>
+                    <div>
+                      {user.companyCode === "SJ"
+                        ? `${custname} Customer Configure Price Sheet`
+                        : `${custname} Customer Price Items`}
+                    </div>
                   </>
                 }
                 arrow
@@ -659,7 +672,7 @@ export default function RunPriceBook() {
                               Name: user.company,
                             },
                             RunGroup: selectedRunGrpOptions,
-                            Type:"PriceBookGroup"
+                            Type: "PriceBookGroup",
                           },
                         },
                       );
@@ -1266,7 +1279,7 @@ export default function RunPriceBook() {
 
             <MessageAlertDialog
               open={isRemovePriceList}
-               logo={`data:image/png;base64,${user.logo}`}  
+              logo={`data:image/png;base64,${user.logo}`}
               tittle={removePriceListdDesc}
               message={`Are you sure you want to delete the customer price book items for "${selectedCustomerName}"?`}
               Actions={
