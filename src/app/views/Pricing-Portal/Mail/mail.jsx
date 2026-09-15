@@ -334,6 +334,7 @@ const MailSidebar = () => {
                   </Button>
                 </Box>
                 <PriceGroupAlertApiDialog
+                  logo={`data:image/png;base64,${user.logo}`}
                   open={openAlert}
                   error={postError}
                   message={

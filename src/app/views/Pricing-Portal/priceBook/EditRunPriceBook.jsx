@@ -461,6 +461,7 @@ export default function EditRunPriceBook() {
         <Stack direction="row" justifyContent="end" marginTop={2}></Stack>
       </SimpleCard>
       <PriceGroupAlertApiDialog
+      logo={`data:image/png;base64,${user.logo}`}
         open={openAlert}
         error={postError}
         message={
