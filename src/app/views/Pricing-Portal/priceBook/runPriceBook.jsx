@@ -803,9 +803,15 @@ export default function RunPriceBook() {
   const [postError, setPostError] = useState(null);
 
   const [showFiltered, setShowFiltered] = useState(false);
-  const data = runGrpRows.filter(
-    (v) => v.fppdf || v.fpexcel || v.cppdf || v.cpexcel,
-  );
+  // const data = runGrpRows.filter(
+  //   (v) => v.fppdf || v.fpexcel || v.cppdf || v.cpexcel,
+  // );
+  const data = runGrpRows.filter((v) =>
+  user.companyCode === "SJ"
+    ? v.cppdf || v.cpexcel || v.cpjpg
+    : v.fppdf || v.fpexcel || v.cppdf || v.cpexcel
+);
+
   console.log("🚀 ~ fnRunGrpEmailProcess ~ data:", data);
 
   const displayDataRows = showFiltered ? data : runGrpRows;

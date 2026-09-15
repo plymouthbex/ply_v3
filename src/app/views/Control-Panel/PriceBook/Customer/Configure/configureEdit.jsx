@@ -2031,7 +2031,7 @@ const ConfigureEdit = () => {
           }) => (
             <form onSubmit={handleSubmit}>
               <div className="breadcrumb">
-                <Breadcrumb
+                {/* <Breadcrumb
                   routeSegments={[
                     {
                       name: "Control Panel",
@@ -2049,7 +2049,37 @@ const ConfigureEdit = () => {
                     },
                     { name: `Configure Customer ${screenName}` },
                   ]}
-                />
+                /> */}
+                 {State.Type === "PriceBookGroup"?( <Breadcrumb
+                  routeSegments={[
+                    {
+                      name: "Price Book",
+                      // path: "/pages/control-panel/configure-price-book/company",
+                    },
+                    { name: "Print Price Book Group" ,
+                      path: "/pages/pricing-portal/run-price-book",
+                    },
+                    { name: `Configure Customer ${screenName}` },
+                  ]}
+                />):(  <Breadcrumb
+                  routeSegments={[
+                    {
+                      name: "Control Panel",
+                      // path: "/pages/control-panel/configure-price-book/company",
+                    },
+                    { name: "Configure Price Book" },
+                    {
+                      name: "Company",
+                      path: "/pages/control-panel/configure-price-book/company",
+                    },
+                    {
+                      name: "Customer",
+                      path: "/pages/control-panel/configure-price-book/customer",
+                      state: State.company,
+                    },
+                    { name: `Configure Customer ${screenName}` },
+                  ]}
+                />)}
                 <Stack direction={"row"} gap={1}>
                   {/* <Button
                     variant="contained"

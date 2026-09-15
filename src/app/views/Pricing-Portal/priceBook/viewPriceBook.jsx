@@ -486,6 +486,101 @@ const ViewPriceBook = () => {
   //       }, 2000);
   //     });
   // };
+  const getPriceListCustomerJPG = () => {
+    setIsGenerating(true);
+    dispatch(
+      viewPricePdfGenrationg({
+        Type: "LOADING",
+        loading: true,
+        message: "Generating Price Book JPG...",
+      })
+    );
+    // Call /Email/GetSJCustomJPG API directly
+    const jpgUrl = `${process.env.REACT_APP_BASE_URL}Email/GetSJCustomJPG?FromDate=${sunday}&ToDate=${saturday}&CustomerNumber=${
+      selectedCustomerOptions ? selectedCustomerOptions.Code : ""
+    }&UserID=${user.id}&ShowPrice=${isChecked}&Action=true`;
+    dispatch(
+      getCustomerViewPriceCustomBook({
+        URL: jpgUrl,
+      })
+    )
+      .then(async (response) => {
+        if (
+          response.payload &&
+          response.payload.status === "Y" &&
+          Array.isArray(response.payload.path)
+        ) {
+          const imageArray = response.payload.path;
+          if (imageArray.length === 0) {
+            dispatch(
+              viewPricePdfGenrationg({
+                Type: "ERROR",
+                message: "No JPG images returned for this price book.",
+                loading: false,
+                error: true,
+              })
+            );
+            setTimeout(() => {
+              setIsGenerating(false);
+            }, 2000);
+            return;
+          }
+          // Download each image page returned in the path array
+          imageArray.forEach((base64Image, index) => {
+            const formattedImage = base64Image.startsWith("data:image/")
+              ? base64Image
+              : `data:image/jpeg;base64,${base64Image}`;
+            const link = document.createElement("a");
+            link.href = formattedImage;
+            link.download = `${user.company}_${
+              selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"
+            }_Page_${index + 1}_${sunday}_TO_${saturday}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          });
+          dispatch(
+            viewPricePdfGenrationg({
+              Type: "SUCCESS",
+              loading: false,
+              message:
+                "JPG Price Book successfully generated! Downloading image(s)...",
+            })
+          );
+          setTimeout(() => {
+            setIsGenerating(false);
+          }, 1000);
+        } else {
+          dispatch(
+            viewPricePdfGenrationg({
+              Type: "ERROR",
+              message:
+                response.payload?.message ||
+                "Failed to generate JPG images. Please try again.",
+              loading: false,
+              error: true,
+            })
+          );
+          setTimeout(() => {
+            setIsGenerating(false);
+          }, 3000);
+        }
+      })
+      .catch((e) => {
+        console.error("JPG Generation Error:", e);
+        dispatch(
+          viewPricePdfGenrationg({
+            Type: "ERROR",
+            message: "An error occurred while generating JPG images.",
+            loading: false,
+            error: true,
+          })
+        );
+        setTimeout(() => {
+          setIsGenerating(false);
+        }, 2000);
+      });
+  };
 
   const getPriceListCustomerFull = (priceListOutType) => {
     setIsGenerating(true);
@@ -1108,8 +1203,22 @@ const ViewPriceBook = () => {
 
               <Stack direction="row" alignItems={"center"}>
                 {user.companyCode === "SJ" && (
-                  <Tooltip title="Image" placement="top">
+                  <Tooltip title="JPG" placement="top">
                     <CustomIconButton
+                    onClick={() => {
+                        if (!selectedCustomerOptions) {
+                          setIsCustomer("Please Choose Customer");
+
+                          setTimeout(() => {
+                            setIsCustomer(null);
+                          }, 1000);
+
+                          return;
+                        }
+
+                        getPriceListCustomerJPG();
+
+                      }}
                       sx={{
                         bgcolor: "#2196f3 !important",
                         color: "#fff !important",

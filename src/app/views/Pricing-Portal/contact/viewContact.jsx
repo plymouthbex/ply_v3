@@ -472,7 +472,7 @@ const ContactEdit = () => {
                     variant="standard"
                   >
                     <FormLabel focused={false} component="legend">
-                      Preferred Communications
+                      Preferred Communication
                     </FormLabel>
 
                     {/* First line: Email + Mobile + Communication Type */}
