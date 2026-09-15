@@ -726,6 +726,7 @@ const PriceSheetEdit = () => {
       pending.setSubmitting,
        false, 
        true, 
+       true  
        );
       }
   };
@@ -747,7 +748,7 @@ const PriceSheetEdit = () => {
     pendingSaveRef.current = null;
     if (pending) {
       // resume save, skipping the alignment check this time
-      handleSavePriceSheet(pending.values, pending.setSubmitting, true);
+      handleSavePriceSheet(pending.values, pending.setSubmitting, true,true);
     }
   };
 
