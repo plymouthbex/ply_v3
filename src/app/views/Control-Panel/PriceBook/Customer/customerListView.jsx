@@ -276,7 +276,7 @@ const Customer = () => {
                   dispatch(
                     onCheckboxChangeCustomer({
                       id: params.row.RecordID,
-                      field: "CustomerJPG",
+                      field: "CustomPriceBookJPG",
                     }),
                   );
                 }}
