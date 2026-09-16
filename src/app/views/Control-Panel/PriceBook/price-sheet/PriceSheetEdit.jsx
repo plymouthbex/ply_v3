@@ -1742,7 +1742,7 @@ const PriceSheetEdit = () => {
   onClick={() => setIsBulkDeleteConfirmOpen(true)}
   startIcon={<DeleteIcon color="error" fontSize="small" />}
 >
-  Delete
+  Remove
   {rowSelectionModel.length > 0 && ` (${rowSelectionModel.length})`}
 </Button>
                     </Box>
@@ -1898,7 +1898,7 @@ const PriceSheetEdit = () => {
                 open={isBulkDeleteConfirmOpen}
                 tittle="Delete Selected Items?"
                 // error={true}
-                message="Are you sure you want to delete the selected item(s)?"
+                message="Are you sure you want to remove the selected item(s)?"
                 Actions={
                   <DialogActions>
                     <Button
@@ -1908,7 +1908,7 @@ const PriceSheetEdit = () => {
                       size="small"
                       onClick={handleBulkDeleteConfirm}
                     >
-                      Delete
+                      Remove
                     </Button>
                     <Button
                       variant="contained"

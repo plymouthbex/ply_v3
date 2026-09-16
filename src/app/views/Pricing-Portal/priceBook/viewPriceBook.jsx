@@ -525,6 +525,10 @@ const ViewPriceBook = () => {
             }, 2000);
             return;
           }
+          console.log(selectedCustomerOptions.Name)
+          const customerName = selectedCustomerOptions?.Name
+  ? selectedCustomerOptions.Name.split("||")[1]?.trim()
+  : "Customer";
           // Download each image page returned in the path array
           imageArray.forEach((base64Image, index) => {
             const formattedImage = base64Image.startsWith("data:image/")
@@ -535,7 +539,7 @@ const ViewPriceBook = () => {
             // link.download = `${user.company}_${
             //   selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"
             // }_Page_${index + 1}_${sunday}_TO_${saturday}.jpg`;
-            link.download = `${selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"}_Page_${index + 1}.jpg`;
+            link.download = `${selectedCustomerOptions ? customerName: "Customer"}_Page_${index + 1}.jpg`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

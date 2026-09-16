@@ -263,7 +263,7 @@ const Customer = () => {
           {State.Code === "SJ" && (
             <>
               <Checkbox
-                checked={params.row.cpjpg}
+                checked={params.row.CustomPriceBookJPG}
                 onChange={(e) => {
                   dispatch(
                     CustomerConfig({
@@ -520,11 +520,11 @@ const Customer = () => {
   // : customerRows;
   // Rows where at least one price-book option is configured
   const configuredRows = customerRows.filter(
-    (v) =>
+    (v) => State.Code === "SJ"? v.CustomPriceBookPdf || v.CustomPriceBookExcel || v.CustomPriceBookJPG:
       v.FullPriceBookExcel ||
       v.FullPriceBookPdf ||
       v.CustomPriceBookExcel ||
-      v.CustomPriceBookPdf,
+      v.CustomPriceBookPdf
   );
 
   // Apply "Show Only Customers Configured" toggle first
