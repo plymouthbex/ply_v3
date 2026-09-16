@@ -532,9 +532,10 @@ const ViewPriceBook = () => {
               : `data:image/jpeg;base64,${base64Image}`;
             const link = document.createElement("a");
             link.href = formattedImage;
-            link.download = `${user.company}_${
-              selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"
-            }_Page_${index + 1}_${sunday}_TO_${saturday}.jpg`;
+            // link.download = `${user.company}_${
+            //   selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"
+            // }_Page_${index + 1}_${sunday}_TO_${saturday}.jpg`;
+            link.download = `${selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"}_Page_${index + 1}.jpg`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

@@ -163,6 +163,21 @@ const PriceSheetEdit = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // ********************** MULTI-SELECT & BULK DELETE STATE ********************** //
+  const [rowSelectionModel, setRowSelectionModel] = useState([]);
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
+
+  const handleBulkDeleteConfirm = () => {
+    setLocalPriceSheetItems((currentRows) =>
+      currentRows.filter((row) => {
+        const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+        return !rowSelectionModel.includes(rowId);
+      }),
+    );
+    setRowSelectionModel([]);
+    setIsBulkDeleteConfirmOpen(false);
+  };
+
   const [addPriceListData, setAddPriceListData] = useState([]);
   const [priceSheetRecordID, setpriceSheetRecordID] = useState(
     String(state?.id ?? ""),
@@ -726,7 +741,6 @@ const PriceSheetEdit = () => {
       pending.setSubmitting,
        false, 
        true, 
-       true  
        );
       }
   };
@@ -748,7 +762,7 @@ const PriceSheetEdit = () => {
     pendingSaveRef.current = null;
     if (pending) {
       // resume save, skipping the alignment check this time
-      handleSavePriceSheet(pending.values, pending.setSubmitting, true,true);
+      handleSavePriceSheet(pending.values, pending.setSubmitting, true);
     }
   };
 
@@ -1710,6 +1724,27 @@ const PriceSheetEdit = () => {
                         {" "}
                         Item
                       </Button>
+                     <Button
+  variant="contained"
+  // color="error"
+   color="info"
+  size="small"
+  sx={{
+    height: 30,
+    minWidth: 120,
+    "&.Mui-disabled": {
+      backgroundColor: "#e0e0e0",
+      color: "#9e9e9e",
+      cursor: "not-allowed",
+    },
+  }}
+  disabled={isReadOnly || rowSelectionModel.length === 0}
+  onClick={() => setIsBulkDeleteConfirmOpen(true)}
+  startIcon={<DeleteIcon color="error" fontSize="small" />}
+>
+  Delete
+  {rowSelectionModel.length > 0 && ` (${rowSelectionModel.length})`}
+</Button>
                     </Box>
 
                     {/* <DataGrid
@@ -1762,7 +1797,12 @@ const PriceSheetEdit = () => {
                       onRowEditStop={handleRowEditStop}
                       processRowUpdate={processRowUpdate}
                       // Selection
+                      checkboxSelection
                       disableRowSelectionOnClick
+                      rowSelectionModel={rowSelectionModel}
+                      onRowSelectionModelChange={(newRowSelectionModel) => {
+                        setRowSelectionModel(newRowSelectionModel);
+                      }}
                       // Row ID
                       getRowId={(row) =>
                         row.RecordId || `${row.Item_Number}-${row.sequence}`
@@ -1850,6 +1890,35 @@ const PriceSheetEdit = () => {
                       Try Another
                     </Button>
                   </Box>
+                }
+              />
+
+              <MessageAlertDialog
+                logo={`data:image/png;base64,${user.logo}`}
+                open={isBulkDeleteConfirmOpen}
+                tittle="Delete Selected Items?"
+                // error={true}
+                message="Are you sure you want to delete the selected item(s)?"
+                Actions={
+                  <DialogActions>
+                    <Button
+                      variant="contained"
+                      // color="error"
+                         color="info"
+                      size="small"
+                      onClick={handleBulkDeleteConfirm}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      onClick={() => setIsBulkDeleteConfirmOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogActions>
                 }
               />
 
