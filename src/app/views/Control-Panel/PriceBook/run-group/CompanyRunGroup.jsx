@@ -26,6 +26,7 @@ import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
+import useAuth from "app/hooks/useAuth";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 // ********************* STYLED COMPONENTS ********************* //
@@ -44,6 +45,7 @@ const CompanyRunGroup = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useAuth();
 
   // ********************* LOCAL STATE ********************* //
 
@@ -97,7 +99,7 @@ const CompanyRunGroup = () => {
     },
   ];
   useEffect(() => {
-    dispatch(getCompanyListView());
+    dispatch(getCompanyListView({UserID:user.id}));
   }, [dispatch]);
 
   // ********************* TOOLBAR ********************* //

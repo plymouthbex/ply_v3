@@ -30,6 +30,7 @@ import {
   getCompanyListView,
   getConfigureCompanyListView,
 } from "app/redux/slice/listviewSlice";
+import useAuth from "app/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { clearConfigurePriceList } from "app/redux/slice/getSlice";
 
@@ -47,6 +48,7 @@ const Container = styled("div")(({ theme }) => ({
 const Company = () => {
   // ********************* HOOKS AND CONSTANTS ********************* //
   const theme = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   // ********************* LOCAL STATE ********************* //
@@ -59,7 +61,7 @@ const Company = () => {
 
   //***************************API-CALL************************************ */
   useEffect(() => {
-    dispatch(getConfigureCompanyListView());
+    dispatch(getConfigureCompanyListView({UserID:user.id}));
     dispatch(clearConfigurePriceList());
   }, [dispatch]);
   const RunGr={

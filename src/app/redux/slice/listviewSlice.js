@@ -415,9 +415,9 @@ export const getCustomerListView = createAsyncThunk(
 //=====================Company-ListView=================================//
 export const getCompanyListView = createAsyncThunk(
   "listview/Company", // action type
-  async (_, { rejectWithValue }) => {
+  async ({ UserID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`;
+      const URL = `${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${UserID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,
@@ -545,9 +545,9 @@ export const getUserGroupCompanyListView = createAsyncThunk(
 //=====================Configure Company-ListView=================================//
 export const getConfigureCompanyListView = createAsyncThunk(
   "listview/ConfigureCompany", // action type
-  async (_, { rejectWithValue }) => {
+  async ({ UserID }, { rejectWithValue }) => {
     try {
-      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CM`;
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetConfigurePriceBookList?Type=CM&UserID=${UserID}`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: process.env.REACT_APP_API_TOKEN,

@@ -254,7 +254,7 @@ const PriceList = () => {
                 setPriceBookCateData(params.row);
                 e.stopPropagation(); // ← prevents DataGrid onRowClick
                 setIsCopy(true);
-                dispatch(getCompanyListView());
+                dispatch(getCompanyListView({UserID:user.id}));
                 setIsSide(false);
               }}
               style={{ color: "secondary" }}
@@ -327,7 +327,7 @@ const PriceList = () => {
               // setSelectedCompany(e.target.value)
             }}
             label="Company"
-            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
           />
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
             <Typography sx={{ mt: 1 }}>

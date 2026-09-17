@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanyListView } from "app/redux/slice/listviewSlice";
+import useAuth from "app/hooks/useAuth";
 import VisibilityIcon from "@mui/icons-material/Visibility"
 // ********************* STYLED COMPONENTS ********************* //
 const Container = styled("div")(({ theme }) => ({
@@ -39,6 +40,7 @@ const CompanyList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 const dispatch=useDispatch();
+  const { user } = useAuth();
 
   // ********************* LOCAL STATE ********************* //
 
@@ -118,7 +120,7 @@ const loading = useSelector((state) => state.listview.loading);
     },
   ];
   useEffect(() => {
-    dispatch(getCompanyListView());
+    dispatch(getCompanyListView({UserID:user.id}));
    
   }, [dispatch]);
   

@@ -326,7 +326,7 @@ const columns = [
               // setSelectedCompany(e.target.value)
             }}
             label="Company"
-            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
           /> */}
           <></>
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 , justifyContent: "flex-end"}}>

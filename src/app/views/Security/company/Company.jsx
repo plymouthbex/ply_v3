@@ -219,7 +219,7 @@ const Company = () => {
     },
   ];
   useEffect(() => {
-    dispatch(getCompanyListView());
+    dispatch(getCompanyListView({UserID:user.id}));
   }, [dispatch]);
 
   // ********************* TOOLBAR ********************* //

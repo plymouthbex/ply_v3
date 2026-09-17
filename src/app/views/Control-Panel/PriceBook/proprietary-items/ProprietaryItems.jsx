@@ -196,7 +196,7 @@ const ProprietaryItems = () => {
               dispatch(getRunGroupListView({ ID: e.target.value }));
             }}
             label="Company"
-            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
           /> */}
 
           

@@ -497,7 +497,7 @@ const MailAnalitics = () => {
                       setFieldValue("company", newValue);
                     }}
                     label="Company"
-                    url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView`}
+                    url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
                   />
                   <FormikCustomAutocompleteMulti
                     disabled={values.company.length === 0}
