@@ -21,6 +21,10 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  Collapse,
+  InputAdornment,
+  IconButton,
+  TablePagination,
 } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import logo from "../../../../assets/plylogo.png";
@@ -40,9 +44,15 @@ import {
 // ******************** ICONS ******************** //
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Formik } from "formik";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import FolderIcon from "@mui/icons-material/Folder";
+import DescriptionIcon from "@mui/icons-material/Description";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Formik } from "formik";
+
 import * as Yup from "yup";
 import { useState } from "react";
 import {
@@ -390,6 +400,93 @@ const UserGroupEdit = () => {
   console.log("🚀 ~ UserGroupEdit ~ selectedAppRows:", selectedAppRows);
   const CompanyRows = data.CompanyAccess;
   const AppRows = data.ApplicationAccess;
+
+  // ********************** GROUPED MENU ACCESS STATE & HELPERS ********************** //
+  const [expandedGroups, setExpandedGroups] = useState({
+    "Price Book": true,
+    "Control Panel": true,
+    "Security": false,
+  });
+
+  const [appSearchText, setAppSearchText] = useState("");
+  const [appPage, setAppPage] = useState(0);
+  const [appRowsPerPage, setAppRowsPerPage] = useState(100);
+
+  const toggleGroupExpand = (groupName) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [groupName]: !prev[groupName],
+    }));
+  };
+
+  const getFeatureGroupName = (item) => {
+    const rawGroup = item.GroupName || item.Feature || item.Module || item.ParentName;
+    const groupNameMap = {
+      PB: "Price Book",
+      CP: "Control Panel",
+      SEC: "Security",
+      ANL: "Analytics",
+    };
+
+    if (rawGroup) {
+      return groupNameMap[rawGroup] || rawGroup;
+    }
+
+    const code = (item.Code || item.accessID || "").toUpperCase();
+    const name = (item.Name || "").toLowerCase();
+
+    if (
+      code.startsWith("PPB") ||
+      name.includes("quote") ||
+      name.includes("price book") ||
+      name.includes("price list") ||
+      name.includes("template") ||
+      name.includes("contact directory") ||
+      name.includes("inquiry") ||
+      name.includes("enquiry")
+    ) {
+      return "Price Book";
+    }
+    if (
+      code.startsWith("CP") ||
+      name.includes("categories") ||
+      name.includes("sheet") ||
+      name.includes("proprietary") ||
+      name.includes("configure") ||
+      name.includes("company") ||
+      name.includes("items")
+    ) {
+      return "Control Panel";
+    }
+    if (
+      code.startsWith("S") ||
+      name.includes("menu") ||
+      name.includes("user group") ||
+      name.includes("user")
+    ) {
+      return "Security";
+    }
+    if (
+      code.startsWith("A") ||
+      name.includes("mail") ||
+      name.includes("analytic")
+    ) {
+      return "Analytics";
+    }
+    return "Other";
+  };
+
+  const handleAppSelectionModelChange = (newSelectedIDs) => {
+    if (params?.mode === "delete") return;
+
+    const updatedRows = (AppRows || []).map((row) => ({
+      ...row,
+      IsSelected: newSelectedIDs.includes(row.RecordID) ? "Y" : "N",
+    }));
+
+    dispatch(applicationAdded(newSelectedIDs));
+    setSelectedAppRows(updatedRows);
+  };
 
   return (
     <Container>
@@ -755,142 +852,428 @@ const UserGroupEdit = () => {
                     <Box
                       sx={{
                         height: dataGridHeightC,
-
-                        "& .MuiDataGrid-root": {
-                          border: "none",
-                        },
-
-                        "& .name-column--cell": {
-                          color: theme.palette.info.contrastText,
-                        },
-
-                        "& .MuiDataGrid-columnHeaders": {
-                          backgroundColor: theme.palette.info.main,
-
-                          color: theme.palette.info.contrastText,
-
-                          fontWeight: "bold",
-
-                          fontSize: theme.typography.subtitle2.fontSize,
-                        },
-
-                        "& .MuiDataGrid-virtualScroller": {
-                          backgroundColor: theme.palette.info.light,
-                        },
-
-                        "& .MuiDataGrid-footerContainer": {
-                          borderTop: "none",
-
-                          backgroundColor: theme.palette.info.main,
-
-                          color: theme.palette.info.contrastText,
-                        },
-
-                        "& .MuiCheckbox-root": {
-                          color: "black !important",
-                        },
-
-                        "& .MuiCheckbox-root.Mui-checked": {
-                          color: "black !important",
-                        },
-
-                        "& .MuiDataGrid-row:nth-of-type(even)": {
-                          backgroundColor: theme.palette.action.hover,
-                        },
-
-                        "& .MuiDataGrid-row:nth-of-type(odd)": {
-                          backgroundColor: theme.palette.background.default,
-                        },
-
-                        '& .MuiDataGrid-row:hover': {
-                          border: '3px solid #999999',
-                          // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
-                          borderRadius: '4px', // Optional: Add rounded corners
-                        },
-                        "& .MuiTablePagination-root": {
-                          color: "white !important", // Ensuring white text color for the pagination
-                        },
-
-                        "& .MuiTablePagination-root .MuiTypography-root": {
-                          color: "white !important", // Ensuring white text for "Rows per page" and numbers
-                        },
-
-                        "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                          color: "white !important", // Ensuring white icons for pagination
-                        },
+                        display: "flex",
+                        flexDirection: "column",
+                        borderRadius: "4px",
+                        overflow: "hidden",
+                        backgroundColor: theme.palette.background.paper,
                       }}
                     >
-                      <DataGrid
-                        slots={{
-                          loadingOverlay: LinearProgress,
-                          toolbar: ApplicationCustomToolbar,
-                        }}
-                        columnHeaderHeight={dataGridHeaderFooterHeight}
+                      {/* --- Toolbar Header (Matching Company Access Toolbar) --- */}
+                      <Box
                         sx={{
-                          // This is to override the default height of the footer row
-                          "& .MuiDataGrid-footerContainer": {
-                            height: dataGridHeaderFooterHeight,
-                            minHeight: dataGridHeaderFooterHeight,
-                          },
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          px: 2,
+                          py: 0.5,
+                          backgroundColor: "#ffffff",
                         }}
-                        rowHeight={dataGridRowHeight}
-                        // rows={data.ApplicationAccess}
-                        rows={
+                      >
+                        <Typography fontSize={"14px"} fontWeight={"bold"}>
+                          Menu Access
+                        </Typography>
+                        <TextField
+                          placeholder="Search..."
+                          variant="standard"
+                          size="small"
+                          value={appSearchText}
+                          onChange={(e) => setAppSearchText(e.target.value)}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon
+                                  fontSize="small"
+                                  sx={{ color: "action.active" }}
+                                />
+                              </InputAdornment>
+                            ),
+                            style: { fontSize: "14px" },
+                          }}
+                          sx={{ width: 170 }}
+                        />
+                      </Box>
+
+                      {(() => {
+                        // Filter rows based on Role type
+                        const roleFilteredRows =
                           values.type === "USER"
-                            ? data.ApplicationAccess.filter(
-                                (value) => value.User === 1
-                              )
+                            ? (data.ApplicationAccess || []).filter((v) => v.User === 1)
                             : values.type === "ADMIN"
-                            ? data.ApplicationAccess.filter(
-                                (value) => value.Admin === 1
-                              )
+                            ? (data.ApplicationAccess || []).filter((v) => v.Admin === 1)
                             : values.type === "SYSTEMADMIN"
-                            ? data.ApplicationAccess.filter(
-                                (value) => value.SystemAdmin === 1
-                              )
-                            : []
-                        }
-                        columns={Appcolumns}
-                        checkboxSelection
-                        // checkboxSelection={mode !== "delete"}
-                        onRowSelectionModelChange={(newRowSelectionModel) => {
-                          if (params?.mode === "delete") {
-                            // If in delete mode, don't allow row selection changes
-                            return;
+                            ? (data.ApplicationAccess || []).filter((v) => v.SystemAdmin === 1)
+                            : [];
+
+                        const currentSelectedIDs = Applicationdata || [];
+                        const roleItemIDs = roleFilteredRows.map((r) => r.RecordID);
+                        const selectedRoleCount = roleItemIDs.filter((id) =>
+                          currentSelectedIDs.includes(id)
+                        ).length;
+
+                        const isAllGlobalSelected =
+                          roleItemIDs.length > 0 && selectedRoleCount === roleItemIDs.length;
+                        const isSomeGlobalSelected =
+                          selectedRoleCount > 0 && selectedRoleCount < roleItemIDs.length;
+
+                        const handleGlobalSelectAllToggle = () => {
+                          if (params?.mode === "delete") return;
+                          let newSelectedIDs;
+                          if (isAllGlobalSelected || isSomeGlobalSelected) {
+                            newSelectedIDs = currentSelectedIDs.filter(
+                              (id) => !roleItemIDs.includes(id)
+                            );
+                          } else {
+                            newSelectedIDs = Array.from(
+                              new Set([...currentSelectedIDs, ...roleItemIDs])
+                            );
                           }
-                          const updatedRows = AppRows.map((row) => {
-                            if (newRowSelectionModel.includes(row.RecordID)) {
-                              return { ...row, IsSelected: "Y" };
-                            } else {
-                              return { ...row, IsSelected: "N" };
-                            }
+                          handleAppSelectionModelChange(newSelectedIDs);
+                        };
+
+                        // Group rows by Feature
+                        const groups = {};
+                        roleFilteredRows.forEach((row) => {
+                          const groupName = getFeatureGroupName(row);
+                          if (!groups[groupName]) {
+                            groups[groupName] = [];
+                          }
+                          groups[groupName].push(row);
+                        });
+
+                        // Sort items inside each group numerically by SortOrder
+                        Object.keys(groups).forEach((g) => {
+                          groups[g].sort((a, b) => {
+                            const orderA = parseInt(a.SortOrder ?? a.sortorder ?? a.Sequence ?? "0", 10);
+                            const orderB = parseInt(b.SortOrder ?? b.sortorder ?? b.Sequence ?? "0", 10);
+                            return orderA - orderB;
                           });
-                          dispatch(applicationAdded(newRowSelectionModel));
-                          console.log("Updated Rows:", updatedRows);
-                          setSelectedAppRows(updatedRows);
-                        }}
-                        rowSelectionModel={Applicationdata}
-                        disableSelectionOnClick
-                        disableRowSelectionOnClick
-                        getRowId={(row) => row.RecordID}
-                        initialState={{
-                          pagination: {
-                            paginationModel: { pageSize: dataGridPageSize },
-                          },
-                        }}
-                        pageSizeOptions={dataGridpageSizeOptions}
-                        columnVisibilityModel={{
-                          RecordID: true,
-                        }}
-                        disableColumnFilter
-                        disableColumnSelector
-                        disableDensitySelector
-                        slotProps={{
-                          toolbar: {
-                            showQuickFilter: true,
-                          },
-                        }}
-                      />
+                        });
+
+                        // Order groups explicitly: 1st Price Book (PB), 2nd Control Panel (CP), 3rd Security (SEC), 4th Analytics (ANL)
+                        const explicitGroupOrder = {
+                          "Price Book": 1,
+                          "Control Panel": 2,
+                          "Security": 3,
+                          "Analytics": 4,
+                        };
+
+                        const groupNames = Object.keys(groups).sort((a, b) => {
+                          const orderA = explicitGroupOrder[a] || 99;
+                          const orderB = explicitGroupOrder[b] || 99;
+                          if (orderA !== orderB) return orderA - orderB;
+                          return a.localeCompare(b);
+                        });
+
+                        const searchKeyword = appSearchText.trim().toLowerCase();
+
+                        const hasMatchingItems = groupNames.some((groupName) => {
+                          const groupItems = groups[groupName];
+                          const isGroupMatch = groupName.toLowerCase().includes(searchKeyword);
+                          const matchingItems = searchKeyword
+                            ? groupItems.filter(
+                                (item) =>
+                                  item.Name?.toLowerCase().includes(searchKeyword) ||
+                                  item.Code?.toLowerCase().includes(searchKeyword)
+                              )
+                            : groupItems;
+                          return isGroupMatch || matchingItems.length > 0;
+                        });
+
+                        return (
+                          <>
+                            {/* --- Column Header Row (Grey Header Bar matching DataGrid) --- */}
+                            <Box
+                              sx={{
+                                backgroundColor: theme.palette.info.main,
+                                color: theme.palette.info.contrastText,
+                                px: 1,
+                                display: "flex",
+                                alignItems: "center",
+                                height: dataGridHeaderFooterHeight,
+                                minHeight: dataGridHeaderFooterHeight,
+                              }}
+                            >
+                              <Checkbox
+                                size="small"
+                                checked={isAllGlobalSelected}
+                                indeterminate={isSomeGlobalSelected}
+                                disabled={params?.mode === "delete" || roleItemIDs.length === 0}
+                                onChange={handleGlobalSelectAllToggle}
+                                sx={{
+                                  color: "white !important",
+                                  "&.Mui-checked": { color: "white !important" },
+                                  "&.MuiCheckbox-indeterminate": { color: "white !important" },
+                                }}
+                              />
+                              <Typography
+                                variant="subtitle2"
+                                fontWeight="bold"
+                                sx={{ color: "white", ml: 1 }}
+                              >
+                                Menu Name
+                              </Typography>
+                            </Box>
+
+                            {/* --- Table Body / Grouped Content --- */}
+                            {(() => {
+                              let itemCounter = 0;
+
+                              return (
+                                <Box
+                                  sx={{
+                                    flex: 1,
+                                    overflowY: "auto",
+                                    backgroundColor: theme.palette.info.light,
+                                    p: 0,
+                                    "& .MuiCheckbox-root": { color: "black !important" },
+                                    "& .MuiCheckbox-root.Mui-checked": { color: "black !important" },
+                                  }}
+                                >
+                                  {groupNames.length === 0 || (searchKeyword && !hasMatchingItems) ? (
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        height: "100%",
+                                        minHeight: "180px",
+                                      }}
+                                    >
+                                      <Typography variant="body2" color="textSecondary">
+                                        No rows
+                                      </Typography>
+                                    </Box>
+                                  ) : (
+                                    groupNames.map((groupName) => {
+                                      const groupItems = groups[groupName];
+
+                                      const isGroupMatch = groupName.toLowerCase().includes(searchKeyword);
+                                      const matchingItems = searchKeyword
+                                        ? groupItems.filter(
+                                            (item) =>
+                                              item.Name?.toLowerCase().includes(searchKeyword) ||
+                                              item.Code?.toLowerCase().includes(searchKeyword)
+                                          )
+                                        : groupItems;
+
+                                      if (searchKeyword && !isGroupMatch && matchingItems.length === 0) {
+                                        return null;
+                                      }
+
+                                      const itemsToDisplay = searchKeyword && !isGroupMatch ? matchingItems : groupItems;
+
+                                      const groupItemIDs = itemsToDisplay.map((i) => i.RecordID);
+                                      const selectedCount = groupItemIDs.filter((id) =>
+                                        currentSelectedIDs.includes(id)
+                                      ).length;
+                                      const isAllSelected =
+                                        selectedCount === groupItemIDs.length && groupItemIDs.length > 0;
+                                      const isSomeSelected =
+                                        selectedCount > 0 && selectedCount < groupItemIDs.length;
+
+                                      const isExpanded = searchKeyword ? true : !!expandedGroups[groupName];
+
+                                      return (
+                                        <Box key={groupName}>
+                                          {/* --- Feature Parent Header Row --- */}
+                                          <Box
+                                            onClick={() => toggleGroupExpand(groupName)}
+                                            sx={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "space-between",
+                                              backgroundColor: theme.palette.grey[200],
+                                              px: 1,
+                                              py: 0,
+                                              height: dataGridRowHeight,
+                                              minHeight: dataGridRowHeight,
+                                              cursor: "pointer",
+                                              border: "3px solid transparent",
+                                              boxSizing: "border-box",
+                                              "&:hover": {
+                                                border: "3px solid #999999",
+                                                borderRadius: "4px",
+                                                backgroundColor: theme.palette.grey[300],
+                                              },
+                                            }}
+                                          >
+                                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                                              <Checkbox
+                                                size="small"
+                                                checked={isAllSelected}
+                                                indeterminate={isSomeSelected}
+                                                disabled={params?.mode === "delete"}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => {
+                                                  e.stopPropagation();
+                                                  if (params?.mode === "delete") return;
+
+                                                  let newSelectedIDs;
+                                                  if (isAllSelected || isSomeSelected) {
+                                                    newSelectedIDs = currentSelectedIDs.filter(
+                                                      (id) => !groupItemIDs.includes(id)
+                                                    );
+                                                  } else {
+                                                    newSelectedIDs = Array.from(
+                                                      new Set([...currentSelectedIDs, ...groupItemIDs])
+                                                    );
+                                                  }
+                                                  handleAppSelectionModelChange(newSelectedIDs);
+                                                }}
+                                              />
+                                              <FolderIcon
+                                                fontSize="small"
+                                                sx={{ mr: 1, color: "action.active" }}
+                                              />
+                                              <Typography variant="subtitle2" fontWeight="bold">
+                                                {groupName}
+                                              </Typography>
+                                            </Box>
+                                            <IconButton size="small">
+                                              {isExpanded ? (
+                                                <KeyboardArrowUpIcon fontSize="small" />
+                                              ) : (
+                                                <KeyboardArrowDownIcon fontSize="small" />
+                                              )}
+                                            </IconButton>
+                                          </Box>
+
+                                          {/* --- Child Menu Items --- */}
+                                          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                            <Box sx={{ py: 0 }}>
+                                              {itemsToDisplay.map((item) => {
+                                                const isChildChecked = currentSelectedIDs.includes(
+                                                  item.RecordID
+                                                );
+
+                                                const isEvenRow = itemCounter % 2 === 0;
+                                                itemCounter++;
+
+                                                return (
+                                                  <Box
+                                                    key={item.RecordID}
+                                                    sx={{
+                                                      display: "flex",
+                                                      alignItems: "center",
+                                                      pl: 4,
+                                                      pr: 2,
+                                                      py: 0,
+                                                      height: dataGridRowHeight,
+                                                      minHeight: dataGridRowHeight,
+                                                      boxSizing: "border-box",
+                                                      border: "3px solid transparent",
+                                                      backgroundColor: isEvenRow
+                                                        ? theme.palette.action.hover
+                                                        : theme.palette.background.default,
+                                                      "&:hover": {
+                                                        border: "3px solid #999999",
+                                                        borderRadius: "4px",
+                                                        cursor: "pointer",
+                                                      },
+                                                    }}
+                                                  >
+                                                    <Checkbox
+                                                      size="small"
+                                                      checked={isChildChecked}
+                                                      disabled={params?.mode === "delete"}
+                                                      onChange={(e) => {
+                                                        e.stopPropagation();
+                                                        if (params?.mode === "delete") return;
+
+                                                        let newSelectedIDs;
+                                                        if (isChildChecked) {
+                                                          newSelectedIDs = currentSelectedIDs.filter(
+                                                            (id) => id !== item.RecordID
+                                                          );
+                                                        } else {
+                                                          newSelectedIDs = [
+                                                            ...currentSelectedIDs,
+                                                            item.RecordID,
+                                                          ];
+                                                        }
+                                                        handleAppSelectionModelChange(newSelectedIDs);
+                                                      }}
+                                                    />
+                                                    <DescriptionIcon
+                                                      fontSize="small"
+                                                      sx={{
+                                                        color: theme.palette.text.secondary,
+                                                        mr: 1,
+                                                      }}
+                                                    />
+                                                    <Typography variant="body2">{item.Name}</Typography>
+                                                  </Box>
+                                                );
+                                              })}
+                                            </Box>
+                                          </Collapse>
+                                        </Box>
+                                      );
+                                    })
+                                  )}
+                                </Box>
+                              );
+                            })()}
+
+                            {/* --- Footer Status / Pagination Bar (Matching Company Access DataGrid Footer) --- */}
+                            <Box
+                              sx={{
+                                backgroundColor: theme.palette.info.main,
+                                color: theme.palette.info.contrastText,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                height: dataGridHeaderFooterHeight,
+                                minHeight: dataGridHeaderFooterHeight,
+                                overflow: "hidden",
+                              }}
+                            >
+                              <TablePagination
+                                component="div"
+                                count={roleItemIDs.length}
+                                page={appPage}
+                                onPageChange={(event, newPage) => setAppPage(newPage)}
+                                rowsPerPage={appRowsPerPage}
+                                onRowsPerPageChange={(event) => {
+                                  setAppRowsPerPage(parseInt(event.target.value, 10));
+                                  setAppPage(0);
+                                }}
+                                rowsPerPageOptions={[20, 50, 100]}
+                                sx={{
+                                  color: "white !important",
+                                  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+                                    color: "white !important",
+                                    fontSize: "0.75rem",
+                                    margin: 0,
+                                  },
+                                  "& .MuiTablePagination-select": {
+                                    color: "white !important",
+                                    fontSize: "0.75rem",
+                                  },
+                                  "& .MuiTablePagination-selectIcon": {
+                                    color: "white !important",
+                                  },
+                                  "& .MuiTablePagination-actions": {
+                                    color: "white !important",
+                                  },
+                                  "& .MuiTablePagination-actions .MuiIconButton-root": {
+                                    color: "white !important",
+                                    padding: "4px",
+                                  },
+                                  "& .MuiTablePagination-toolbar": {
+                                    minHeight: dataGridHeaderFooterHeight,
+                                    height: dataGridHeaderFooterHeight,
+                                    paddingLeft: 2,
+                                    paddingRight: 1,
+                                  },
+                                }}
+                              />
+                            </Box>
+                          </>
+                        );
+                      })()}
                     </Box>
                   </Stack>
                 </Box>
