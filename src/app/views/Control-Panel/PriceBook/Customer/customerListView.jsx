@@ -490,15 +490,43 @@ const Customer = () => {
   const [selectedRunGrpName, setSelectedRunGrpName] = useState(
     State?.RunGroup?.Name ? { Name: State?.RunGroup?.Name } : null,
   );
-
   const handleSelectionRunGrpChange = (newValue) => {
-    if (newValue) {
-      setSelectedRunGrpOptions(newValue);
-      setSelectedRunGrpName(newValue.Name);
-    } else {
-      setSelectedRunGrpOptions(null);
-      setSelectedRunGrpName(null);
-    }
+  if (newValue) {
+    setSelectedRunGrpOptions(newValue);
+    setSelectedRunGrpName(newValue.Name);
+
+    // Dispatch API call again with the selected Price Book Group (RunGroup)
+    dispatch(
+      getConfigureCustomerListView({
+        ID: State.RecordID,
+        PriceBookGroup: newValue.Name || "", // Passes the selected RunGroup Name
+        Role: user?.role || "",
+      })
+    );
+  } else {
+    setSelectedRunGrpOptions(null);
+    setSelectedRunGrpName(null);
+
+    // Reset API call to fetch all data when cleared
+    dispatch(
+      getConfigureCustomerListView({
+        ID: State.RecordID,
+        PriceBookGroup: "",
+        Role: user?.role || "",
+      })
+    );
+  }
+};
+
+  // const handleSelectionRunGrpChange = (newValue) => {
+  //   if (newValue) {
+  //     setSelectedRunGrpOptions(newValue);
+  //     setSelectedRunGrpName(newValue.Name);
+  //   } else {
+  //     setSelectedRunGrpOptions(null);
+  //     setSelectedRunGrpName(null);
+  //   }
+    
 
     // if (newValue) {
     //   dispatch(fetchListviewRunGroup({ runGroupID: newValue.Name })).then(
@@ -508,7 +536,7 @@ const Customer = () => {
     //     }
     //   );
     // }
-  };
+  // };
   console.log("🚀 ~ Customer ~ selectedRunGrpOptions:", selectedRunGrpOptions);
   console.log("🚀 ~ Customer ~ selectedRunGrpName:", selectedRunGrpName);
 

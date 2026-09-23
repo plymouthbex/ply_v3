@@ -95,19 +95,23 @@ const ImageWrapper = styled("div")(({ previewImage }) => ({
   backgroundPosition: "center",
 }));
 
-// ******************** Validation Schema ******************** //
 const validationSchema = Yup.object({
-  name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
-    .max(60, "Name must be at most 60 characters"),
-
-  // phonenumber: Yup.string().matches(
-  //   /^\(\d{3}\) \d{3}-\d{4}$/,
-  //   "Phone number must be in the format (XXX) XXX-XXXX"
-  // ),
+  firstName: Yup.string()
+    .min(1, "First Name must be at least 1 character")
+    .max(60, "First Name must be at most 60 characters")
+    .required("First Name is required"),
   email: Yup.string()
     .email("Must be a valid email")
-    .required("Email is required"),
+    .when("preferedMail", {
+      is: true,
+      then: (schema) => schema.required("Email is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  phonenumber: Yup.string().when("preferedMobile", {
+    is: true,
+    then: (schema) => schema.required("Mobile number is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 const formatPhoneNumber = (value) => {
   // Remove all non-digit characters
@@ -178,7 +182,7 @@ const ContactEdit = () => {
       Provider: values.provider,
       FirstName: values.firstName,
       LastName: values.lastName,
-      CommunicationType: values.CommunicationType,
+      CommunicationType: values.preferedMobile ? (values.CommunicationType || "Text") : "",
       Disable: values.disable ? "1" : "0",
     };
     const response = await dispatch(
@@ -226,7 +230,7 @@ const ContactEdit = () => {
             phonenumber: data.Phone,
             preferedMail: data.PreferedMail === "1" ? true : false,
             preferedMobile: data.PreferedMobile === "1" ? true : false,
-            CommunicationType: data.CommunicationType || "Text",
+            CommunicationType: data.CommunicationType || "",
             disable: data.Disable === "1" ? true : false,
           }}
           validationSchema={validationSchema}
@@ -251,6 +255,8 @@ const ContactEdit = () => {
             resetForm,
             setFieldValue,
             setSubmitting,
+            setFieldError,
+            setFieldTouched,
           }) => (
             <form onSubmit={handleSubmit}>
               <div className="breadcrumb">
@@ -418,7 +424,12 @@ const ContactEdit = () => {
                     sx={{ gridColumn: "span 2" }}
                     value={values.phonenumber}
                     autoComplete="off"
-                    //onChange={handleChange}
+                    required={values.preferedMobile}
+                    InputLabelProps={
+                      values.preferedMobile
+                        ? { sx: { "& .MuiInputLabel-asterisk": { color: "red" } } }
+                        : undefined
+                    }
                     onChange={(e) => {
                       const formattedPhone = formatPhoneNumber(e.target.value);
                       handleChange({
@@ -431,10 +442,6 @@ const ContactEdit = () => {
                     onBlur={handleBlur}
                     error={touched.phonenumber && Boolean(errors.phonenumber)}
                     helperText={touched.phonenumber && errors.phonenumber}
-                    // InputLabelProps={{
-                    //   sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    // }}
-                    // required
                     disabled={params?.mode === "delete"}
                   />
                   <FormikCustomSelectProvider
@@ -479,10 +486,12 @@ const ContactEdit = () => {
                     size="small"
                     sx={{ gridColumn: "span 2" }}
                     autoComplete="off"
-                    required
-                    InputLabelProps={{
-                      sx: { "& .MuiInputLabel-asterisk": { color: "red" } },
-                    }}
+                    required={values.preferedMail}
+                    InputLabelProps={
+                      values.preferedMail
+                        ? { sx: { "& .MuiInputLabel-asterisk": { color: "red" } } }
+                        : undefined
+                    }
                     value={values.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -506,7 +515,14 @@ const ContactEdit = () => {
                             id="preferedMail"
                             name="preferedMail"
                             checked={values.preferedMail}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              handleChange(e);
+                              if (!checked) {
+                                setFieldError("email", undefined);
+                                setFieldTouched("email", false);
+                              }
+                            }}
                             disabled={params?.mode === "delete"}
                           />
                         }
@@ -518,13 +534,15 @@ const ContactEdit = () => {
                             id="preferedMobile"
                             name="preferedMobile"
                             checked={values.preferedMobile}
-                             onChange={(e) => {
+                            onChange={(e) => {
                               const checked = e.target.checked;
 
                               handleChange(e);
 
                               if (!checked) {
                                 setFieldValue("CommunicationType", "");
+                                setFieldError("phonenumber", undefined);
+                                setFieldTouched("phonenumber", false);
                               }
                             }}
                             disabled={params?.mode === "delete"}
