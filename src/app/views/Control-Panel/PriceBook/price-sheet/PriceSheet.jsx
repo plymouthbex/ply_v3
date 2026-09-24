@@ -136,6 +136,14 @@ const columns = [
     align: "left",
     headerAlign: "left",
   },
+  {
+    headerName: "Price Sheet Desc",
+    field: "PriceSheetDesc",
+    minWidth: 200,
+    flex: 1,
+    align: "left",
+    headerAlign: "left",
+  },
   // {
   //   headerName: "Print Category",
   //   field: "PrintCategory",

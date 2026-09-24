@@ -613,6 +613,7 @@ const PriceSheetEdit = () => {
           params.mode === "add" ? 0 : priceSheetHeaderData.PriceSheetID || 0,
 
         priceSheetName: values.priceListDescription,
+        PriceSheetDesc: values.priceSheetDesc || "",
 
         printPriceList: values.printPriceList ?? false,
         printCategory: values.printCategory,
@@ -1032,6 +1033,11 @@ const PriceSheetEdit = () => {
                 ? priceSheetHeaderData.PriceSheetName || ""
                 : priceSheetHeaderData.PriceSheetName || "",
 
+            priceSheetDesc:
+              params.mode === "add"
+                ? ""
+                : priceSheetHeaderData.PriceSheetDesc || "",
+
             pdfFormat:
               params.mode === "add"
                 ? "1"
@@ -1193,6 +1199,22 @@ const PriceSheetEdit = () => {
                         },
                       },
                     }}
+                  />
+                  <TextField
+                    sx={{ gridColumn: "span 1" }}
+                    fullWidth
+                    variant="outlined"
+                    type="text"
+                    id="priceSheetDesc"
+                    name="priceSheetDesc"
+                    label="Price Sheet Description"
+                    value={values.priceSheetDesc || ""}
+                    autoComplete="off"
+                    onChange={handleChange}
+                    size="small"
+                    disabled={
+                      params.mode === "delete" || params.mode === "view"
+                    }
                   />
                   {/* PDF Format */}
                   <FormControl

@@ -1382,6 +1382,7 @@ const ViewPriceBook = () => {
                 </Select>
               </FormControl>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                { user?.companyCode === "SJ" && (
                 <Typography color="error"
                   sx={{
                     // color: "#1976d2",
@@ -1390,8 +1391,8 @@ const ViewPriceBook = () => {
                     mb:1
                   }}
                 >
-                  Note: Customer can configure at least one format (PDF, Excel, or JPG) for display.
-                </Typography>
+                  Note: Customer can configure at least one format (PDF, Excel, or JPG) to be displayed.
+                </Typography>)}
                 <ViewPriceSingleAutocomplete
                   isError={isCustomer}
                   name="customer"
