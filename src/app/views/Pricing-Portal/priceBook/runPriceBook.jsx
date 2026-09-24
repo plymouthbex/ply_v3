@@ -145,20 +145,9 @@ export default function RunPriceBook() {
   console.log("State", State);
 
   useEffect(() => {
-    let savedRunGroup = null;
-    try {
-      const stored = sessionStorage.getItem("selectedRunGroup");
-      if (stored) {
-        savedRunGroup = JSON.parse(stored);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
     const selectedRunGroup =
       location.state?.selectedRunGroup ??
       location.state?.RunGroup ??
-      savedRunGroup ??
       (user.defaultRunGroup
         ? {
             Name: user.defaultRunGroup,
@@ -167,10 +156,6 @@ export default function RunPriceBook() {
 
     if (selectedRunGroup && selectedRunGroup.Name) {
       setSelectedRunGrpOptions(selectedRunGroup);
-      sessionStorage.setItem(
-        "selectedRunGroup",
-        JSON.stringify(selectedRunGroup),
-      );
 
       dispatch(
         fetchListviewRunGroup({
@@ -805,7 +790,6 @@ export default function RunPriceBook() {
     setIsEmailButtonDisabled(false); // Re-enable button on selection change
 
     if (newValue && newValue.Name) {
-      sessionStorage.setItem("selectedRunGroup", JSON.stringify(newValue));
       dispatch(
         fetchListviewRunGroup({
           runGroupID: newValue.Name,
@@ -815,8 +799,6 @@ export default function RunPriceBook() {
         const allRowIds = res.payload?.rows?.map((row) => row.id) || [];
         setRowSelectionModel(allRowIds);
       });
-    } else {
-      sessionStorage.removeItem("selectedRunGroup");
     }
 
     setShowFiltered(false);
