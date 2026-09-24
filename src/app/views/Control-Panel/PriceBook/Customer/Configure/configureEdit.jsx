@@ -2104,7 +2104,11 @@ const ConfigureEdit = () => {
                     startIcon={<ArrowBackIcon size="small" />}
                     onClick={() => {
                       if (State.Type === "PriceBookGroup") {
-                        navigate("/pages/pricing-portal/run-price-book");
+                        navigate("/pages/pricing-portal/run-price-book", {
+                          state: {
+                            selectedRunGroup: State.RunGroup,
+                          },
+                        });
                       } else {
                         navigate(
                           "/pages/control-panel/configure-price-book/customer",

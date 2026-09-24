@@ -145,21 +145,43 @@ export default function RunPriceBook() {
   console.log("State", State);
 
   useEffect(() => {
-    const selectedRunGroup = location.state?.selectedRunGroup ?? {
-      Name: user.defaultRunGroup,
-    };
+    let savedRunGroup = null;
+    try {
+      const stored = sessionStorage.getItem("selectedRunGroup");
+      if (stored) {
+        savedRunGroup = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error(e);
+    }
 
-    setSelectedRunGrpOptions(selectedRunGroup);
+    const selectedRunGroup =
+      location.state?.selectedRunGroup ??
+      location.state?.RunGroup ??
+      savedRunGroup ??
+      (user.defaultRunGroup
+        ? {
+            Name: user.defaultRunGroup,
+          }
+        : null);
 
-    dispatch(
-      fetchListviewRunGroup({
-        runGroupID: selectedRunGroup.Name,
-        companyID: user.companyID,
-      }),
-    ).then((res) => {
-      const allRowIds = res.payload.rows.map((row) => row.id);
-      setRowSelectionModel(allRowIds);
-    });
+    if (selectedRunGroup && selectedRunGroup.Name) {
+      setSelectedRunGrpOptions(selectedRunGroup);
+      sessionStorage.setItem(
+        "selectedRunGroup",
+        JSON.stringify(selectedRunGroup),
+      );
+
+      dispatch(
+        fetchListviewRunGroup({
+          runGroupID: selectedRunGroup.Name,
+          companyID: user.companyID,
+        }),
+      ).then((res) => {
+        const allRowIds = res.payload?.rows?.map((row) => row.id) || [];
+        setRowSelectionModel(allRowIds);
+      });
+    }
 
     setCurrentDate(new Date());
   }, [dispatch, location.state, user.companyID, user.defaultRunGroup]);
@@ -782,18 +804,19 @@ export default function RunPriceBook() {
     setSelectedRunGrpOptions(newValue);
     setIsEmailButtonDisabled(false); // Re-enable button on selection change
 
-    // localStorage.setItem("selectedRunGroup", JSON.stringify(newValue));
-
-    if (newValue) {
+    if (newValue && newValue.Name) {
+      sessionStorage.setItem("selectedRunGroup", JSON.stringify(newValue));
       dispatch(
         fetchListviewRunGroup({
           runGroupID: newValue.Name,
           companyID: user.companyID,
         }),
       ).then((res) => {
-        const allRowIds = res.payload.rows.map((row) => row.id);
+        const allRowIds = res.payload?.rows?.map((row) => row.id) || [];
         setRowSelectionModel(allRowIds);
       });
+    } else {
+      sessionStorage.removeItem("selectedRunGroup");
     }
 
     setShowFiltered(false);

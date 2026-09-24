@@ -1381,19 +1381,31 @@ const ViewPriceBook = () => {
                   )}
                 </Select>
               </FormControl>
-              <ViewPriceSingleAutocomplete
-                isError={isCustomer}
-                name="customer"
-                id="customer"
-                value={selectedCustomerOptions}
-                onChange={handleSelectionCustomerChange}
-                label="Customer"
-                url={`${
-                  process.env.REACT_APP_BASE_URL
-                }Customer/${user.companyCode == "SJ" && selectPriceListtype == "CP" ? "GetSJCustomCustomer" : "GetCustomer"}?CompanyID=${user.companyID}&Type=${
-                  selectPriceListtype == "CP" ? "Custom" : "Full"
-                }&FromDate=${sunday}`}
-              />
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                <Typography color="error"
+                  sx={{
+                    // color: "#1976d2",
+                    fontWeight: "bold",
+                    fontSize: "12px",
+                    mb:1
+                  }}
+                >
+                  Note: Customer can configure at least one format (PDF, Excel, or JPG) for display.
+                </Typography>
+                <ViewPriceSingleAutocomplete
+                  isError={isCustomer}
+                  name="customer"
+                  id="customer"
+                  value={selectedCustomerOptions}
+                  onChange={handleSelectionCustomerChange}
+                  label="Customer"
+                  url={`${
+                    process.env.REACT_APP_BASE_URL
+                  }Customer/${user.companyCode == "SJ" && selectPriceListtype == "CP" ? "GetSJCustomCustomer" : "GetCustomer"}?CompanyID=${user.companyID}&Type=${
+                    selectPriceListtype == "CP" ? "Custom" : "Full"
+                  }&FromDate=${sunday}`}
+                />
+              </Box>
 
               <Box></Box>
             </Box>
