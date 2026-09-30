@@ -41,6 +41,7 @@ import {
 
 // ********************** ICONS ********************** //
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import { Add, RefreshOutlined } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -76,6 +77,7 @@ import { Formik } from "formik";
 import {
   CopyCompanyPriceList,
   UpdateSeqPriceList,
+  CopyPriceSheet,
 } from "app/redux/slice/postSlice";
 import { LoadingButton } from "@mui/lab";
 
@@ -117,161 +119,213 @@ const PriceSheet = () => {
     setCustomerSelectData(newValue);
   };
   const [rowSelectionID, setRowSelectionID] = React.useState("");
-  const[isLoading,setIsLoading]= React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [rowSelectionModelRows, setRowSelectionModelRows] = React.useState([]);
+
+  // Copy Price Sheet State
+  const [openCopyDialog, setOpenCopyDialog] = useState(false);
+  const [selectedCopyRow, setSelectedCopyRow] = useState(null);
+  const [newPriceSheetName, setNewPriceSheetName] = useState("");
+  const [copyError, setCopyError] = useState("");
+  const [isCopying, setIsCopying] = useState(false);
+
+  const handleOpenCopyDialog = (row, e) => {
+    e?.stopPropagation();
+    setSelectedCopyRow(row);
+    setNewPriceSheetName("");
+    setCopyError("");
+    setOpenCopyDialog(true);
+  };
+
+  const handleSaveCopyPriceSheet = async () => {
+    if (!newPriceSheetName || !newPriceSheetName.trim()) {
+      setCopyError("Please enter price sheet name");
+      return;
+    }
+
+    setIsCopying(true);
+    try {
+      const payload = {
+        companyID: companyRecordID || user?.companyID || 0,
+        userID: user?.id || 0,
+        priceSheetID: selectedCopyRow?.PriceSheetID || 0,
+        newPriceSheetName: newPriceSheetName.trim(),
+      };
+
+      const res = await dispatch(CopyPriceSheet({ data: payload })).unwrap();
+      if (res?.status === "Y" || res?.status === 200 || res?.Status === "Y") {
+        toast.success(res?.message || res?.Message || "Price sheet copied successfully");
+        setOpenCopyDialog(false);
+        setNewPriceSheetName("");
+        dispatch(getPriceSheetView({ ID: companyRecordID || user?.companyID }));
+      } else {
+        setCopyError(res?.message || res?.Message || "Failed to copy price sheet");
+      }
+    } catch (err) {
+      setCopyError(err?.message || err || "Error copying price sheet");
+    } finally {
+      setIsCopying(false);
+    }
+  };
   // ********************** REDUX STATE ********************** //
 
   const loading = useSelector((state) => state.listview.priceListloading);
-   const priceSheetRows = useSelector((state) => state.listview.priceSheetViewData);
+  const priceSheetRows = useSelector((state) => state.listview.priceSheetViewData);
   const ItemCount = useSelector((state) => state.listview.ItemCount);
   console.log("🚀 ~ PriceList ~ ItemCount:", ItemCount);
   // ********************** COLUMN AND ROWS ********************** //
-const columns = [
-  {
-    headerName: "Price Sheet",
-    field: "PriceSheetName",
-    minWidth: 200,
-    flex: 1,
-    align: "left",
-    headerAlign: "left",
-  },
-  {
-    headerName: "Description",
-    field: "PriceSheetDesc",
-    minWidth: 200,
-    flex: 1,
-    align: "left",
-    headerAlign: "left",
-  },
-  // {
-  //   headerName: "Print Category",
-  //   field: "PrintCategory",
-  //   width: 160,
-  //   align: "center",
-  //   headerAlign: "center",
-  //   sortable: false,
-  //   renderCell: (params) => (
-  //     <Checkbox
-  //       checked={params.row.PrintCategory === true}
-  //       onChange={(event) => {
-  //         const checked = event.target.checked;
-
-  //         console.log(
-  //           "Print Category:",
-  //           params.row.PriceSheetName,
-  //           checked
-  //         );
-
-  //         // Later you can dispatch/API call here
-  //       }}
-  //     />
-  //   ),
-  // },
-  // {
-  //   headerName: "Print Price List",
-  //   field: "PrintPriceList",
-  //   width: 180,
-  //   align: "center",
-  //   headerAlign: "center",
-  //   sortable: false,
-  //   renderCell: (params) => (
-  //     <Checkbox
-  //       checked={params.row.PrintPriceList === true}
-  //       onChange={(event) => {
-  //         const checked = event.target.checked;
-
-  //         console.log(
-  //           "Print Price List:",
-  //           params.row.PriceSheetName,
-  //           checked
-  //         );
-
-  //         // Later you can dispatch/API call here
-  //       }}
-  //     />
-  //   ),
-  // },
-  {
-    headerName: "Item Count",
-    field: "ItemCount",
-    width: 150,
-    align: "right",
-    headerAlign: "center",
-    hide: true,
-  },
-  {
-    field: "Action",
-    headerName: "Action",
-    minWidth: 300,
-    flex: 1,
-    sortable: false,
-    headerAlign: "center",
-    filterable: false,
-    disableColumnMenu: true,
-    disableExport: true,
-    align: "center",
-    renderCell: (params) => {
-      return (
-        <div style={{ display: "flex", gap: "10px" }}>
-          <IconButton
-            onClick={() => {
-              naviate(
-                "/pages/control-panel/price-sheet/price-sheet-detail/edit",
-                {
-                  state: {
-                    id: params.row.PriceSheetID,
-                    companyCode: companyID,
-                    companyRecordID: companyRecordID,
-                  },
-                }
-              );
-            }}
-            sx={{ height: 30, width: 30 }}
-          >
-            <ModeEditOutlineIcon fontSize="small" />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              naviate(
-                "/pages/control-panel/price-sheet/price-sheet-detail/delete",
-                {
-                  state: {
-                    id: params.row.PriceSheetID,
-                    companyCode: companyID,
-                    companyRecordID: companyRecordID,
-                  },
-                }
-              );
-            }}
-            sx={{ height: 30, width: 30 }}
-          >
-            <DeleteIcon fontSize="small" color="error" />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              naviate(
-                "/pages/control-panel/price-sheet/price-sheet-detail/view",
-                {
-                  state: {
-                    id: params.row.PriceSheetID,
-                    companyCode: companyID,
-                    companyRecordID: companyRecordID,
-                  },
-                }
-              );
-            }}
-            sx={{ height: 30, width: 30 }}
-          >
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-        </div>
-      );
+  const columns = [
+    {
+      headerName: "Price Sheet",
+      field: "PriceSheetName",
+      minWidth: 200,
+      flex: 1,
+      align: "left",
+      headerAlign: "left",
     },
-  },
-];
+    {
+      headerName: "Description",
+      field: "PriceSheetDesc",
+      minWidth: 200,
+      flex: 1,
+      align: "left",
+      headerAlign: "left",
+    },
+    // {
+    //   headerName: "Print Category",
+    //   field: "PrintCategory",
+    //   width: 160,
+    //   align: "center",
+    //   headerAlign: "center",
+    //   sortable: false,
+    //   renderCell: (params) => (
+    //     <Checkbox
+    //       checked={params.row.PrintCategory === true}
+    //       onChange={(event) => {
+    //         const checked = event.target.checked;
+
+    //         console.log(
+    //           "Print Category:",
+    //           params.row.PriceSheetName,
+    //           checked
+    //         );
+
+    //         // Later you can dispatch/API call here
+    //       }}
+    //     />
+    //   ),
+    // },
+    // {
+    //   headerName: "Print Price List",
+    //   field: "PrintPriceList",
+    //   width: 180,
+    //   align: "center",
+    //   headerAlign: "center",
+    //   sortable: false,
+    //   renderCell: (params) => (
+    //     <Checkbox
+    //       checked={params.row.PrintPriceList === true}
+    //       onChange={(event) => {
+    //         const checked = event.target.checked;
+
+    //         console.log(
+    //           "Print Price List:",
+    //           params.row.PriceSheetName,
+    //           checked
+    //         );
+
+    //         // Later you can dispatch/API call here
+    //       }}
+    //     />
+    //   ),
+    // },
+    {
+      headerName: "Item Count",
+      field: "ItemCount",
+      width: 150,
+      align: "right",
+      headerAlign: "center",
+      hide: true,
+    },
+    {
+      field: "Action",
+      headerName: "Action",
+      minWidth: 300,
+      flex: 1,
+      sortable: false,
+      headerAlign: "center",
+      filterable: false,
+      disableColumnMenu: true,
+      disableExport: true,
+      align: "center",
+      renderCell: (params) => {
+        return (
+          <div style={{ display: "flex", gap: "10px" }}>
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-sheet/price-sheet-detail/edit",
+                  {
+                    state: {
+                      id: params.row.PriceSheetID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <ModeEditOutlineIcon fontSize="small" />
+            </IconButton>
+
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-sheet/price-sheet-detail/delete",
+                  {
+                    state: {
+                      id: params.row.PriceSheetID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <DeleteIcon fontSize="small" color="error" />
+            </IconButton>
+
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-sheet/price-sheet-detail/view",
+                  {
+                    state: {
+                      id: params.row.PriceSheetID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              sx={{ height: 30, width: 30 }}
+            >
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={(e) => handleOpenCopyDialog(params.row, e)}
+              sx={{ height: 30, width: 30 }}
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </div>
+        );
+      },
+    },
+  ];
 
 
   //==============COMPANYLISTVIEW=======================/
@@ -337,7 +391,7 @@ const columns = [
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
           /> */}
           <></>
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 , justifyContent: "flex-end"}}>
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2, justifyContent: "flex-end" }}>
             {/* <Typography sx={{ mt: 1 }}>
               Total Items Count: {ItemCount}
             </Typography> */}
@@ -440,7 +494,7 @@ const columns = [
       const response = await dispatch(CopyCompanyPriceList({ data: postData }));
 
       if (response.payload.status === "Y") {
-         setIsLoading(false)
+        setIsLoading(false)
         setOpenAlert(true);
         setPostMessage(response.payload.message);
         dispatch(getPriceListView({ ID: companyRecordID }));
@@ -482,7 +536,7 @@ const columns = [
         >
           <Box
             sx={{
-              gridColumn:  "span 4",
+              gridColumn: "span 4",
               // gridColumn: isSide ? "span 3" : "span 4",
               height: dataGridHeight,
               "& .name-column--cell": {
@@ -578,14 +632,14 @@ const columns = [
                   showQuickFilter: true,
                 },
               }}
-              // onRowSelectionModelChange={(newRowSelectionModel) => {
-              //   const filterArray = priceRows.filter((v) =>
-              //     newRowSelectionModel.includes(v.PRICELISTID)
-              //   );
-              //   setRowSelectionModel(newRowSelectionModel);
-              //   setRowSelectionModelRows(filterArray);
-              // }}
-              // rowSelectionModel={rowSelectionModel}
+            // onRowSelectionModelChange={(newRowSelectionModel) => {
+            //   const filterArray = priceRows.filter((v) =>
+            //     newRowSelectionModel.includes(v.PRICELISTID)
+            //   );
+            //   setRowSelectionModel(newRowSelectionModel);
+            //   setRowSelectionModelRows(filterArray);
+            // }}
+            // rowSelectionModel={rowSelectionModel}
             />
           </Box>
         </Box>
@@ -612,6 +666,135 @@ const columns = [
           </DialogActions>
         }
       />
+
+      {/* Copy Price Sheet Dialog */}
+      <Dialog
+        open={openCopyDialog}
+        onClose={() => {
+          if (!isCopying) {
+            setOpenCopyDialog(false);
+            setCopyError("");
+          }
+        }}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            padding: "16px 20px",
+          },
+        }}
+      >
+        <Box display="flex" justifyContent="center" alignItems="center" pt={1} pb={1}>
+          <img
+            src={user?.logo ? `data:image/png;base64,${user.logo}` : "/assets/images/logo.png"}
+            height="50px"
+            alt="Logo"
+          />
+        </Box>
+
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mt={1}>
+          <Box width="100%">
+            <Typography  variant="body2" fontWeight="bold" color="#111827" textAlign="center">
+              Copy Price Sheet ({selectedCopyRow?.PriceSheetName})
+            </Typography>
+            {/* {selectedCopyRow?.PriceSheetName && (
+              <Typography
+                variant="body2"
+                textAlign="center"
+                sx={{
+                  color: "#164D50",
+                  fontWeight: 600,
+                  mt: 1,
+                  mb: 0.5,
+                  px: 1.5,
+                  py: 0.75,
+                  backgroundColor: "#E6F4F1",
+                  borderRadius: "6px",
+                  border: "1px solid #BCE3DD",
+                }}
+              >
+                Copying: {selectedCopyRow.PriceSheetName}
+              </Typography>
+            )} */}
+          </Box>
+        </Box>
+
+        <DialogContent sx={{ px: 0, py: 1.5 }}>
+          <Box display="flex" flexDirection="column" gap={1}>
+            <Typography variant="caption" fontWeight="bold" color="#374151">
+              New Price Sheet Name <span style={{ color: "red" }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Enter price sheet name"
+              size="small"
+              value={newPriceSheetName}
+              onChange={(e) => {
+                setNewPriceSheetName(e.target.value);
+                if (copyError) setCopyError("");
+              }}
+              error={!!copyError}
+              helperText={copyError}
+              autoFocus
+              autoComplete="off"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "6px",
+                },
+              }}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 0, pb: 0, justifyContent: "flex-end", gap: 1.5, mt: 1 }}>
+          <LoadingButton
+            loading={isCopying}
+            variant="contained"
+            onClick={handleSaveCopyPriceSheet}
+            startIcon={!isCopying && <ContentCopyIcon sx={{ color: "#fff", fontSize: 18 }} />}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: "#8E8E8E",
+              color: "#fff",
+              px: 2.5,
+              py: 0.75,
+              fontWeight: 600,
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)",
+              "&:hover": {
+                backgroundColor: "#7B7B7B",
+              },
+            }}
+          >
+            Copy
+          </LoadingButton>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setOpenCopyDialog(false);
+              setCopyError("");
+            }}
+            disabled={isCopying}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: "#8E8E8E",
+              color: "#fff",
+              px: 2.5,
+              py: 0.75,
+              fontWeight: 600,
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)",
+              "&:hover": {
+                backgroundColor: "#7B7B7B",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

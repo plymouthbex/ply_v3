@@ -629,43 +629,39 @@ const Customer = () => {
         }}
       >
         <Breadcrumb
-          routeSegments={[
-            {
-              name: "Control Panel",
-              // path: "/pages/control-panel/configure-price-book/company",
-            },
-            {
-              name: "Configure Price Book",
-              // path: "/pages/control-panel/configure-price-book/company",
-            },
-            {
-              name: "Company",
-              path: "/pages/control-panel/configure-price-book/company",
-            },
-            { name: "Customer" },
-          ]}
+          routeSegments={
+            user?.companyCode === "SJ"
+              ? [
+                  { name: "Control Panel" },
+                  { name: "Configure Price Book" },
+                  { name: "Customer" },
+                ]
+              : [
+                  { name: "Control Panel" },
+                  { name: "Configure Price Book" },
+                  {
+                    name: "Company",
+                    path: "/pages/control-panel/configure-price-book/company",
+                  },
+                  { name: "Customer" },
+                ]
+          }
         />
-        <Stack direction="row" gap={1}>
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            startIcon={<ArrowBackIcon size="small" />}
-            onClick={() => navigate(-1)}
-            // onClick={() =>
-            //   navigate("/pages/control-panel/configure-price-book/customer", {
-            //     state: {
-            //       RunGroup: State.RunGroup,
-            //       Code: State.company.Code,
-            //       Name: State.company.Name,
-            //       RecordID: State.company.RecordID,
-            //     },
-            //   })
-            // } 
-          >
-            Back
-          </Button>
-        </Stack>
+        { user?.companyCode !== "SJ" && (
+          <Stack direction="row" gap={1}>
+            <Button
+              variant="contained"
+              color="info"
+              size="small"
+              startIcon={<ArrowBackIcon size="small" />}
+              onClick={() =>
+                navigate("/pages/control-panel/configure-price-book/company")
+              }
+            >
+              Back
+            </Button>
+          </Stack>
+        )}
       </div>
 
       <Paper sx={{ width: "100%", mb: 2 }}>

@@ -159,7 +159,7 @@ const AppVertivalNav = ({ items }) => {
               <InternalLink key={index}>
                 <NavLink
                   to={item.path}
-                  state={{ accessID: item.accessID }}
+                  state={{ accessID: item.accessID, ...(item.state || {}) }}
                   className={({ isActive }) =>
                     isActive
                       ? `navItemActive ${mode === "compact" && "compactNavItem"}`

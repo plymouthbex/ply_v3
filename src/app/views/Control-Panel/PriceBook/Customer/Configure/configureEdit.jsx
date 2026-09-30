@@ -2050,80 +2050,106 @@ const ConfigureEdit = () => {
                     { name: `Configure Customer ${screenName}` },
                   ]}
                 /> */}
-                 {State.Type === "PriceBookGroup"?( <Breadcrumb
-                  routeSegments={[
-                    {
-                      name: "Price Book",
-                      // path: "/pages/control-panel/configure-price-book/company",
-                    },
-                    { name: "Print Price Book Group" ,
-                      path: "/pages/pricing-portal/run-price-book",
-                    },
-                    { name: `Configure Customer ${screenName}` },
-                  ]}
-                />):(  <Breadcrumb
-                  routeSegments={[
-                    {
-                      name: "Control Panel",
-                      // path: "/pages/control-panel/configure-price-book/company",
-                    },
-                    { name: "Configure Price Book" },
-                    {
-                      name: "Company",
-                      path: "/pages/control-panel/configure-price-book/company",
-                    },
-                    {
-                      name: "Customer",
-                      path: "/pages/control-panel/configure-price-book/customer",
-                      state: State.company,
-                    },
-                    { name: `Configure Customer ${screenName}` },
-                  ]}
-                />)}
-                <Stack direction={"row"} gap={1}>
-                  {/* <Button
-                    variant="contained"
-                    color="info"
-                    size="small"
-                    startIcon={
-                      params.mode === "delete" ? (
-                        <DeleteIcon color="error" size="small" />
-                      ) : (
-                        <SaveIcon size="small" />
-                      )
-                    }
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    {params.mode === "delete" ? "Confirm" : "Save"}
-                  </Button> */}
-                  <Button
-                    variant="contained"
-                    color="info"
-                    size="small"
-                    startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => {
-                      if (State.Type === "PriceBookGroup") {
-                        navigate("/pages/pricing-portal/run-price-book", {
-                          state: {
-                            selectedRunGroup: State.RunGroup,
-                          },
-                        });
-                      } else {
-                        navigate(
-                          "/pages/control-panel/configure-price-book/customer",
-                          {
-                            state: {
-                              RunGroup: State.RunGroup,
-                              Code: State.company.Code,
-                              Name: State.company.Name,
-                              RecordID: State.company.RecordID,
-                            },
-                          },
-                        );
-                      }
-                    }}
-                  >
+                 {State.Type === "PriceBookGroup" ? (
+                   <Breadcrumb
+                     routeSegments={[
+                       {
+                         name: "Price Book",
+                         // path: "/pages/control-panel/configure-price-book/company",
+                       },
+                       {
+                         name: "Print Price Book Group",
+                         path: "/pages/pricing-portal/run-price-book",
+                       },
+                       { name: `Configure Customer ${screenName}` },
+                     ]}
+                   />
+                 ) :  user?.companyCode === "SJ" ? (
+                   <Breadcrumb
+                     routeSegments={[
+                       {
+                         name: "Control Panel",
+                       },
+                       { name: "Configure Price Book" },
+                       {
+                         name: "Customer",
+                         path: "/pages/control-panel/configure-price-book/customer",
+                         state: State.company || State,
+                       },
+                       { name: `Configure Customer ${screenName}` },
+                     ]}
+                   />
+                 ) : (
+                   <Breadcrumb
+                     routeSegments={[
+                       {
+                         name: "Control Panel",
+                         // path: "/pages/control-panel/configure-price-book/company",
+                       },
+                       { name: "Configure Price Book" },
+                       {
+                         name: "Company",
+                         path: "/pages/control-panel/configure-price-book/company",
+                       },
+                       {
+                         name: "Customer",
+                         path: "/pages/control-panel/configure-price-book/customer",
+                         state: State.company || State,
+                       },
+                       { name: `Configure Customer ${screenName}` },
+                     ]}
+                   />
+                 )}
+                 <Stack direction={"row"} gap={1}>
+                   {/* <Button
+                     variant="contained"
+                     color="info"
+                     size="small"
+                     startIcon={
+                       params.mode === "delete" ? (
+                         <DeleteIcon color="error" size="small" />
+                       ) : (
+                         <SaveIcon size="small" />
+                       )
+                     }
+                     type="submit"
+                     disabled={isSubmitting}
+                   >
+                     {params.mode === "delete" ? "Confirm" : "Save"}
+                   </Button> */}
+                   <Button
+                     variant="contained"
+                     color="info"
+                     size="small"
+                     startIcon={<ArrowBackIcon size="small" />}
+                     onClick={() => {
+                       if (State.Type === "PriceBookGroup") {
+                         navigate("/pages/pricing-portal/run-price-book", {
+                           state: {
+                             selectedRunGroup: State.RunGroup,
+                           },
+                         });
+                       } else {
+                         const comp = State.company || {
+                           Code: State.Code || user?.companyCode,
+                           Name: State.Name || user?.company,
+                           RecordID: State.RecordID || user?.companyID,
+                           RunGroup: State.RunGroup || user?.defaultRunGroup,
+                         };
+                         navigate(
+                           "/pages/control-panel/configure-price-book/customer",
+                           {
+                             state: {
+                               RunGroup: comp.RunGroup,
+                               Code: comp.Code,
+                               Name: comp.Name,
+                               RecordID: comp.RecordID,
+                             },
+                           },
+                         );
+                       }
+                     }}
+                   >
                     Back
                   </Button>
                 </Stack>
