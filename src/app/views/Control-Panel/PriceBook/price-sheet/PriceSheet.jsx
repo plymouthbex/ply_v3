@@ -137,7 +137,7 @@ const columns = [
     headerAlign: "left",
   },
   {
-    headerName: "Price Sheet Desc",
+    headerName: "Description",
     field: "PriceSheetDesc",
     minWidth: 200,
     flex: 1,

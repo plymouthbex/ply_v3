@@ -763,6 +763,7 @@ export const ViewPriceSingleAutocomplete = ({
   height = 20,
   required = false,
   isError = null,
+  autoFocus = false,
   ...props
 }) => {
   const [options, setOptions] = useState([]);
@@ -808,6 +809,7 @@ export const ViewPriceSingleAutocomplete = ({
         <TextField
          
           {...params}
+          autoFocus={autoFocus}
           label={props.label || "Select Options"} // Default label
           error={!!error || isError} // Show error style if there is an error
           helperText={error || isError } // Show error message

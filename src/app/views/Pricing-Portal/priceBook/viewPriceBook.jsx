@@ -493,7 +493,7 @@ const ViewPriceBook = () => {
         Type: "LOADING",
         loading: true,
         message: "Generating Price Book JPG...",
-      })
+      }),
     );
     // Call /Email/GetSJCustomJPG API directly
     const jpgUrl = `${process.env.REACT_APP_BASE_URL}Email/GetSJCustomJPG?FromDate=${sunday}&ToDate=${saturday}&CustomerNumber=${
@@ -502,7 +502,7 @@ const ViewPriceBook = () => {
     dispatch(
       getCustomerViewPriceCustomBook({
         URL: jpgUrl,
-      })
+      }),
     )
       .then(async (response) => {
         if (
@@ -518,17 +518,17 @@ const ViewPriceBook = () => {
                 message: "No JPG images returned for this price book.",
                 loading: false,
                 error: true,
-              })
+              }),
             );
             setTimeout(() => {
               setIsGenerating(false);
             }, 2000);
             return;
           }
-          console.log(selectedCustomerOptions.Name)
+          console.log(selectedCustomerOptions.Name);
           const customerName = selectedCustomerOptions?.Name
-  ? selectedCustomerOptions.Name.split("||")[1]?.trim()
-  : "Customer";
+            ? selectedCustomerOptions.Name.split("||")[1]?.trim()
+            : "Customer";
           // Download each image page returned in the path array
           imageArray.forEach((base64Image, index) => {
             const formattedImage = base64Image.startsWith("data:image/")
@@ -539,7 +539,7 @@ const ViewPriceBook = () => {
             // link.download = `${user.company}_${
             //   selectedCustomerOptions ? selectedCustomerOptions.Name : "Customer"
             // }_Page_${index + 1}_${sunday}_TO_${saturday}.jpg`;
-            link.download = `${selectedCustomerOptions ? customerName: "Customer"}_Page_${index + 1}.jpg`;
+            link.download = `${selectedCustomerOptions ? customerName : "Customer"}_Page_${index + 1}.jpg`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -550,7 +550,7 @@ const ViewPriceBook = () => {
               loading: false,
               message:
                 "JPG Price Book successfully generated! Downloading image(s)...",
-            })
+            }),
           );
           setTimeout(() => {
             setIsGenerating(false);
@@ -564,7 +564,7 @@ const ViewPriceBook = () => {
                 "Failed to generate JPG images. Please try again.",
               loading: false,
               error: true,
-            })
+            }),
           );
           setTimeout(() => {
             setIsGenerating(false);
@@ -579,7 +579,7 @@ const ViewPriceBook = () => {
             message: "An error occurred while generating JPG images.",
             loading: false,
             error: true,
-          })
+          }),
         );
         setTimeout(() => {
           setIsGenerating(false);
@@ -790,7 +790,9 @@ const ViewPriceBook = () => {
           priceListOutType == "EXCEL"
             ? `${
                 process.env.REACT_APP_BASE_URL
-              }Email/GetCustomExcel?CustomerNumber=${
+              }Email/${
+                user.companyCode === "SJ" ? "GetSJCustomExcel" : "GetCustomExcel"
+              }?CustomerNumber=${
                 selectedCustomerOptions ? selectedCustomerOptions.Code : ""
               }&FromDate=${sunday}&ToDate=${saturday}&ShowPrice=${isChecked}&UserID=${
                 user.id
@@ -1210,7 +1212,7 @@ const ViewPriceBook = () => {
                 {user.companyCode === "SJ" && (
                   <Tooltip title="JPG" placement="top">
                     <CustomIconButton
-                    onClick={() => {
+                      onClick={() => {
                         if (!selectedCustomerOptions) {
                           setIsCustomer("Please Choose Customer");
 
@@ -1222,7 +1224,6 @@ const ViewPriceBook = () => {
                         }
 
                         getPriceListCustomerJPG();
-
                       }}
                       sx={{
                         bgcolor: "#2196f3 !important",
@@ -1353,10 +1354,11 @@ const ViewPriceBook = () => {
                 <InputLabel id="price-book-type-label">
                   Price Book Type
                 </InputLabel>
+
                 <Select
                   labelId="price-book-type-label"
                   id="price-book-type"
-                  // Fallback guarantees the value ALWAYS matches a rendered MenuItem
+                  disabled={user?.companyCode === "SJ"}
                   value={
                     user?.companyCode === "SJ"
                       ? "CP"
@@ -1366,6 +1368,21 @@ const ViewPriceBook = () => {
                   }
                   onChange={handleSelectionPriceTypeChange}
                   label="Price Book Type"
+                  sx={{
+                    "&.Mui-disabled": {
+                      color: "rgba(0, 0, 0, 0.87)",
+                    },
+                    "& .MuiSelect-select.Mui-disabled": {
+                      WebkitTextFillColor: "rgba(0, 0, 0, 0.87)",
+                      color: "rgba(0, 0, 0, 0.87)",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(0, 0, 0, 0.23)",
+                    },
+                    "&.Mui-disabled .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(0, 0, 0, 0.23)",
+                    },
+                  }}
                 >
                   {user?.companyCode === "SJ" ? (
                     <MenuItem value="CP">Custom Price Book</MenuItem>
@@ -1382,17 +1399,23 @@ const ViewPriceBook = () => {
                 </Select>
               </FormControl>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                { user?.companyCode === "SJ" && (
-                <Typography color="error"
-                  sx={{
-                    // color: "#1976d2",
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                    mb:1
-                  }}
-                >
-                  Note: Customer can configure at least one format (PDF, Excel, or JPG) to be displayed.
-                </Typography>)}
+                {user?.companyCode === "SJ" && (
+                  <Typography
+                    color="error"
+                    sx={{
+                      // color: "#1976d2",
+                      fontWeight: "bold",
+                      fontStyle: "italic",
+                      fontSize: "12px",
+                      mb: 1,
+                    }}
+                  >
+                    Note: Only customers configured with at least one of the
+                    file formats ( Excel/Jpeg/Pdf ) in the “Configure Price
+                    Book” screen will be available to pick from the below
+                    drop-down
+                  </Typography>
+                )}
                 <ViewPriceSingleAutocomplete
                   isError={isCustomer}
                   name="customer"
@@ -1400,6 +1423,7 @@ const ViewPriceBook = () => {
                   value={selectedCustomerOptions}
                   onChange={handleSelectionCustomerChange}
                   label="Customer"
+                  autoFocus
                   url={`${
                     process.env.REACT_APP_BASE_URL
                   }Customer/${user.companyCode == "SJ" && selectPriceListtype == "CP" ? "GetSJCustomCustomer" : "GetCustomer"}?CompanyID=${user.companyID}&Type=${

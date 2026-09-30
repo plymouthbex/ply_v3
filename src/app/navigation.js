@@ -2,7 +2,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { authRoles } from "./auth/authRoles";
 
-export const navigations = [
+export const navigations = (user) => [
   {
     name: "Price Book",
     icon: <FolderIcon fontSize="small" />,
@@ -65,7 +65,6 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
-
     ],
   },
 
@@ -82,7 +81,7 @@ export const navigations = [
         icon: <DescriptionIcon fontSize="small" />,
         role: authRoles.admin,
       },
-      
+
       {
         name: "Categories",
         path: "/pages/control-panel/print-group",
@@ -108,8 +107,6 @@ export const navigations = [
         role: authRoles.admin,
       },
 
-
-
       {
         name: "Price Book Group",
         path: "/pages/control-panel/run-group",
@@ -128,7 +125,19 @@ export const navigations = [
       },
       {
         name: "Configure Price Book",
-        path: "/pages/control-panel/configure-price-book/company",
+        path:
+          user?.companyCode === "SJ"
+            ? "/pages/control-panel/configure-price-book/customer"
+            : "/pages/control-panel/configure-price-book/company",
+
+        state: {
+          RecordID: user?.companyID,
+          Code: user?.companyCode,
+          Name: user?.company,
+          RunGroup: user?.defaultRunGroup,
+          Type: user?.companyCode === "SJ"?true:false
+        },
+
         iconText: "C",
         accessID: "CP005",
         icon: <DescriptionIcon fontSize="small" />,
@@ -149,7 +158,6 @@ export const navigations = [
     icon: <FolderIcon fontSize="small" />,
     role: authRoles.sa,
     children: [
-     
       {
         name: "Menu",
         path: "/pages/security/application",
@@ -279,4 +287,3 @@ export const favMenu = [
     iconText: "C",
   },
 ];
-

@@ -55,20 +55,18 @@ const Company = () => {
 
   // ********************* REDUX STATE ********************* //
   const companyRows = useSelector(
-    (state) => state.listview.configureComapnyListViewData
+    (state) => state.listview.configureComapnyListViewData,
   );
   console.log("🚀 ~ Company ~ companyRows:", companyRows);
 
   //***************************API-CALL************************************ */
   useEffect(() => {
-    dispatch(getConfigureCompanyListView({UserID:user.id}));
+    dispatch(getConfigureCompanyListView({ UserID: user.id }));
     dispatch(clearConfigurePriceList());
   }, [dispatch]);
-  const RunGr={
- 
-    Name:null,
-  
-  }
+  const RunGr = {
+    Name: null,
+  };
   // ********************* COLUMN AND ROWS ********************* //
   const columns = [
     {
@@ -93,52 +91,61 @@ const Company = () => {
       align: "center",
       renderCell: (params) => {
         return (
-          <div style={{ display: "flex", gap: "8px" }}>
-            <div style={{ display: "flex", gap: "10px" }}>
-              {/* <Tooltip title="Customer Price Book"> */}
-                <IconButton
-                  color="black"
-                  size="small"
-                  onClick={() => {
-                    navigate(
-                      "/pages/control-panel/configure-price-book/customer",
-                      {
-                        state: {
-                          RecordID: params.row.CompanyID,
-                          Code: params.row.CompanyCode,
-                          Name: params.row.CompanyName,
-                          RunGroup:RunGr
-                        },
-                      }
-                    );
-                  }}
-                >
-                  <ListAltIcon fontSize="small" />
-                </IconButton>
-              {/* </Tooltip> */}
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {/* <Tooltip title="Customer Price Book"> */}
+            <IconButton
+              color="black"
+              size="small"
+              onClick={() => {
+                navigate("/pages/control-panel/configure-price-book/customer", {
+                  state: {
+                    RecordID: params.row.CompanyID,
+                    Code: params.row.CompanyCode,
+                    Name: params.row.CompanyName,
+                    RunGroup: RunGr,
+                  },
+                });
+              }}
+            >
+              <ListAltIcon fontSize="small" />
+            </IconButton>
+            {/* </Tooltip> */}
 
-              {/* <Tooltip title="Configure Company Price List"> */}
-                <IconButton
-                  color="black"
-                  size="small"
-                  onClick={() => {
-                    navigate(
-                      "/pages/control-panel/configure-price-book/configure-company-edit/edit",
-                      {
-                        state: {
-                          RecordID: params.row.RecordID,
-                          Code: params.row.CompanyCode,
-                          Name: params.row.CompanyName,
-                          Rungroup:RunGr,
-                        },
-                      }
-                    );
-                  }}
-                >
-                  <ModeEditOutlineIcon fontSize="small" />
-                </IconButton>
-              {/* </Tooltip> */}
-            </div>
+            {/* <Tooltip title="Configure Company Price List"> */}
+            {params.row.CompanyCode !== "SJ" ? (
+              <IconButton
+                color="black"
+                size="small"
+                onClick={() => {
+                  navigate(
+                    "/pages/control-panel/configure-price-book/configure-company-edit/edit",
+                    {
+                      state: {
+                        RecordID: params.row.RecordID,
+                        Code: params.row.CompanyCode,
+                        Name: params.row.CompanyName,
+                        Rungroup: RunGr,
+                      },
+                    },
+                  );
+                }}
+              >
+                <ModeEditOutlineIcon fontSize="small" />
+              </IconButton>
+            ): (
+            // Reserve the same space so ListAltIcon stays aligned
+            <IconButton size="small" disabled style={{ visibility: "hidden" }}>
+              <ModeEditOutlineIcon fontSize="small" />
+            </IconButton>
+          )}
+            {/* </Tooltip> */}
           </div>
         );
       },
@@ -268,10 +275,10 @@ const Company = () => {
             "& .MuiDataGrid-row:nth-of-type(odd)": {
               backgroundColor: theme.palette.background.default,
             },
-            '& .MuiDataGrid-row:hover': {
-              border: '3px solid #999999',
+            "& .MuiDataGrid-row:hover": {
+              border: "3px solid #999999",
               // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
-              borderRadius: '4px', // Optional: Add rounded corners
+              borderRadius: "4px", // Optional: Add rounded corners
             },
             // "& .MuiDataGrid-row.Mui-selected:hover": {
             //   backgroundColor: `${theme.palette.action.selected} !important`,
