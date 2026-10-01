@@ -46,6 +46,7 @@ import { Add, RefreshOutlined } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
+import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import {
@@ -318,8 +319,28 @@ const PriceSheet = () => {
             <IconButton
               onClick={(e) => handleOpenCopyDialog(params.row, e)}
               sx={{ height: 30, width: 30 }}
+              title="Copy Price Sheet"
             >
               <ContentCopyIcon fontSize="small" />
+            </IconButton>
+
+            <IconButton
+              onClick={() => {
+                naviate(
+                  "/pages/control-panel/price-sheet/price-sheet-detail/move",
+                  {
+                    state: {
+                      id: params.row.PriceSheetID,
+                      companyCode: companyID,
+                      companyRecordID: companyRecordID,
+                    },
+                  }
+                );
+              }}
+              sx={{ height: 30, width: 30 }}
+              title="Move Items"
+            >
+              <DriveFileMoveIcon fontSize="small" color="primary" />
             </IconButton>
           </div>
         );

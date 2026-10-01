@@ -1593,6 +1593,26 @@ export const CopyPriceSheet = createAsyncThunk(
     }
   }
 );
+
+export const MovePriceSheetItem = createAsyncThunk(
+  "post/MovePriceSheetItem",
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/MovePriceSheetItems`;
+      const response = await axios.post(URL, data, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
 const postData = createSlice({
   name: "postData",
   initialState,

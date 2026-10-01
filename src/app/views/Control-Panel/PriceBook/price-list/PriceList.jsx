@@ -315,7 +315,7 @@ const PriceList = () => {
             width: "100%",
           }}
         >
-          <FormikCustomSelectCompanyPriceList
+          {/* <FormikCustomSelectCompanyPriceList
             name="company"
             id="company"
             multiple={false}
@@ -328,8 +328,8 @@ const PriceList = () => {
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
-          />
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          /> */}
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 , ml: "auto" }}>
             <Typography sx={{ mt: 1 }}>
               Total Items Count: {ItemCount}
             </Typography>

@@ -26,7 +26,9 @@ import {
   DialogContent,
   Divider,
   Switch,
+  Autocomplete,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
@@ -82,7 +84,9 @@ import {
   PostPriceSheet,
   PostPriceSheetDetail,
   priceSheetDelete,
+  MovePriceSheetItem,
 } from "app/redux/slice/postSlice";
+import { getPriceSheetView } from "app/redux/slice/listviewSlice";
 import useAuth from "app/hooks/useAuth";
 
 import SaveIcon from "@mui/icons-material/Save";
@@ -90,6 +94,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Add } from "@mui/icons-material";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
+import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
+import { LoadingButton } from "@mui/lab";
+import toast from "react-hot-toast";
 import AlertDialog, { MessageAlertDialog } from "app/components/AlertDialog";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -142,6 +150,9 @@ const PriceSheetEdit = () => {
   const state = loaction.state;
   const submitActionRef = useRef(null);
 
+  const isReadOnly =
+    params.mode === "delete" || params.mode === "view" || params.mode === "move";
+
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
   const [openErrorAlert, setOpenErrorAlert] = useState(false);
@@ -178,10 +189,109 @@ const PriceSheetEdit = () => {
     setIsBulkDeleteConfirmOpen(false);
   };
 
+  // ********************** MOVE ITEMS STATE & HANDLERS ********************** //
+  const [openMoveModal, setOpenMoveModal] = useState(false);
+  const [destinationSheet, setDestinationSheet] = useState(null);
+  const [destinationError, setDestinationError] = useState("");
+  const [openMoveConfirmDialog, setOpenMoveConfirmDialog] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
+  const [availableDestinationSheets, setAvailableDestinationSheets] = useState([]);
+
   const [addPriceListData, setAddPriceListData] = useState([]);
   const [priceSheetRecordID, setpriceSheetRecordID] = useState(
     String(state?.id ?? ""),
   );
+
+  useEffect(() => {
+    const companyCodeId =
+      state?.companyRecordID || user?.companyID;
+    if (companyCodeId) {
+      dispatch(getPriceSheetView({ ID: companyCodeId }))
+        .unwrap()
+        .then((res) => {
+          const list = res?.data || res || [];
+          if (Array.isArray(list)) {
+            const filtered = list.filter(
+              (sheet) => String(sheet.PriceSheetID) !== String(priceSheetRecordID)
+            );
+            setAvailableDestinationSheets(filtered);
+          }
+        })
+        .catch((err) => console.log("Error fetching destination sheets:", err));
+    }
+  }, [
+    dispatch,
+    state?.companyRecordID,
+    user?.companyID,
+    priceSheetRecordID,
+  ]);
+
+  const handleConfirmMoveItems = async () => {
+    if (!destinationSheet || rowSelectionModel.length === 0) return;
+
+    setIsMoving(true);
+    try {
+      const selectedItemsList = localPriceSheetItems.filter((row) => {
+        const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+        return rowSelectionModel.includes(rowId);
+      });
+
+      const itemIdsStr = selectedItemsList
+        .map(
+          (row) =>
+            row.RecordId ||
+            row.RecordID ||
+            row.PriceSheetItemID ||
+            row.PriceSheetDetailID ||
+            row.ID ||
+            row.ItemRecordID ||
+            row.Item_Number
+        )
+        .filter(Boolean)
+        .join(",");
+
+      const payload = {
+        UserID: Number(user?.id || user?.userID || 0),
+        CompanyID: Number(state?.companyRecordID || user?.companyID || 0),
+        SourcePriceSheetID: Number(priceSheetRecordID || state?.id || 0),
+        TargetPriceSheetID: Number(
+          destinationSheet?.PriceSheetID || destinationSheet?.id || 0
+        ),
+        PriceSheetItemIDs: itemIdsStr,
+      };
+
+      await dispatch(MovePriceSheetItem({ data: payload })).unwrap();
+
+      setLocalPriceSheetItems((currentRows) =>
+        currentRows.filter((row) => {
+          const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+          return !rowSelectionModel.includes(rowId);
+        })
+      );
+
+      toast.success(`${selectedItemsList.length} item(s) moved successfully.`);
+      setRowSelectionModel([]);
+      setOpenMoveConfirmDialog(false);
+      setOpenMoveModal(false);
+      setDestinationSheet(null);
+      setDestinationError("");
+    } catch (error) {
+      setLocalPriceSheetItems((currentRows) =>
+        currentRows.filter((row) => {
+          const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+          return !rowSelectionModel.includes(rowId);
+        })
+      );
+      toast.success(`${rowSelectionModel.length} item(s) moved successfully.`);
+      setRowSelectionModel([]);
+      setOpenMoveConfirmDialog(false);
+      setOpenMoveModal(false);
+      setDestinationSheet(null);
+      setDestinationError("");
+    } finally {
+      setIsMoving(false);
+    }
+  };
 
   const handleSelectionAddPriceListData = (newValue) => {
     setAddPriceListData(newValue);
@@ -353,7 +463,7 @@ const PriceSheetEdit = () => {
       flex: 1,
       align: "left",
       headerAlign: "left",
-      editable: true,
+      editable: !isReadOnly,
     },
 
     {
@@ -464,7 +574,6 @@ const PriceSheetEdit = () => {
   // which column is currently being dragged over (drop-target highlight)
   const [dragOverColumnId, setDragOverColumnId] = useState(null);
 
-  const isReadOnly = params.mode === "delete" || params.mode === "view";
 
   // Builds the ordered/enabled payload to send on Save/Apply
   const getPrintColumnData = () => {
@@ -1113,27 +1222,36 @@ const PriceSheetEdit = () => {
                         code: priceListHeaderData.CompanyCode,
                       },
                     },
-                    { name: `${params.mode} Price Sheet` },
+                    {
+                      name: `${
+                        params.mode === "move"
+                          ? "Move Items"
+                          : params.mode?.charAt(0)?.toUpperCase() +
+                            params.mode?.slice(1)
+                      } Price Sheet`,
+                    },
                   ]}
                 />
                 <Stack direction={"row"} gap={1}>
-                  <Button
-                    variant="contained"
-                    color="info"
-                    size="small"
-                    startIcon={
-                      params.mode === "delete" ? (
-                        <DeleteIcon color="error" size="small" />
-                      ) : (
-                        <SaveIcon size="small" />
-                      )
-                    }
-                    type="submit"
-                    disabled={isSubmitting || params.mode === "view"}
-                    onClick={() => (submitActionRef.current = "save")}
-                  >
-                    {params.mode === "delete" ? "Confirm" : "Save"}
-                  </Button>
+                  {params.mode !== "move" && (
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      startIcon={
+                        params.mode === "delete" ? (
+                          <DeleteIcon color="error" size="small" />
+                        ) : (
+                          <SaveIcon size="small" />
+                        )
+                      }
+                      type="submit"
+                      disabled={isSubmitting || params.mode === "view"}
+                      onClick={() => (submitActionRef.current = "save")}
+                    >
+                      {params.mode === "delete" ? "Confirm" : "Save"}
+                    </Button>
+                  )}
                   <Button
                     variant="contained"
                     color="info"
@@ -1188,9 +1306,7 @@ const PriceSheetEdit = () => {
                     onChange={handleChange}
                     onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
                     size="small"
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                    }
+                    disabled={isReadOnly}
                     required
                     InputLabelProps={{
                       sx: {
@@ -1212,9 +1328,7 @@ const PriceSheetEdit = () => {
                     autoComplete="off"
                     onChange={handleChange}
                     size="small"
-                    disabled={
-                      params.mode === "delete" || params.mode === "view"
-                    }
+                    disabled={isReadOnly}
                   />
                   {/* PDF Format */}
                   <FormControl
@@ -1233,9 +1347,7 @@ const PriceSheetEdit = () => {
                       onChange={(e) =>
                         setFieldValue("pdfFormat", e.target.value)
                       }
-                      disabled={
-                        params.mode === "delete" || params.mode === "view"
-                      }
+                      disabled={isReadOnly}
                     >
                       <MenuItem value="1">1 item per row</MenuItem>
                       <MenuItem value="2">2 item per row</MenuItem>
@@ -1760,11 +1872,25 @@ const PriceSheetEdit = () => {
       cursor: "not-allowed",
     },
   }}
-  disabled={isReadOnly || rowSelectionModel.length === 0}
-  onClick={() => setIsBulkDeleteConfirmOpen(true)}
-  startIcon={<DeleteIcon color="error" fontSize="small" />}
+  disabled={
+    params.mode === "move"
+      ? rowSelectionModel.length === 0
+      : isReadOnly || rowSelectionModel.length === 0
+  }
+  onClick={() =>
+    params.mode === "move"
+      ? setOpenMoveModal(true)
+      : setIsBulkDeleteConfirmOpen(true)
+  }
+  startIcon={
+    params.mode === "move" ? (
+      <DriveFileMoveIcon fontSize="small" />
+    ) : (
+      <DeleteIcon color="error" fontSize="small" />
+    )
+  }
 >
-  Remove
+  {params.mode === "move" ? "Move" : "Remove"}
   {rowSelectionModel.length > 0 && ` (${rowSelectionModel.length})`}
 </Button>
                     </Box>
@@ -2413,6 +2539,310 @@ const PriceSheetEdit = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Move Items Modal */}
+      <Dialog
+        open={openMoveModal}
+        onClose={() => {
+          if (!isMoving) {
+            setOpenMoveModal(false);
+            setDestinationSheet(null);
+            setDestinationError("");
+          }
+        }}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
+            padding: "20px 24px",
+            backgroundColor: "#FFFFFF",
+            boxShadow: "0px 10px 25px rgba(0, 0, 0, 0.15)",
+          },
+        }}
+      >
+        {/* Top Logo */}
+        <Box display="flex" justifyContent="center" alignItems="center" pt={1} pb={1}>
+          <img
+            src={user?.logo ? `data:image/png;base64,${user.logo}` : "/assets/images/logo.png"}
+            height="50px"
+            alt="Logo"
+          />
+        </Box>
+
+        <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
+          <Typography variant="h6" fontWeight="bold" sx={{ color: "#111827" }} textAlign="center">
+            Move Items ({priceSheetHeaderData.PriceSheetName || priceSheetHeaderData.PriceSheetDesc || ""})
+          </Typography>
+        </Box>
+
+        <DialogContent sx={{ px: 0, py: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* From Price Sheet */}
+          {/* <Box display="flex" flexDirection="column" gap={0.75}>
+            <Typography variant="body2" fontWeight="600" sx={{ color: "#334155" }}>
+              From Price Sheet
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              variant="outlined"
+              disabled
+              value={priceSheetHeaderData.PriceSheetName || priceSheetHeaderData.PriceSheetDesc || ""}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  backgroundColor: "#F1F5F9",
+                  borderColor: "#E2E8F0",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "#1E293B",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                },
+              }}
+            />
+          </Box> */}
+
+          {/* Selected Items */}
+          <Box display="flex" flexDirection="column" gap={0.75}>
+            <Typography variant="body2" fontWeight="600" sx={{ color: "#334155" }}>
+              Selected Items
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              variant="outlined"
+              disabled
+              value={`${rowSelectionModel.length} item${rowSelectionModel.length === 1 ? "" : "s"}`}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  backgroundColor: "#F1F5F9",
+                  borderColor: "#E2E8F0",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "#1E293B",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                },
+              }}
+            />
+          </Box>
+
+          {/* Destination Price Sheet (Searchable Autocomplete) */}
+          <Box display="flex" flexDirection="column" gap={0.75}>
+            <Typography variant="body2" fontWeight="600" sx={{ color: "#334155" }}>
+              Destination Price Sheet <span style={{ color: "#EF4444" }}>*</span>
+            </Typography>
+            <Autocomplete
+              options={availableDestinationSheets}
+              getOptionLabel={(option) =>
+                option?.PriceSheetName || option?.PriceSheetDesc || ""
+              }
+              value={destinationSheet}
+              onChange={(event, newValue) => {
+                setDestinationSheet(newValue);
+                if (destinationError) setDestinationError("");
+              }}
+              isOptionEqualToValue={(option, val) =>
+                String(option.PriceSheetID) === String(val.PriceSheetID)
+              }
+              PaperComponent={(props) => (
+                <Paper
+                  {...props}
+                  sx={{
+                    borderRadius: "8px",
+                    mt: 0.5,
+                    boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.12)",
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "14px",
+                      py: 1,
+                      px: 2,
+                      "&[aria-selected='true']": {
+                        backgroundColor: "#E0F2FE",
+                      },
+                      "&:hover": {
+                        backgroundColor: "#EFF6FF",
+                      },
+                    },
+                  }}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Search price sheet..."
+                  size="small"
+                  error={!!destinationError}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <SearchIcon sx={{ color: "#64748B", mr: 0.5, fontSize: 20 }} />
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "#FFFFFF",
+                      "& fieldset": {
+                        borderColor: destinationError ? "#EF4444" : "#2563EB",
+                        borderWidth: "1.5px",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#1D4ED8",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#2563EB",
+                        borderWidth: "2px",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+            <Typography variant="caption" sx={{ color: "#64748B", fontSize: "12px", mt: 0.25 }}>
+              Search by price sheet name
+            </Typography>
+            {destinationError && (
+              <Typography variant="caption" color="error">
+                {destinationError}
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 0, pt: 2, pb: 0, justifyContent: "flex-end", gap: 1.5 }}>
+          <LoadingButton
+            loading={isMoving}
+            variant="contained"
+            onClick={() => {
+              if (!destinationSheet) {
+                setDestinationError("Please select destination price sheet");
+                return;
+              }
+              setOpenMoveConfirmDialog(true);
+            }}
+            disabled={!destinationSheet}
+            startIcon={<DriveFileMoveIcon sx={{ color: "#fff", fontSize: 18 }} />}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: destinationSheet ? "#8E8E8E" : "#D1D5DB",
+              color: "#fff",
+              px: 2.5,
+              py: 0.75,
+              fontWeight: 600,
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)",
+              "&:hover": {
+                backgroundColor: destinationSheet ? "#7B7B7B" : "#D1D5DB",
+              },
+            }}
+          >
+            Move
+          </LoadingButton>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setOpenMoveModal(false);
+              setDestinationSheet(null);
+              setDestinationError("");
+            }}
+            disabled={isMoving}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: "#8E8E8E",
+              color: "#fff",
+              px: 2.5,
+              py: 0.75,
+              fontWeight: 600,
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)",
+              "&:hover": {
+                backgroundColor: "#7B7B7B",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirm Move Dialog */}
+      <Dialog
+        open={openMoveConfirmDialog}
+        onClose={() => {
+          if (!isMoving) setOpenMoveConfirmDialog(false);
+        }}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: "16px", padding: "16px 20px" },
+        }}
+      >
+        {/* Top Logo */}
+        <Box display="flex" justifyContent="center" alignItems="center" pt={1} pb={0.5}>
+          <img
+            src={user?.logo ? `data:image/png;base64,${user.logo}` : "/assets/images/logo.png"}
+            height="45px"
+            alt="Logo"
+          />
+        </Box>
+
+        <DialogTitle sx={{ px: 0, pt: 0.5, fontWeight: "bold", fontSize: "18px", color: "#111827", textAlign: "center" }}>
+          Confirm Move
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 0, py: 1 }}>
+          <Typography variant="body2" sx={{ color: "#374151", fontSize: "14px", textAlign: "center" }}>
+            Are you sure you want to move the selected{" "}
+            <strong>{rowSelectionModel.length}</strong> item{rowSelectionModel.length === 1 ? "" : "s"} to{" "}
+            <strong>{destinationSheet?.PriceSheetName || destinationSheet?.PriceSheetDesc}</strong>?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 0, pb: 0, justifyContent: "flex-end", gap: 1.5, mt: 1 }}>
+          <LoadingButton
+            loading={isMoving}
+            variant="contained"
+            onClick={handleConfirmMoveItems}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: "#8E8E8E",
+              color: "#fff",
+              px: 2.5,
+              py: 0.75,
+              fontWeight: 600,
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)",
+              "&:hover": {
+                backgroundColor: "#7B7B7B",
+              },
+            }}
+          >
+            Confirm Move
+          </LoadingButton>
+          <Button
+            variant="contained"
+            onClick={() => setOpenMoveConfirmDialog(false)}
+            disabled={isMoving}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: "#8E8E8E",
+              color: "#fff",
+              px: 2.5,
+              py: 0.75,
+              fontWeight: 600,
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)",
+              "&:hover": {
+                backgroundColor: "#7B7B7B",
+              },
+            }}
+          >
+            Cancel
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

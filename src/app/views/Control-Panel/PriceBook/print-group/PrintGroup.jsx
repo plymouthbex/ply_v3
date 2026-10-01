@@ -177,7 +177,7 @@ const PrintGroup = () => {
             width: "100%",
           }}
         >
-          <FormikCustomSelectCompanyPriceList
+          {/* <FormikCustomSelectCompanyPriceList
             name="company"
             id="company"
             multiple={false}
@@ -189,8 +189,10 @@ const PrintGroup = () => {
             }}
             label="Company"
             url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
-          />
-          <Stack direction={"row"} gap={1}>
+          /> */}
+          
+          <Stack direction={"row"} gap={1}  sx={{ ml: "auto" }}
+>
 
           
           <GridToolbarQuickFilter />

@@ -1147,7 +1147,7 @@ export default function BuildCustomPriceBook() {
                       },
                     }}
                   >
-                    <FormikCustomSelectCompany
+                    {/* <FormikCustomSelectCompany
                       name="company"
                       id="company"
                       sx={{ gridColumn: "span 1" }}
@@ -1157,6 +1157,24 @@ export default function BuildCustomPriceBook() {
                       onChange={handleChange}
                       label="Company"
                       url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
+                    /> */}
+                    <TextField
+                      variant="outlined"
+                      name="salesRepName"
+                      id="salesRepName"
+                      label="Sales Representative Name"
+                      size="small"
+                      sx={{ gridColumn: "span 1" }}
+                      value={values.salesRepName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      required
+                      InputLabelProps={{
+                        sx: {
+                          "& .MuiInputLabel-asterisk": { color: "red" },
+                        },
+                      }}
+                      autoComplete="off"
                     />
                     <TextField
                       variant="outlined"
@@ -1178,23 +1196,23 @@ export default function BuildCustomPriceBook() {
                       }}
                       autoComplete="off"
                     />
-                    <TextField
-                      variant="outlined"
-                      name="salesRepName"
-                      id="salesRepName"
-                      label="Sales Representative Name"
-                      size="small"
+                    <FormikCustomAutocompleteCustomer
+                      required={true}
+                      name="customer"
+                      id="customer"
                       sx={{ gridColumn: "span 1" }}
-                      value={values.salesRepName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      required
-                      InputLabelProps={{
-                        sx: {
-                          "& .MuiInputLabel-asterisk": { color: "red" },
-                        },
-                      }}
-                      autoComplete="off"
+                      multiple={false}
+                      value={values.customer}
+                      // value={null}
+                      onChange={(event, newValue) =>
+                        setFieldValue("customer", newValue)
+                      }
+                      label="Customer"
+                      url={`${
+                        process.env.REACT_APP_BASE_URL
+                      }Customer/GetCustomer?CompanyID=${
+                        values.company ? values.company : user.companyID
+                      }`}
                     />
                     <TextField
                       variant="outlined"
@@ -1216,27 +1234,6 @@ export default function BuildCustomPriceBook() {
                       }}
                       autoComplete="off"
                     />
-
-                    <FormikCustomAutocompleteCustomer
-                      required={true}
-                      name="customer"
-                      id="customer"
-                      sx={{ gridColumn: "span 1" }}
-                      multiple={false}
-                      value={values.customer}
-                      // value={null}
-                      onChange={(event, newValue) =>
-                        setFieldValue("customer", newValue)
-                      }
-                      label="Customer"
-                      url={`${
-                        process.env.REACT_APP_BASE_URL
-                      }Customer/GetCustomer?CompanyID=${
-                        values.company ? values.company : user.companyID
-                      }`}
-                    />
-
-                    
                     <TextField
                       variant="outlined"
                       label="Price Book Level"
@@ -1253,7 +1250,7 @@ export default function BuildCustomPriceBook() {
                       autoComplete="off"
                     />
                     <FormControl
-                      sx={{ gridColumn: "span 2" }}
+                      sx={{ gridColumn: "span 1" }}
                       component="fieldset"
                       variant="standard"
                       error={
