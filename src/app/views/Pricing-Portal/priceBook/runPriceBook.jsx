@@ -1284,7 +1284,7 @@ export default function RunPriceBook() {
                 }}
                 onClick={fnRunGrpEmailProcess}
               >
-                Email Price Book(s)
+                Send Price Book(s)
               </Button>
             </Stack>
 
