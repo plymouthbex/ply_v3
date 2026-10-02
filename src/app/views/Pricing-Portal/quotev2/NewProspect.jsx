@@ -318,7 +318,7 @@ const NewProspect = () => {
                     padding: "10px",
                   }}
                 >
-                  <FormikCustomSelectCompany
+                  {/* <FormikCustomSelectCompany
                     name="company"
                     id="company"
                     sx={{ gridColumn: "span 2" }}
@@ -328,8 +328,26 @@ const NewProspect = () => {
                     onChange={handleChange}
                     label="Company"
                     url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetUserAccess?Type=CO&UserID=${user.id}`}
+                  /> */}
+
+                  <TextField
+                    variant="outlined"
+                    id="salesRepName"
+                    label="Sales Representative Name"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    name="salesRepName"
+                    value={values.salesRepName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    required
+                    InputLabelProps={{
+                      sx: {
+                        "& .MuiInputLabel-asterisk": { color: "red" },
+                      },
+                    }}
+                    autoComplete="off"
                   />
-                
                   <TextField
                     variant="outlined"
                     id="prospectDate"
@@ -344,24 +362,6 @@ const NewProspect = () => {
                     required
                     InputLabelProps={{
                       shrink: true, // Forces the label to shrink above the field
-                      sx: {
-                        "& .MuiInputLabel-asterisk": { color: "red" },
-                      },
-                    }}
-                    autoComplete="off"
-                  />
-                  <TextField
-                    variant="outlined"
-                    id="salesRepName"
-                    label="Sales Representative Name"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    name="salesRepName"
-                    value={values.salesRepName}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    required
-                    InputLabelProps={{
                       sx: {
                         "& .MuiInputLabel-asterisk": { color: "red" },
                       },
@@ -407,7 +407,7 @@ const NewProspect = () => {
                     error={!!touched.mobile && !!errors.mobile}
                     helperText={touched.mobile && errors.mobile}
                   />
-                   < FormikCustomSelectProvider
+                  <FormikCustomSelectProvider
                     name="serviceProvider"
                     id="serviceProvider"
                     sx={{ gridColumn: "span 2" }}
@@ -415,6 +415,22 @@ const NewProspect = () => {
                     onChange={handleChange}
                     label="Service Provider"
                     url={`${process.env.REACT_APP_BASE_URL}ProviderDropDown`}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="email"
+                    id="email"
+                    name="email"
+                    label="Email"
+                    size="small"
+                    sx={{ gridColumn: "span 2" }}
+                    value={values.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={!!touched.email && !!errors.email}
+                    helperText={touched.email && errors.email}
+                    autoComplete="off"
                   />
                   <TextField
                     fullWidth
@@ -476,37 +492,16 @@ const NewProspect = () => {
                     error={!!touched.zip && !!errors.zip}
                     helperText={touched.zip && errors.zip}
                   />
-
-
-                    <FormikCustomSelectCompanyPriceLevel
+                  <FormikCustomSelectCompanyPriceLevel
                     name="priceBookLevel"
                     id="priceBookLevel"
                     sx={{ gridColumn: "span 2" }}
                     value={values.priceBookLevel}
-                    onChange={(event,newValue)=>{
-                      setFieldValue("priceBookLevel",newValue)
+                    onChange={(event, newValue) => {
+                      setFieldValue("priceBookLevel", newValue);
                     }}
                     label="price Book Level"
-                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V2?CompanyID=${values.company}`}
-                  />
-                    
-
-
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="email"
-                    id="email"
-                    name="email"
-                    label="Email"
-                    size="small"
-                    sx={{ gridColumn: "span 2" }}
-                    value={values.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={!!touched.email && !!errors.email}
-                    helperText={touched.email && errors.email}
-                    autoComplete="off"
+                    url={`${process.env.REACT_APP_BASE_URL}PriceBookConfiguration/GetPriceListLevel_V2?CompanyID=${values.company ? values.company : user.companyID}`}
                   />
                   <FormControl
                     sx={{ gridColumn: "span 2" }}
@@ -516,7 +511,7 @@ const NewProspect = () => {
                       touched.PreferedPdf &&
                       touched.PreferedExcel &&
                       !!errors.PreferedPdf
-                    } 
+                    }
                   >
                     <FormLabel focused={false} component="legend">
                       Preferred Format
@@ -525,10 +520,10 @@ const NewProspect = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                          id="PreferedPdf"
-                          name="PreferedPdf"
-                          checked={values.PreferedPdf}
-                          onChange={handleChange}
+                            id="PreferedPdf"
+                            name="PreferedPdf"
+                            checked={values.PreferedPdf}
+                            onChange={handleChange}
                           />
                         }
                         label="Pdf"
@@ -536,20 +531,20 @@ const NewProspect = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                          id="PreferedExcel"
-                          name="PreferedExcel"
-                          checked={values.PreferedExcel}
-                          onChange={handleChange}
+                            id="PreferedExcel"
+                            name="PreferedExcel"
+                            checked={values.PreferedExcel}
+                            onChange={handleChange}
                           />
                         }
                         label="Excel"
                       />
                     </Stack>
                     {touched.PreferedPdf &&
-                    touched.PreferedExcel &&
-                    errors.PreferedPdf && (
-                      <FormHelperText>{errors.PreferedPdf}</FormHelperText>
-                    )}
+                      touched.PreferedExcel &&
+                      errors.PreferedPdf && (
+                        <FormHelperText>{errors.PreferedPdf}</FormHelperText>
+                      )}
                   </FormControl>
                   <Box
                     sx={{

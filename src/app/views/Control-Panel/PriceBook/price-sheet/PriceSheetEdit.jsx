@@ -275,6 +275,12 @@ const PriceSheetEdit = () => {
       setOpenMoveModal(false);
       setDestinationSheet(null);
       setDestinationError("");
+      navigate("/pages/control-panel/price-sheet", {
+        state: {
+          id: state?.companyRecordID || priceListHeaderData?.CompanyID || companyID || user?.companyID,
+          code: state?.companyCode || priceListHeaderData?.CompanyCode || companyID || user?.companyCode,
+        },
+      });
     } catch (error) {
       setLocalPriceSheetItems((currentRows) =>
         currentRows.filter((row) => {
@@ -288,6 +294,12 @@ const PriceSheetEdit = () => {
       setOpenMoveModal(false);
       setDestinationSheet(null);
       setDestinationError("");
+      navigate("/pages/control-panel/price-sheet", {
+        state: {
+          id: state?.companyRecordID || priceListHeaderData?.CompanyID || companyID || user?.companyID,
+          code: state?.companyCode || priceListHeaderData?.CompanyCode || companyID || user?.companyCode,
+        },
+      });
     } finally {
       setIsMoving(false);
     }

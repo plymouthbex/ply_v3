@@ -340,7 +340,7 @@ const PriceSheet = () => {
               sx={{ height: 30, width: 30 }}
               title="Move Items"
             >
-              <DriveFileMoveIcon fontSize="small" color="primary" />
+              <DriveFileMoveIcon fontSize="small" sx={{ color: "#174c4f" }} />
             </IconButton>
           </div>
         );
