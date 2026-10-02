@@ -2833,7 +2833,7 @@ const PriceSheetEdit = () => {
               },
             }}
           >
-            Confirm Move
+            Confirm
           </LoadingButton>
           <Button
             variant="contained"
