@@ -24,7 +24,8 @@ import { Breadcrumb, SimpleCard } from "app/components";
 import { useTheme } from "@emotion/react";
 import { SiMicrosoftexcel } from "react-icons/si";
 import { FaFilePdf, FaFileImage } from "react-icons/fa6";
-import { IoIosMailOpen } from "react-icons/io";
+import { IoIosMailOpen,IoIosSend } from "react-icons/io";
+import { MdSend } from "react-icons/md";
 import { IoMdPrint } from "react-icons/io";
 import { useEffect, useState } from "react";
 
@@ -1317,13 +1318,14 @@ const ViewPriceBook = () => {
                   </CustomIconButton>
                 </Tooltip>
 
-                <Tooltip title="Mail" placement="top">
+                <Tooltip title="Send" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.error.main}
                     aria-label="mail"
                     onClick={fnRunGrpEmailProcess}
                   >
-                    <IoIosMailOpen style={{ fontSize: "21px" }} />
+                    {/* <IoIosMailOpen style={{ fontSize: "21px" }} /> */}
+                     <IoIosSend style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
               </Stack>
