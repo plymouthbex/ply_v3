@@ -181,7 +181,8 @@ const ContactEdit = () => {
       PreferedMobile: values.preferedMobile ? "1" : "0",
       Email: values.email,
       Phone: values.phonenumber,
-      Provider: values.provider,
+      // Provider: values.provider,
+      Provider: "",
       FirstName: values.firstName,
       LastName: values.lastName,
       CommunicationType: values.preferedMobile ? (values.CommunicationType || "Text") : "",
@@ -438,7 +439,7 @@ const ContactEdit = () => {
                     helperText={touched.phonenumber && errors.phonenumber}
                     // required
                   />
-                  <FormikCustomSelectProvider
+                  {/* <FormikCustomSelectProvider
                     name="provider"
                     id="provider"
                     sx={{ gridColumn: "span 2" }}
@@ -447,7 +448,7 @@ const ContactEdit = () => {
                     label="Service Provider"
                     url={`${process.env.REACT_APP_BASE_URL}ProviderDropDown`}
                     disabled={params?.mode === "delete"}
-                  />
+                  /> */}
                   {/* <FormControl
                     sx={{ gridColumn: "span 2" }}
                     fullWidth

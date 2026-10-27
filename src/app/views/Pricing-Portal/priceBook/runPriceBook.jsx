@@ -835,7 +835,12 @@ export default function RunPriceBook() {
     // }
     const data = runGrpRows
 
-      .filter((v) => v.fppdf || v.fpexcel || v.cppdf || v.cpexcel)
+      //.filter((v) => v.fppdf || v.fpexcel || v.cppdf || v.cpexcel)
+      .filter((v) =>
+    user.companyCode === "SJ"
+      ? v.cppdf || v.cpexcel || v.cpjpg
+      : v.fppdf || v.fpexcel || v.cppdf || v.cpexcel
+  )
       .map((v) => ({
         id: v.id,
         CustomerNumber: v.customernumber,
@@ -843,7 +848,8 @@ export default function RunPriceBook() {
         FullPriceBookExcel: v.fpexcel ? "1" : "0",
         CustomPriceBooPdf: v.cppdf ? "1" : "0",
         CustomPriceBookExcel: v.cpexcel ? "1" : "0",
-        CustomPriceBookJpg: user.companyCode === "SJ" ? "1" : "0",
+        // CustomPriceBookJpg: user.companyCode === "SJ" ? "1" : "0",
+        CustomPriceBookJpg: user.companyCode === "SJ" && v.cpjpg ? "1" : "0",
         FromDate: sunday,
         ToDate: saturday,
         UserID: user.id,
