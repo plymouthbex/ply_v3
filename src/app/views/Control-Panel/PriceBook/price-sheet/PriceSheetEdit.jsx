@@ -61,6 +61,7 @@ import {
   priceListDeletedItem,
   PostAddHocItems,
   getPriceSheetData,
+  getPriceSheetCategories,
 } from "app/redux/slice/getSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -1023,7 +1024,8 @@ const PriceSheetEdit = () => {
   // ============================================================= //
   // ================  CATEGORY SEQUENCE CONFIGURATION  =========== //
   // ============================================================= //
-  const [categories, setCategories] = useState(INITIAL_CATEGORY_DATA);
+  // const [categories, setCategories] = useState(INITIAL_CATEGORY_DATA);
+  const [categories, setCategories] = useState([]);
   const [draggedCategoryId, setDraggedCategoryId] = useState(null);
   const draggedCategoryIdRef = useRef(null);
   const [dragOverCategoryId, setDragOverCategoryId] = useState(null);
@@ -1259,7 +1261,45 @@ const PriceSheetEdit = () => {
       );
     }
   }, [dispatch, params.mode, state?.id]);
+const loadCategories = useCallback(
+  async (sheetId) => {
+    if (!sheetId || Number(sheetId) <= 0) {
+      setCategories([]);
+      return;
+    }
 
+    try {
+      const res = await dispatch(
+        getPriceSheetCategories({ id: sheetId }),
+      ).unwrap();
+
+      const list = res?.data?.categoryData || [];
+
+      setCategories(
+        [...list]
+          .sort((a, b) => a.sequence - b.sequence)
+          .map((cat, index) => ({
+            id: cat.id,
+            categoryName: cat.categoryName,
+            sequence: index + 1,
+            isSaved: cat.isSaved,
+          })),
+      );
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      setCategories([]);
+    }
+  },
+  [dispatch],
+);
+
+useEffect(() => {
+  if (params.mode !== "add" && state?.id) {
+    loadCategories(state.id);
+  } else {
+    setCategories([]);
+  }
+}, [params.mode, state?.id, loadCategories]);
   const [openAlert1, setOpenAlert1] = useState(false);
   const [postError1, setPostError1] = useState(null);
   const [openAlert2, setOpenAlert2] = useState(false);

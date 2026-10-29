@@ -433,6 +433,28 @@ export const getPriceSheetData = createAsyncThunk(
   }
 );
 
+//=======PRICESHEET CATEGORY GET=========================///
+export const getPriceSheetCategories = createAsyncThunk(
+  "get/getPriceSheetCategories",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}PriceSheet/GetPriceSheetCategories`,
+        { params: { PriceSheetID: id } ,
+        headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error?.response?.data || { message: error.message },
+      );
+    }
+  },
+);
+
 ///====================APPLICATION===========================//
 
 export const getApplicationData = createAsyncThunk(
@@ -1351,6 +1373,27 @@ const getSlice = createSlice({
   state.priceSheetError = action.payload || action.error?.message;
 })
 
+//PRICESHEET CATEGORY
+      .addCase(getPriceSheetCategories.pending, (state) => {
+  state.priceSheetLoading = true;
+  state.priceSheetStatus = "loading";
+  state.priceSheetError = null;
+})
+.addCase(getPriceSheetCategories.fulfilled, (state, action) => {
+  state.priceSheetLoading = false;
+  state.priceSheetStatus = "fulfilled";
+
+  state.priceSheetData = action.payload?.data || {
+    headerData: {},
+    itemData: [],
+    printColumnData: [],
+  };
+})
+.addCase(getPriceSheetCategories.rejected, (state, action) => {
+  state.priceSheetLoading = false;
+  state.priceSheetStatus = "rejected";
+  state.priceSheetError = action.payload || action.error?.message;
+})
       // PRINT GROUP
       .addCase(getprintGroupData.pending, (state) => {
         state.printGroupStatus = "pending";
