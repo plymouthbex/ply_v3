@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   LinearProgress,
   Paper,
@@ -108,6 +108,7 @@ import {
 } from "app/components/FormikAutocomplete";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import InfoIcon from "@mui/icons-material/Info";
 
 // ********************** STYLED COMPONENTS ********************** //
 const Container = styled("div")(({ theme }) => ({
@@ -136,6 +137,70 @@ const PRINT_COLUMN_DEFAULTS = [
   { id: "PrintPackSize", label: "Pack Size", enabled: false },
 ];
 
+// ***** CATEGORY SEQUENCE STATIC DATA ***** //
+const INITIAL_CATEGORY_DATA = [
+  {
+    id: 1,
+    categoryName: "AZTECA PROPRIETARY SAUCES",
+    sequence: 1,
+  },
+  {
+    id: 2,
+    categoryName: "BEEF / RES",
+    sequence: 2,
+  },
+  {
+    id: 3,
+    categoryName: "PROTEINS - CARNES",
+    sequence: 3,
+  },
+  {
+    id: 4,
+    categoryName: "TORTILLAS (AZTECA)",
+    sequence: 4,
+  },
+  {
+    id: 5,
+    categoryName: "DAIRY & MORE STUFF",
+    sequence: 5,
+  },
+  {
+    id: 6,
+    categoryName: "DRY GROCERY",
+    sequence: 6,
+  },
+  {
+    id: 7,
+    categoryName: "FROZEN FOOD",
+    sequence: 7,
+  },
+  {
+    id: 8,
+    categoryName: "SPICES",
+    sequence: 8,
+  },
+  {
+    id: 9,
+    categoryName: "Chicken",
+    sequence: 9,
+  },
+  {
+    id: 10,
+    categoryName: "Pork",
+    sequence: 10,
+  },
+  {
+    id: 11,
+    categoryName: "Seafood",
+    sequence: 11,
+  },
+  {
+    id: 12,
+    categoryName: "Processed Meat Guide",
+    sequence: 12,
+  },
+];
+
 // **********************  PRICE SHEET EDIT SCREEN  ********************** //
 const PriceSheetEdit = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
@@ -152,6 +217,33 @@ const PriceSheetEdit = () => {
 
   const isReadOnly =
     params.mode === "delete" || params.mode === "view" || params.mode === "move";
+
+  // ********************** DYNAMIC HEIGHT SYNC ********************** //
+  const [leftSectionHeight, setLeftSectionHeight] = useState(0);
+  const leftObserverRef = useRef(null);
+
+  const leftSectionCallbackRef = useCallback((node) => {
+    if (leftObserverRef.current) {
+      leftObserverRef.current.disconnect();
+    }
+    if (node) {
+      const updateHeight = () => {
+        const h = node.offsetHeight;
+        if (h > 0) {
+          setLeftSectionHeight(h);
+        }
+      };
+      updateHeight();
+      requestAnimationFrame(updateHeight);
+
+      if (typeof ResizeObserver !== "undefined") {
+        leftObserverRef.current = new ResizeObserver(() => {
+          updateHeight();
+        });
+        leftObserverRef.current.observe(node);
+      }
+    }
+  }, []);
 
   // ********************** LOCAL STATE ********************** //
   const [openAlert, setOpenAlert] = useState(false);
@@ -928,6 +1020,77 @@ const PriceSheetEdit = () => {
     );
   };
 
+  // ============================================================= //
+  // ================  CATEGORY SEQUENCE CONFIGURATION  =========== //
+  // ============================================================= //
+  const [categories, setCategories] = useState(INITIAL_CATEGORY_DATA);
+  const [draggedCategoryId, setDraggedCategoryId] = useState(null);
+  const draggedCategoryIdRef = useRef(null);
+  const [dragOverCategoryId, setDragOverCategoryId] = useState(null);
+
+  const handleCategoryDragStart = (event, id) => {
+    if (isReadOnly) return;
+    draggedCategoryIdRef.current = id;
+    setDraggedCategoryId(id);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", String(id));
+  };
+
+  const handleCategoryDragEnter = (event, id) => {
+    if (isReadOnly) return;
+    event.preventDefault();
+    if (id !== dragOverCategoryId) setDragOverCategoryId(id);
+  };
+
+  const handleCategoryDragOver = (event) => {
+    if (isReadOnly) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  };
+
+  const reorderCategories = (sourceId, targetId) => {
+    setCategories((current) => {
+      const sourceIndex = current.findIndex((c) => c.id === sourceId);
+      const targetIndex = current.findIndex((c) => c.id === targetId);
+      if (
+        sourceIndex === -1 ||
+        targetIndex === -1 ||
+        sourceIndex === targetIndex
+      ) {
+        return current;
+      }
+      const updated = [...current];
+      const [moved] = updated.splice(sourceIndex, 1);
+      updated.splice(targetIndex, 0, moved);
+      return updated.map((item, index) => ({
+        ...item,
+        sequence: index + 1,
+      }));
+    });
+  };
+
+  const handleCategoryDrop = (event, targetId) => {
+    if (isReadOnly) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const data = event.dataTransfer.getData("text/plain");
+    const sourceId = data ? Number(data) : draggedCategoryIdRef.current;
+
+    if (sourceId && sourceId !== targetId) {
+      reorderCategories(sourceId, targetId);
+    }
+    draggedCategoryIdRef.current = null;
+    setDraggedCategoryId(null);
+    setDragOverCategoryId(null);
+  };
+
+  const handleCategoryDragEnd = () => {
+    draggedCategoryIdRef.current = null;
+    setDraggedCategoryId(null);
+    setDragOverCategoryId(null);
+  };
+
   // **********************  FUNCTION ********************** //
 
   const isPriceListIDExists = (e, setSubmitting) => {
@@ -1426,7 +1589,7 @@ const PriceSheetEdit = () => {
                 >
                   {/* ============== PRINT COLUMN CONFIGURATION PANEL ============== */}
                   <Stack
-                    sx={{ gridColumn: "span 1" }}
+                    ref={leftSectionCallbackRef} sx={{ gridColumn: "span 1", alignSelf: "start" }}
                     direction="column"
                     gap={1}
                   >
@@ -1614,6 +1777,239 @@ const PriceSheetEdit = () => {
                       </Box>
                     </Box>
 
+                    {/* ============== CATEGORY SEQUENCE SECTION ============== */}
+                    <Box sx={{ mt: 1.5 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          color: "text.primary",
+                        }}
+                      >
+                        Category Sequence
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "12px",
+                          color: "text.secondary",
+                          mt: 0.2,
+                          mb: 1,
+                        }}
+                      >
+                        Drag categories to set the order in the generated price sheet.
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          border: "1px solid #d0d0d0",
+                          borderRadius: "3px",
+                          backgroundColor: "#fff",
+                          overflow: "hidden",
+                          width: "100%",
+                        }}
+                      >
+                        {/* HEADER */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            height: 38,
+                            borderBottom: "1px solid #d0d0d0",
+                            backgroundColor: theme.palette.info.main || "#999999",
+                            color: "#ffffff",
+                          }}
+                        >
+                          <Box sx={{ width: 36, minWidth: 36 }} />
+                          <Box
+                            sx={{
+                              width: 38,
+                              minWidth: 38,
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                color: "#ffffff",
+                              }}
+                            >
+                              #
+                            </Typography>
+                          </Box>
+                          <Typography
+                            sx={{
+                              flex: 1,
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              color: "#ffffff",
+                              pl: 1,
+                            }}
+                          >
+                            Category
+                          </Typography>
+                        </Box>
+
+                        {/* SCROLLABLE ROWS */}
+                        <Box
+                          sx={{
+                            maxHeight: 210,
+                            overflowY: "auto",
+                            "&::-webkit-scrollbar": {
+                              width: "6px",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                              backgroundColor: "#c1c1c1",
+                              borderRadius: "3px",
+                            },
+                          }}
+                        >
+                          {categories.map((cat, index) => {
+                            const isDragging = draggedCategoryId === cat.id;
+                            const isDragOver =
+                              dragOverCategoryId === cat.id && !isDragging;
+                            const isEven = index % 2 === 0;
+
+                            return (
+                              <Box
+                                key={cat.id}
+                                draggable={!isReadOnly}
+                                onDragStart={(event) =>
+                                  handleCategoryDragStart(event, cat.id)
+                                }
+                                onDragEnter={(event) =>
+                                  handleCategoryDragEnter(event, cat.id)
+                                }
+                                onDragOver={handleCategoryDragOver}
+                                onDrop={(event) =>
+                                  handleCategoryDrop(event, cat.id)
+                                }
+                                onDragEnd={handleCategoryDragEnd}
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  height: 34,
+                                  borderBottom: "1px solid #e5e5e5",
+                                  borderTop: isDragOver
+                                    ? "2px solid #81878c"
+                                    : "2px solid transparent",
+                                  backgroundColor: isDragging
+                                    ? "#f1f1f1"
+                                    : isEven
+                                    ? "#ffffff"
+                                    : "#f7f8f9",
+                                  opacity: isDragging ? 0.5 : 1,
+                                  cursor: isReadOnly ? "default" : "grab",
+                                  transition:
+                                    "background-color 0.15s, border-top-color 0.1s",
+                                  "&:hover": {
+                                    backgroundColor: isReadOnly
+                                      ? undefined
+                                      : "#edf2f7",
+                                  },
+                                  "&:active": {
+                                    cursor: isReadOnly
+                                      ? "default"
+                                      : "grabbing",
+                                  },
+                                }}
+                              >
+                                {/* DRAG HANDLE */}
+                                <Box
+                                  sx={{
+                                    width: 36,
+                                    minWidth: 36,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "#888",
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  <DragIndicatorIcon sx={{ fontSize: 18 }} />
+                                </Box>
+
+                                {/* SEQUENCE BADGE */}
+                                <Box
+                                  sx={{
+                                    width: 38,
+                                    minWidth: 38,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      width: 22,
+                                      height: 22,
+                                      minWidth: 22,
+                                      borderRadius: "50%",
+                                      backgroundColor: "#e2e6ea",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: "11px",
+                                      fontWeight: 600,
+                                      color: "#495057",
+                                    }}
+                                  >
+                                    {cat.sequence}
+                                  </Box>
+                                </Box>
+
+                                {/* CATEGORY NAME */}
+                                <Typography
+                                  sx={{
+                                    flex: 1,
+                                    fontSize: "12.5px",
+                                    fontWeight: 500,
+                                    color: "#333",
+                                    pl: 1,
+                                    userSelect: "none",
+                                    pointerEvents: "none",
+                                    textOverflow: "ellipsis",
+                                    overflow: "hidden",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {cat.categoryName}
+                                </Typography>
+                              </Box>
+                            );
+                          })}
+                        </Box>
+                      </Box>
+
+                      {/* INFORMATIONAL MESSAGE BELOW LIST */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          mt: 1,
+                          mb: 0.5,
+                          px: 0.5,
+                        }}
+                      >
+                        <InfoIcon
+                          sx={{ fontSize: 18, color: "#1976d2", mr: 0.8 }}
+                        />
+                        <Typography
+                          sx={{
+                            color: "#1976d2",
+                            fontSize: "12px",
+                            fontWeight: 500,
+                          }}
+                        >
+                          Drag and drop categories to change their print sequence.
+                        </Typography>
+                      </Box>
+                    </Box>
+
                     {/* NOTE + APPLY BUTTON (matches PriceListEdit note/action row pattern) */}
                     {/* <Box
                       sx={{
@@ -1658,6 +2054,7 @@ const PriceSheetEdit = () => {
                     </Box> */}
                     {/* NOTE SECTION (Plain Black & Bold Text with Dynamic Item Limit) */}
                     {/* NOTE SECTION (Blue & Bold Text + Dynamic 50 / 80 Limit) */}
+                    {/*
                     <Box
                       sx={{
                         mt: 1,
@@ -1690,6 +2087,7 @@ const PriceSheetEdit = () => {
                         items may be printed across multiple pages.
                       </Typography>
                     </Box>
+                    */}
 
                     <Stack justifyContent="flex-end" direction={"row"} gap={4}>
                       {/* <Button
@@ -1717,7 +2115,9 @@ const PriceSheetEdit = () => {
                   {/* ============== ITEMS GRID (matches PriceListEdit DataGrid box) ============== */}
                   <Box
                     sx={{
-                      height: 390,
+                      height: isNonMobileSec ? (leftSectionHeight > 0 ? leftSectionHeight : 720) : "auto",
+                      display: "flex",
+                      flexDirection: "column",
                       gridColumn: "span 2",
                       "& .name-column--cell": {
                         color: theme.palette.info.contrastText,
@@ -1773,6 +2173,7 @@ const PriceSheetEdit = () => {
                         width: "100%",
                         padding: "5px",
                         mb: 2,
+                        flexShrink: 0,
                       }}
                     >
                       <TextField
@@ -1944,7 +2345,12 @@ const PriceSheetEdit = () => {
                       disableColumnSelector
                       disableDensitySelector
                     /> */}
-                    <DataGrid
+                    <Box sx={{ flex: 1, minHeight: 0, width: "100%", overflow: "hidden" }}>
+                      <DataGrid
+                        sx={{
+                          height: "100%",
+                          width: "100%",
+                        }}
                       columnHeaderHeight={dataGridHeaderFooterHeight}
                       rowHeight={dataGridRowHeight}
                       rows={localPriceSheetItems}
@@ -1987,6 +2393,8 @@ const PriceSheetEdit = () => {
                       disableDensitySelector
                     />
 
+                    </Box>
+
                     <Box
                       sx={{
                         mt: 1,
@@ -1998,6 +2406,7 @@ const PriceSheetEdit = () => {
                         backgroundColor: "#ffe6e6",
                         minHeight: 30,
                         minWidth: 300,
+                        flexShrink: 0,
                       }}
                     >
                       <Typography color="error" align="center">
