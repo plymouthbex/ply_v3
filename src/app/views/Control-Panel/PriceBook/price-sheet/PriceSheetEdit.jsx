@@ -1270,7 +1270,7 @@ const loadCategories = useCallback(
 
     try {
       const res = await dispatch(
-        getPriceSheetCategories({ id: sheetId }),
+        getPriceSheetCategories({ id: sheetId ,CompanyID:state.companyRecordID}),
       ).unwrap();
 
       const list = res?.data?.categoryData || [];

@@ -436,11 +436,11 @@ export const getPriceSheetData = createAsyncThunk(
 //=======PRICESHEET CATEGORY GET=========================///
 export const getPriceSheetCategories = createAsyncThunk(
   "get/getPriceSheetCategories",
-  async ({ id }, { rejectWithValue }) => {
+  async ({ id ,CompanyID}, { rejectWithValue }) => {
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}PriceSheet/GetPriceSheetCategories`,
-        { params: { PriceSheetID: id } ,
+        { params: { PriceSheetID: id,CompanyID:CompanyID } ,
         headers: {
             Authorization: process.env.REACT_APP_API_TOKEN,
           },
