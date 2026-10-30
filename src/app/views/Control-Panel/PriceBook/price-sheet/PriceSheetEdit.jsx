@@ -274,16 +274,28 @@ const PriceSheetEdit = () => {
   const [rowSelectionModel, setRowSelectionModel] = useState([]);
   const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
 
+  // const handleBulkDeleteConfirm = () => {
+  //   setLocalPriceSheetItems((currentRows) =>
+  //     currentRows.filter((row) => {
+  //       const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+  //       return !rowSelectionModel.includes(rowId);
+  //     }),
+  //   );
+  //   setRowSelectionModel([]);
+  //   setIsBulkDeleteConfirmOpen(false);
+  // };
   const handleBulkDeleteConfirm = () => {
-    setLocalPriceSheetItems((currentRows) =>
-      currentRows.filter((row) => {
-        const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
-        return !rowSelectionModel.includes(rowId);
-      }),
-    );
-    setRowSelectionModel([]);
-    setIsBulkDeleteConfirmOpen(false);
-  };
+  const remaining = localPriceSheetItems.filter((row) => {
+    const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+    return !rowSelectionModel.includes(rowId);
+  });
+
+  setLocalPriceSheetItems(remaining);
+  syncCategoriesWithItems(remaining);      // NEW
+
+  setRowSelectionModel([]);
+  setIsBulkDeleteConfirmOpen(false);
+};
 
   // ********************** MOVE ITEMS STATE & HANDLERS ********************** //
   const [openMoveModal, setOpenMoveModal] = useState(false);
@@ -596,23 +608,41 @@ const PriceSheetEdit = () => {
 
     return newRow;
   };
+  // const handleRowCategoryChange = (targetRow, newCategory) => {
+  //   const targetId =
+  //     targetRow.RecordId || `${targetRow.Item_Number}-${targetRow.sequence}`;
+
+  //   setLocalPriceSheetItems((prevRows) =>
+  //     prevRows.map((row) => {
+  //       const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+  //       if (rowId !== targetId) return row;
+
+  //       return {
+  //         ...row,
+  //         CategoryID: newCategory ? newCategory.RecordID : null,
+  //         GroupName: newCategory ? newCategory.GroupName : "",
+  //       };
+  //     }),
+  //   );
+  // };
   const handleRowCategoryChange = (targetRow, newCategory) => {
-    const targetId =
-      targetRow.RecordId || `${targetRow.Item_Number}-${targetRow.sequence}`;
+  const targetId =
+    targetRow.RecordId || `${targetRow.Item_Number}-${targetRow.sequence}`;
 
-    setLocalPriceSheetItems((prevRows) =>
-      prevRows.map((row) => {
-        const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
-        if (rowId !== targetId) return row;
+  const updated = localPriceSheetItems.map((row) => {
+    const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+    if (rowId !== targetId) return row;
 
-        return {
-          ...row,
-          CategoryID: newCategory ? newCategory.RecordID : null,
-          GroupName: newCategory ? newCategory.GroupName : "",
-        };
-      }),
-    );
-  };
+    return {
+      ...row,
+      CategoryID: newCategory ? newCategory.RecordID : null,
+      GroupName: newCategory ? newCategory.GroupName : "",
+    };
+  });
+
+  setLocalPriceSheetItems(updated);
+  syncCategoriesWithItems(updated);        // NEW
+};
 
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
@@ -675,6 +705,11 @@ const PriceSheetEdit = () => {
             renderInput={(inputParams) => (
               <TextField {...inputParams} placeholder="Select category" />
             )}
+             sx={{
+    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+    "&:hover .MuiOutlinedInput-notchedOutline": { border: "none" },
+    "& .Mui-focused .MuiOutlinedInput-notchedOutline": { border: "none" },
+  }}
           />
         );
       },
@@ -1169,6 +1204,34 @@ const PriceSheetEdit = () => {
   const draggedCategoryIdRef = useRef(null);
   const [dragOverCategoryId, setDragOverCategoryId] = useState(null);
 
+  const syncCategoriesWithItems = (items) => {
+  const usedIds = [
+    ...new Set(
+      items.map((item) => Number(item.CategoryID)).filter((id) => id > 0),
+    ),
+  ];
+
+  setCategories((current) => {
+    const kept = current.filter((c) => usedIds.includes(Number(c.id)));
+    const keptIds = kept.map((c) => Number(c.id));
+
+    const added = usedIds
+      .filter((id) => !keptIds.includes(id))
+      .map((id) => ({
+        id,
+        categoryName:
+          printGroups.find((g) => Number(g.RecordID) === id)?.GroupName || "",
+        sequence: 0,
+        isSaved: false,
+      }))
+      .sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+
+    return [...kept, ...added].map((c, index) => ({
+      ...c,
+      sequence: index + 1,
+    }));
+  });
+};
   const handleCategoryDragStart = (event, id) => {
     if (isReadOnly) return;
     draggedCategoryIdRef.current = id;
@@ -1470,14 +1533,25 @@ const PriceSheetEdit = () => {
   const [openAlert11, setOpenAlert11] = useState(false);
   const [postError11, setPostError11] = useState(false);
 
-  const itemDeleteFn = () => {
-    setLocalPriceSheetItems((current) =>
-      current.filter((item) => item.Item_Number !== itemToDelete),
-    );
+  // const itemDeleteFn = () => {
+  //   setLocalPriceSheetItems((current) =>
+  //     current.filter((item) => item.Item_Number !== itemToDelete),
+  //   );
 
-    setItemToDelete(null);
-    setIsRemoveItem1(false);
-  };
+  //   setItemToDelete(null);
+  //   setIsRemoveItem1(false);
+  // };
+  const itemDeleteFn = () => {
+  const remaining = localPriceSheetItems.filter(
+    (item) => item.Item_Number !== itemToDelete,
+  );
+
+  setLocalPriceSheetItems(remaining);
+  syncCategoriesWithItems(remaining);      // NEW
+
+  setItemToDelete(null);
+  setIsRemoveItem1(false);
+};
 
   return (
     <Container>
