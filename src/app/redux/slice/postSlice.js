@@ -1534,6 +1534,26 @@ export const PostPriceListDetail = createAsyncThunk(
   }
 );
 
+export const PostPriceSheetCategories = createAsyncThunk(
+  "post/PostPriceSheetCategories",
+  async ({ categoryData }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/SavePriceSheetCategories`;
+      const response = await axios.post(URL, categoryData, {
+        headers: {
+          Authorization: process.env.REACT_APP_API_TOKEN,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error?.response?.data || { message: error.message },
+      );
+    }
+  },
+);
+
 export const UploadContracts = createAsyncThunk(
   "post/UploadContracts", // Action type string
   async ({ data}, { rejectWithValue }) => {

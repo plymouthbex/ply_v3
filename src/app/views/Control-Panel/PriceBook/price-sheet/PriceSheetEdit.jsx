@@ -28,6 +28,7 @@ import {
   Switch,
   Autocomplete,
 } from "@mui/material";
+import axios from "axios";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -86,6 +87,7 @@ import {
   PostPriceSheetDetail,
   priceSheetDelete,
   MovePriceSheetItem,
+  PostPriceSheetCategories,
 } from "app/redux/slice/postSlice";
 import { getPriceSheetView } from "app/redux/slice/listviewSlice";
 import useAuth from "app/hooks/useAuth";
@@ -201,7 +203,8 @@ const INITIAL_CATEGORY_DATA = [
     sequence: 12,
   },
 ];
-
+const EMPTY_LIST = [];
+const EMPTY_OBJECT = {};
 // **********************  PRICE SHEET EDIT SCREEN  ********************** //
 const PriceSheetEdit = () => {
   // ********************** HOOKS AND CONSTANTS ********************** //
@@ -405,9 +408,9 @@ const PriceSheetEdit = () => {
   // ********************** REDUX STATE ********************** //
   const priceSheetData = useSelector((state) => state.getSlice.priceSheetData);
 
-  const priceSheetHeaderData = priceSheetData?.headerData || {};
+  const priceSheetHeaderData = priceSheetData?.headerData || EMPTY_OBJECT;
 
-  const priceSheetItemData = priceSheetData?.itemData || [];
+  const priceSheetItemData = priceSheetData?.itemData || EMPTY_LIST;
 
   const [localPriceSheetItems, setLocalPriceSheetItems] = useState([]);
 
@@ -422,7 +425,7 @@ const PriceSheetEdit = () => {
 
   const [itemToDelete, setItemToDelete] = useState(null);
 
-  const priceSheetPrintColumnData = priceSheetData?.printColumnData || [];
+  const priceSheetPrintColumnData = priceSheetData?.printColumnData || EMPTY_LIST;
 
   const priceSheetStatus = useSelector(
     (state) => state.getSlice.priceSheetStatus,
@@ -512,7 +515,58 @@ const PriceSheetEdit = () => {
       },
     }));
   };
+  // ===== Print groups (category options), fetched once =====
+  const [printGroups, setPrintGroups] = useState([]);
 
+  useEffect(() => {
+    const companyId = state?.companyRecordID || user?.companyID;
+    if (!companyId) return;
+
+    axios
+      .get(
+        `${process.env.REACT_APP_BASE_URL}PrintGroup/PrintGroupList?CompanyID=${companyId}`,
+        { headers: { Authorization: process.env.REACT_APP_API_TOKEN } },
+      )
+      .then((res) => setPrintGroups(res?.data?.data || []))
+      .catch((err) => {
+        console.error("Error loading print groups:", err);
+        setPrintGroups([]);
+      });
+  }, [state?.companyRecordID, user?.companyID]);
+
+  useEffect(() => {
+  // wait until items are loaded, so the saved order is not wiped
+  if (localPriceSheetItems.length === 0) return;
+
+  const usedIds = [
+    ...new Set(
+      localPriceSheetItems
+        .map((item) => Number(item.CategoryID))
+        .filter((id) => id > 0),
+    ),
+  ];
+
+  setCategories((current) => {
+    const kept = current.filter((c) => usedIds.includes(Number(c.id)));
+    const keptIds = kept.map((c) => Number(c.id));
+
+    const added = usedIds
+      .filter((id) => !keptIds.includes(id))
+      .map((id) => ({
+        id,
+        categoryName:
+          printGroups.find((g) => Number(g.RecordID) === id)?.GroupName || "",
+        sequence: 0,
+        isSaved: false,
+      }))
+      .sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+
+    return [...kept, ...added].map((c, index) => ({
+      ...c,
+      sequence: index + 1,
+    }));
+  });
+}, [localPriceSheetItems, printGroups]);
   // -------------------------------------------------------------
   // PROCESS ROW UPDATE
   // -------------------------------------------------------------
@@ -531,6 +585,8 @@ const PriceSheetEdit = () => {
           return {
             ...row,
             ...newRow,
+            CategoryID: row.CategoryID,   // keep what the autocomplete set
+            GroupName: row.GroupName,
           };
         }
 
@@ -539,6 +595,23 @@ const PriceSheetEdit = () => {
     );
 
     return newRow;
+  };
+  const handleRowCategoryChange = (targetRow, newCategory) => {
+    const targetId =
+      targetRow.RecordId || `${targetRow.Item_Number}-${targetRow.sequence}`;
+
+    setLocalPriceSheetItems((prevRows) =>
+      prevRows.map((row) => {
+        const rowId = row.RecordId || `${row.Item_Number}-${row.sequence}`;
+        if (rowId !== targetId) return row;
+
+        return {
+          ...row,
+          CategoryID: newCategory ? newCategory.RecordID : null,
+          GroupName: newCategory ? newCategory.GroupName : "",
+        };
+      }),
+    );
   };
 
   // ********************** COLUMN AND ROWS ********************** //
@@ -569,6 +642,42 @@ const PriceSheetEdit = () => {
       align: "left",
       headerAlign: "left",
       editable: !isReadOnly,
+    },
+    {
+      headerName: "Category",
+      field: "GroupName",
+      minWidth: 260,
+      flex: 1,
+      sortable: false,
+      renderCell: (params) => {
+        // pick the option that matches this row's CategoryID
+        const selected =
+          printGroups.find(
+            (g) => String(g.RecordID) === String(params.row.CategoryID),
+          ) || null;
+
+        return (
+          <Autocomplete
+            size="small"
+            fullWidth
+            disabled={isReadOnly}
+            options={printGroups}
+            value={selected}
+            getOptionLabel={(option) => option?.GroupName || ""}
+            isOptionEqualToValue={(option, val) =>
+              String(option.RecordID) === String(val.RecordID)
+            }
+            onChange={(event, newValue) =>
+              handleRowCategoryChange(params.row, newValue)
+            }
+            // stop the grid from stealing space / arrow / enter keys
+            onKeyDown={(event) => event.stopPropagation()}
+            renderInput={(inputParams) => (
+              <TextField {...inputParams} placeholder="Select category" />
+            )}
+          />
+        );
+      },
     },
 
     {
@@ -792,7 +901,7 @@ const PriceSheetEdit = () => {
 
     const rowLimit = itemsPerRow === 2 ? 80 : 50;
 
-    if (!skipRowCountCheck && params.mode !== "delete" && itemCount  > rowLimit) {
+    if (!skipRowCountCheck && params.mode !== "delete" && itemCount > rowLimit) {
       // Save values so we can continue after user clicks Yes
       pendingRowCountSaveRef.current = { values, setSubmitting }; // Store values for warning message
       setWarningRowCount(itemCount);
@@ -891,22 +1000,33 @@ const PriceSheetEdit = () => {
           sequence: index + 1,
         })),
 
+        // pricesheetItems: localPriceSheetItems.map((item, index) => ({
+        //   recordId: item.RecordId || item.recordId || 0,
+
+        //   item_Number: item.Item_Number || "",
+
+        //   priceSheetRecordID: Number(newPriceSheetID),
+
+        //   item_Description: item.Item_Description || "",
+
+        //   other_Description:
+        //     item.Other_Description || item.Other_Description || "",
+
+        //   sequence: index + 1,
+
+        //   itemRecordID:
+        //     item.ItemRecordID || item.RecordID || item.Item_RecordID || 0,
+        // })),
         pricesheetItems: localPriceSheetItems.map((item, index) => ({
           recordId: item.RecordId || item.recordId || 0,
-
           item_Number: item.Item_Number || "",
-
           priceSheetRecordID: Number(newPriceSheetID),
-
           item_Description: item.Item_Description || "",
-
-          other_Description:
-            item.Other_Description || item.Other_Description || "",
-
+          other_Description: item.Other_Description || "",
           sequence: index + 1,
-
           itemRecordID:
             item.ItemRecordID || item.RecordID || item.Item_RecordID || 0,
+          categoryID: item.CategoryID || null,        // NEW
         })),
       };
 
@@ -919,7 +1039,26 @@ const PriceSheetEdit = () => {
       ).unwrap();
 
       console.log("PostPriceSheetDetail response:", detailResponse);
+      // ==========================================
+      // 3. POST CATEGORY SEQUENCE
+      // ==========================================
+      if (categories.length > 0) {
+        const categoryPayload = {
+          priceSheetId: Number(newPriceSheetID),
+          categories: categories.map((cat, index) => ({
+            categoryId: cat.id,
+            sequence: index + 1,
+          })),
+        };
 
+        console.log("PostPriceSheetCategories payload:", categoryPayload);
+
+        const categoryResponse = await dispatch(
+          PostPriceSheetCategories({ categoryData: categoryPayload }),
+        ).unwrap();
+
+        console.log("PostPriceSheetCategories response:", categoryResponse);
+      }
       // ==========================================
       // SUCCESS
       // ==========================================
@@ -952,12 +1091,12 @@ const PriceSheetEdit = () => {
     pendingRowCountSaveRef.current = null;
 
     if (pending) {
-     handleSavePriceSheet( pending.values, 
-      pending.setSubmitting,
-       false, 
-       true, 
-       );
-      }
+      handleSavePriceSheet(pending.values,
+        pending.setSubmitting,
+        false,
+        true,
+      );
+    }
   };
 
   const confirmRowCountWarningNo = () => {
@@ -1261,45 +1400,45 @@ const PriceSheetEdit = () => {
       );
     }
   }, [dispatch, params.mode, state?.id]);
-const loadCategories = useCallback(
-  async (sheetId) => {
-    if (!sheetId || Number(sheetId) <= 0) {
+  const loadCategories = useCallback(
+    async (sheetId) => {
+      if (!sheetId || Number(sheetId) <= 0) {
+        setCategories([]);
+        return;
+      }
+
+      try {
+        const res = await dispatch(
+          getPriceSheetCategories({ id: sheetId, CompanyID: state.companyRecordID }),
+        ).unwrap();
+
+        const list = res?.data?.categoryData || [];
+
+        setCategories(
+          [...list]
+            .sort((a, b) => a.sequence - b.sequence)
+            .map((cat, index) => ({
+              id: cat.id,
+              categoryName: cat.categoryName,
+              sequence: index + 1,
+              isSaved: cat.isSaved,
+            })),
+        );
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        setCategories([]);
+      }
+    },
+    [dispatch],
+  );
+
+  useEffect(() => {
+    if (params.mode !== "add" && state?.id) {
+      loadCategories(state.id);
+    } else {
       setCategories([]);
-      return;
     }
-
-    try {
-      const res = await dispatch(
-        getPriceSheetCategories({ id: sheetId ,CompanyID:state.companyRecordID}),
-      ).unwrap();
-
-      const list = res?.data?.categoryData || [];
-
-      setCategories(
-        [...list]
-          .sort((a, b) => a.sequence - b.sequence)
-          .map((cat, index) => ({
-            id: cat.id,
-            categoryName: cat.categoryName,
-            sequence: index + 1,
-            isSaved: cat.isSaved,
-          })),
-      );
-    } catch (error) {
-      console.error("Error loading categories:", error);
-      setCategories([]);
-    }
-  },
-  [dispatch],
-);
-
-useEffect(() => {
-  if (params.mode !== "add" && state?.id) {
-    loadCategories(state.id);
-  } else {
-    setCategories([]);
-  }
-}, [params.mode, state?.id, loadCategories]);
+  }, [params.mode, state?.id, loadCategories]);
   const [openAlert1, setOpenAlert1] = useState(false);
   const [postError1, setPostError1] = useState(null);
   const [openAlert2, setOpenAlert2] = useState(false);
@@ -1344,231 +1483,230 @@ useEffect(() => {
     <Container>
       {(params.mode === "add" ||
         (priceSheetStatus === "fulfilled" && !priceSheetError)) && (
-        <Formik
-          enableReinitialize={true}
-          initialValues={{
-            priceListID:
-              params.mode === "add"
-                ? ""
-                : priceSheetHeaderData.PriceSheetID || "",
+          <Formik
+            enableReinitialize={true}
+            initialValues={{
+              priceListID:
+                params.mode === "add"
+                  ? ""
+                  : priceSheetHeaderData.PriceSheetID || "",
 
-            priceListDescription:
-              params.mode === "add"
-                ? priceSheetHeaderData.PriceSheetName || ""
-                : priceSheetHeaderData.PriceSheetName || "",
+              priceListDescription:
+                params.mode === "add"
+                  ? priceSheetHeaderData.PriceSheetName || ""
+                  : priceSheetHeaderData.PriceSheetName || "",
 
-            priceSheetDesc:
-              params.mode === "add"
-                ? ""
-                : priceSheetHeaderData.PriceSheetDesc || "",
+              priceSheetDesc:
+                params.mode === "add"
+                  ? ""
+                  : priceSheetHeaderData.PriceSheetDesc || "",
 
-            pdfFormat:
-              params.mode === "add"
-                ? "1"
-                : priceSheetHeaderData.NoOfItemPerRows?.toString() || "1",
+              pdfFormat:
+                params.mode === "add"
+                  ? "1"
+                  : priceSheetHeaderData.NoOfItemPerRows?.toString() || "1",
 
-            printCategory:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintCategory === true,
+              printCategory:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintCategory === true,
 
-            printPriceList:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintPriceList === true,
+              printPriceList:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintPriceList === true,
 
-            printItemNo:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintItemNo === true,
+              printItemNo:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintItemNo === true,
 
-            printItemDesc:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintItemDesc === true,
+              printItemDesc:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintItemDesc === true,
 
-            printSpanishItemDesc:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintSpanishItemDesc === true,
+              printSpanishItemDesc:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintSpanishItemDesc === true,
 
-            printUOM:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintUOM === true,
+              printUOM:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintUOM === true,
 
-            printPackSize:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintPackSize === true,
+              printPackSize:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintPackSize === true,
 
-            printPrice:
-              params.mode === "add"
-                ? false
-                : priceSheetHeaderData.PrintPrice === true,
-          }}
-          onSubmit={(values, { setSubmitting }) => {
-            handleSavePriceSheet(values, setSubmitting);
-          }}
-        >
-          {({
-            errors,
-            touched,
-            handleBlur,
-            handleChange,
-            isSubmitting,
-            values,
-            handleSubmit,
-            resetForm,
-            setFieldValue,
-            setSubmitting,
-          }) => (
-            <form onSubmit={handleSubmit}>
-              {/* ********************** BREADCRUMB / HEADER ACTIONS ********************** */}
-              <div className="breadcrumb">
-                <Breadcrumb
-                  routeSegments={[
-                    { name: "Control Panel" },
-                    {
-                      name: "Price Sheet",
-                      path: "/pages/control-panel/price-sheet",
-                      state: {
-                        id: priceListHeaderData.CompanyID,
-                        code: priceListHeaderData.CompanyCode,
+              printPrice:
+                params.mode === "add"
+                  ? false
+                  : priceSheetHeaderData.PrintPrice === true,
+            }}
+            onSubmit={(values, { setSubmitting }) => {
+              handleSavePriceSheet(values, setSubmitting);
+            }}
+          >
+            {({
+              errors,
+              touched,
+              handleBlur,
+              handleChange,
+              isSubmitting,
+              values,
+              handleSubmit,
+              resetForm,
+              setFieldValue,
+              setSubmitting,
+            }) => (
+              <form onSubmit={handleSubmit}>
+                {/* ********************** BREADCRUMB / HEADER ACTIONS ********************** */}
+                <div className="breadcrumb">
+                  <Breadcrumb
+                    routeSegments={[
+                      { name: "Control Panel" },
+                      {
+                        name: "Price Sheet",
+                        path: "/pages/control-panel/price-sheet",
+                        state: {
+                          id: priceListHeaderData.CompanyID,
+                          code: priceListHeaderData.CompanyCode,
+                        },
                       },
-                    },
-                    {
-                      name: `${
-                        params.mode === "move"
+                      {
+                        name: `${params.mode === "move"
                           ? "Move Items"
                           : params.mode?.charAt(0)?.toUpperCase() +
-                            params.mode?.slice(1)
-                      } Price Sheet`,
-                    },
-                  ]}
-                />
-                <Stack direction={"row"} gap={1}>
-                  {params.mode !== "move" && (
+                          params.mode?.slice(1)
+                          } Price Sheet`,
+                      },
+                    ]}
+                  />
+                  <Stack direction={"row"} gap={1}>
+                    {params.mode !== "move" && (
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        startIcon={
+                          params.mode === "delete" ? (
+                            <DeleteIcon color="error" size="small" />
+                          ) : (
+                            <SaveIcon size="small" />
+                          )
+                        }
+                        type="submit"
+                        disabled={isSubmitting || params.mode === "view"}
+                        onClick={() => (submitActionRef.current = "save")}
+                      >
+                        {params.mode === "delete" ? "Confirm" : "Save"}
+                      </Button>
+                    )}
                     <Button
                       variant="contained"
                       color="info"
                       size="small"
-                      startIcon={
-                        params.mode === "delete" ? (
-                          <DeleteIcon color="error" size="small" />
-                        ) : (
-                          <SaveIcon size="small" />
-                        )
-                      }
-                      type="submit"
-                      disabled={isSubmitting || params.mode === "view"}
-                      onClick={() => (submitActionRef.current = "save")}
-                    >
-                      {params.mode === "delete" ? "Confirm" : "Save"}
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    color="info"
-                    size="small"
-                    startIcon={<ArrowBackIcon size="small" />}
-                    onClick={() => {
-                      navigate("/pages/control-panel/price-sheet", {
-                        state:
-                          params.mode === "add"
-                            ? {
+                      startIcon={<ArrowBackIcon size="small" />}
+                      onClick={() => {
+                        navigate("/pages/control-panel/price-sheet", {
+                          state:
+                            params.mode === "add"
+                              ? {
                                 id: state.companyRecordID,
                                 code: state.companyCode,
                               }
-                            : {
+                              : {
                                 id: priceListHeaderData.CompanyID,
                                 code: priceListHeaderData.CompanyCode,
                               },
-                      });
-                    }}
-                  >
-                    Back
-                  </Button>
-                  {/* <IconButton onClick={handleOpen}>
+                        });
+                      }}
+                    >
+                      Back
+                    </Button>
+                    {/* <IconButton onClick={handleOpen}>
                     <HelpOutlineIcon />
                   </IconButton> */}
-                </Stack>
-              </div>
+                  </Stack>
+                </div>
 
-              <Paper sx={{ width: "100%", mb: 1 }}>
-                {/* ********************** TOP FIELD ROW (matches PriceListEdit header grid) ********************** */}
-                <Box
-                  display="grid"
-                  gap="20px"
-                  gridTemplateColumns="repeat(5, minmax(0, 1fr))"
-                  sx={{
-                    "& > div": {
-                      gridColumn: isNonMobile ? undefined : "span 4",
-                    },
-                    padding: "10px",
-                  }}
-                >
-                  <TextField
-                    sx={{ gridColumn: "span 1" }}
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="priceListDescription"
-                    name="priceListDescription"
-                    label="Price Sheet"
-                    value={values.priceListDescription}
-                    autoComplete="off"
-                    onChange={handleChange}
-                    onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
-                    size="small"
-                    disabled={isReadOnly}
-                    required
-                    InputLabelProps={{
-                      sx: {
-                        "& .MuiInputLabel-asterisk": {
-                          color: "red",
-                        },
+                <Paper sx={{ width: "100%", mb: 1 }}>
+                  {/* ********************** TOP FIELD ROW (matches PriceListEdit header grid) ********************** */}
+                  <Box
+                    display="grid"
+                    gap="20px"
+                    gridTemplateColumns="repeat(5, minmax(0, 1fr))"
+                    sx={{
+                      "& > div": {
+                        gridColumn: isNonMobile ? undefined : "span 4",
                       },
+                      padding: "10px",
                     }}
-                  />
-                  <TextField
-                    sx={{ gridColumn: "span 1" }}
-                    fullWidth
-                    variant="outlined"
-                    type="text"
-                    id="priceSheetDesc"
-                    name="priceSheetDesc"
-                    label="Price Sheet Description"
-                    value={values.priceSheetDesc || ""}
-                    autoComplete="off"
-                    onChange={handleChange}
-                    size="small"
-                    disabled={isReadOnly}
-                  />
-                  {/* PDF Format */}
-                  <FormControl
-                    sx={{ gridColumn: "span 1" }}
-                    fullWidth
-                    size="small"
                   >
-                    <InputLabel id="pdf-format-label">PDF Format</InputLabel>
-
-                    <Select
-                      labelId="pdf-format-label"
-                      id="pdfFormat"
-                      name="pdfFormat"
-                      value={values.pdfFormat}
-                      label="PDF Format"
-                      onChange={(e) =>
-                        setFieldValue("pdfFormat", e.target.value)
-                      }
+                    <TextField
+                      sx={{ gridColumn: "span 1" }}
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="priceListDescription"
+                      name="priceListDescription"
+                      label="Price Sheet"
+                      value={values.priceListDescription}
+                      autoComplete="off"
+                      onChange={handleChange}
+                      onBlur={(e) => isPriceListIDExists(e, setSubmitting)}
+                      size="small"
                       disabled={isReadOnly}
+                      required
+                      InputLabelProps={{
+                        sx: {
+                          "& .MuiInputLabel-asterisk": {
+                            color: "red",
+                          },
+                        },
+                      }}
+                    />
+                    <TextField
+                      sx={{ gridColumn: "span 1" }}
+                      fullWidth
+                      variant="outlined"
+                      type="text"
+                      id="priceSheetDesc"
+                      name="priceSheetDesc"
+                      label="Price Sheet Description"
+                      value={values.priceSheetDesc || ""}
+                      autoComplete="off"
+                      onChange={handleChange}
+                      size="small"
+                      disabled={isReadOnly}
+                    />
+                    {/* PDF Format */}
+                    <FormControl
+                      sx={{ gridColumn: "span 1" }}
+                      fullWidth
+                      size="small"
                     >
-                      <MenuItem value="1">1 item per row</MenuItem>
-                      <MenuItem value="2">2 item per row</MenuItem>
-                    </Select>
-                  </FormControl>
-                  {/* <Stack
+                      <InputLabel id="pdf-format-label">PDF Format</InputLabel>
+
+                      <Select
+                        labelId="pdf-format-label"
+                        id="pdfFormat"
+                        name="pdfFormat"
+                        value={values.pdfFormat}
+                        label="PDF Format"
+                        onChange={(e) =>
+                          setFieldValue("pdfFormat", e.target.value)
+                        }
+                        disabled={isReadOnly}
+                      >
+                        <MenuItem value="1">1 item per row</MenuItem>
+                        <MenuItem value="2">2 item per row</MenuItem>
+                      </Select>
+                    </FormControl>
+                    {/* <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="row"
                     alignItems="center"
@@ -1591,7 +1729,7 @@ useEffect(() => {
                     />
                   </Stack> */}
 
-                  {/* <Stack
+                    {/* <Stack
                     sx={{ gridColumn: "span 1" }}
                     direction="row"
                     alignItems="center"
@@ -1613,232 +1751,31 @@ useEffect(() => {
                       label="Print PriceList Name"
                     />
                   </Stack> */}
-                </Box>
+                  </Box>
 
-                {/* ********************** PRINT COLUMN CONFIG + ITEMS GRID (matches PriceListEdit Options/Grid layout) ********************** */}
-                <Box
-                  display="grid"
-                  gap="20px"
-                  gridTemplateColumns="repeat(3, minmax(0, 1fr))"
-                  sx={{
-                    "& > div": {
-                      gridColumn: isNonMobileSec ? undefined : "span 3",
-                    },
-                    padding: "5px",
-                  }}
-                >
-                  {/* ============== PRINT COLUMN CONFIGURATION PANEL ============== */}
-                  <Stack
-                    ref={leftSectionCallbackRef} sx={{ gridColumn: "span 1", alignSelf: "start" }}
-                    direction="column"
-                    gap={1}
+                  {/* ********************** PRINT COLUMN CONFIG + ITEMS GRID (matches PriceListEdit Options/Grid layout) ********************** */}
+                  <Box
+                    display="grid"
+                    gap="20px"
+                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    sx={{
+                      "& > div": {
+                        gridColumn: isNonMobileSec ? undefined : "span 3",
+                      },
+                      padding: "5px",
+                    }}
                   >
-                    <Stack direction="row" gap={13} height={44}>
-                      <Typography sx={{ marginLeft: 2 }} variant="h6">
-                        Print Columns
-                      </Typography>
-                    </Stack>
-
-                    <Box
-                      sx={{
-                        border: "1px solid #d0d0d0",
-                        borderRadius: "3px",
-                        backgroundColor: "#fff",
-                        overflow: "hidden",
-                        width: "100%",
-                      }}
+                    {/* ============== PRINT COLUMN CONFIGURATION PANEL ============== */}
+                    <Stack
+                      ref={leftSectionCallbackRef} sx={{ gridColumn: "span 1", alignSelf: "start" }}
+                      direction="column"
+                      gap={1}
                     >
-                      {/* HEADER */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          px: 1.5,
-                          py: 1,
-                          borderBottom: "1px solid #d0d0d0",
-                          backgroundColor: "#999999",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            lineHeight: 1.3,
-                            color: "#ffffff",
-                          }}
-                        >
-                          Print Column Configuration
+                      <Stack direction="row" gap={13} height={44}>
+                        <Typography sx={{ marginLeft: 2 }} variant="h6">
+                          Print Columns
                         </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: "11px",
-                            color: "#ffffff",
-                            lineHeight: 1.2,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          Drag ☰ to reorder
-                        </Typography>
-                      </Box>
-
-                      {/* PRINT COLUMNS */}
-                      <Box>
-                        {printColumns.map((column, index) => {
-                          const isDragging = draggedColumnId === column.id;
-                          const isDragOver =
-                            dragOverColumnId === column.id && !isDragging;
-
-                          return (
-                            <Box
-                              key={column.id}
-                              draggable={!isReadOnly}
-                              onDragStart={(event) =>
-                                handleDragStart(event, column.id)
-                              }
-                              onDragEnter={(event) =>
-                                handleDragEnter(event, column.id)
-                              }
-                              onDragOver={handleDragOver}
-                              onDrop={(event) => handleDrop(event, column.id)}
-                              onDragEnd={handleDragEnd}
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                height: 42,
-                                px: 1.2,
-                                borderBottom: "1px solid #e5e5e5",
-                                borderTop: isDragOver
-                                  ? "2px solid #9e9e9e"
-                                  : "2px solid transparent",
-                                backgroundColor: isDragging
-                                  ? "#f1f1f1"
-                                  : "#fff",
-                                opacity: isDragging ? 0.5 : 1,
-                                cursor: isReadOnly ? "default" : "grab",
-                                transition:
-                                  "background-color 0.15s, border-top-color 0.1s",
-                                "&:hover": {
-                                  backgroundColor: isReadOnly
-                                    ? "#fff"
-                                    : "#f7f7f7",
-                                },
-                                "&:active": {
-                                  cursor: isReadOnly ? "default" : "grabbing",
-                                },
-                              }}
-                            >
-                              {/* DRAG ICON */}
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  width: 22,
-                                  color: "#999",
-                                  mr: 0.5,
-                                  pointerEvents: "none",
-                                }}
-                              >
-                                <DragIndicatorIcon sx={{ fontSize: 18 }} />
-                              </Box>
-
-                              {/* COLUMN NAME */}
-                              <Typography
-                                sx={{
-                                  flex: 1,
-                                  fontSize: "13px",
-                                  color: column.enabled ? "#333" : "#888",
-                                  userSelect: "none",
-                                  pointerEvents: "none",
-                                }}
-                              >
-                                {column.label}
-                              </Typography>
-
-                              {/* ORDER NUMBER */}
-                              <Box
-                                sx={{
-                                  width: 22,
-                                  height: 22,
-                                  minWidth: 22,
-                                  borderRadius: "50%",
-                                  backgroundColor: "#eeeeee",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: "11px",
-                                  color: "#777",
-                                  mr: 1,
-                                  pointerEvents: "none",
-                                }}
-                              >
-                                {index + 1}
-                              </Box>
-
-                              {/* SWITCH */}
-                              <Switch
-                                size="small"
-                                checked={column.enabled === true}
-                                onChange={(event) =>
-                                  handlePrintColumnToggle(
-                                    column.id,
-                                    event.target.checked,
-                                  )
-                                }
-                                onDragStart={(e) => e.preventDefault()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                disabled={isReadOnly}
-                                sx={{
-                                  width: 38,
-                                  height: 24,
-                                  padding: 0,
-                                  "& .MuiSwitch-switchBase": { padding: "3px" },
-                                  "& .MuiSwitch-thumb": {
-                                    width: 18,
-                                    height: 18,
-                                  },
-                                  "& .MuiSwitch-track": {
-                                    borderRadius: 12,
-                                    opacity: 1,
-                                  },
-                                  "& .MuiSwitch-switchBase.Mui-checked": {
-                                    color: "#fff",
-                                  },
-                                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                                    { backgroundColor: "primary", opacity: 1 },
-                                  "& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track":
-                                    { backgroundColor: "#b5b5b5", opacity: 1 },
-                                }}
-                              />
-                            </Box>
-                          );
-                        })}
-                      </Box>
-                    </Box>
-
-                    {/* ============== CATEGORY SEQUENCE SECTION ============== */}
-                    <Box sx={{ mt: 1.5 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          color: "text.primary",
-                        }}
-                      >
-                        Category Sequence
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          color: "text.secondary",
-                          mt: 0.2,
-                          mb: 1,
-                        }}
-                      >
-                        Drag categories to set the order in the generated price sheet.
-                      </Typography>
+                      </Stack>
 
                       <Box
                         sx={{
@@ -1853,205 +1790,357 @@ useEffect(() => {
                         <Box
                           sx={{
                             display: "flex",
+                            justifyContent: "space-between",
                             alignItems: "center",
-                            height: 38,
+                            px: 1.5,
+                            py: 1,
                             borderBottom: "1px solid #d0d0d0",
-                            backgroundColor: theme.palette.info.main || "#999999",
-                            color: "#ffffff",
+                            backgroundColor: "#999999",
                           }}
                         >
-                          <Box sx={{ width: 36, minWidth: 36 }} />
-                          <Box
-                            sx={{
-                              width: 38,
-                              minWidth: 38,
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                fontSize: "13px",
-                                fontWeight: 600,
-                                color: "#ffffff",
-                              }}
-                            >
-                              #
-                            </Typography>
-                          </Box>
                           <Typography
                             sx={{
-                              flex: 1,
                               fontSize: "13px",
                               fontWeight: 600,
+                              lineHeight: 1.3,
                               color: "#ffffff",
-                              pl: 1,
                             }}
                           >
-                            Category
+                            Print Column Configuration
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "11px",
+                              color: "#ffffff",
+                              lineHeight: 1.2,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Drag ☰ to reorder
                           </Typography>
                         </Box>
 
-                        {/* SCROLLABLE ROWS */}
-                        <Box
-                          sx={{
-                            maxHeight: 210,
-                            overflowY: "auto",
-                            "&::-webkit-scrollbar": {
-                              width: "6px",
-                            },
-                            "&::-webkit-scrollbar-thumb": {
-                              backgroundColor: "#c1c1c1",
-                              borderRadius: "3px",
-                            },
-                          }}
-                        >
-                          {categories.map((cat, index) => {
-                            const isDragging = draggedCategoryId === cat.id;
+                        {/* PRINT COLUMNS */}
+                        <Box>
+                          {printColumns.map((column, index) => {
+                            const isDragging = draggedColumnId === column.id;
                             const isDragOver =
-                              dragOverCategoryId === cat.id && !isDragging;
-                            const isEven = index % 2 === 0;
+                              dragOverColumnId === column.id && !isDragging;
 
                             return (
                               <Box
-                                key={cat.id}
+                                key={column.id}
                                 draggable={!isReadOnly}
                                 onDragStart={(event) =>
-                                  handleCategoryDragStart(event, cat.id)
+                                  handleDragStart(event, column.id)
                                 }
                                 onDragEnter={(event) =>
-                                  handleCategoryDragEnter(event, cat.id)
+                                  handleDragEnter(event, column.id)
                                 }
-                                onDragOver={handleCategoryDragOver}
-                                onDrop={(event) =>
-                                  handleCategoryDrop(event, cat.id)
-                                }
-                                onDragEnd={handleCategoryDragEnd}
+                                onDragOver={handleDragOver}
+                                onDrop={(event) => handleDrop(event, column.id)}
+                                onDragEnd={handleDragEnd}
                                 sx={{
                                   display: "flex",
                                   alignItems: "center",
-                                  height: 34,
+                                  height: 42,
+                                  px: 1.2,
                                   borderBottom: "1px solid #e5e5e5",
                                   borderTop: isDragOver
-                                    ? "2px solid #81878c"
+                                    ? "2px solid #9e9e9e"
                                     : "2px solid transparent",
                                   backgroundColor: isDragging
                                     ? "#f1f1f1"
-                                    : isEven
-                                    ? "#ffffff"
-                                    : "#f7f8f9",
+                                    : "#fff",
                                   opacity: isDragging ? 0.5 : 1,
                                   cursor: isReadOnly ? "default" : "grab",
                                   transition:
                                     "background-color 0.15s, border-top-color 0.1s",
                                   "&:hover": {
                                     backgroundColor: isReadOnly
-                                      ? undefined
-                                      : "#edf2f7",
+                                      ? "#fff"
+                                      : "#f7f7f7",
                                   },
                                   "&:active": {
-                                    cursor: isReadOnly
-                                      ? "default"
-                                      : "grabbing",
+                                    cursor: isReadOnly ? "default" : "grabbing",
                                   },
                                 }}
                               >
-                                {/* DRAG HANDLE */}
+                                {/* DRAG ICON */}
                                 <Box
                                   sx={{
-                                    width: 36,
-                                    minWidth: 36,
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    color: "#888",
+                                    width: 22,
+                                    color: "#999",
+                                    mr: 0.5,
                                     pointerEvents: "none",
                                   }}
                                 >
                                   <DragIndicatorIcon sx={{ fontSize: 18 }} />
                                 </Box>
 
-                                {/* SEQUENCE BADGE */}
-                                <Box
-                                  sx={{
-                                    width: 38,
-                                    minWidth: 38,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    pointerEvents: "none",
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      width: 22,
-                                      height: 22,
-                                      minWidth: 22,
-                                      borderRadius: "50%",
-                                      backgroundColor: "#e2e6ea",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      fontSize: "11px",
-                                      fontWeight: 600,
-                                      color: "#495057",
-                                    }}
-                                  >
-                                    {cat.sequence}
-                                  </Box>
-                                </Box>
-
-                                {/* CATEGORY NAME */}
+                                {/* COLUMN NAME */}
                                 <Typography
                                   sx={{
                                     flex: 1,
-                                    fontSize: "12.5px",
-                                    fontWeight: 500,
-                                    color: "#333",
-                                    pl: 1,
+                                    fontSize: "13px",
+                                    color: column.enabled ? "#333" : "#888",
                                     userSelect: "none",
                                     pointerEvents: "none",
-                                    textOverflow: "ellipsis",
-                                    overflow: "hidden",
-                                    whiteSpace: "nowrap",
                                   }}
                                 >
-                                  {cat.categoryName}
+                                  {column.label}
                                 </Typography>
+
+                                {/* ORDER NUMBER */}
+                                <Box
+                                  sx={{
+                                    width: 22,
+                                    height: 22,
+                                    minWidth: 22,
+                                    borderRadius: "50%",
+                                    backgroundColor: "#eeeeee",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "11px",
+                                    color: "#777",
+                                    mr: 1,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {index + 1}
+                                </Box>
+
+                                {/* SWITCH */}
+                                <Switch
+                                  size="small"
+                                  checked={column.enabled === true}
+                                  onChange={(event) =>
+                                    handlePrintColumnToggle(
+                                      column.id,
+                                      event.target.checked,
+                                    )
+                                  }
+                                  onDragStart={(e) => e.preventDefault()}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  disabled={isReadOnly}
+                                  sx={{
+                                    width: 38,
+                                    height: 24,
+                                    padding: 0,
+                                    "& .MuiSwitch-switchBase": { padding: "3px" },
+                                    "& .MuiSwitch-thumb": {
+                                      width: 18,
+                                      height: 18,
+                                    },
+                                    "& .MuiSwitch-track": {
+                                      borderRadius: 12,
+                                      opacity: 1,
+                                    },
+                                    "& .MuiSwitch-switchBase.Mui-checked": {
+                                      color: "#fff",
+                                    },
+                                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                                      { backgroundColor: "primary", opacity: 1 },
+                                    "& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track":
+                                      { backgroundColor: "#b5b5b5", opacity: 1 },
+                                  }}
+                                />
                               </Box>
                             );
                           })}
                         </Box>
                       </Box>
 
-                      {/* INFORMATIONAL MESSAGE BELOW LIST */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          mt: 1,
-                          mb: 0.5,
-                          px: 0.5,
-                        }}
-                      >
-                        <InfoIcon
-                          sx={{ fontSize: 18, color: "#1976d2", mr: 0.8 }}
-                        />
-                        <Typography
-                          sx={{
-                            color: "#1976d2",
-                            fontSize: "12px",
-                            fontWeight: 500,
-                          }}
-                        >
-                          Drag and drop categories to change their print sequence.
-                        </Typography>
-                      </Box>
-                    </Box>
+                     {/* ============== CATEGORY SEQUENCE SECTION ============== */}
+{/* Replace the whole existing block (from this comment down to the info message) with this */}
+<Box sx={{ mt: 1.5 }}>
+  <Stack direction="row" height={44} alignItems="center">
+    <Typography sx={{ marginLeft: 2 }} variant="h6">
+      Category Sequence
+    </Typography>
+  </Stack>
 
-                    {/* NOTE + APPLY BUTTON (matches PriceListEdit note/action row pattern) */}
-                    {/* <Box
+  <Box
+    sx={{
+      border: "1px solid #d0d0d0",
+      borderRadius: "3px",
+      backgroundColor: "#fff",
+      overflow: "hidden",
+      width: "100%",
+    }}
+  >
+    {/* HEADER (same look as Print Column Configuration) */}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        px: 1.5,
+        py: 1,
+        borderBottom: "1px solid #d0d0d0",
+        backgroundColor: "#999999",
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: "13px",
+          fontWeight: 600,
+          lineHeight: 1.3,
+          color: "#ffffff",
+        }}
+      >
+        Category Sequence Configuration
+      </Typography>
+      <Typography
+        sx={{
+          fontSize: "11px",
+          color: "#ffffff",
+          lineHeight: 1.2,
+          whiteSpace: "nowrap",
+        }}
+      >
+        Drag ☰ to reorder
+      </Typography>
+    </Box>
+
+    {/* SCROLLABLE ROWS */}
+    <Box
+      sx={{
+        maxHeight: 252,
+        overflowY: "auto",
+        "&::-webkit-scrollbar": { width: "6px" },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#c1c1c1",
+          borderRadius: "3px",
+        },
+      }}
+    >
+      {categories.map((cat, index) => {
+        const isDragging = draggedCategoryId === cat.id;
+        const isDragOver = dragOverCategoryId === cat.id && !isDragging;
+        const isEven = index % 2 === 0;
+
+        return (
+          <Box
+            key={cat.id}
+            draggable={!isReadOnly}
+            onDragStart={(event) => handleCategoryDragStart(event, cat.id)}
+            onDragEnter={(event) => handleCategoryDragEnter(event, cat.id)}
+            onDragOver={handleCategoryDragOver}
+            onDrop={(event) => handleCategoryDrop(event, cat.id)}
+            onDragEnd={handleCategoryDragEnd}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              height: 38,
+              px: 1.2,
+              borderBottom: "1px solid #e5e5e5",
+              borderTop: isDragOver
+                ? "2px solid #9e9e9e"
+                : "2px solid transparent",
+              backgroundColor: isDragging
+                ? "#f1f1f1"
+                : isEven
+                  ? "#ffffff"
+                  : "#f7f8f9",
+              opacity: isDragging ? 0.5 : 1,
+              cursor: isReadOnly ? "default" : "grab",
+              transition: "background-color 0.15s, border-top-color 0.1s",
+              "&:hover": {
+                backgroundColor: isReadOnly ? undefined : "#f7f7f7",
+              },
+              "&:active": {
+                cursor: isReadOnly ? "default" : "grabbing",
+              },
+            }}
+          >
+            {/* DRAG ICON */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 22,
+                color: "#999",
+                mr: 0.5,
+                pointerEvents: "none",
+              }}
+            >
+              <DragIndicatorIcon sx={{ fontSize: 18 }} />
+            </Box>
+
+            {/* CATEGORY NAME */}
+            <Typography
+              sx={{
+                flex: 1,
+                fontSize: "13px",
+                color: "#333",
+                userSelect: "none",
+                pointerEvents: "none",
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {cat.categoryName}
+            </Typography>
+
+            {/* ORDER NUMBER (right side) */}
+            <Box
+              sx={{
+                width: 22,
+                height: 22,
+                minWidth: 22,
+                borderRadius: "50%",
+                backgroundColor: "#eeeeee",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "11px",
+                color: "#777",
+                ml: 1,
+                mr: 0.5,
+                pointerEvents: "none",
+              }}
+            >
+              {cat.sequence}
+            </Box>
+          </Box>
+        );
+      })}
+    </Box>
+  </Box>
+
+  {/* INFORMATIONAL MESSAGE BELOW LIST (unchanged) */}
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      mt: 1,
+      mb: 0.5,
+      px: 0.5,
+    }}
+  >
+    <InfoIcon sx={{ fontSize: 18, color: "#1976d2", mr: 0.8 }} />
+    <Typography
+      sx={{
+        color: "#1976d2",
+        fontSize: "12px",
+        fontWeight: 500,
+      }}
+    >
+      Drag and drop categories to change their print sequence.
+    </Typography>
+  </Box>
+</Box>
+
+
+                      {/* NOTE + APPLY BUTTON (matches PriceListEdit note/action row pattern) */}
+                      {/* <Box
                       sx={{
                         gap: 10,
                         display: "flex",
@@ -2092,9 +2181,9 @@ useEffect(() => {
                         Note: If the number of items exceeds 80, the items may be printed across multiple pages.
                       </Typography>
                     </Box> */}
-                    {/* NOTE SECTION (Plain Black & Bold Text with Dynamic Item Limit) */}
-                    {/* NOTE SECTION (Blue & Bold Text + Dynamic 50 / 80 Limit) */}
-                    {/*
+                      {/* NOTE SECTION (Plain Black & Bold Text with Dynamic Item Limit) */}
+                      {/* NOTE SECTION (Blue & Bold Text + Dynamic 50 / 80 Limit) */}
+                      {/*
                     <Box
                       sx={{
                         mt: 1,
@@ -2129,8 +2218,8 @@ useEffect(() => {
                     </Box>
                     */}
 
-                    <Stack justifyContent="flex-end" direction={"row"} gap={4}>
-                      {/* <Button
+                      <Stack justifyContent="flex-end" direction={"row"} gap={4}>
+                        {/* <Button
                         type="button"
                         variant="contained"
                         color="info"
@@ -2149,206 +2238,206 @@ useEffect(() => {
                       >
                         Apply
                       </Button> */}
+                      </Stack>
                     </Stack>
-                  </Stack>
 
-                  {/* ============== ITEMS GRID (matches PriceListEdit DataGrid box) ============== */}
-                  <Box
-                    sx={{
-                      height: isNonMobileSec ? (leftSectionHeight > 0 ? leftSectionHeight : 720) : "auto",
-                      display: "flex",
-                      flexDirection: "column",
-                      gridColumn: "span 2",
-                      "& .name-column--cell": {
-                        color: theme.palette.info.contrastText,
-                      },
-                      "& .MuiDataGrid-columnHeaders": {
-                        backgroundColor: theme.palette.info.main,
-                        color: theme.palette.info.contrastText,
-                        fontWeight: "bold",
-                        fontSize: theme.typography.subtitle2.fontSize,
-                      },
-                      "& .MuiDataGrid-virtualScroller": {
-                        backgroundColor: theme.palette.info.light,
-                      },
-                      "& .MuiDataGrid-footerContainer": {
-                        borderTop: "none",
-                        backgroundColor: theme.palette.info.main,
-                        color: theme.palette.info.contrastText,
-                      },
-                      "& .MuiCheckbox-root": { color: "black !important" },
-                      "& .MuiCheckbox-root.Mui-checked": {
-                        color: "black !important",
-                      },
-                      "& .MuiDataGrid-row:nth-of-type(even)": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                      "& .MuiDataGrid-row:nth-of-type(odd)": {
-                        backgroundColor: theme.palette.background.default,
-                      },
-                      "& .MuiDataGrid-row:hover": {
-                        border: "3px solid #999999",
-                        borderRadius: "4px",
-                      },
-                      "& .MuiTablePagination-root": {
-                        color: "white !important",
-                      },
-                      "& .MuiTablePagination-root .MuiTypography-root": {
-                        color: "white !important",
-                      },
-                      "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                        color: "white !important",
-                      },
-                    }}
-                  >
-                    {/* Controls Section */}
+                    {/* ============== ITEMS GRID (matches PriceListEdit DataGrid box) ============== */}
                     <Box
                       sx={{
-                        height: 30,
+                        height: isNonMobileSec ? (leftSectionHeight > 0 ? leftSectionHeight : 720) : "auto",
                         display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: 2,
-                        width: "100%",
-                        padding: "5px",
-                        mb: 2,
-                        flexShrink: 0,
+                        flexDirection: "column",
+                        gridColumn: "span 2",
+                        "& .name-column--cell": {
+                          color: theme.palette.info.contrastText,
+                        },
+                        "& .MuiDataGrid-columnHeaders": {
+                          backgroundColor: theme.palette.info.main,
+                          color: theme.palette.info.contrastText,
+                          fontWeight: "bold",
+                          fontSize: theme.typography.subtitle2.fontSize,
+                        },
+                        "& .MuiDataGrid-virtualScroller": {
+                          backgroundColor: theme.palette.info.light,
+                        },
+                        "& .MuiDataGrid-footerContainer": {
+                          borderTop: "none",
+                          backgroundColor: theme.palette.info.main,
+                          color: theme.palette.info.contrastText,
+                        },
+                        "& .MuiCheckbox-root": { color: "black !important" },
+                        "& .MuiCheckbox-root.Mui-checked": {
+                          color: "black !important",
+                        },
+                        "& .MuiDataGrid-row:nth-of-type(even)": {
+                          backgroundColor: theme.palette.action.hover,
+                        },
+                        "& .MuiDataGrid-row:nth-of-type(odd)": {
+                          backgroundColor: theme.palette.background.default,
+                        },
+                        "& .MuiDataGrid-row:hover": {
+                          border: "3px solid #999999",
+                          borderRadius: "4px",
+                        },
+                        "& .MuiTablePagination-root": {
+                          color: "white !important",
+                        },
+                        "& .MuiTablePagination-root .MuiTypography-root": {
+                          color: "white !important",
+                        },
+                        "& .MuiTablePagination-actions .MuiSvgIcon-root": {
+                          color: "white !important",
+                        },
                       }}
                     >
-                      <TextField
-                        label="Search"
-                        variant="standard"
-                        size="small"
-                        value={quickFilterText}
-                        onChange={(e) => setQuickFilterText(e.target.value)}
-                        sx={{ mb: 1, width: 300 }}
-                      />
-                      <OptimizedAdHocAutocomplete
-                        errors={isItemExistsError}
-                        helper={isItemExistsError && "please select an item!"}
-                        disabled={isReadOnly}
-                        name="adHocItem"
-                        id="adHocItem"
-                        value={addPriceListData}
-                        onChange={(event, newValue) => {
-                          setFieldValue("adHocItem", newValue);
-                          setSubmitting(false);
-                          setAddPriceListData(newValue);
+                      {/* Controls Section */}
+                      <Box
+                        sx={{
+                          height: 30,
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          gap: 2,
+                          width: "100%",
+                          padding: "5px",
+                          mb: 2,
+                          flexShrink: 0,
                         }}
-                        label="Item"
-                        url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
-                      />
-                      <Button
-                        variant="contained"
-                        color="info"
-                        sx={{ width: 300, height: 30 }}
-                        onClick={() => {
-                          if (
-                            !addPriceListData ||
-                            addPriceListData.length === 0
-                          ) {
-                            setIsItemExistsError(true);
-
-                            setTimeout(() => {
-                              setIsItemExistsError(false);
-                            }, 2000);
-
-                            return;
-                          }
-
-                          // Check against items already in the local grid
-                          const duplicateExists = localPriceSheetItems.some(
-                            (existingItem) =>
-                              addPriceListData.some(
-                                (newItem) =>
-                                  existingItem.Item_Number ===
-                                  newItem.Item_Number,
-                              ),
-                          );
-
-                          if (duplicateExists) {
-                            setIsItemExists(true);
-
-                            setTimeout(() => {
-                              setIsItemExists(false);
-                            }, 3000);
-
-                            return;
-                          }
-
-                          // Add selected items to local grid
-                          const newItems = addPriceListData.map(
-                            (item, index) => ({
-                              RecordId: 0,
-                              Item_Number: item.Item_Number,
-                              Item_Description: item.Item_Description || "",
-                              //   Custom_Description: item.Custom_Description || "",
-                              Other_Description: item.Other_Description || "",
-                              ItemRecordID:
-                                item.ItemRecordID ||
-                                item.RecordID ||
-                                item.Item_RecordID ||
-                                0,
-                              PriceSheetRecordID: 0,
-                              sequence: localPriceSheetItems.length + index + 1,
-                              AdHocItem: "N",
-                            }),
-                          );
-
-                          setLocalPriceSheetItems((current) => [
-                            ...current,
-                            ...newItems,
-                          ]);
-
-                          // Clear dropdown after adding
-                          setAddPriceListData([]);
-                        }}
-                        size="small"
-                        startIcon={<Add size="small" />}
-                        disabled={isReadOnly}
                       >
-                        {" "}
-                        Item
-                      </Button>
-                     <Button
-  variant="contained"
-  // color="error"
-   color="info"
-  size="small"
-  sx={{
-    height: 30,
-    minWidth: 120,
-    "&.Mui-disabled": {
-      backgroundColor: "#e0e0e0",
-      color: "#9e9e9e",
-      cursor: "not-allowed",
-    },
-  }}
-  disabled={
-    params.mode === "move"
-      ? rowSelectionModel.length === 0
-      : isReadOnly || rowSelectionModel.length === 0
-  }
-  onClick={() =>
-    params.mode === "move"
-      ? setOpenMoveModal(true)
-      : setIsBulkDeleteConfirmOpen(true)
-  }
-  startIcon={
-    params.mode === "move" ? (
-      <DriveFileMoveIcon fontSize="small" />
-    ) : (
-      <DeleteIcon color="error" fontSize="small" />
-    )
-  }
->
-  {params.mode === "move" ? "Move" : "Remove"}
-  {rowSelectionModel.length > 0 && ` (${rowSelectionModel.length})`}
-</Button>
-                    </Box>
+                        <TextField
+                          label="Search"
+                          variant="standard"
+                          size="small"
+                          value={quickFilterText}
+                          onChange={(e) => setQuickFilterText(e.target.value)}
+                          sx={{ mb: 1, width: 300 }}
+                        />
+                        <OptimizedAdHocAutocomplete
+                          errors={isItemExistsError}
+                          helper={isItemExistsError && "please select an item!"}
+                          disabled={isReadOnly}
+                          name="adHocItem"
+                          id="adHocItem"
+                          value={addPriceListData}
+                          onChange={(event, newValue) => {
+                            setFieldValue("adHocItem", newValue);
+                            setSubmitting(false);
+                            setAddPriceListData(newValue);
+                          }}
+                          label="Item"
+                          url={`${process.env.REACT_APP_BASE_URL}ItemMaster/GetItemMasterList?Type=C`}
+                        />
+                        <Button
+                          variant="contained"
+                          color="info"
+                          sx={{ width: 300, height: 30 }}
+                          onClick={() => {
+                            if (
+                              !addPriceListData ||
+                              addPriceListData.length === 0
+                            ) {
+                              setIsItemExistsError(true);
 
-                    {/* <DataGrid
+                              setTimeout(() => {
+                                setIsItemExistsError(false);
+                              }, 2000);
+
+                              return;
+                            }
+
+                            // Check against items already in the local grid
+                            const duplicateExists = localPriceSheetItems.some(
+                              (existingItem) =>
+                                addPriceListData.some(
+                                  (newItem) =>
+                                    existingItem.Item_Number ===
+                                    newItem.Item_Number,
+                                ),
+                            );
+
+                            if (duplicateExists) {
+                              setIsItemExists(true);
+
+                              setTimeout(() => {
+                                setIsItemExists(false);
+                              }, 3000);
+
+                              return;
+                            }
+
+                            // Add selected items to local grid
+                            const newItems = addPriceListData.map(
+                              (item, index) => ({
+                                RecordId: 0,
+                                Item_Number: item.Item_Number,
+                                Item_Description: item.Item_Description || "",
+                                //   Custom_Description: item.Custom_Description || "",
+                                Other_Description: item.Other_Description || "",
+                                ItemRecordID:
+                                  item.ItemRecordID ||
+                                  item.RecordID ||
+                                  item.Item_RecordID ||
+                                  0,
+                                PriceSheetRecordID: 0,
+                                sequence: localPriceSheetItems.length + index + 1,
+                                AdHocItem: "N",
+                              }),
+                            );
+
+                            setLocalPriceSheetItems((current) => [
+                              ...current,
+                              ...newItems,
+                            ]);
+
+                            // Clear dropdown after adding
+                            setAddPriceListData([]);
+                          }}
+                          size="small"
+                          startIcon={<Add size="small" />}
+                          disabled={isReadOnly}
+                        >
+                          {" "}
+                          Item
+                        </Button>
+                        <Button
+                          variant="contained"
+                          // color="error"
+                          color="info"
+                          size="small"
+                          sx={{
+                            height: 30,
+                            minWidth: 120,
+                            "&.Mui-disabled": {
+                              backgroundColor: "#e0e0e0",
+                              color: "#9e9e9e",
+                              cursor: "not-allowed",
+                            },
+                          }}
+                          disabled={
+                            params.mode === "move"
+                              ? rowSelectionModel.length === 0
+                              : isReadOnly || rowSelectionModel.length === 0
+                          }
+                          onClick={() =>
+                            params.mode === "move"
+                              ? setOpenMoveModal(true)
+                              : setIsBulkDeleteConfirmOpen(true)
+                          }
+                          startIcon={
+                            params.mode === "move" ? (
+                              <DriveFileMoveIcon fontSize="small" />
+                            ) : (
+                              <DeleteIcon color="error" fontSize="small" />
+                            )
+                          }
+                        >
+                          {params.mode === "move" ? "Move" : "Remove"}
+                          {rowSelectionModel.length > 0 && ` (${rowSelectionModel.length})`}
+                        </Button>
+                      </Box>
+
+                      {/* <DataGrid
                       columnHeaderHeight={dataGridHeaderFooterHeight}
                       rowHeight={dataGridRowHeight}
                       rows={localPriceSheetItems}
@@ -2385,274 +2474,274 @@ useEffect(() => {
                       disableColumnSelector
                       disableDensitySelector
                     /> */}
-                    <Box sx={{ flex: 1, minHeight: 0, width: "100%", overflow: "hidden" }}>
-                      <DataGrid
+                      <Box sx={{ flex: 1, minHeight: 0, width: "100%", overflow: "hidden" }}>
+                        <DataGrid
+                          sx={{
+                            height: "100%",
+                            width: "100%",
+                          }}
+                          columnHeaderHeight={dataGridHeaderFooterHeight}
+                          rowHeight={dataGridRowHeight}
+                          rows={localPriceSheetItems}
+                          columns={columns}
+                          loading={priceSheetLoading}
+                          // Row editing
+                          editMode="row"
+                          rowModesModel={rowModesModel}
+                          onRowModesModelChange={handleRowModesModelChange}
+                          onRowEditStop={handleRowEditStop}
+                          processRowUpdate={processRowUpdate}
+                          // Selection
+                          checkboxSelection
+                          disableRowSelectionOnClick
+                          rowSelectionModel={rowSelectionModel}
+                          onRowSelectionModelChange={(newRowSelectionModel) => {
+                            setRowSelectionModel(newRowSelectionModel);
+                          }}
+                          // Row ID
+                          getRowId={(row) =>
+                            row.RecordId || `${row.Item_Number}-${row.sequence}`
+                          }
+                          // Pagination
+                          initialState={{
+                            pagination: {
+                              paginationModel: {
+                                pageSize: dataGridPageSize,
+                              },
+                            },
+                          }}
+                          pageSizeOptions={dataGridpageSizeOptions}
+                          // Quick filter
+                          filterModel={{
+                            items: [],
+                            quickFilterValues: [quickFilterText],
+                          }}
+                          // Disable unwanted menus
+                          disableColumnFilter
+                          disableColumnSelector
+                          disableDensitySelector
+                        />
+
+                      </Box>
+
+                      <Box
                         sx={{
-                          height: "100%",
-                          width: "100%",
+                          mt: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          padding: 2,
+                          border: "1px solid red",
+                          borderRadius: 1,
+                          backgroundColor: "#ffe6e6",
+                          minHeight: 30,
+                          minWidth: 300,
+                          flexShrink: 0,
                         }}
-                      columnHeaderHeight={dataGridHeaderFooterHeight}
-                      rowHeight={dataGridRowHeight}
-                      rows={localPriceSheetItems}
-                      columns={columns}
-                      loading={priceSheetLoading}
-                      // Row editing
-                      editMode="row"
-                      rowModesModel={rowModesModel}
-                      onRowModesModelChange={handleRowModesModelChange}
-                      onRowEditStop={handleRowEditStop}
-                      processRowUpdate={processRowUpdate}
-                      // Selection
-                      checkboxSelection
-                      disableRowSelectionOnClick
-                      rowSelectionModel={rowSelectionModel}
-                      onRowSelectionModelChange={(newRowSelectionModel) => {
-                        setRowSelectionModel(newRowSelectionModel);
-                      }}
-                      // Row ID
-                      getRowId={(row) =>
-                        row.RecordId || `${row.Item_Number}-${row.sequence}`
-                      }
-                      // Pagination
-                      initialState={{
-                        pagination: {
-                          paginationModel: {
-                            pageSize: dataGridPageSize,
-                          },
-                        },
-                      }}
-                      pageSizeOptions={dataGridpageSizeOptions}
-                      // Quick filter
-                      filterModel={{
-                        items: [],
-                        quickFilterValues: [quickFilterText],
-                      }}
-                      // Disable unwanted menus
-                      disableColumnFilter
-                      disableColumnSelector
-                      disableDensitySelector
-                    />
-
+                      >
+                        <Typography color="error" align="center">
+                          Note: Only Active Items from GP are shown above
+                        </Typography>
+                      </Box>
                     </Box>
+                  </Box>
+                </Paper>
 
+                <MessageAlertDialog
+                  open={isPriceListOpen}
+                  logo={`data:image/png;base64,${user.logo}`}
+                  error={true}
+                  message={`Oops! This Price List ID is already in use.`}
+                  Actions={
                     <Box
                       sx={{
-                        mt: 1,
                         display: "flex",
-                        alignItems: "center",
-                        padding: 2,
-                        border: "1px solid red",
-                        borderRadius: 1,
-                        backgroundColor: "#ffe6e6",
-                        minHeight: 30,
-                        minWidth: 300,
-                        flexShrink: 0,
+                        justifyContent: "flex-end",
+                        width: "100%",
                       }}
                     >
-                      <Typography color="error" align="center">
-                        Note: Only Active Items from GP are shown above
-                      </Typography>
+                      <Button
+                        sx={{ mr: 1, height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          navigate(
+                            "/pages/control-panel/price-sheet/price-sheet-detail/edit",
+                            { state: { id: values.priceListID } },
+                          );
+                          dispatch(getPriceSheetData({ id: values.priceListID }));
+                          SetIsPriceListOpen(false);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        sx={{ mr: 1, height: 25 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setFieldValue("priceListID", "");
+                          SetIsPriceListOpen(false);
+                        }}
+                      >
+                        Try Another
+                      </Button>
                     </Box>
-                  </Box>
-                </Box>
-              </Paper>
+                  }
+                />
 
-              <MessageAlertDialog
-                open={isPriceListOpen}
-                logo={`data:image/png;base64,${user.logo}`}
-                error={true}
-                message={`Oops! This Price List ID is already in use.`}
-                Actions={
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      width: "100%",
-                    }}
-                  >
-                    <Button
-                      sx={{ mr: 1, height: 25 }}
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => {
-                        navigate(
-                          "/pages/control-panel/price-sheet/price-sheet-detail/edit",
-                          { state: { id: values.priceListID } },
-                        );
-                        dispatch(getPriceSheetData({ id: values.priceListID }));
-                        SetIsPriceListOpen(false);
-                      }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      sx={{ mr: 1, height: 25 }}
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => {
-                        setFieldValue("priceListID", "");
-                        SetIsPriceListOpen(false);
-                      }}
-                    >
-                      Try Another
-                    </Button>
-                  </Box>
-                }
-              />
+                <MessageAlertDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isBulkDeleteConfirmOpen}
+                  tittle="Delete Selected Items?"
+                  // error={true}
+                  message="Are you sure you want to remove the selected item(s)?"
+                  Actions={
+                    <DialogActions>
+                      <Button
+                        variant="contained"
+                        // color="error"
+                        color="info"
+                        size="small"
+                        onClick={handleBulkDeleteConfirm}
+                      >
+                        Remove
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => setIsBulkDeleteConfirmOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </DialogActions>
+                  }
+                />
 
-              <MessageAlertDialog
-                logo={`data:image/png;base64,${user.logo}`}
-                open={isBulkDeleteConfirmOpen}
-                tittle="Delete Selected Items?"
-                // error={true}
-                message="Are you sure you want to remove the selected item(s)?"
-                Actions={
-                  <DialogActions>
-                    <Button
-                      variant="contained"
-                      // color="error"
-                         color="info"
-                      size="small"
-                      onClick={handleBulkDeleteConfirm}
+                <MessageAlertDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isDelete}
+                  tittle={values.priceListID}
+                  message={`Are you sure you want to delete Price Sheet ?`}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
+                      }}
                     >
-                      Remove
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => setIsBulkDeleteConfirmOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </DialogActions>
-                }
-              />
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsDelete(false);
+                          priceSheetDeleteFn();
+                          setSuccessMessage(null);
+                          setPostError(null);
+                        }}
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        sx={{ ml: 1 }}
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsDelete(false);
+                          setSubmitting(false);
+                          setSuccessMessage(null);
+                          setPostError(null);
+                        }}
+                      >
+                        No
+                      </Button>
+                    </Box>
+                  }
+                />
 
-              <MessageAlertDialog
-                logo={`data:image/png;base64,${user.logo}`}
-                open={isDelete}
-                tittle={values.priceListID}
-                message={`Are you sure you want to delete Price Sheet ?`}
-                Actions={
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      width: "100%",
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => {
-                        setIsDelete(false);
-                        priceSheetDeleteFn();
-                        setSuccessMessage(null);
-                        setPostError(null);
+                <MessageAlertDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isRemoveItem}
+                  tittle={""}
+                  message={`Are you sure you want to Clear Filter and Item ?`}
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
                       }}
                     >
-                      Yes
-                    </Button>
-                    <Button
-                      sx={{ ml: 1 }}
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => {
-                        setIsDelete(false);
-                        setSubmitting(false);
-                        setSuccessMessage(null);
-                        setPostError(null);
-                      }}
-                    >
-                      No
-                    </Button>
-                  </Box>
-                }
-              />
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          clearFilter(setFieldValue);
+                          setIsRemoveItem(false);
+                        }}
+                        sx={{ mr: 1, height: 25 }}
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => setIsRemoveItem(false)}
+                        sx={{ mr: 1, height: 25 }}
+                      >
+                        No
+                      </Button>
+                    </Box>
+                  }
+                />
 
-              <MessageAlertDialog
-                logo={`data:image/png;base64,${user.logo}`}
-                open={isRemoveItem}
-                tittle={""}
-                message={`Are you sure you want to Clear Filter and Item ?`}
-                Actions={
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      width: "100%",
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => {
-                        clearFilter(setFieldValue);
-                        setIsRemoveItem(false);
-                      }}
-                      sx={{ mr: 1, height: 25 }}
-                    >
-                      Yes
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => setIsRemoveItem(false)}
-                      sx={{ mr: 1, height: 25 }}
-                    >
-                      No
-                    </Button>
-                  </Box>
-                }
-              />
-
-              <MessageAlertDialog
-                logo={`data:image/png;base64,${user.logo}`}
-                open={isItemExists}
-                tittle={
-                  addPriceListData
-                    ? addPriceListData.Item_Description
-                    : "Please select an item!"
-                }
-                error={true}
-                message={
-                  addPriceListData
-                    ? `Oops! This item is already exists in price Sheet.`
-                    : ""
-                }
-                Actions={
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      width: "100%",
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="info"
-                      size="small"
-                      onClick={() => {
-                        setIsItemExists(false);
-                        setAddPriceListData([]);
+                <MessageAlertDialog
+                  logo={`data:image/png;base64,${user.logo}`}
+                  open={isItemExists}
+                  tittle={
+                    addPriceListData
+                      ? addPriceListData.Item_Description
+                      : "Please select an item!"
+                  }
+                  error={true}
+                  message={
+                    addPriceListData
+                      ? `Oops! This item is already exists in price Sheet.`
+                      : ""
+                  }
+                  Actions={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        width: "100%",
                       }}
                     >
-                      Close
-                    </Button>
-                  </Box>
-                }
-              />
-            </form>
-          )}
-        </Formik>
-      )}
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        onClick={() => {
+                          setIsItemExists(false);
+                          setAddPriceListData([]);
+                        }}
+                      >
+                        Close
+                      </Button>
+                    </Box>
+                  }
+                />
+              </form>
+            )}
+          </Formik>
+        )}
       <AlertDialog
         key={7846694}
         logo={`data:image/png;base64,${user.logo}`}
@@ -2880,11 +2969,9 @@ useEffect(() => {
         open={showRowCountWarning}
         logo={`data:image/png;base64,${user.logo}`}
         tittle={""}
-        message={`The Price Sheet contains more than ${
-          warningItemsPerRow === 2 ? 80 : 50
-        } rows. With ${warningItemsPerRow} item${
-          warningItemsPerRow > 1 ? "s" : ""
-        } per row, the current Price Sheet contains ${warningRowCount} rows. The Price Sheet may be printed across multiple pages. Do you want to continue?`}
+        message={`The Price Sheet contains more than ${warningItemsPerRow === 2 ? 80 : 50
+          } rows. With ${warningItemsPerRow} item${warningItemsPerRow > 1 ? "s" : ""
+          } per row, the current Price Sheet contains ${warningRowCount} rows. The Price Sheet may be printed across multiple pages. Do you want to continue?`}
         Actions={
           <Box
             sx={{
@@ -2915,7 +3002,7 @@ useEffect(() => {
           </Box>
         }
       />
-      
+
       <MessageAlertDialog
         open={showAlignmentWarning}
         logo={`data:image/png;base64,${user.logo}`}
