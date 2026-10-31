@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect, createContext,useMemo } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import {
@@ -2156,6 +2156,122 @@ export function OptimizedAdHocAutocomplete({
         `${option.Item_Number} || ${option.Item_Description}`
       }    
         disableCloseOnSelect
+      disableListWrap
+      loading={loading}
+      ListboxComponent={ListboxComponent}
+      renderOption={(props, option, { selected }) => (
+        <li {...props} style={{ display: "flex", gap: 2, height: 20 }}>
+          <Checkbox size="small" sx={{ marginLeft: -1 }} checked={selected} />
+          {`${option.Item_Number} || ${option.Item_Description}`}
+        </li>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          error={errors}
+          helperText={helper}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+      {...props}
+    />
+  );
+}
+// Make sure useMemo is in the React import at the top of the file:
+// import React, { useState, useEffect, useMemo } from "react";
+
+export function OptimizedAdHocPricesheetAutocomplete({
+  value = [],
+  onChange,
+  url,
+  label = "Select Options",
+  multiple = true,
+  errors,
+  helper,
+  excludedItemNumbers, // NEW: Set of uppercase item numbers already in the grid
+  ...props
+}) {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = React.useState("");
+  const [error, setError] = useState(null);
+
+  // Fetch the full list once per url
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: process.env.REACT_APP_API_TOKEN,
+          },
+        });
+        setOptions(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setOptions([]);
+        setError("Failed to load. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  // NEW: hide items that are already in the grid
+  const visibleOptions = useMemo(() => {
+    if (!excludedItemNumbers || excludedItemNumbers.size === 0) return options;
+
+    return options.filter(
+      (opt) =>
+        !excludedItemNumbers.has(
+          String(opt.Item_Number ?? "").trim().toUpperCase(),
+        ),
+    );
+  }, [options, excludedItemNumbers]);
+
+  return (
+    <Autocomplete
+      sx={{
+        "& .MuiAutocomplete-tag": { maxWidth: "90px" },
+        maxWidth: 500,
+        minWidth: 450,
+        marginLeft: 30,
+      }}
+      size="small"
+      multiple={multiple}
+      limitTags={2}
+      open={open}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue, reason) => {
+        // prevent inputValue from being cleared on selection
+        if (reason !== "reset") {
+          setInputValue(newInputValue);
+        }
+      }}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      value={value}
+      onChange={onChange}
+      options={visibleOptions} // CHANGED: was options={options}
+      isOptionEqualToValue={(option, value) =>
+        option.Item_Number === value.Item_Number
+      }
+      getOptionLabel={(option) =>
+        `${option.Item_Number} || ${option.Item_Description}`
+      }
+      disableCloseOnSelect
       disableListWrap
       loading={loading}
       ListboxComponent={ListboxComponent}

@@ -1373,27 +1373,6 @@ const getSlice = createSlice({
   state.priceSheetError = action.payload || action.error?.message;
 })
 
-//PRICESHEET CATEGORY
-      .addCase(getPriceSheetCategories.pending, (state) => {
-  state.priceSheetLoading = true;
-  state.priceSheetStatus = "loading";
-  state.priceSheetError = null;
-})
-.addCase(getPriceSheetCategories.fulfilled, (state, action) => {
-  state.priceSheetLoading = false;
-  state.priceSheetStatus = "fulfilled";
-
-  state.priceSheetData = action.payload?.data || {
-    headerData: {},
-    itemData: [],
-    printColumnData: [],
-  };
-})
-.addCase(getPriceSheetCategories.rejected, (state, action) => {
-  state.priceSheetLoading = false;
-  state.priceSheetStatus = "rejected";
-  state.priceSheetError = action.payload || action.error?.message;
-})
       // PRINT GROUP
       .addCase(getprintGroupData.pending, (state) => {
         state.printGroupStatus = "pending";

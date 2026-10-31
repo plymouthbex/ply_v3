@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback,useMemo  } from "react";
 import {
   LinearProgress,
   Paper,
@@ -69,6 +69,7 @@ import {
   FormikOptimizedAutocomplete,
   OptimizedAutocomplete,
   OptimizedAdHocAutocomplete,
+  OptimizedAdHocPricesheetAutocomplete,
   PrintGroupOptimizedAutocomplete,
   PrintGroupOptimizedAutocompletePriceList,
 } from "app/components/SingleAutocompletelist";
@@ -426,6 +427,16 @@ const PriceSheetEdit = () => {
 
   const [localPriceSheetItems, setLocalPriceSheetItems] = useState([]);
 
+const existingItemNumbers = useMemo(
+  () =>
+    new Set(
+      localPriceSheetItems.map((item) =>
+        String(item.Item_Number ?? "").trim().toUpperCase(),
+      ),
+    ),
+  [localPriceSheetItems],
+);
+
   useEffect(() => {
     if (params.mode === "add") {
       setLocalPriceSheetItems([]);
@@ -643,13 +654,13 @@ const PriceSheetEdit = () => {
   setLocalPriceSheetItems(updated);
   syncCategoriesWithItems(updated);        // NEW
 };
-
+const LEFT_PANEL_WIDTH = 340; // was 300 – adjust to taste (340–400)
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
       headerName: "Item Number",
       field: "Item_Number",
-      width: "150",
+      width: 100,
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -659,6 +670,7 @@ const PriceSheetEdit = () => {
       headerName: "Item Description",
       field: "Item_Description",
       minWidth: 350,
+      flex: 1.5,
       align: "left",
       headerAlign: "left",
       hide: false,
@@ -667,7 +679,7 @@ const PriceSheetEdit = () => {
     {
       headerName: "Custom Description",
       field: "Other_Description",
-      minWidth: 250,
+      minWidth: 200,
       flex: 1,
       align: "left",
       headerAlign: "left",
@@ -676,7 +688,7 @@ const PriceSheetEdit = () => {
     {
       headerName: "Category",
       field: "GroupName",
-      minWidth: 260,
+      minWidth: 180,
       flex: 1,
       sortable: false,
       renderCell: (params) => {
@@ -719,8 +731,8 @@ const PriceSheetEdit = () => {
       field: "Action",
       headerName: "Action",
       type: "actions",
-      minWidth: 150,
-      width: 150,
+      minWidth: 110,
+      width: 120,
       sortable: false,
       headerAlign: "center",
       filterable: false,
@@ -1831,22 +1843,36 @@ const PriceSheetEdit = () => {
                   <Box
                     display="grid"
                     gap="20px"
-                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    // gridTemplateColumns={
+                    //   isNonMobileSec ? "300px minmax(0, 1fr)" : "1fr"
+                    // }
+                     gridTemplateColumns={
+    isNonMobileSec ? `${LEFT_PANEL_WIDTH}px minmax(0, 1fr)` : "1fr"
+  }
                     sx={{
-                      "& > div": {
-                        gridColumn: isNonMobileSec ? undefined : "span 3",
-                      },
                       padding: "5px",
                     }}
                   >
                     {/* ============== PRINT COLUMN CONFIGURATION PANEL ============== */}
                     <Stack
-                      ref={leftSectionCallbackRef} sx={{ gridColumn: "span 1", alignSelf: "start" }}
+                      ref={leftSectionCallbackRef}
+                      // sx={{
+                      //   width: isNonMobileSec ? "300px" : "100%",
+                      //   maxWidth: isNonMobileSec ? "300px" : "100%",
+                      //   alignSelf: "start",
+                      //   boxSizing: "border-box",
+                      // }}
+                      sx={{
+    width: isNonMobileSec ? `${LEFT_PANEL_WIDTH}px` : "100%",
+    maxWidth: isNonMobileSec ? `${LEFT_PANEL_WIDTH}px` : "100%",
+    alignSelf: "start",
+    boxSizing: "border-box",
+  }}
                       direction="column"
                       gap={1}
                     >
-                      <Stack direction="row" gap={13} height={44}>
-                        <Typography sx={{ marginLeft: 2 }} variant="h6">
+                      <Stack direction="row" height={44} alignItems="center">
+                        <Typography sx={{ marginLeft: 1 }} variant="h6">
                           Print Columns
                         </Typography>
                       </Stack>
@@ -1866,7 +1892,7 @@ const PriceSheetEdit = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            px: 1.5,
+                            px: 1.2,
                             py: 1,
                             borderBottom: "1px solid #d0d0d0",
                             backgroundColor: "#999999",
@@ -1874,10 +1900,11 @@ const PriceSheetEdit = () => {
                         >
                           <Typography
                             sx={{
-                              fontSize: "13px",
+                              fontSize: "12px",
                               fontWeight: 600,
                               lineHeight: 1.3,
                               color: "#ffffff",
+                              whiteSpace: "nowrap",
                             }}
                           >
                             Print Column Configuration
@@ -1888,6 +1915,7 @@ const PriceSheetEdit = () => {
                               color: "#ffffff",
                               lineHeight: 1.2,
                               whiteSpace: "nowrap",
+                              flexShrink: 0,
                             }}
                           >
                             Drag ☰ to reorder
@@ -1946,10 +1974,11 @@ const PriceSheetEdit = () => {
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    width: 22,
+                                    width: 20,
                                     color: "#999",
                                     mr: 0.5,
                                     pointerEvents: "none",
+                                    flexShrink: 0,
                                   }}
                                 >
                                   <DragIndicatorIcon sx={{ fontSize: 18 }} />
@@ -1959,10 +1988,14 @@ const PriceSheetEdit = () => {
                                 <Typography
                                   sx={{
                                     flex: 1,
-                                    fontSize: "13px",
+                                    fontSize: "12.5px",
                                     color: column.enabled ? "#333" : "#888",
                                     userSelect: "none",
                                     pointerEvents: "none",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    mr: 1,
                                   }}
                                 >
                                   {column.label}
@@ -1983,6 +2016,7 @@ const PriceSheetEdit = () => {
                                     color: "#777",
                                     mr: 1,
                                     pointerEvents: "none",
+                                    flexShrink: 0,
                                   }}
                                 >
                                   {index + 1}
@@ -2005,6 +2039,7 @@ const PriceSheetEdit = () => {
                                     width: 38,
                                     height: 24,
                                     padding: 0,
+                                    flexShrink: 0,
                                     "& .MuiSwitch-switchBase": { padding: "3px" },
                                     "& .MuiSwitch-thumb": {
                                       width: 18,
@@ -2033,7 +2068,7 @@ const PriceSheetEdit = () => {
 {/* Replace the whole existing block (from this comment down to the info message) with this */}
 <Box sx={{ mt: 1.5 }}>
   <Stack direction="row" height={44} alignItems="center">
-    <Typography sx={{ marginLeft: 2 }} variant="h6">
+    <Typography sx={{ marginLeft: 1 }} variant="h6">
       Category Sequence
     </Typography>
   </Stack>
@@ -2053,7 +2088,7 @@ const PriceSheetEdit = () => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        px: 1.5,
+        px: 1.2,
         py: 1,
         borderBottom: "1px solid #d0d0d0",
         backgroundColor: "#999999",
@@ -2061,10 +2096,14 @@ const PriceSheetEdit = () => {
     >
       <Typography
         sx={{
-          fontSize: "13px",
+          fontSize: "12px",
           fontWeight: 600,
           lineHeight: 1.3,
           color: "#ffffff",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          mr: 1,
         }}
       >
         Category Sequence Configuration
@@ -2075,6 +2114,7 @@ const PriceSheetEdit = () => {
           color: "#ffffff",
           lineHeight: 1.2,
           whiteSpace: "nowrap",
+          flexShrink: 0,
         }}
       >
         Drag ☰ to reorder
@@ -2138,10 +2178,11 @@ const PriceSheetEdit = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: 22,
+                width: 20,
                 color: "#999",
                 mr: 0.5,
                 pointerEvents: "none",
+                flexShrink: 0,
               }}
             >
               <DragIndicatorIcon sx={{ fontSize: 18 }} />
@@ -2179,6 +2220,7 @@ const PriceSheetEdit = () => {
                 ml: 1,
                 mr: 0.5,
                 pointerEvents: "none",
+                flexShrink: 0,
               }}
             >
               {cat.sequence}
@@ -2189,22 +2231,23 @@ const PriceSheetEdit = () => {
     </Box>
   </Box>
 
-  {/* INFORMATIONAL MESSAGE BELOW LIST (unchanged) */}
+  {/* INFORMATIONAL MESSAGE BELOW LIST */}
   <Box
     sx={{
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-start",
       mt: 1,
       mb: 0.5,
       px: 0.5,
     }}
   >
-    <InfoIcon sx={{ fontSize: 18, color: "#1976d2", mr: 0.8 }} />
+    <InfoIcon sx={{ fontSize: 16, color: "#1976d2", mr: 0.8, mt: "2px", flexShrink: 0 }} />
     <Typography
       sx={{
         color: "#1976d2",
-        fontSize: "12px",
+        fontSize: "11.5px",
         fontWeight: 500,
+        lineHeight: 1.3,
       }}
     >
       Drag and drop categories to change their print sequence.
@@ -2321,7 +2364,8 @@ const PriceSheetEdit = () => {
                         height: isNonMobileSec ? (leftSectionHeight > 0 ? leftSectionHeight : 720) : "auto",
                         display: "flex",
                         flexDirection: "column",
-                        gridColumn: "span 2",
+                        minWidth: 0,
+                        width: "100%",
                         "& .name-column--cell": {
                           color: theme.palette.info.contrastText,
                         },
@@ -2387,13 +2431,14 @@ const PriceSheetEdit = () => {
                           onChange={(e) => setQuickFilterText(e.target.value)}
                           sx={{ mb: 1, width: 300 }}
                         />
-                        <OptimizedAdHocAutocomplete
+                        <OptimizedAdHocPricesheetAutocomplete
                           errors={isItemExistsError}
                           helper={isItemExistsError && "please select an item!"}
                           disabled={isReadOnly}
                           name="adHocItem"
                           id="adHocItem"
                           value={addPriceListData}
+                           excludedItemNumbers={existingItemNumbers}
                           onChange={(event, newValue) => {
                             setFieldValue("adHocItem", newValue);
                             setSubmitting(false);
