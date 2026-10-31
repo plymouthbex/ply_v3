@@ -2438,7 +2438,7 @@ const LEFT_PANEL_WIDTH = 340; // was 300 – adjust to taste (340–400)
                           name="adHocItem"
                           id="adHocItem"
                           value={addPriceListData}
-                           excludedItemNumbers={existingItemNumbers}
+                          excludedItemNumbers={existingItemNumbers}
                           onChange={(event, newValue) => {
                             setFieldValue("adHocItem", newValue);
                             setSubmitting(false);
