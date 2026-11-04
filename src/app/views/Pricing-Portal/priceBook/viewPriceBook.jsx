@@ -175,14 +175,24 @@ const ViewPriceBook = () => {
   const [selectedCustomerName, setSelectedCustomerName] = useState(null);
 const sel = selectedCustomerOptions;
 const noCustomer = !sel;
+const hasPdf   = String(sel?.Pdf) === "1";
+const hasExcel = String(sel?.Excel) === "1";
+const hasJpg   = String(sel?.Jpg) === "1";
+
+// SJ: at least one of PDF / Excel / JPG. Others: at least one of PDF / Excel
+const hasAnyFormat = isSJ ? (hasPdf || hasExcel || hasJpg) : (hasPdf || hasExcel);
 
 // Non-SJ: always show (validated on click, as before)
 // SJ: show all until a customer is chosen, then only what is configured
-const showPdfIcon   = noCustomer || String(sel.Pdf) === "1";
-const showExcelIcon = noCustomer || String(sel.Excel) === "1";
-const showJpgIcon   =  (noCustomer || String(sel.Jpg) === "1");
-const showPrintIcon = !isSJ;   // removed for SJ
-const showSendIcon  = noCustomer || Number(sel.SendEnabled) === 1;
+const showPdfIcon   = !isSJ || noCustomer || hasPdf;
+const showExcelIcon = !isSJ || noCustomer || hasExcel;
+const showJpgIcon   =  isSJ && (noCustomer || hasJpg);
+const showPrintIcon = !isSJ;
+
+// SJ: SendEnabled AND at least one format. Others: unchanged (validated on click)
+const showSendIcon = isSJ
+  ? noCustomer || (Number(sel?.SendEnabled) === 1 && hasAnyFormat)
+  : true;
   // const handleSelectionCustomerChange = (newValue) => {
   //   setSelectedCustomerOptions(newValue);
   //   setSelectedCustomerName(newValue.CustomerName);
