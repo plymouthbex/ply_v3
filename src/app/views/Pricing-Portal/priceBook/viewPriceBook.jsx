@@ -168,10 +168,21 @@ const ViewPriceBook = () => {
   const [alertMessage1, setAlertMessage1] = useState(false);
   const [alertMessage2, setAlertMessage2] = useState(false);
   const { user } = useAuth();
+  const isSJ = user?.companyCode === "SJ";
   console.log("Auth", user);
   //=======================CUSTOMER===================================//
   const [selectedCustomerOptions, setSelectedCustomerOptions] = useState(null);
   const [selectedCustomerName, setSelectedCustomerName] = useState(null);
+const sel = selectedCustomerOptions;
+const noCustomer = !sel;
+
+// Non-SJ: always show (validated on click, as before)
+// SJ: show all until a customer is chosen, then only what is configured
+const showPdfIcon   = noCustomer || String(sel.Pdf) === "1";
+const showExcelIcon = noCustomer || String(sel.Excel) === "1";
+const showJpgIcon   =  (noCustomer || String(sel.Jpg) === "1");
+const showPrintIcon = !isSJ;   // removed for SJ
+const showSendIcon  = noCustomer || Number(sel.SendEnabled) === 1;
   // const handleSelectionCustomerChange = (newValue) => {
   //   setSelectedCustomerOptions(newValue);
   //   setSelectedCustomerName(newValue.CustomerName);
@@ -1193,6 +1204,7 @@ const ViewPriceBook = () => {
               justifyContent={"flex-end"}
               gap={1}
             >
+              {showPrintIcon && (
               <FormControlLabel
                 control={
                   <Checkbox
@@ -1208,9 +1220,9 @@ const ViewPriceBook = () => {
                 }
                 label="Show Price"
               />
-
+            )}
               <Stack direction="row" alignItems={"center"}>
-                {user.companyCode === "SJ" && (
+                {showJpgIcon && (
                   <Tooltip title="JPG" placement="top">
                     <CustomIconButton
                       onClick={() => {
@@ -1240,7 +1252,7 @@ const ViewPriceBook = () => {
                     </CustomIconButton>
                   </Tooltip>
                 )}
-
+                {showPdfIcon  && (
                 <Tooltip title="PDF" placement="top">
                   <CustomIconButton
                     onClick={() => {
@@ -1270,7 +1282,8 @@ const ViewPriceBook = () => {
                     <FaFilePdf style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
-
+                )}
+                 {showExcelIcon  && (
                 <Tooltip title="Excel" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.success.main}
@@ -1294,6 +1307,8 @@ const ViewPriceBook = () => {
                     <SiMicrosoftexcel style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
+                )}
+                {/* {showPrintIcon && (
                 <Tooltip title="Print" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.warning.main}
@@ -1317,7 +1332,8 @@ const ViewPriceBook = () => {
                     <IoMdPrint style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
-
+                )} */}
+                {showSendIcon && (
                 <Tooltip title="Send" placement="top">
                   <CustomIconButton
                     bgcolor={theme.palette.error.main}
@@ -1328,6 +1344,7 @@ const ViewPriceBook = () => {
                      <IoIosSend style={{ fontSize: "21px" }} />
                   </CustomIconButton>
                 </Tooltip>
+                )}
               </Stack>
             </Stack>
           </Box>

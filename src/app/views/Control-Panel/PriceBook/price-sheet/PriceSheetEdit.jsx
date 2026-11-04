@@ -654,7 +654,7 @@ const existingItemNumbers = useMemo(
   setLocalPriceSheetItems(updated);
   syncCategoriesWithItems(updated);        // NEW
 };
-const LEFT_PANEL_WIDTH = 340; // was 300 – adjust to taste (340–400)
+const LEFT_PANEL_WIDTH = 300; // was 300 – adjust to taste (340–400)
   // ********************** COLUMN AND ROWS ********************** //
   const columns = [
     {
