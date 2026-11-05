@@ -1170,6 +1170,7 @@ const showSendIcon = isSJ
 
       <Box>
         <SimpleCard>
+          {/* HEADER ROW: week selector (left) + icon bar centered over the cover card (right) */}
           <Box
             sx={{
               display: "flex",
@@ -1207,33 +1208,73 @@ const showSendIcon = isSJ
                 />
               </RadioGroup>
             </Stack>
-
-            <Stack
-              direction={"row"}
-              alignItems={"center"}
-              justifyContent={"flex-end"}
-              gap={1}
+            {/* ICON BAR: same width as the right column, centered over the cover card */}
+            <Box
+              sx={{
+                width: isNonMobile ? "50%" : "100%",
+                display: "flex",
+                justifyContent: isNonMobile ? "flex-end" : "center",
+                alignItems: "center",
+                boxSizing: "border-box",
+                pr: isNonMobile ? "95px" : 0, // shifts section right, but not to the extreme end
+              }}
             >
-              {showPrintIcon && (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isChecked} // Controlled checkbox state
-                    onChange={handleCheckboxChange} // Update state on change
-                    sx={{
-                      color: "#174c4f",
-                      "&.Mui-checked": {
-                        color: "#174c4f",
-                      },
-                    }}
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                gap={1}
+              >
+                {showPrintIcon && (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isChecked} // Controlled checkbox state
+                        onChange={handleCheckboxChange} // Update state on change
+                        sx={{
+                          color: "#174c4f",
+                          "&.Mui-checked": {
+                            color: "#174c4f",
+                          },
+                        }}
+                      />
+                    }
+                    label="Show Price"
                   />
-                }
-                label="Show Price"
-              />
-            )}
-              <Stack direction="row" alignItems={"center"}>
-                {showJpgIcon && (
-                  <Tooltip title="JPG" placement="top">
+                )}
+                <Stack direction="row" alignItems={"center"}>
+                  {showJpgIcon && (
+                    <Tooltip title="JPG" placement="top">
+                      <CustomIconButton
+                        onClick={() => {
+                          if (!selectedCustomerOptions) {
+                            setIsCustomer("Please Choose Customer");
+
+                            setTimeout(() => {
+                              setIsCustomer(null);
+                            }, 1000);
+
+                            return;
+                          }
+
+                          getPriceListCustomerJPG();
+                        }}
+                        sx={{
+                          bgcolor: "#2196f3 !important",
+                          color: "#fff !important",
+                          "&:hover": {
+                            bgcolor: "#1976d2 !important",
+                            color: "#fff !important",
+                          },
+                        }}
+                        aria-label="image"
+                      >
+                        <FaFileImage style={{ fontSize: "21px" }} />
+                      </CustomIconButton>
+                    </Tooltip>
+                  )}
+                  {showPdfIcon  && (
+                  <Tooltip title="PDF" placement="top">
                     <CustomIconButton
                       onClick={() => {
                         if (!selectedCustomerOptions) {
@@ -1242,121 +1283,93 @@ const showSendIcon = isSJ
                           setTimeout(() => {
                             setIsCustomer(null);
                           }, 1000);
-
                           return;
                         }
-
-                        getPriceListCustomerJPG();
+                        if (isCustomerPdf == 1) {
+                          selectPriceListtype === "FP"
+                            ? getPriceListCustomerFull("PDF")
+                            : getPriceListCustomerCustom("PDF");
+                        } else setAlertMessage(true);
                       }}
                       sx={{
-                        bgcolor: "#2196f3 !important",
-                        color: "#fff !important",
+                        bgcolor: theme.palette.primary.main,
+                        color: "white",
                         "&:hover": {
-                          bgcolor: "#1976d2 !important",
-                          color: "#fff !important",
+                          bgcolor: theme.palette.primary.dark, // Darken color on hover
                         },
                       }}
-                      aria-label="image"
+                      aria-label="pdf"
                     >
-                      <FaFileImage style={{ fontSize: "21px" }} />
+                      <FaFilePdf style={{ fontSize: "21px" }} />
                     </CustomIconButton>
                   </Tooltip>
-                )}
-                {showPdfIcon  && (
-                <Tooltip title="PDF" placement="top">
-                  <CustomIconButton
-                    onClick={() => {
-                      if (!selectedCustomerOptions) {
-                        setIsCustomer("Please Choose Customer");
+                  )}
+                   {showExcelIcon  && (
+                  <Tooltip title="Excel" placement="top">
+                    <CustomIconButton
+                      bgcolor={theme.palette.success.main}
+                      aria-label="excel"
+                      onClick={() => {
+                        if (!selectedCustomerOptions) {
+                          setIsCustomer("Please Choose Customer");
 
-                        setTimeout(() => {
-                          setIsCustomer(null);
-                        }, 1000);
-                        return;
-                      }
-                      if (isCustomerPdf == 1) {
-                        selectPriceListtype === "FP"
-                          ? getPriceListCustomerFull("PDF")
-                          : getPriceListCustomerCustom("PDF");
-                      } else setAlertMessage(true);
-                    }}
-                    sx={{
-                      bgcolor: theme.palette.primary.main,
-                      color: "white",
-                      "&:hover": {
-                        bgcolor: theme.palette.primary.dark, // Darken color on hover
-                      },
-                    }}
-                    aria-label="pdf"
-                  >
-                    <FaFilePdf style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
-                )}
-                 {showExcelIcon  && (
-                <Tooltip title="Excel" placement="top">
-                  <CustomIconButton
-                    bgcolor={theme.palette.success.main}
-                    aria-label="excel"
-                    onClick={() => {
-                      if (!selectedCustomerOptions) {
-                        setIsCustomer("Please Choose Customer");
+                          setTimeout(() => {
+                            setIsCustomer(null);
+                          }, 1000);
+                          return;
+                        }
+                        if (isCustomerExcel == 1) {
+                          selectPriceListtype === "FP"
+                            ? getPriceListCustomerFull("EXCEL")
+                            : getPriceListCustomerCustom("EXCEL");
+                        } else setAlertMessage1(true);
+                      }}
+                    >
+                      <SiMicrosoftexcel style={{ fontSize: "21px" }} />
+                    </CustomIconButton>
+                  </Tooltip>
+                  )}
+                  {/* {showPrintIcon && (
+                  <Tooltip title="Print" placement="top">
+                    <CustomIconButton
+                      bgcolor={theme.palette.warning.main}
+                      onClick={() => {
+                        if (!selectedCustomerOptions) {
+                          setIsCustomer("Please Choose Customer");
 
-                        setTimeout(() => {
-                          setIsCustomer(null);
-                        }, 1000);
-                        return;
-                      }
-                      if (isCustomerExcel == 1) {
-                        selectPriceListtype === "FP"
-                          ? getPriceListCustomerFull("EXCEL")
-                          : getPriceListCustomerCustom("EXCEL");
-                      } else setAlertMessage1(true);
-                    }}
-                  >
-                    <SiMicrosoftexcel style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
-                )}
-                {/* {showPrintIcon && (
-                <Tooltip title="Print" placement="top">
-                  <CustomIconButton
-                    bgcolor={theme.palette.warning.main}
-                    onClick={() => {
-                      if (!selectedCustomerOptions) {
-                        setIsCustomer("Please Choose Customer");
-
-                        setTimeout(() => {
-                          setIsCustomer(null);
-                        }, 1000);
-                        return;
-                      }
-                      if (isCustomerPdf == 1) {
-                        selectPriceListtype === "FP"
-                          ? getPriceListCustomerFull("PRINT")
-                          : getPriceListCustomerCustom("PRINT");
-                      } else setAlertMessage(true);
-                    }}
-                    aria-label="print"
-                  >
-                    <IoMdPrint style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
-                )} */}
-                {showSendIcon && (
-                <Tooltip title="Send" placement="top">
-                  <CustomIconButton
-                    bgcolor={theme.palette.error.main}
-                    aria-label="mail"
-                    onClick={fnRunGrpEmailProcess}
-                  >
-                    {/* <IoIosMailOpen style={{ fontSize: "21px" }} /> */}
-                     <IoIosSend style={{ fontSize: "21px" }} />
-                  </CustomIconButton>
-                </Tooltip>
-                )}
+                          setTimeout(() => {
+                            setIsCustomer(null);
+                          }, 1000);
+                          return;
+                        }
+                        if (isCustomerPdf == 1) {
+                          selectPriceListtype === "FP"
+                            ? getPriceListCustomerFull("PRINT")
+                            : getPriceListCustomerCustom("PRINT");
+                        } else setAlertMessage(true);
+                      }}
+                      aria-label="print"
+                    >
+                      <IoMdPrint style={{ fontSize: "21px" }} />
+                    </CustomIconButton>
+                  </Tooltip>
+                  )} */}
+                  {showSendIcon && (
+                  <Tooltip title="Send" placement="top">
+                    <CustomIconButton
+                      bgcolor={theme.palette.error.main}
+                      aria-label="mail"
+                      onClick={fnRunGrpEmailProcess}
+                    >
+                      {/* <IoIosMailOpen style={{ fontSize: "21px" }} /> */}
+                       <IoIosSend style={{ fontSize: "21px" }} />
+                    </CustomIconButton>
+                  </Tooltip>
+                  )}
+                </Stack>
               </Stack>
-            </Stack>
+
+            </Box>
           </Box>
           <Box
             sx={{
@@ -1470,11 +1483,14 @@ const showSendIcon = isSJ
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: isNonMobile ? "flex-end" : "center",
                 flexDirection: "column",
                 gap: "20px",
+                boxSizing: "border-box",
+                pr: isNonMobile ? "90px" : 0, // keep in sync with the icon bar offset above
               }}
             >
+              {/* COVER PAGE */}
               <CoverPageComponent
                 data={{
                   logo: `data:image/png;base64,${user.homePagelogo}`,
