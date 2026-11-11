@@ -972,7 +972,8 @@ const LEFT_PANEL_WIDTH = 300; // was 300 – adjust to taste (340–400)
       setSubmitting(true);
       console.log(user, "-find user inside handleSavePriceSheet");
       if (params.mode === "delete") {
-        priceSheetDeleteFn();
+        // priceSheetDeleteFn();
+        setIsDelete(true);
         return;
       }
       // ==========================================

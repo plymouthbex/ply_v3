@@ -344,7 +344,7 @@ const PriceSheet = () => {
                 );
               }}
               sx={{ height: 30, width: 30 }}
-              title="Move Items"
+              // title="Move Items"
             >
               <DriveFileMoveIcon fontSize="small" sx={{ color: "#174c4f" }} />
             </IconButton>
@@ -353,11 +353,11 @@ const PriceSheet = () => {
             <IconButton
               onClick={(e) => handleOpenCustomerDialog(params.row, e)}
               sx={{ height: 30, width: 30 }}
-              title="Assigned Customers"
+              // title="Assigned Customers"
             >
               <GroupIcon
                 fontSize="small"
-                sx={{ color: theme.palette.info.main }}
+                // sx={{ color: theme.palette.info.main }}
               />
             </IconButton>
           </div>
@@ -786,30 +786,42 @@ const PriceSheet = () => {
         fullWidth
         PaperProps={{ sx: { borderRadius: "12px", overflow: "hidden" } }}
       >
-        <DialogTitle
-          sx={{
-            //backgroundColor: "#174c4f",
-            backgroundColor: `${theme.palette.info.main}`,
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            py: 1.5,
-          }}
-        >
-          <Box display="flex" alignItems="center" gap={1}>
-            <GroupIcon />
-            <Typography variant="h6" component="span" fontWeight={600}>
-              Customers – {selectedSheet?.PriceSheetName} (Price Sheet)
-            </Typography>
-          </Box>
-          <IconButton
-            onClick={handleCloseCustomerDialog}
-            sx={{ color: "#fff" }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
+       
+<DialogTitle
+  sx={{
+    backgroundColor: theme.palette.info.main,
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    py: 0.75,
+    px: 2,
+    minHeight: "42px",
+    boxSizing: "border-box",
+  }}
+>
+  <Box display="flex" alignItems="center" gap={1}>
+    <GroupIcon fontSize="small" />
+
+    <Typography
+      variant="subtitle1"
+      component="span"
+      fontWeight={600}
+      sx={{ fontSize: "15px", lineHeight: 1.2 }}
+    >
+      Customer - {selectedSheet?.PriceSheetName} (Price Sheet)
+    </Typography>
+  </Box>
+
+  <IconButton
+    onClick={handleCloseCustomerDialog}
+    size="small"
+    sx={{ color: "#fff", p: 0.5 }}
+  >
+    <CloseIcon fontSize="small" />
+  </IconButton>
+</DialogTitle>
+
 
         <DialogContent sx={{ pt: "16px !important" }}>
           <Box
