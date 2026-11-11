@@ -41,6 +41,11 @@ const initialState = {
   priceSheetstatus: "idle",
   priceSheetItemCount: "",
 
+
+  customers: [],
+  customersLoading: false,
+  customersError: null,
+
   rungroupListViewData: [],
   rungroupTemploading: false,
   rungroupTempstatus: "idle",
@@ -329,6 +334,22 @@ export const getPriceSheetView = createAsyncThunk(
       );
     }
   },
+);
+export const getAssignedCustomersByPriceSheet = createAsyncThunk(
+  "priceSheet/assignedCustomers",
+  async ({ companyRecID, priceSheetID }, { rejectWithValue }) => {
+    try {
+      const URL = `${process.env.REACT_APP_BASE_URL}PriceSheet/GetAssignedCustomersByPriceSheet?CompanyRecID=${companyRecID}&PriceSheetID=${priceSheetID}`;
+      const response = await axios.get(URL, {
+        headers: { Authorization: process.env.REACT_APP_API_TOKEN },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
 );
 
 export const getRunGroupListView = createAsyncThunk(
@@ -688,6 +709,11 @@ const listviewSlice = createSlice({
         row.PrintItem = value;
       });
     },
+    clearAssignedCustomers: (state) => {
+      state.customers = [];
+      state.customersError = null;
+      state.customersLoading = false;
+    },
 
     onCheckboxChangePriceList: (state, action) => {
       const { id, field, value } = action.payload;
@@ -895,6 +921,20 @@ const listviewSlice = createSlice({
         state.priceSheetloading = false;
         state.error = action.error.message;
       })
+      .addCase(getAssignedCustomersByPriceSheet.pending, (state) => {
+  state.customersLoading = true;
+  state.customersError = null;
+  state.customers = [];
+})
+.addCase(getAssignedCustomersByPriceSheet.fulfilled, (state, action) => {
+  state.customersLoading = false;
+  state.customers =
+    action.payload?.status === "Y" ? action.payload.data || [] : [];
+})
+.addCase(getAssignedCustomersByPriceSheet.rejected, (state, action) => {
+  state.customersLoading = false;
+  state.customersError = action.payload || "Failed to load customers";
+})
 
       .addCase(getRunGroupListView.pending, (state, action) => {
         state.rungroupTempstatus = "loading";
@@ -1129,6 +1169,7 @@ export const {
   runGrpProcessedDataUpdate,
   runGrpRowDataUpdate,
   onCheckboxChangePriceList,
-  setAllPrintItems
+  setAllPrintItems,
+  clearAssignedCustomers
 } = listviewSlice.actions;
 export default listviewSlice.reducer;

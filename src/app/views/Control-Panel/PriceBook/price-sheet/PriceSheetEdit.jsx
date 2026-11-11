@@ -3008,6 +3008,12 @@ const LEFT_PANEL_WIDTH = 300; // was 300 – adjust to taste (340–400)
                   color="info"
                   size="small"
                   onClick={() => {
+                    if (postError) {
+                      setSuccessMessage(null);
+                      setPostError(null);
+                      setOpenAlert(false);
+                      return;
+                    }
                     navigate("/pages/control-panel/price-sheet", {
                       state: {
                         id: state.companyRecordID,

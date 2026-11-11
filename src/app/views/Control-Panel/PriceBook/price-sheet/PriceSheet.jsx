@@ -48,6 +48,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import GroupIcon from "@mui/icons-material/Group"; // NEW
 
 import {
   getCompanyListView,
@@ -55,6 +56,8 @@ import {
   getPrintGroupListView,
   gtRefeshPriceList,
   getPriceSheetView,
+  getAssignedCustomersByPriceSheet,
+  clearAssignedCustomers
 } from "app/redux/slice/listviewSlice";
 import { useDispatch, useSelector } from "react-redux";
 import SaveIcon from "@mui/icons-material/Save";
@@ -156,12 +159,16 @@ const PriceSheet = () => {
 
       const res = await dispatch(CopyPriceSheet({ data: payload })).unwrap();
       if (res?.status === "Y" || res?.status === 200 || res?.Status === "Y") {
-        toast.success(res?.message || res?.Message || "Price sheet copied successfully");
+        toast.success(
+          res?.message || res?.Message || "Price sheet copied successfully"
+        );
         setOpenCopyDialog(false);
         setNewPriceSheetName("");
         dispatch(getPriceSheetView({ ID: companyRecordID || user?.companyID }));
       } else {
-        setCopyError(res?.message || res?.Message || "Failed to copy price sheet");
+        setCopyError(
+          res?.message || res?.Message || "Failed to copy price sheet"
+        );
       }
     } catch (err) {
       setCopyError(err?.message || err || "Error copying price sheet");
@@ -169,10 +176,74 @@ const PriceSheet = () => {
       setIsCopying(false);
     }
   };
+
+  // ********************** ASSIGNED CUSTOMERS POPUP (NEW) ********************** //
+  const [openCustomerDialog, setOpenCustomerDialog] = useState(false);
+  const [selectedSheet, setSelectedSheet] = useState(null);
+  const [customerSearch, setCustomerSearch] = useState("");
+
+  // const { customers, loading: customerLoading } = useSelector(
+  //   (state) => state.customerPriceSheet
+  // );
+
+  const customers = useSelector((state) => state.listview.customers);
+  const customerLoading = useSelector(
+    (state) => state.listview.customersLoading
+  );
+  const handleOpenCustomerDialog = (row, e) => {
+    e?.stopPropagation();
+    setSelectedSheet(row);
+    setCustomerSearch("");
+    setOpenCustomerDialog(true);
+    dispatch(
+      getAssignedCustomersByPriceSheet({
+        companyRecID: companyRecordID || user?.companyID,
+        priceSheetID: row.PriceSheetID,
+      })
+    );
+  };
+
+  const handleCloseCustomerDialog = () => {
+    setOpenCustomerDialog(false);
+    dispatch(clearAssignedCustomers());
+  };
+
+  const customerRows = React.useMemo(() => {
+    const q = customerSearch.trim().toLowerCase();
+    return (customers || [])
+      .map((c, i) => ({ ...c, sno: i + 1 }))
+      .filter(
+        (c) =>
+          !q ||
+          String(c.PC_CUSTOMER || "").toLowerCase().includes(q) ||
+          String(c.PC_CUSTOMERNAME || "").toLowerCase().includes(q)
+      );
+  }, [customers, customerSearch]);
+
+  const customerColumns = [
+    {
+      field: "PC_CUSTOMER",
+      headerName: "Customer Number",
+      width: 180,
+      align: "left",
+      headerAlign: "left",
+    },
+    {
+      field: "PC_CUSTOMERNAME",
+      headerName: "Customer Name",
+      flex: 1,
+      minWidth: 250,
+      align: "left",
+      headerAlign: "left",
+    },
+  ];
+
   // ********************** REDUX STATE ********************** //
 
   const loading = useSelector((state) => state.listview.priceListloading);
-  const priceSheetRows = useSelector((state) => state.listview.priceSheetViewData);
+  const priceSheetRows = useSelector(
+    (state) => state.listview.priceSheetViewData
+  );
   const ItemCount = useSelector((state) => state.listview.ItemCount);
   console.log("🚀 ~ PriceList ~ ItemCount:", ItemCount);
   // ********************** COLUMN AND ROWS ********************** //
@@ -193,54 +264,6 @@ const PriceSheet = () => {
       align: "left",
       headerAlign: "left",
     },
-    // {
-    //   headerName: "Print Category",
-    //   field: "PrintCategory",
-    //   width: 160,
-    //   align: "center",
-    //   headerAlign: "center",
-    //   sortable: false,
-    //   renderCell: (params) => (
-    //     <Checkbox
-    //       checked={params.row.PrintCategory === true}
-    //       onChange={(event) => {
-    //         const checked = event.target.checked;
-
-    //         console.log(
-    //           "Print Category:",
-    //           params.row.PriceSheetName,
-    //           checked
-    //         );
-
-    //         // Later you can dispatch/API call here
-    //       }}
-    //     />
-    //   ),
-    // },
-    // {
-    //   headerName: "Print Price List",
-    //   field: "PrintPriceList",
-    //   width: 180,
-    //   align: "center",
-    //   headerAlign: "center",
-    //   sortable: false,
-    //   renderCell: (params) => (
-    //     <Checkbox
-    //       checked={params.row.PrintPriceList === true}
-    //       onChange={(event) => {
-    //         const checked = event.target.checked;
-
-    //         console.log(
-    //           "Print Price List:",
-    //           params.row.PriceSheetName,
-    //           checked
-    //         );
-
-    //         // Later you can dispatch/API call here
-    //       }}
-    //     />
-    //   ),
-    // },
     {
       headerName: "Item Count",
       field: "ItemCount",
@@ -300,23 +323,6 @@ const PriceSheet = () => {
             </IconButton>
 
             <IconButton
-              onClick={() => {
-                naviate(
-                  "/pages/control-panel/price-sheet/price-sheet-detail/view",
-                  {
-                    state: {
-                      id: params.row.PriceSheetID,
-                      companyCode: companyID,
-                      companyRecordID: companyRecordID,
-                    },
-                  }
-                );
-              }}
-              sx={{ height: 30, width: 30 }}
-            >
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-            <IconButton
               onClick={(e) => handleOpenCopyDialog(params.row, e)}
               sx={{ height: 30, width: 30 }}
               title="Copy Price Sheet"
@@ -342,12 +348,23 @@ const PriceSheet = () => {
             >
               <DriveFileMoveIcon fontSize="small" sx={{ color: "#174c4f" }} />
             </IconButton>
+
+            {/* NEW: Assigned Customers */}
+            <IconButton
+              onClick={(e) => handleOpenCustomerDialog(params.row, e)}
+              sx={{ height: 30, width: 30 }}
+              title="Assigned Customers"
+            >
+              <GroupIcon
+                fontSize="small"
+                sx={{ color: theme.palette.info.main }}
+              />
+            </IconButton>
           </div>
         );
       },
     },
   ];
-
 
   //==============COMPANYLISTVIEW=======================/
   const comapnyListViewData = useSelector(
@@ -370,9 +387,6 @@ const PriceSheet = () => {
   useEffect(() => {
     dispatch(getPriceSheetView({ ID: companyRecordID }));
     dispatch(clearPriceListState());
-    // dispatch(getPrintGroupListView());
-    // dispatch(clearPrintGroupState());
-    // dispatch(clearCustomerListState());
   }, []);
 
   const CustomToolbar = React.memo(() => {
@@ -397,27 +411,16 @@ const PriceSheet = () => {
             width: "100%",
           }}
         >
-          {/* <FormikCustomSelectCompanyPriceList
-            name="company"
-            id="company"
-            multiple={false}
-            value={companyRecordID}
-            onChange={(e) => {
-              setCompanyID(e.target.value);
-              setCompanyRecordID(e.target.value);
-              dispatch(getPriceListView({ ID: e.target.value }));
-              // setSelectedCompany(e.target.value)
-            }}
-            label="Company"
-            url={`${process.env.REACT_APP_BASE_URL}CompanyModule/CompanyListView?UserID=${user.id}`}
-          /> */}
           <></>
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2, justifyContent: "flex-end" }}>
-            {/* <Typography sx={{ mt: 1 }}>
-              Total Items Count: {ItemCount}
-            </Typography> */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 2,
+              justifyContent: "flex-end",
+            }}
+          >
             <GridToolbarQuickFilter />
-            {/* <Tooltip title="Create Price List"> */}
             <IconButton
               color="info"
               onClick={() => {
@@ -435,31 +438,11 @@ const PriceSheet = () => {
             >
               <Add
                 sx={{
-                  fontSize: 30, // Increased icon size
+                  fontSize: 30,
                   color: theme.palette.success.main,
                 }}
               />
             </IconButton>
-            {/* </Tooltip> */}
-            {/* <Button
-              variant="contained"
-              color="info"
-              sx={{ width: 110, height: 30 }}
-              onClick={async () => {
-                const res = await dispatch(
-                  gtRefeshPriceList({
-                    CompanyID: companyRecordID ?? user.companyID,
-                    user: user.name,
-                  })
-                );
-                console.log(res, "res");
-                if (res.payload.status === "Y") {
-                  dispatch(getPriceListView({ ID: companyRecordID }));
-                }
-              }}
-            >
-              Refresh All
-            </Button> */}
           </Box>
         </Box>
       </GridToolbarContainer>
@@ -496,13 +479,7 @@ const PriceSheet = () => {
   };
   //===============COMPANY COPY SAVE====================//
   const CopySaveFn = async (values, setSubmitting) => {
-    setIsLoading(true)
-    //   {
-    //   "PriceListID": 3,
-    //   "CompanyID": 5,
-    //   "SelectedCompanyID": "63",
-    //   "UserName": "Admin"
-    // }
+    setIsLoading(true);
     const postData = {
       PriceListID: rowSelectionID,
       UserName: user.username,
@@ -510,17 +487,16 @@ const PriceSheet = () => {
       SelectedCompanyID: values.companyIDs.join(","),
     };
     console.log("🚀 ~ PriceListSaveFn ~ postData:", postData);
-    //return;
     try {
       const response = await dispatch(CopyCompanyPriceList({ data: postData }));
 
       if (response.payload.status === "Y") {
-        setIsLoading(false)
+        setIsLoading(false);
         setOpenAlert(true);
         setPostMessage(response.payload.message);
         dispatch(getPriceListView({ ID: companyRecordID }));
       } else {
-        setIsLoading(false)
+        setIsLoading(false);
         setPostMessage(response.payload.message);
         setOpenAlert(true);
         setPostError(true);
@@ -558,7 +534,6 @@ const PriceSheet = () => {
           <Box
             sx={{
               gridColumn: "span 4",
-              // gridColumn: isSide ? "span 3" : "span 4",
               height: dataGridHeight,
               "& .name-column--cell": {
                 color: theme.palette.info.contrastText,
@@ -578,45 +553,35 @@ const PriceSheet = () => {
                 color: theme.palette.info.contrastText,
               },
               "& .MuiCheckbox-root": {
-                color: "black !important", // Set checkbox color to black
+                color: "black !important",
               },
-              // Ensure the checkbox color reflects the selected state
               "& .MuiCheckbox-root.Mui-checked": {
-                color: "black !important", // Set checkbox color to black when checked
+                color: "black !important",
               },
-              // Alternating row colors
               "& .MuiDataGrid-row:nth-of-type(even)": {
-                backgroundColor: theme.palette.action.hover, // Color for even rows
+                backgroundColor: theme.palette.action.hover,
               },
               "& .MuiDataGrid-row:nth-of-type(odd)": {
-                backgroundColor: theme.palette.background.default, // Color for odd rows
+                backgroundColor: theme.palette.background.default,
               },
               "& .MuiDataGrid-row:hover": {
                 border: "3px solid #999999",
-                // border: `1px solid #${theme.palette.action.selected} !important`, // Change border color on hover
-                borderRadius: "4px", // Optional: Add rounded corners
+                borderRadius: "4px",
               },
-              // Prevent selected row background color from changing on hover
-              // "& .MuiDataGrid-row.Mui-selected:hover": {
-              //   backgroundColor: `${theme.palette.action.selected} !important`, // Ensure the background remains the same on hover
-              // },
               "& .MuiTablePagination-root": {
-                color: "white !important", // Ensuring white text color for the pagination
+                color: "white !important",
               },
-
               "& .MuiTablePagination-root .MuiTypography-root": {
-                color: "white !important", // Ensuring white text for "Rows per page" and numbers
+                color: "white !important",
               },
-
               "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-                color: "white !important", // Ensuring white icons for pagination
+                color: "white !important",
               },
             }}
           >
             <DataGrid
               columnHeaderHeight={dataGridHeaderFooterHeight}
               sx={{
-                // This is to override the default height of the footer row
                 "& .MuiDataGrid-footerContainer": {
                   height: dataGridHeaderFooterHeight,
                   minHeight: dataGridHeaderFooterHeight,
@@ -630,13 +595,10 @@ const PriceSheet = () => {
               rows={priceSheetRows}
               columns={columns}
               loading={loading}
-              // checkboxSelection
               onRowClick={(params) => {
                 setPriceBookCateData(params.row);
                 setRowSelectionID(params.row.PriceSheetID);
               }}
-              // disableSelectionOnClick
-              // disableRowSelectionOnClick
               getRowId={(row) => row.PriceSheetID}
               initialState={{
                 pagination: { paginationModel: { pageSize: dataGridPageSize } },
@@ -653,14 +615,6 @@ const PriceSheet = () => {
                   showQuickFilter: true,
                 },
               }}
-            // onRowSelectionModelChange={(newRowSelectionModel) => {
-            //   const filterArray = priceRows.filter((v) =>
-            //     newRowSelectionModel.includes(v.PRICELISTID)
-            //   );
-            //   setRowSelectionModel(newRowSelectionModel);
-            //   setRowSelectionModelRows(filterArray);
-            // }}
-            // rowSelectionModel={rowSelectionModel}
             />
           </Box>
         </Box>
@@ -706,38 +660,39 @@ const PriceSheet = () => {
           },
         }}
       >
-        <Box display="flex" justifyContent="center" alignItems="center" pt={1} pb={1}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          pt={1}
+          pb={1}
+        >
           <img
-            src={user?.logo ? `data:image/png;base64,${user.logo}` : "/assets/images/logo.png"}
+            src={
+              user?.logo
+                ? `data:image/png;base64,${user.logo}`
+                : "/assets/images/logo.png"
+            }
             height="50px"
             alt="Logo"
           />
         </Box>
 
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mt={1}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          mt={1}
+        >
           <Box width="100%">
-            <Typography  variant="body2" fontWeight="bold" color="#111827" textAlign="center">
+            <Typography
+              variant="body2"
+              fontWeight="bold"
+              color="#111827"
+              textAlign="center"
+            >
               Copy Price Sheet ({selectedCopyRow?.PriceSheetName})
             </Typography>
-            {/* {selectedCopyRow?.PriceSheetName && (
-              <Typography
-                variant="body2"
-                textAlign="center"
-                sx={{
-                  color: "#164D50",
-                  fontWeight: 600,
-                  mt: 1,
-                  mb: 0.5,
-                  px: 1.5,
-                  py: 0.75,
-                  backgroundColor: "#E6F4F1",
-                  borderRadius: "6px",
-                  border: "1px solid #BCE3DD",
-                }}
-              >
-                Copying: {selectedCopyRow.PriceSheetName}
-              </Typography>
-            )} */}
           </Box>
         </Box>
 
@@ -769,12 +724,18 @@ const PriceSheet = () => {
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 0, pb: 0, justifyContent: "flex-end", gap: 1.5, mt: 1 }}>
+        <DialogActions
+          sx={{ px: 0, pb: 0, justifyContent: "flex-end", gap: 1.5, mt: 1 }}
+        >
           <LoadingButton
             loading={isCopying}
             variant="contained"
             onClick={handleSaveCopyPriceSheet}
-            startIcon={!isCopying && <ContentCopyIcon sx={{ color: "#fff", fontSize: 18 }} />}
+            startIcon={
+              !isCopying && (
+                <ContentCopyIcon sx={{ color: "#fff", fontSize: 18 }} />
+              )
+            }
             sx={{
               borderRadius: "10px",
               textTransform: "none",
@@ -813,6 +774,144 @@ const PriceSheet = () => {
             }}
           >
             Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* NEW: Assigned Customers Dialog */}
+      <Dialog
+        open={openCustomerDialog}
+        onClose={handleCloseCustomerDialog}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "12px", overflow: "hidden" } }}
+      >
+        <DialogTitle
+          sx={{
+            //backgroundColor: "#174c4f",
+            backgroundColor: `${theme.palette.info.main}`,
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            py: 1.5,
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1}>
+            <GroupIcon />
+            <Typography variant="h6" component="span" fontWeight={600}>
+              Customers – {selectedSheet?.PriceSheetName} (Price Sheet)
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={handleCloseCustomerDialog}
+            sx={{ color: "#fff" }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: "16px !important" }}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+            gap={2}
+          >
+           {/*  <Box
+              sx={{
+                px: 1.5,
+                py: 0.5,
+                borderRadius: "6px",
+                backgroundColor: "#E6F4F1",
+                border: "1px solid #BCE3DD",
+              }}
+            >
+              <Typography variant="body2" fontWeight={600} color="#174c4f">
+                Total Customers: {customers?.length || 0}
+              </Typography> 
+            </Box>*/}
+            <Box> <Typography ></Typography></Box>
+            <TextField
+              size="small"
+              placeholder="Search customer..."
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              sx={{ width: 280 }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              height: 420,
+              "& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader, & .MuiDataGrid-filler, & .MuiDataGrid-scrollbarFiller": {
+                backgroundColor: `${theme.palette.info.main} !important`,
+                color: `${theme.palette.info.contrastText} !important`,
+                fontWeight: "bold",
+                fontSize: theme.typography.subtitle2.fontSize,
+              },
+              "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
+              "& .MuiDataGrid-virtualScroller": {
+                backgroundColor: theme.palette.info.light,
+              },
+              "& .MuiDataGrid-row:nth-of-type(even)": {
+                backgroundColor: theme.palette.action.hover,
+              },
+              "& .MuiDataGrid-row:nth-of-type(odd)": {
+                backgroundColor: theme.palette.background.default,
+              },
+              "& .MuiDataGrid-footerContainer": {
+                backgroundColor: theme.palette.info.main,
+                color: theme.palette.info.contrastText,
+                borderTop: "none",
+              },
+              "& .MuiTablePagination-root, & .MuiTablePagination-root .MuiTypography-root, & .MuiTablePagination-actions .MuiSvgIcon-root, & .MuiTablePagination-select, & .MuiSelect-icon":
+                { color: "white !important" },
+            }}
+          >
+            <DataGrid
+              rows={customerRows}
+              columns={customerColumns}
+              getRowId={(row) => row.CustomerPriceSheetID}
+              loading={customerLoading}
+              columnHeaderHeight={dataGridHeaderFooterHeight}
+              rowHeight={dataGridRowHeight}
+              slots={{ loadingOverlay: LinearProgress }}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } },
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              disableColumnFilter
+              disableColumnSelector
+              disableColumnMenu
+              disableDensitySelector
+              disableRowSelectionOnClick
+              sx={{
+                "& .MuiDataGrid-footerContainer": {
+                  height: dataGridHeaderFooterHeight,
+                  minHeight: dataGridHeaderFooterHeight,
+                },
+              }}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={handleCloseCustomerDialog}
+            sx={{
+              borderRadius: "10px",
+              textTransform: "none",
+              backgroundColor: "#8E8E8E",
+              color: "#fff",
+              px: 2.5,
+              fontWeight: 600,
+              "&:hover": { backgroundColor: "#7B7B7B" },
+            }}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>
